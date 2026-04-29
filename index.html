@@ -2,26 +2,42 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="Vista360"/>
   <meta name="theme-color" content="#070C18"/>
   <title>Vista360</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#070C18}
+    body{background:#070C18;font-family:sans-serif}
+    #loading{position:fixed;inset:0;background:#070C18;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9999}
+    #loading .spinner{width:40px;height:40px;border:3px solid #18253D;border-top-color:#2563EB;border-radius:50%;animation:spin .7s linear infinite}
+    #loading p{color:#64748B;font-size:14px;letter-spacing:2px;text-transform:uppercase}
+    @keyframes spin{to{transform:rotate(360deg)}}
     ::-webkit-scrollbar{width:4px;height:4px}
     ::-webkit-scrollbar-track{background:#070C18}
     ::-webkit-scrollbar-thumb{background:#18253D;border-radius:3px}
   </style>
 </head>
 <body>
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>Cargando Vista360…</p>
+  </div>
   <div id="root"></div>
-  <script type="text/babel" data-presets="react">
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>
+    // Hide loading when app renders
+    window.__hideLoading = function(){
+      var el = document.getElementById('loading');
+      if(el) el.style.display='none';
+    };
+  </script>
+  <script type="text/babel" data-presets="react" data-type="module">
 const { useState, useMemo, useEffect, useCallback, useRef } = React;
 
 // ══════════════════════════════════════════════════════════════════
@@ -1633,8 +1649,10 @@ export default function App(){
   </>);
 }
 
+// Mount app
 const domRoot = ReactDOM.createRoot(document.getElementById('root'));
 domRoot.render(React.createElement(App));
+window.__hideLoading && window.__hideLoading();
   </script>
 </body>
 </html>
