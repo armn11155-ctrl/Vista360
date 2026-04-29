@@ -2,91 +2,26 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="Vista360"/>
   <title>Vista360</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#070C18;font-family:"DM Sans",sans-serif}
-    #root{display:none}
-    #splash{position:fixed;inset:0;background:#070C18;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9999;transition:opacity .5s}
-    .spin{width:32px;height:32px;border:3px solid #18253D;border-top-color:#2563EB;border-radius:50%;animation:sp .8s linear infinite}
-    @keyframes sp{to{transform:rotate(360deg)}}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #070C18; }
   </style>
 </head>
 <body>
-<div id="splash">
-  <svg width="200" height="80" viewBox="0 0 340 136" fill="none">
-    <ellipse cx="170" cy="105" rx="130" ry="20" stroke="white" stroke-width="9" fill="none" stroke-linecap="round"/>
-    <path d="M60 82 C80 40,220 30,308 66" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <polygon points="311,54 300,74 320,70" fill="white"/>
-    <text x="36" y="98" font-family="Arial Black,sans-serif" font-weight="900" font-size="80" fill="white" letter-spacing="-2">VISTA360</text>
-  </svg>
-  <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:15px;font-weight:600;color:rgba(255,255,255,0.78);letter-spacing:5px;text-transform:uppercase">Gestión de Paneles Publicitarios</div>
-  <div class="spin"></div>
-  <div id="load-msg" style="font-size:12px;color:#64748B">Iniciando...</div>
-</div>
-<div id="err" style="display:none;position:fixed;inset:0;background:#070C18;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:9999;padding:32px;text-align:center">
-  <div style="font-size:48px">⚠️</div>
-  <div style="color:#fff;font-size:18px;font-weight:700">Error al cargar</div>
-  <div id="err-msg" style="color:#EF4444;font-size:11px;background:#1a0a0a;padding:12px;border-radius:8px;max-width:340px;word-break:break-all;font-family:monospace;text-align:left;max-height:160px;overflow:auto"></div>
-  <button onclick="location.reload()" style="background:#2563EB;border:none;border-radius:12px;padding:12px 28px;color:#fff;font-size:15px;font-weight:700;cursor:pointer">🔄 Reintentar</button>
-</div>
-<div id="root"></div>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
-<!-- Sucrase: transpila JSX sin Babel, 200KB vs 8MB -->
-<script src="https://unpkg.com/sucrase@3.35.0/dist/sucrase.js"></script>
-
-<script>
-const {useState,useMemo,useEffect,useCallback,useRef} = React;
-
-const msgs=["Cargando módulos…","Conectando Supabase…","Preparando mapa…","Casi listo…"];
-let mi=0,iv=setInterval(()=>{const e=document.getElementById("load-msg");if(e)e.textContent=msgs[mi++%msgs.length];},1800);
-
-function showApp(){
-  clearInterval(iv);
-  const s=document.getElementById("splash");
-  const r=document.getElementById("root");
-  if(s){s.style.opacity="0";setTimeout(()=>s.remove(),500);}
-  if(r)r.style.display="block";
-}
-
-function showError(msg){
-  clearInterval(iv);
-  const s=document.getElementById("splash");
-  const e=document.getElementById("err");
-  const em=document.getElementById("err-msg");
-  if(s)s.style.display="none";
-  if(em)em.textContent=msg;
-  if(e)e.style.display="flex";
-}
-
-window.addEventListener("error",e=>showError((e.message||"")+" (L"+(e.lineno||"?")+")"));
-window.addEventListener("unhandledrejection",e=>showError(String(e.reason)));
-
-// Transpila y ejecuta el JSX con Sucrase
-function runApp(jsxCode){
-  try{
-    const js = sucrase.transform(jsxCode,{transforms:["jsx"],jsxPragma:"React.createElement",jsxFragmentPragma:"React.Fragment"}).code;
-    const fn = new Function("React","ReactDOM","useState","useMemo","useEffect","useCallback","useRef","XLSX","showApp",js+";return App;");
-    const App = fn(React,ReactDOM,useState,useMemo,useEffect,useCallback,useRef,XLSX,showApp);
-    ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
-    showApp();
-  }catch(e){
-    showError(e.message||String(e));
-  }
-}
-</script>
-
-<script id="jsx-source" type="text/jsx-source">
 // ══════════════════════════════════════════════════════════════════
 // ⚙️  CONFIGURACIÓN — Pega aquí tus credenciales de Supabase
 // ══════════════════════════════════════════════════════════════════
@@ -386,141 +321,58 @@ function Paneles({paneles,setPaneles,loading}){
   const libre=paneles.filter(p=>p.estado==="Libre").length;
   const ocup =paneles.filter(p=>p.estado==="Ocupado").length;
 
-  // ── MAPA INTERACTIVO PARA UBICAR PIN ─────────────────────────────
-  const [mapaUbicar,setMapaUbicar]=useState(false);
-  const mapPickerRef=useRef(null);
-  const mapPickerInstance=useRef(null);
-  const markerPickerRef=useRef(null);
-
-  const abrirMapaUbicar=()=>{
-    setMapaUbicar(true);
-  };
-
-  useEffect(()=>{
-    if(!mapaUbicar||!mapPickerRef.current) return;
-    if(mapPickerInstance.current) return;
-
-    // Centro: ciudad seleccionada o Lima
-    const CITY_COORDS={
-      "Lima":[-12.0464,-77.0428],"Arequipa":[-16.4090,-71.5375],"Trujillo":[-8.1116,-79.0288],
-      "Chiclayo":[-6.7714,-79.8409],"Piura":[-5.1945,-80.6328],"Cusco":[-13.5320,-71.9675],
-      "Iquitos":[-3.7491,-73.2538],"Huancayo":[-12.0651,-75.2049],"Tacna":[-18.0066,-70.2462],
-      "Pucallpa":[-8.3791,-74.5539],"Huánuco":[-9.9306,-76.2422],"Cajamarca":[-7.1638,-78.5003],
-      "Ica":[-14.0678,-75.7286],"Piura":[-5.1945,-80.6328],"Otra":[-9.19,-75.01],
-    };
-    const centro=form.lat&&form.lng?[Number(form.lat),Number(form.lng)]:(CITY_COORDS[form.ciudad]||[-9.19,-75.01]);
-
-    const L=window.L;
-    const m=L.map(mapPickerRef.current,{center:centro,zoom:form.lat&&form.lng?16:13,zoomControl:true});
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OSM"}).addTo(m);
-
-    // Icono del pin
-    const icon=L.divIcon({html:`<div style="background:#2563EB;width:22px;height:22px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.5)"></div>`,iconSize:[22,22],iconAnchor:[11,11],className:""});
-
-    // Si ya tiene coords, poner marker inicial
-    if(form.lat&&form.lng){
-      markerPickerRef.current=L.marker(centro,{icon,draggable:true}).addTo(m);
-      markerPickerRef.current.on("dragend",e=>{
-        const {lat,lng}=e.target.getLatLng();
-        setForm(f=>({...f,lat:lat.toFixed(6),lng:lng.toFixed(6)}));
-      });
-    }
-
-    // Clic en el mapa para poner/mover el pin
-    m.on("click",async e=>{
-      const {lat,lng}=e.latlng;
-      setForm(f=>({...f,lat:lat.toFixed(6),lng:lng.toFixed(6)}));
-      if(markerPickerRef.current) m.removeLayer(markerPickerRef.current);
-      markerPickerRef.current=L.marker([lat,lng],{icon,draggable:true}).addTo(m);
-      markerPickerRef.current.on("dragend",ev=>{
-        const p=ev.target.getLatLng();
-        setForm(f=>({...f,lat:p.lat.toFixed(6),lng:p.lng.toFixed(6)}));
-      });
-      // Geocodificación inversa — saber la dirección del punto
-      try{
-        const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=es`);
-        const d=await r.json();
-        if(d.display_name){
-          const partes=d.display_name.split(",");
-          const dir=partes.slice(0,3).join(", ").trim();
-          setForm(f=>({...f,direccion:dir}));
-          setGeocodeMsg(`✅ ${dir}`);
-        }
-      }catch(e){}
-    });
-
-    mapPickerInstance.current=m;
-    setTimeout(()=>m.invalidateSize(),200);
-  },[mapaUbicar]);
-
-  const cerrarMapaUbicar=()=>{
-    if(mapPickerInstance.current){
-      mapPickerInstance.current.remove();
-      mapPickerInstance.current=null;
-      markerPickerRef.current=null;
-    }
-    setMapaUbicar(false);
-  };
-
   // Geocodificación multi-API en cascada
   const [geocoding,setGeocoding]=useState(false);
   const [geocodeMsg,setGeocodeMsg]=useState("");
-  const [sugerencias,setSugerencias]=useState([]);
-  const [showSug,setShowSug]=useState(false);
-  const debounceRef=useRef(null);
 
-  const CITY_COORDS2={
+  // Coordenadas de ciudades peruanas como fallback manual
+  const CITY_FALLBACK={
     "Lima":[-12.0464,-77.0428],"Arequipa":[-16.4090,-71.5375],"Trujillo":[-8.1116,-79.0288],
     "Chiclayo":[-6.7714,-79.8409],"Piura":[-5.1945,-80.6328],"Cusco":[-13.5320,-71.9675],
     "Iquitos":[-3.7491,-73.2538],"Huancayo":[-12.0651,-75.2049],"Tacna":[-18.0066,-70.2462],
-    "Pucallpa":[-8.3791,-74.5539],"Otra":[-9.19,-75.01],
-  };
-
-  const buscarSugerencias=async(texto)=>{
-    if(texto.length<3){setSugerencias([]);return;}
-    try{
-      const r=await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(texto+", "+form.ciudad+", Peru")}&limit=5&lang=es&bbox=-81.5,-18.5,-68.5,-0.0`);
-      const d=await r.json();
-      if(d.features?.length>0){
-        setSugerencias(d.features.map(f=>({label:[f.properties.name,f.properties.street,f.properties.city].filter(Boolean).join(", "),lat:f.geometry.coordinates[1],lng:f.geometry.coordinates[0]})));
-        setShowSug(true);
-      }else setSugerencias([]);
-    }catch(e){setSugerencias([]);}
-  };
-
-  const onDireccionChange=(val)=>{
-    setForm(f=>({...f,direccion:val}));
-    setGeocodeMsg("");
-    clearTimeout(debounceRef.current);
-    debounceRef.current=setTimeout(()=>buscarSugerencias(val),400);
-  };
-
-  const elegirSugerencia=(s)=>{
-    setForm(f=>({...f,direccion:s.label,lat:s.lat.toFixed(6),lng:s.lng.toFixed(6)}));
-    setGeocodeMsg(`✅ ${s.label}`);
-    setSugerencias([]);setShowSug(false);
+    "Pucallpa":[-8.3791,-74.5539]
   };
 
   const geocodificar=async()=>{
     if(!form.direccion.trim()) return setGeocodeMsg("⚠️ Escribe una dirección primero");
-    setGeocoding(true);setGeocodeMsg("🔍 Buscando...");setSugerencias([]);setShowSug(false);
-    const enc=encodeURIComponent(`${form.direccion}, ${form.ciudad}, Peru`);
+    setGeocoding(true); setGeocodeMsg("🔍 Buscando...");
+    const query=`${form.direccion}, ${form.ciudad}, Peru`;
+    const enc=encodeURIComponent(query);
+
+    // Intento 1: Photon (no tiene restricciones CORS)
     try{
-      const r=await fetch(`https://photon.komoot.io/api/?q=${enc}&limit=1&lang=es&bbox=-81.5,-18.5,-68.5,-0.0`);
+      const r=await fetch(`https://photon.komoot.io/api/?q=${enc}&limit=1&lang=es`);
       const d=await r.json();
       if(d.features?.length>0){
         const [lng,lat]=d.features[0].geometry.coordinates;
-        const p=d.features[0].properties;
+        const name=d.features[0].properties;
         setForm(f=>({...f,lat:lat.toFixed(6),lng:lng.toFixed(6)}));
-        setGeocodeMsg(`✅ ${[p.name,p.street,p.city].filter(Boolean).join(", ")}`);
-        setGeocoding(false);return;
+        setGeocodeMsg(`✅ Ubicado: ${name.street||form.direccion}, ${name.city||form.ciudad}`);
+        setGeocoding(false); return;
       }
     }catch(e){}
-    const coords=CITY_COORDS2[form.ciudad];
+
+    // Intento 2: OpenStreetMap Nominatim con User-Agent correcto
+    try{
+      const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${enc}&format=json&limit=1&countrycodes=pe`,
+        {headers:{"User-Agent":"Vista360App/1.0","Accept-Language":"es"}});
+      const d=await r.json();
+      if(d.length>0){
+        setForm(f=>({...f,lat:Number(d[0].lat).toFixed(6),lng:Number(d[0].lon).toFixed(6)}));
+        setGeocodeMsg(`✅ Ubicado: ${d[0].display_name.split(",").slice(0,2).join(", ")}`);
+        setGeocoding(false); return;
+      }
+    }catch(e){}
+
+    // Intento 3: fallback por ciudad — coordenadas aproximadas
+    const coords=CITY_FALLBACK[form.ciudad];
     if(coords){
       setForm(f=>({...f,lat:coords[0].toFixed(6),lng:coords[1].toFixed(6)}));
-      setGeocodeMsg(`⚠️ Ubicado aprox. en ${form.ciudad}.`);
-    }else setGeocodeMsg("❌ No encontrado.");
+      setGeocodeMsg(`⚠️ Ubicado aprox. en ${form.ciudad}. Para precisar, ingresa lat/lng manualmente.`);
+      setGeocoding(false); return;
+    }
+
+    setGeocodeMsg("❌ No se pudo ubicar. Intenta con una dirección más completa o ingresa coordenadas manualmente.");
     setGeocoding(false);
   };
 
@@ -609,64 +461,32 @@ function Paneles({paneles,setPaneles,loading}){
           {inp("Precio mensual ($)","precio",form,setForm,{type:"number"})}
           {inp("Estado","estado",form,setForm,{type:"select",options:["Libre","Ocupado"]})}
         </div>
-        {/* Dirección con autocompletado + mapa interactivo */}
+        {/* Dirección con geocodificación */}
         <div style={{marginTop:12}}>
           <label style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:1,display:"block",marginBottom:5}}>Dirección</label>
-          <div style={{position:"relative"}}>
-            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-              <input value={form.direccion||""} onChange={e=>onDireccionChange(e.target.value)}
-                placeholder="Av. Javier Prado Este 123…" autoComplete="off"
-                style={{flex:1,minWidth:160,background:C.surface,border:`1px solid ${showSug&&sugerencias.length>0?C.accent:C.border}`,borderRadius:showSug&&sugerencias.length>0?"10px 10px 0 0":"10px",padding:"10px 13px",color:C.text,fontSize:14,outline:"none",fontFamily:"inherit"}}
-                onKeyDown={e=>{if(e.key==="Enter")geocodificar();if(e.key==="Escape"){setSugerencias([]);setShowSug(false);}}}
-                onBlur={()=>setTimeout(()=>setShowSug(false),200)}
-                onFocus={()=>sugerencias.length>0&&setShowSug(true)}
-              />
-              <button onClick={geocodificar} disabled={geocoding}
-                style={{padding:"10px 13px",background:geocoding?C.border:C.accent,border:"none",borderRadius:10,color:"#fff",fontWeight:700,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
-                {geocoding?"⏳":"🔍 Buscar"}
-              </button>
-              <button onClick={abrirMapaUbicar}
-                style={{padding:"10px 13px",background:C.green+"22",border:`1px solid ${C.green}44`,borderRadius:10,color:C.green,fontWeight:700,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
-                🗺️ Ubicar en mapa
-              </button>
-            </div>
-            {showSug&&sugerencias.length>0&&(
-              <div style={{position:"absolute",top:"100%",left:0,right:0,background:C.card,border:`1px solid ${C.accent}`,borderTop:"none",borderRadius:"0 0 10px 10px",zIndex:9999,overflow:"hidden",boxShadow:"0 8px 24px rgba(0,0,0,0.6)"}}>
-                {sugerencias.map((s,i)=>(
-                  <div key={i} onMouseDown={()=>elegirSugerencia(s)}
-                    style={{padding:"10px 14px",cursor:"pointer",borderBottom:i<sugerencias.length-1?`1px solid ${C.border}`:"none",fontSize:13,color:C.text,display:"flex",alignItems:"center",gap:8}}
-                    onMouseEnter={e=>e.currentTarget.style.background=C.surface}
-                    onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                    <span style={{color:C.accent}}>📍</span><span style={{lineHeight:1.3}}>{s.label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div style={{display:"flex",gap:8}}>
+            <input value={form.direccion||""} onChange={e=>setForm(f=>({...f,direccion:e.target.value}))} placeholder="Av. Javier Prado Este 123, San Isidro"
+              style={{flex:1,background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:"10px 13px",color:C.text,fontSize:14,outline:"none",fontFamily:"inherit"}}
+              onKeyDown={e=>e.key==="Enter"&&geocodificar()}
+            />
+            <button onClick={geocodificar} disabled={geocoding}
+              style={{padding:"10px 16px",background:geocoding?C.border:C.accent,border:"none",borderRadius:10,color:C.white,fontWeight:700,fontSize:13,cursor:"pointer",whiteSpace:"nowrap",transition:"background .2s",flexShrink:0}}>
+              {geocoding?"⏳ Buscando...":"📍 Ubicar"}
+            </button>
           </div>
-          {geocodeMsg&&<div style={{marginTop:7,fontSize:12,color:geocodeMsg.startsWith("✅")?C.green:geocodeMsg.startsWith("⚠️")?C.amber:C.red,padding:"6px 10px",background:(geocodeMsg.startsWith("✅")?C.green:geocodeMsg.startsWith("⚠️")?C.amber:C.red)+"15",borderRadius:8}}>{geocodeMsg}</div>}
-          {form.lat&&form.lng&&<div style={{marginTop:6,padding:"8px 12px",background:C.green+"12",border:`1px solid ${C.green}33`,borderRadius:9,fontSize:12,color:C.green,display:"flex",alignItems:"center",gap:10}}><span>📌</span><span><strong>Lat:</strong> {form.lat} · <strong>Lng:</strong> {form.lng}</span><button onClick={()=>setForm(f=>({...f,lat:"",lng:""}))} style={{marginLeft:"auto",background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:12}}>✕</button></div>}
-          {!form.lat&&!form.lng&&<div style={{marginTop:8,padding:"8px 12px",background:C.accent+"10",borderRadius:9,fontSize:12,color:C.muted}}>💡 Busca la dirección o toca <strong style={{color:C.green}}>🗺️ Ubicar en mapa</strong> para pinchar la ubicación exacta</div>}
+          {geocodeMsg&&<div style={{marginTop:7,fontSize:12,color:geocodeMsg.startsWith("✅")?C.green:C.red,padding:"6px 10px",background:(geocodeMsg.startsWith("✅")?C.green:C.red)+"12",borderRadius:8}}>{geocodeMsg}</div>}
         </div>
-
-        {/* MAPA PICKER MODAL */}
-        {mapaUbicar&&(
-          <div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(0,0,0,0.9)",display:"flex",flexDirection:"column"}}>
-            <div style={{background:C.surface,borderBottom:`1px solid ${C.border}`,padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
-              <div>
-                <div style={{fontSize:15,fontWeight:800,color:C.white}}>🗺️ Pincha la ubicación del panel</div>
-                <div style={{fontSize:12,color:C.muted,marginTop:2}}>Toca cualquier punto del mapa · Puedes arrastrar el pin para ajustar</div>
-              </div>
-              <div style={{display:"flex",gap:8}}>
-                {form.lat&&form.lng&&<button onClick={cerrarMapaUbicar} style={{background:C.green,border:"none",borderRadius:10,padding:"10px 18px",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer"}}>✅ Confirmar</button>}
-                <button onClick={cerrarMapaUbicar} style={{background:C.border,border:"none",borderRadius:10,padding:"10px 14px",color:C.muted,fontWeight:700,fontSize:13,cursor:"pointer"}}>✕</button>
-              </div>
-            </div>
-            {form.lat&&form.lng&&(
-              <div style={{background:C.green+"18",borderBottom:`1px solid ${C.green}33`,padding:"8px 18px",fontSize:12,color:C.green,fontWeight:600,flexShrink:0}}>
-                📍 {form.direccion||"Ubicación seleccionada"} — {form.lat}, {form.lng}
-              </div>
-            )}
-            <div ref={mapPickerRef} style={{flex:1,width:"100%"}}/>
+        {/* Coords (solo lectura visual) */}
+        {(form.lat||form.lng)&&(
+          <div style={{marginTop:10,padding:"10px 13px",background:C.green+"12",border:`1px solid ${C.green}33`,borderRadius:10,fontSize:12,color:C.green,display:"flex",gap:16,alignItems:"center"}}>
+            <span>📌</span>
+            <span><strong>Lat:</strong> {form.lat} &nbsp;·&nbsp; <strong>Lng:</strong> {form.lng}</span>
+            <button onClick={()=>setForm(f=>({...f,lat:"",lng:""}))} style={{marginLeft:"auto",background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:12}}>✕ Limpiar</button>
+          </div>
+        )}
+        {!form.lat&&!form.lng&&(
+          <div style={{marginTop:10,padding:"9px 13px",background:C.accent+"10",borderRadius:10,fontSize:12,color:C.muted}}>
+            💡 Escribe la dirección completa y presiona <strong style={{color:C.accent}}>📍 Ubicar</strong> para posicionarlo automáticamente en el mapa.
           </div>
         )}
       </Modal>
@@ -1802,7 +1622,7 @@ function ROI({paneles,contratos}){
 // ══════════════════════════════════════════════════════════════════
 // APP ROOT
 // ══════════════════════════════════════════════════════════════════
-function App(){
+export default function App(){
   const [splash,setSplash]=useState(true);
   const [tab,setTab]=useState("dashboard");
   const [clientes,setClientes]=useState([]);
@@ -1912,12 +1732,9 @@ function App(){
     </div>
   </>);
 }
-</script>
 
-<script>
-// Leer el JSX del script tag y ejecutarlo
-const src = document.getElementById("jsx-source").textContent;
-runApp(src);
-</script>
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+  </script>
 </body>
 </html>
