@@ -2,43 +2,25 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="Vista360"/>
-  <meta name="theme-color" content="#070C18"/>
   <title>Vista360</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#070C18;font-family:sans-serif}
-    #loading{position:fixed;inset:0;background:#070C18;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9999}
-    #loading .spinner{width:40px;height:40px;border:3px solid #18253D;border-top-color:#2563EB;border-radius:50%;animation:spin .7s linear infinite}
-    #loading p{color:#64748B;font-size:14px;letter-spacing:2px;text-transform:uppercase}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    ::-webkit-scrollbar{width:4px;height:4px}
-    ::-webkit-scrollbar-track{background:#070C18}
-    ::-webkit-scrollbar-thumb{background:#18253D;border-radius:3px}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #070C18; }
   </style>
 </head>
 <body>
-  <div id="loading">
-    <div class="spinner"></div>
-    <p>Cargando Vista360…</p>
-  </div>
   <div id="root"></div>
-
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script>
-    // Hide loading when app renders
-    window.__hideLoading = function(){
-      var el = document.getElementById('loading');
-      if(el) el.style.display='none';
-    };
-  </script>
-  <script type="text/babel" data-presets="react" data-type="module">
-const { useState, useMemo, useEffect, useCallback, useRef } = React;
+  <script type="text/babel" data-presets="react">
 
 // ══════════════════════════════════════════════════════════════════
 // ⚙️  CONFIGURACIÓN — Pega aquí tus credenciales de Supabase
@@ -60,7 +42,7 @@ const sb = {
 const ESTADOS_CLI = ["Activo", "Por vencer", "Inactivo"];
 const ESTADOS_PRO = ["En contacto", "Propuesta enviada", "Frío", "Perdido"];
 const SECTORES    = ["Alimentación","Finanzas","Retail","Telecomunicaciones","Alimentos","Automotriz","Salud","Educación","Otro"];
-const CIUDADES    = ["Lima","Arequipa","Trujillo","Chiclayo","Piura","Cusco","Iquitos","Huancayo","Tacna","Pucallpa","Huánuco","Otra"];
+const CIUDADES    = ["Lima","Arequipa","Trujillo","Chiclayo","Piura","Cusco","Iquitos","Huancayo","Tacna","Pucallpa","Otra"];
 const CAT_GASTOS  = ["Mantenimiento","Personal","Transporte","Administrativo","Servicios","Marketing","Otro"];
 const EMOJIS      = ["📡","🏙️","🌆","🛣️","🏬","🔄","🏪","🏢","🌉","🏟️"];
 const INGRESOS_HIST = []; // ya no se usa — se calcula desde contratos reales
@@ -70,6 +52,49 @@ const mesHoy= `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,"0")}`
 const dias  = (f) => Math.ceil((new Date(f) - hoy) / 86400000);
 const fmt   = (n) => `$${Number(n||0).toLocaleString("es-EC")}`;
 const fmtF  = (s) => s ? new Date(s).toLocaleDateString("es-EC",{day:"2-digit",month:"short",year:"numeric"}) : "—";
+
+// ── EXPORTAR EXCEL ───────────────────────────────────────────────
+const exportExcel=(nombreArchivo,hojas)=>{
+  const wb=XLSX.utils.book_new();
+  hojas.forEach(({nombre,datos,cabeceras})=>{
+    const ws=XLSX.utils.json_to_sheet(datos,{header:cabeceras});
+    // Ancho automático de columnas
+    const maxW=cabeceras.map(k=>({wch:Math.max(k.length,...datos.map(r=>String(r[k]||"").length))+2}));
+    ws["!cols"]=maxW;
+    XLSX.utils.book_append_sheet(wb,ws,nombre.substring(0,31));
+  });
+  XLSX.writeFile(wb,`${nombreArchivo}.xlsx`);
+};
+
+// ── EXPORTAR PDF ─────────────────────────────────────────────────
+const exportPDF=(titulo,subtitulo,columnas,filas,nombreArchivo)=>{
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+  // Header
+  doc.setFillColor(7,12,24);
+  doc.rect(0,0,297,297,"F");
+  doc.setFillColor(13,20,33);
+  doc.rect(0,0,297,28,"F");
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(18);doc.setFont("helvetica","bold");
+  doc.text(titulo,14,11);
+  doc.setFontSize(10);doc.setFont("helvetica","normal");
+  doc.setTextColor(100,116,139);
+  doc.text(subtitulo,14,18);
+  doc.text(`Generado: ${new Date().toLocaleDateString("es-EC",{day:"2-digit",month:"long",year:"numeric"})}`,14,24);
+  // Tabla
+  doc.autoTable({
+    head:[columnas],
+    body:filas,
+    startY:32,
+    theme:"grid",
+    headStyles:{fillColor:[37,99,235],textColor:255,fontStyle:"bold",fontSize:9},
+    bodyStyles:{fillColor:[17,25,41],textColor:[226,232,240],fontSize:8,lineColor:[24,37,61]},
+    alternateRowStyles:{fillColor:[13,20,33]},
+    margin:{left:14,right:14},
+  });
+  doc.save(`${nombreArchivo}.pdf`);
+};
 
 // ── PALETA ───────────────────────────────────────────────────────
 const C = {
@@ -158,20 +183,7 @@ function Splash({done}){
       <div style={{opacity:f>=1?1:0,transform:f>=1?"scale(1) translateY(0)":"scale(.8) translateY(24px)",transition:"all .75s cubic-bezier(.34,1.4,.64,1)",filter:`drop-shadow(0 0 40px ${C.accent}55)`}}>
         <Logo360 width={300}/>
       </div>
-      <div style={{
-        fontFamily:"'Cormorant Garamond', Georgia, serif",
-        fontSize:17,
-        fontWeight:600,
-        color:"rgba(255,255,255,0.82)",
-        letterSpacing:5,
-        textTransform:"uppercase",
-        marginTop:14,
-        opacity:f>=1?1:0,
-        transition:"opacity .6s .35s",
-        textAlign:"center",
-        lineHeight:1.6,
-        textShadow:`0 0 30px ${C.accent}88`,
-      }}>
+      <div style={{fontSize:12,color:C.muted,letterSpacing:3.5,textTransform:"uppercase",marginTop:10,opacity:f>=1?1:0,transition:"opacity .6s .35s"}}>
         Gestión de Paneles Publicitarios
       </div>
       {/* Barra progreso */}
@@ -309,99 +321,84 @@ function Paneles({paneles,setPaneles,loading}){
   const libre=paneles.filter(p=>p.estado==="Libre").length;
   const ocup =paneles.filter(p=>p.estado==="Ocupado").length;
 
-  // ── AUTOCOMPLETADO DE DIRECCIÓN EN TIEMPO REAL ──────────────────
+  // Geocodificación multi-API en cascada
   const [geocoding,setGeocoding]=useState(false);
   const [geocodeMsg,setGeocodeMsg]=useState("");
-  const [sugerencias,setSugerencias]=useState([]);
-  const [showSug,setShowSug]=useState(false);
-  const debounceRef=useRef(null);
 
-  const CITY_COORDS={
+  // Coordenadas de ciudades peruanas como fallback manual
+  const CITY_FALLBACK={
     "Lima":[-12.0464,-77.0428],"Arequipa":[-16.4090,-71.5375],"Trujillo":[-8.1116,-79.0288],
     "Chiclayo":[-6.7714,-79.8409],"Piura":[-5.1945,-80.6328],"Cusco":[-13.5320,-71.9675],
     "Iquitos":[-3.7491,-73.2538],"Huancayo":[-12.0651,-75.2049],"Tacna":[-18.0066,-70.2462],
-    "Pucallpa":[-8.3791,-74.5539],"Huánuco":[-9.9306,-76.2422],"Cajamarca":[-7.1638,-78.5003],
-    "Ica":[-14.0678,-75.7286],"Sullana":[-4.9044,-80.6855],"Juliaca":[-15.5000,-70.1333],
-    "Ayacucho":[-13.1588,-74.2236],"Chimbote":[-9.0853,-78.5783],"Tumbes":[-3.5669,-80.4515],
-    "Puno":[-15.8402,-70.0219],"Tarapoto":[-6.4850,-76.3722],"Moquegua":[-17.1942,-70.9329],
-    "Moyobamba":[-6.0340,-76.9724],"Tingo María":[-9.2966,-75.9987],"Huaraz":[-9.5300,-77.5283],
-    "Cerro de Pasco":[-10.6867,-76.2627],"Abancay":[-13.6385,-72.8805],"Andahuaylalas":[-13.6560,-73.3760],
-    "Puerto Maldonado":[-12.5931,-69.1893],"Bagua":[-5.6519,-78.5267],"Chepen":[-7.2268,-79.4278],
-  };
-
-  // Buscar sugerencias en tiempo real mientras el usuario escribe
-  const buscarSugerencias=useCallback(async(texto)=>{
-    if(texto.length<3){ setSugerencias([]); return; }
-    const query=`${texto}, ${form.ciudad||"Peru"}, Peru`;
-    try{
-      const r=await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=es&bbox=-81.5,-18.5,-68.5,-0.0`);
-      const d=await r.json();
-      if(d.features?.length>0){
-        const sug=d.features.map(f=>({
-          label:[f.properties.name,f.properties.street,f.properties.city,f.properties.state].filter(Boolean).join(", "),
-          lat:f.geometry.coordinates[1],
-          lng:f.geometry.coordinates[0],
-        }));
-        setSugerencias(sug);
-        setShowSug(true);
-      } else { setSugerencias([]); }
-    }catch(e){ setSugerencias([]); }
-  },[form.ciudad]);
-
-  const onDireccionChange=(val)=>{
-    setForm(f=>({...f,direccion:val}));
-    setGeocodeMsg("");
-    clearTimeout(debounceRef.current);
-    debounceRef.current=setTimeout(()=>buscarSugerencias(val),400);
-  };
-
-  const elegirSugerencia=(s)=>{
-    setForm(f=>({...f,direccion:s.label,lat:s.lat.toFixed(6),lng:s.lng.toFixed(6)}));
-    setGeocodeMsg(`✅ Ubicado: ${s.label}`);
-    setSugerencias([]); setShowSug(false);
+    "Pucallpa":[-8.3791,-74.5539]
   };
 
   const geocodificar=async()=>{
     if(!form.direccion.trim()) return setGeocodeMsg("⚠️ Escribe una dirección primero");
-    setGeocoding(true); setGeocodeMsg("🔍 Buscando..."); setSugerencias([]); setShowSug(false);
-    const enc=encodeURIComponent(`${form.direccion}, ${form.ciudad||""}, Peru`);
+    setGeocoding(true); setGeocodeMsg("🔍 Buscando...");
+    const query=`${form.direccion}, ${form.ciudad}, Peru`;
+    const enc=encodeURIComponent(query);
 
+    // Intento 1: Photon (no tiene restricciones CORS)
     try{
-      const r=await fetch(`https://photon.komoot.io/api/?q=${enc}&limit=1&lang=es&bbox=-81.5,-18.5,-68.5,-0.0`);
+      const r=await fetch(`https://photon.komoot.io/api/?q=${enc}&limit=1&lang=es`);
       const d=await r.json();
       if(d.features?.length>0){
         const [lng,lat]=d.features[0].geometry.coordinates;
-        const p=d.features[0].properties;
+        const name=d.features[0].properties;
         setForm(f=>({...f,lat:lat.toFixed(6),lng:lng.toFixed(6)}));
-        setGeocodeMsg(`✅ ${[p.name,p.street,p.city].filter(Boolean).join(", ")}`);
+        setGeocodeMsg(`✅ Ubicado: ${name.street||form.direccion}, ${name.city||form.ciudad}`);
         setGeocoding(false); return;
       }
     }catch(e){}
 
+    // Intento 2: OpenStreetMap Nominatim con User-Agent correcto
     try{
-      const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${enc}&format=json&limit=1&countrycodes=pe`,{headers:{"User-Agent":"Vista360/1.0","Accept-Language":"es"}});
+      const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${enc}&format=json&limit=1&countrycodes=pe`,
+        {headers:{"User-Agent":"Vista360App/1.0","Accept-Language":"es"}});
       const d=await r.json();
       if(d.length>0){
         setForm(f=>({...f,lat:Number(d[0].lat).toFixed(6),lng:Number(d[0].lon).toFixed(6)}));
-        setGeocodeMsg(`✅ ${d[0].display_name.split(",").slice(0,2).join(", ")}`);
+        setGeocodeMsg(`✅ Ubicado: ${d[0].display_name.split(",").slice(0,2).join(", ")}`);
         setGeocoding(false); return;
       }
     }catch(e){}
 
-    const coords=CITY_COORDS[form.ciudad];
+    // Intento 3: fallback por ciudad — coordenadas aproximadas
+    const coords=CITY_FALLBACK[form.ciudad];
     if(coords){
       setForm(f=>({...f,lat:coords[0].toFixed(6),lng:coords[1].toFixed(6)}));
-      setGeocodeMsg(`⚠️ Ubicado aprox. en ${form.ciudad}. Ajusta lat/lng si necesitas precisión.`);
-    } else {
-      setGeocodeMsg("❌ No encontrado. Prueba con la dirección más completa.");
+      setGeocodeMsg(`⚠️ Ubicado aprox. en ${form.ciudad}. Para precisar, ingresa lat/lng manualmente.`);
+      setGeocoding(false); return;
     }
+
+    setGeocodeMsg("❌ No se pudo ubicar. Intenta con una dirección más completa o ingresa coordenadas manualmente.");
     setGeocoding(false);
   };
 
+  const exportarPanelesExcel=()=>{
+    exportExcel("Paneles_Vista360",[{
+      nombre:"Paneles",
+      cabeceras:["Nombre","Tipo","Ciudad","Estado","Precio","Direccion","Lat","Lng"],
+      datos:paneles.map(p=>({Nombre:p.nombre,Tipo:p.tipo,Ciudad:p.ciudad,Estado:p.estado,Precio:Number(p.precio||0),Direccion:p.direccion||"",Lat:p.lat||"",Lng:p.lng||""}))
+    }]);
+  };
+  const exportarPanelesPDF=()=>{
+    exportPDF("🖥️ Paneles Publicitarios — Vista360",`Total: ${paneles.length} · Libres: ${libre} · Ocupados: ${ocup}`,
+      ["Nombre","Tipo","Ciudad","Estado","Precio/mes","Dirección"],
+      paneles.map(p=>[p.nombre,p.tipo||"",p.ciudad,p.estado,fmt(p.precio),p.direccion||"—"]),
+      "Paneles_Vista360"
+    );
+  };
+
   return(<div>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:22}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:22,flexWrap:"wrap",gap:10}}>
       <PgTit icon="🖥️" title="Gestión de Paneles" sub={`${paneles.length} paneles registrados · ${libre} libres · ${ocup} ocupados`}/>
-      <button onClick={openNew} style={{background:C.accent,border:"none",borderRadius:11,padding:"10px 20px",color:C.white,fontWeight:700,fontSize:13,cursor:"pointer"}}>＋ Nuevo Panel</button>
+      <div style={{display:"flex",gap:8}}>
+        <button onClick={exportarPanelesExcel} style={{padding:"8px 14px",background:C.green+"22",border:`1px solid ${C.green}44`,borderRadius:9,color:C.green,fontWeight:700,fontSize:12,cursor:"pointer"}}>📊 Excel</button>
+        <button onClick={exportarPanelesPDF} style={{padding:"8px 14px",background:C.red+"22",border:`1px solid ${C.red}44`,borderRadius:9,color:C.red,fontWeight:700,fontSize:12,cursor:"pointer"}}>📄 PDF</button>
+        <button onClick={openNew} style={{background:C.accent,border:"none",borderRadius:11,padding:"10px 20px",color:C.white,fontWeight:700,fontSize:13,cursor:"pointer"}}>＋ Nuevo Panel</button>
+      </div>
     </div>
 
     {loading?<Spinner/>:
@@ -464,43 +461,20 @@ function Paneles({paneles,setPaneles,loading}){
           {inp("Precio mensual ($)","precio",form,setForm,{type:"number"})}
           {inp("Estado","estado",form,setForm,{type:"select",options:["Libre","Ocupado"]})}
         </div>
-        {/* Dirección con autocompletado en tiempo real */}
+        {/* Dirección con geocodificación */}
         <div style={{marginTop:12}}>
           <label style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:1,display:"block",marginBottom:5}}>Dirección</label>
-          <div style={{position:"relative"}}>
-            <div style={{display:"flex",gap:8}}>
-              <input
-                value={form.direccion||""}
-                onChange={e=>onDireccionChange(e.target.value)}
-                placeholder="Av. Javier Prado Este 123, San Isidro…"
-                autoComplete="off"
-                style={{flex:1,background:C.surface,border:`1px solid ${showSug&&sugerencias.length>0?C.accent:C.border}`,borderRadius:showSug&&sugerencias.length>0?"10px 10px 0 0":"10px",padding:"10px 13px",color:C.text,fontSize:14,outline:"none",fontFamily:"inherit",transition:"border .2s"}}
-                onKeyDown={e=>{if(e.key==="Enter"){geocodificar();}if(e.key==="Escape"){setSugerencias([]);setShowSug(false);}}}
-                onBlur={()=>setTimeout(()=>setShowSug(false),200)}
-                onFocus={()=>sugerencias.length>0&&setShowSug(true)}
-              />
-              <button onClick={geocodificar} disabled={geocoding}
-                style={{padding:"10px 16px",background:geocoding?C.border:C.accent,border:"none",borderRadius:10,color:C.white,fontWeight:700,fontSize:13,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
-                {geocoding?"⏳":"📍 Ubicar"}
-              </button>
-            </div>
-            {/* Dropdown sugerencias */}
-            {showSug&&sugerencias.length>0&&(
-              <div style={{position:"absolute",top:"100%",left:0,right:56,background:C.card,border:`1px solid ${C.accent}`,borderTop:"none",borderRadius:"0 0 10px 10px",zIndex:999,overflow:"hidden",boxShadow:`0 8px 24px rgba(0,0,0,0.5)`}}>
-                {sugerencias.map((s,i)=>(
-                  <div key={i} onMouseDown={()=>elegirSugerencia(s)}
-                    style={{padding:"10px 14px",cursor:"pointer",borderBottom:i<sugerencias.length-1?`1px solid ${C.border}`:"none",fontSize:13,color:C.text,display:"flex",alignItems:"center",gap:8,transition:"background .1s"}}
-                    onMouseEnter={e=>e.currentTarget.style.background=C.surface}
-                    onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                    <span style={{color:C.accent,flexShrink:0}}>📍</span>
-                    <span style={{lineHeight:1.3}}>{s.label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div style={{display:"flex",gap:8}}>
+            <input value={form.direccion||""} onChange={e=>setForm(f=>({...f,direccion:e.target.value}))} placeholder="Av. Javier Prado Este 123, San Isidro"
+              style={{flex:1,background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:"10px 13px",color:C.text,fontSize:14,outline:"none",fontFamily:"inherit"}}
+              onKeyDown={e=>e.key==="Enter"&&geocodificar()}
+            />
+            <button onClick={geocodificar} disabled={geocoding}
+              style={{padding:"10px 16px",background:geocoding?C.border:C.accent,border:"none",borderRadius:10,color:C.white,fontWeight:700,fontSize:13,cursor:"pointer",whiteSpace:"nowrap",transition:"background .2s",flexShrink:0}}>
+              {geocoding?"⏳ Buscando...":"📍 Ubicar"}
+            </button>
           </div>
-          {geocodeMsg&&<div style={{marginTop:7,fontSize:12,color:geocodeMsg.startsWith("✅")?C.green:geocodeMsg.startsWith("⚠️")?C.amber:C.red,padding:"6px 10px",background:(geocodeMsg.startsWith("✅")?C.green:geocodeMsg.startsWith("⚠️")?C.amber:C.red)+"12",borderRadius:8}}>{geocodeMsg}</div>}
-          {!geocodeMsg&&form.direccion&&form.direccion.length>=3&&!showSug&&<div style={{marginTop:6,fontSize:11,color:C.muted}}>💡 Escribe para ver sugerencias automáticas o presiona 📍 para ubicar</div>}
+          {geocodeMsg&&<div style={{marginTop:7,fontSize:12,color:geocodeMsg.startsWith("✅")?C.green:C.red,padding:"6px 10px",background:(geocodeMsg.startsWith("✅")?C.green:C.red)+"12",borderRadius:8}}>{geocodeMsg}</div>}
         </div>
         {/* Coords (solo lectura visual) */}
         {(form.lat||form.lng)&&(
@@ -526,8 +500,16 @@ function Mapa({paneles,clientes,contratos}){
   const mapRef     = useRef(null);
   const leafletRef = useRef(null);
   const markersRef = useRef([]);
+  const pinRef     = useRef(null);
+  const [filtroEstado,setFiltroEstado]=useState("Todos");
+  const [filtroCiudad,setFiltroCiudad]=useState("Todas");
   const [sel,setSel]             = useState(null);
   const [leafletReady,setLeafletReady] = useState(false);
+  const [busqueda,setBusqueda]   = useState("");
+  const [buscando,setBuscando]   = useState(false);
+  const [bMsg,setBMsg]           = useState("");
+  const [pinCoords,setPinCoords] = useState(null);
+  const [modoPin,setModoPin]     = useState(false);
 
   const getInfo=(pid)=>{
     const c=contratos.find(x=>x.panel_id===pid);
@@ -565,9 +547,41 @@ function Mapa({paneles,clientes,contratos}){
       attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       maxZoom:19,
     }).addTo(map);
+    map.on("click",(e)=>{
+      if(!modoPin) return;
+      const {lat,lng}=e.latlng;
+      setPinCoords({lat:lat.toFixed(6),lng:lng.toFixed(6)});
+      if(pinRef.current) pinRef.current.remove();
+      const icon=L.divIcon({
+        className:"",
+        html:`<div style="font-size:28px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5))">📍</div>`,
+        iconSize:[30,30],iconAnchor:[15,30],
+      });
+      pinRef.current=L.marker([lat,lng],{icon}).addTo(map);
+    });
     leafletRef.current=map;
     return()=>{map.remove();leafletRef.current=null;};
   },[leafletReady]);
+
+  // Actualizar el handler de click cuando cambia modoPin
+  useEffect(()=>{
+    if(!leafletRef.current) return;
+    const map=leafletRef.current;
+    map.off("click");
+    map.on("click",(e)=>{
+      if(!modoPin) return;
+      const {lat,lng}=e.latlng;
+      setPinCoords({lat:lat.toFixed(6),lng:lng.toFixed(6)});
+      if(pinRef.current) pinRef.current.remove();
+      const L=window.L;
+      const icon=L.divIcon({
+        className:"",
+        html:`<div style="font-size:28px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5))">📍</div>`,
+        iconSize:[30,30],iconAnchor:[15,30],
+      });
+      pinRef.current=L.marker([lat,lng],{icon}).addTo(map);
+    });
+  },[modoPin]);
 
   useEffect(()=>{
     if(!leafletRef.current||!window.L) return;
@@ -576,7 +590,7 @@ function Mapa({paneles,clientes,contratos}){
     markersRef.current.forEach(m=>m.remove());
     markersRef.current=[];
     const bounds=[];
-    paneles.forEach(p=>{
+    panelesFiltrados.forEach(p=>{
       let lat=p.lat?Number(p.lat):null;
       let lng=p.lng?Number(p.lng):null;
       if(!lat||!lng){
@@ -601,12 +615,91 @@ function Mapa({paneles,clientes,contratos}){
     });
     if(bounds.length===1) map.setView(bounds[0],14);
     else if(bounds.length>1) map.fitBounds(bounds,{padding:[60,60],maxZoom:13});
-  },[paneles,leafletReady]);
+  },[panelesFiltrados,leafletReady]);
+
+  const buscarDireccion=async()=>{
+    if(!busqueda.trim()||!leafletRef.current) return;
+    setBuscando(true); setBMsg("");
+    try{
+      const q=encodeURIComponent(busqueda+", Peru");
+      const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`,{headers:{"Accept-Language":"es"}});
+      const d=await r.json();
+      if(d&&d[0]){
+        const lat=Number(d[0].lat),lng=Number(d[0].lon);
+        leafletRef.current.setView([lat,lng],16);
+        setBMsg(`✅ ${d[0].display_name.split(",").slice(0,3).join(", ")}`);
+      } else {
+        setBMsg("❌ No se encontró la dirección. Intenta ser más específico.");
+      }
+    }catch(e){
+      setBMsg("❌ Error al buscar. Verifica tu conexión.");
+    }
+    setBuscando(false);
+  };
 
   const sinCoords=paneles.filter(p=>!p.lat||!p.lng);
+  const ciudades=["Todas",...new Set(paneles.map(p=>p.ciudad).filter(Boolean))];
+  const panelesFiltrados=paneles.filter(p=>{
+    const okE=filtroEstado==="Todos"||p.estado===filtroEstado;
+    const okC=filtroCiudad==="Todas"||p.ciudad===filtroCiudad;
+    return okE&&okC;
+  });
 
   return(<div>
     <PgTit icon="🗺️" title="Mapa de Paneles" sub="OpenStreetMap · Clic en un pin para ver detalles"/>
+
+    {/* Buscador de dirección */}
+    <Card style={{marginBottom:14,padding:"16px 18px"}}>
+      <div style={{display:"flex",gap:10,alignItems:"flex-end",flexWrap:"wrap"}}>
+        <div style={{flex:1,minWidth:220}}>
+          <label style={{display:"block",fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:5}}>🔍 Buscar dirección en el mapa</label>
+          <input value={busqueda} onChange={e=>setBusqueda(e.target.value)}
+            onKeyDown={e=>e.key==="Enter"&&buscarDireccion()}
+            placeholder="Ej: Av. Javier Prado 1234, San Isidro"
+            style={{width:"100%",background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:"10px 13px",color:C.text,fontSize:14,outline:"none",fontFamily:"inherit",boxSizing:"border-box"}}/>
+        </div>
+        <button onClick={buscarDireccion} disabled={buscando}
+          style={{padding:"10px 18px",background:C.accent,border:"none",borderRadius:10,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",whiteSpace:"nowrap",opacity:buscando?.6:1}}>
+          {buscando?"Buscando...":"📍 Ir"}
+        </button>
+        <button onClick={()=>{setModoPin(v=>!v);setPinCoords(null);if(pinRef.current){pinRef.current.remove();pinRef.current=null;}}}
+          style={{padding:"10px 18px",background:modoPin?C.amber:C.surface,border:`1px solid ${modoPin?C.amber:C.border}`,borderRadius:10,color:modoPin?C.bg:C.text,fontWeight:700,fontSize:14,cursor:"pointer",whiteSpace:"nowrap"}}>
+          {modoPin?"✕ Cancelar pin":"📌 Colocar pin"}
+        </button>
+      </div>
+      {bMsg&&<div style={{marginTop:8,fontSize:12,color:bMsg.startsWith("✅")?C.green:C.red}}>{bMsg}</div>}
+      {modoPin&&<div style={{marginTop:8,fontSize:12,color:C.amber,fontWeight:600}}>👆 Haz clic en el mapa para colocar un pin personalizado</div>}
+      {pinCoords&&(
+        <div style={{marginTop:8,background:C.surface,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 12px",fontSize:12,color:C.text,display:"flex",alignItems:"center",gap:10}}>
+          <span>📍 Pin colocado — <strong>Lat:</strong> {pinCoords.lat} &nbsp;·&nbsp; <strong>Lng:</strong> {pinCoords.lng}</span>
+          <button onClick={()=>{setPinCoords(null);if(pinRef.current){pinRef.current.remove();pinRef.current=null;}}}
+            style={{marginLeft:"auto",background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:12}}>✕ Quitar</button>
+        </div>
+      )}
+    </Card>
+
+    {/* Filtros */}
+    <Card style={{marginBottom:14,padding:"12px 18px"}}>
+      <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+        <span style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:1}}>Filtrar:</span>
+        <div style={{display:"flex",gap:6}}>
+          {["Todos","Libre","Ocupado"].map(e=>(
+            <button key={e} onClick={()=>setFiltroEstado(e)}
+              style={{padding:"6px 13px",borderRadius:8,border:`1px solid ${filtroEstado===e?(e==="Libre"?C.green:e==="Ocupado"?C.red:C.accent):C.border}`,background:filtroEstado===e?(e==="Libre"?C.green:e==="Ocupado"?C.red:C.accent)+"22":"transparent",color:filtroEstado===e?(e==="Libre"?C.green:e==="Ocupado"?C.red:C.accent):C.muted,fontWeight:600,fontSize:12,cursor:"pointer"}}>
+              {e==="Libre"?"🟢 Libre":e==="Ocupado"?"🔴 Ocupado":"🔵 Todos"}
+            </button>
+          ))}
+        </div>
+        <div style={{width:1,height:20,background:C.border}}/>
+        <select value={filtroCiudad} onChange={e=>setFiltroCiudad(e.target.value)}
+          style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",color:C.text,fontSize:12,outline:"none",fontFamily:"inherit",cursor:"pointer"}}>
+          {ciudades.map(c=><option key={c} value={c}>{c==="Todas"?"🌎 Todas las ciudades":c}</option>)}
+        </select>
+        <span style={{fontSize:12,color:C.muted,marginLeft:"auto"}}>
+          {panelesFiltrados.length} / {paneles.length} paneles
+        </span>
+      </div>
+    </Card>
 
     {sinCoords.length>0&&(
       <div style={{background:C.amber+"12",border:`1px solid ${C.amber}33`,borderRadius:12,padding:"10px 16px",marginBottom:14,fontSize:13,color:C.amber,display:"flex",gap:10,alignItems:"center"}}>
@@ -633,77 +726,8 @@ function Mapa({paneles,clientes,contratos}){
           Cargando mapa...
         </div>
       )}
-      <div ref={mapRef} style={{height:560,width:"100%",display:leafletReady?"block":"none"}}/>
+      <div ref={mapRef} style={{height:560,width:"100%",display:leafletReady?"block":"none",cursor:modoPin?"crosshair":"grab"}}/>
 
-      {/* ── Panel de detalle al hacer clic en un pin ── */}
-      {sel&&(()=>{
-        const p=sel.panel;
-        const info=sel.info;
-        const color=p.estado==="Ocupado"?C.red:C.green;
-        const contrato=info;
-        const diasVence=contrato?Math.ceil((new Date(contrato.fin)-new Date())/86400000):null;
-        return(
-          <div style={{position:"absolute",bottom:0,left:0,right:0,zIndex:500,background:"rgba(7,12,24,0.97)",backdropFilter:"blur(20px)",borderTop:`2px solid ${color}`,padding:"20px 22px 24px",borderRadius:"0 0 20px 20px"}}>
-            {/* Header */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
-              <div style={{display:"flex",alignItems:"center",gap:12}}>
-                <div style={{width:52,height:52,borderRadius:14,background:color+"18",border:`2px solid ${color}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0}}>
-                  {p.foto}
-                </div>
-                <div>
-                  <div style={{fontSize:16,fontWeight:800,color:C.white,letterSpacing:"-0.3px"}}>{p.nombre}</div>
-                  {p.direccion&&<div style={{fontSize:12,color:C.muted,marginTop:2}}>📍 {p.direccion}</div>}
-                  <div style={{display:"flex",gap:6,marginTop:6}}>
-                    <span style={{background:color+"22",color,border:`1px solid ${color}44`,borderRadius:6,padding:"2px 9px",fontSize:11,fontWeight:700}}>
-                      {p.estado==="Ocupado"?"🔴 Ocupado":"🟢 Libre"}
-                    </span>
-                    <span style={{background:C.accent+"18",color:C.accent,border:`1px solid ${C.accent}33`,borderRadius:6,padding:"2px 9px",fontSize:11,fontWeight:700}}>{p.tipo}</span>
-                    {p.ciudad&&<span style={{background:C.purple+"18",color:C.purple,border:`1px solid ${C.purple}33`,borderRadius:6,padding:"2px 9px",fontSize:11,fontWeight:700}}>{p.ciudad}</span>}
-                  </div>
-                </div>
-              </div>
-              <button onClick={()=>setSel(null)} style={{width:32,height:32,borderRadius:"50%",background:C.border,border:"none",color:C.muted,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>✕</button>
-            </div>
-
-            {/* Info según estado */}
-            {p.estado==="Ocupado"&&contrato?(
-              <div>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:14}}>
-                  {[
-                    ["💵 Facturando",`${fmt(contrato.monto)}/mes`,C.green],
-                    ["🏢 Cliente",contrato.cliente?.empresa||"—",C.white],
-                    ["📅 Vence",diasVence>0?`en ${diasVence}d`:`hace ${Math.abs(diasVence)}d`,diasVence>15?C.green:diasVence>0?C.amber:C.red],
-                  ].map(([l,v,c])=>(
-                    <div key={l} style={{background:C.card,borderRadius:12,padding:"12px 14px",border:`1px solid ${C.border}`,textAlign:"center"}}>
-                      <div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:5,textTransform:"uppercase",letterSpacing:0.8}}>{l}</div>
-                      <div style={{fontSize:13,fontWeight:800,color:c,lineHeight:1.2}}>{v}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-                  <div style={{background:C.card,borderRadius:12,padding:"11px 14px",border:`1px solid ${C.border}`}}>
-                    <div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3,textTransform:"uppercase",letterSpacing:0.8}}>📆 Período</div>
-                    <div style={{fontSize:12,fontWeight:700,color:C.white}}>{fmtF(contrato.inicio)} → {fmtF(contrato.fin)}</div>
-                  </div>
-                  <div style={{background:C.card,borderRadius:12,padding:"11px 14px",border:`1px solid ${C.border}`}}>
-                    <div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3,textTransform:"uppercase",letterSpacing:0.8}}>💳 Pago</div>
-                    <div style={{fontSize:12,fontWeight:700,color:contrato.pagado?C.green:C.amber}}>{contrato.pagado?"✅ Cobrado":"⏳ Pendiente"}</div>
-                  </div>
-                </div>
-              </div>
-            ):(
-              <div style={{background:C.green+"12",border:`1px solid ${C.green}33`,borderRadius:14,padding:"16px 18px",display:"flex",alignItems:"center",gap:14}}>
-                <div style={{fontSize:32}}>✅</div>
-                <div>
-                  <div style={{fontSize:14,fontWeight:800,color:C.green}}>Panel disponible</div>
-                  <div style={{fontSize:13,color:C.muted,marginTop:3}}>Precio de lista: <strong style={{color:C.white}}>{fmt(p.precio)}/mes</strong></div>
-                  {p.precio&&<div style={{fontSize:12,color:C.muted,marginTop:2}}>Anual estimado: <strong style={{color:C.cyan}}>{fmt(p.precio*12)}</strong></div>}
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      })()}
 
     </Card>
     <style>{`@keyframes markerPulse{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.6);opacity:.1}}`}</style>
@@ -713,41 +737,105 @@ function Mapa({paneles,clientes,contratos}){
 // ── CONTRATOS ────────────────────────────────────────────────────
 function Contratos({contratos,paneles,clientes,loading}){
   const [filtro,setFiltro]=useState("Activos");
+  const [historialId,setHistorialId]=useState(null);
+  const [pagosHist,setPagosHist]=useState({}); // {contratoId: [{mes,pagado,fecha,monto}]}
+  const [loadPagos,setLoadPagos]=useState(false);
+
   const datos=contratos.map(c=>({...c,d:dias(c.fin),panel:paneles.find(p=>p.id===c.panel_id),cliente:clientes.find(cl=>cl.id===c.cliente_id)})).filter(c=>c.panel&&c.cliente);
-  
-  // Filtrar y ordenar según el tipo
+
   let fil;
-  if(filtro==="Activos") {
-    fil = datos.filter(c=>c.d>0).sort((a,b)=>a.d-b.d); // Activos: ordenar por próximos a vencer
-  } else if(filtro==="Por vencer") {
-    fil = datos.filter(c=>c.d>0&&c.d<=60).sort((a,b)=>a.d-b.d); // Por vencer: ordenar por urgencia
-  } else {
-    fil = datos.filter(c=>c.d<=0).sort((a,b)=>b.d-a.d); // Históricos: más recientes primero (d es negativo)
-  }
-  
-  // Contadores por categoría
-  const activos = datos.filter(c=>c.d>0).length;
-  const porVencer = datos.filter(c=>c.d>0&&c.d<=60).length;
-  const historicos = datos.filter(c=>c.d<=0).length;
+  if(filtro==="Activos") fil=datos.filter(c=>c.d>0).sort((a,b)=>a.d-b.d);
+  else if(filtro==="Por vencer") fil=datos.filter(c=>c.d>0&&c.d<=60).sort((a,b)=>a.d-b.d);
+  else fil=datos.filter(c=>c.d<=0).sort((a,b)=>b.d-a.d);
+
+  const activos=datos.filter(c=>c.d>0).length;
+  const porVencer=datos.filter(c=>c.d>0&&c.d<=60).length;
+  const historicos=datos.filter(c=>c.d<=0).length;
+
+  // Generar historial de pagos mensual para un contrato
+  const generarMeses=(c)=>{
+    const meses=[];
+    const ini=new Date(c.inicio);
+    const fin=new Date(c.fin);
+    let cur=new Date(ini.getFullYear(),ini.getMonth(),1);
+    while(cur<=fin){
+      const key=`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,"0")}`;
+      meses.push({mes:key,label:cur.toLocaleDateString("es-EC",{month:"short",year:"numeric"})});
+      cur.setMonth(cur.getMonth()+1);
+    }
+    return meses;
+  };
+
+  const abrirHistorial=async(c)=>{
+    if(historialId===c.id){setHistorialId(null);return;}
+    setHistorialId(c.id);
+    if(pagosHist[c.id]) return;
+    setLoadPagos(true);
+    try{
+      const data=await sb.get("pagos",`?contrato_id=eq.${c.id}&order=mes.desc`);
+      setPagosHist(p=>({...p,[c.id]:Array.isArray(data)?data:[]}));
+    }catch(e){
+      setPagosHist(p=>({...p,[c.id]:[]}));
+    }
+    setLoadPagos(false);
+  };
+
+  const togglePago=async(cId,mes,monto,pagado)=>{
+    const pagos=pagosHist[cId]||[];
+    const exist=pagos.find(p=>p.mes===mes);
+    let nuevo;
+    if(exist){
+      const [r]=await sb.patch("pagos",exist.id,{pagado:!pagado,fecha_pago:!pagado?new Date().toISOString().split("T")[0]:null});
+      nuevo=pagos.map(p=>p.id===exist.id?{...p,pagado:!pagado,fecha_pago:r?.fecha_pago||null}:p);
+    } else {
+      const [r]=await sb.post("pagos",{contrato_id:cId,mes,monto,pagado:true,fecha_pago:new Date().toISOString().split("T")[0]});
+      nuevo=r?[...pagos,r]:pagos;
+    }
+    setPagosHist(p=>({...p,[cId]:nuevo}));
+  };
+
+  // Exportar contratos a Excel
+  const exportarExcel=()=>{
+    exportExcel("Contratos_Vista360",[{
+      nombre:"Contratos",
+      cabeceras:["Panel","Cliente","Empresa","Inicio","Fin","Monto","Estado","Dias"],
+      datos:datos.map(c=>({
+        Panel:c.panel?.nombre||"",Cliente:c.cliente?.contacto||"",Empresa:c.cliente?.empresa||"",
+        Inicio:fmtF(c.inicio),Fin:fmtF(c.fin),Monto:Number(c.monto||0),
+        Estado:c.d>0?"Activo":"Vencido",Dias:c.d
+      }))
+    }]);
+  };
+
+  // Exportar contratos a PDF
+  const exportarPDFContratos=()=>{
+    exportPDF(
+      "📋 Contratos — Vista360",
+      `Total: ${datos.length} contratos · Activos: ${activos} · Por vencer: ${porVencer}`,
+      ["Panel","Cliente","Empresa","Inicio","Fin","Monto/mes","Estado"],
+      datos.map(c=>[c.panel?.nombre||"",c.cliente?.contacto||"",c.cliente?.empresa||"",fmtF(c.inicio),fmtF(c.fin),fmt(c.monto),c.d>0?`Activo (${c.d}d)`:"Vencido"]),
+      "Contratos_Vista360"
+    );
+  };
 
   return(<div>
-    <PgTit icon="📋" title="Contratos" sub={`${contratos.length} contratos totales · Mostrando ${fil.length} ${filtro.toLowerCase()}`}/>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:18,flexWrap:"wrap",gap:10}}>
+      <PgTit icon="📋" title="Contratos" sub={`${contratos.length} contratos totales · Mostrando ${fil.length} ${filtro.toLowerCase()}`}/>
+      <div style={{display:"flex",gap:8}}>
+        <button onClick={exportarExcel} style={{padding:"8px 14px",background:C.green+"22",border:`1px solid ${C.green}44`,borderRadius:9,color:C.green,fontWeight:700,fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
+          📊 Excel
+        </button>
+        <button onClick={exportarPDFContratos} style={{padding:"8px 14px",background:C.red+"22",border:`1px solid ${C.red}44`,borderRadius:9,color:C.red,fontWeight:700,fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
+          📄 PDF
+        </button>
+      </div>
+    </div>
     <div style={{display:"flex",gap:8,marginBottom:18,flexWrap:"wrap"}}>
-      {[
-        {label:"Activos",count:activos,icon:"✅"},
-        {label:"Por vencer",count:porVencer,icon:"⚠️"},
-        {label:"Históricos",count:historicos,icon:"📚"}
-      ].map(f=>(
-        <button key={f.label} onClick={()=>setFiltro(f.label)} 
-          style={{padding:"8px 16px",borderRadius:9,border:`1px solid ${filtro===f.label?C.accent:C.border}`,
-          background:filtro===f.label?C.accent+"22":"transparent",color:filtro===f.label?C.accent:C.muted,
-          fontWeight:600,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
-          <span>{f.icon}</span>
-          <span>{f.label}</span>
-          <span style={{background:filtro===f.label?C.accent:C.border,color:filtro===f.label?C.white:C.muted,
-            borderRadius:12,padding:"2px 7px",fontSize:11,fontWeight:700,minWidth:20,textAlign:"center"}}>
-            {f.count}
-          </span>
+      {[{label:"Activos",count:activos,icon:"✅"},{label:"Por vencer",count:porVencer,icon:"⚠️"},{label:"Históricos",count:historicos,icon:"📚"}].map(f=>(
+        <button key={f.label} onClick={()=>setFiltro(f.label)}
+          style={{padding:"8px 16px",borderRadius:9,border:`1px solid ${filtro===f.label?C.accent:C.border}`,background:filtro===f.label?C.accent+"22":"transparent",color:filtro===f.label?C.accent:C.muted,fontWeight:600,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
+          <span>{f.icon}</span><span>{f.label}</span>
+          <span style={{background:filtro===f.label?C.accent:C.border,color:filtro===f.label?C.white:C.muted,borderRadius:12,padding:"2px 7px",fontSize:11,fontWeight:700,minWidth:20,textAlign:"center"}}>{f.count}</span>
         </button>
       ))}
     </div>
@@ -755,37 +843,70 @@ function Contratos({contratos,paneles,clientes,loading}){
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       {fil.map(c=>{
         const msg=encodeURIComponent(`Hola ${c.cliente.contacto}, le recordamos que su contrato para *${c.panel.nombre}* vence el *${fmtF(c.fin)}*. ¿Le interesa renovar? 🙌`);
+        const meses=generarMeses(c);
+        const pagos=pagosHist[c.id]||[];
+        const pagosMes=meses.map(m=>({...m,...(pagos.find(p=>p.mes===m.mes)||{pagado:false})}));
+        const totalPagado=pagosMes.filter(m=>m.pagado).length;
+        const isOpen=historialId===c.id;
         return(
-          <Card key={c.id} style={{display:"flex",alignItems:"center",gap:16,padding:"18px 20px"}}>
-            <div style={{fontSize:30,flexShrink:0}}>{c.panel.foto}</div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:14,fontWeight:700,color:C.white}}>{c.panel.nombre}</div>
-              <div style={{fontSize:13,color:C.muted,marginTop:2}}>{c.cliente.empresa} · {c.cliente.contacto}</div>
-              <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
-                <Tag color={C.accent} ch={`${fmtF(c.inicio)} → ${fmtF(c.fin)}`}/>
-                <Tag color={c.pagado?C.green:C.red} ch={c.pagado?"✓ Pagado":"✗ Pendiente"}/>
-                {c.d>0&&c.d<=60&&<Tag color={c.d<=15?C.red:C.amber} ch={c.d<=15?`🔴 ${c.d}d`:`⚠️ ${c.d}d`}/>}
-                {c.d<=0&&<Tag color={C.muted} ch={`📚 Venció hace ${Math.abs(c.d)}d`}/>}
+          <Card key={c.id} style={{padding:"0"}}>
+            <div style={{display:"flex",alignItems:"center",gap:16,padding:"18px 20px"}}>
+              <div style={{fontSize:30,flexShrink:0}}>{c.panel.foto}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:14,fontWeight:700,color:C.white}}>{c.panel.nombre}</div>
+                <div style={{fontSize:13,color:C.muted,marginTop:2}}>{c.cliente.empresa} · {c.cliente.contacto}</div>
+                <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
+                  <Tag color={C.accent} ch={`${fmtF(c.inicio)} → ${fmtF(c.fin)}`}/>
+                  <Tag color={c.pagado?C.green:C.red} ch={c.pagado?"✓ Pagado":"✗ Pendiente"}/>
+                  {c.d>0&&c.d<=60&&<Tag color={c.d<=15?C.red:C.amber} ch={c.d<=15?`🔴 ${c.d}d`:`⚠️ ${c.d}d`}/>}
+                  {c.d<=0&&<Tag color={C.muted} ch={`📚 Venció hace ${Math.abs(c.d)}d`}/>}
+                  {meses.length>0&&<Tag color={C.cyan} ch={`💳 ${totalPagado}/${meses.length} pagados`}/>}
+                </div>
+              </div>
+              <div style={{textAlign:"right",flexShrink:0,display:"flex",flexDirection:"column",alignItems:"flex-end",gap:8}}>
+                <div style={{fontSize:20,fontWeight:800,color:C.green}}>{fmt(c.monto)}<span style={{fontSize:12,color:C.muted}}>/mes</span></div>
+                <div style={{display:"flex",gap:6}}>
+                  <button onClick={()=>abrirHistorial(c)}
+                    style={{background:isOpen?C.cyan+"33":C.surface,border:`1px solid ${isOpen?C.cyan:C.border}`,borderRadius:8,padding:"6px 11px",color:isOpen?C.cyan:C.muted,fontWeight:700,fontSize:12,cursor:"pointer"}}>
+                    {isOpen?"▲ Pagos":"💳 Pagos"}
+                  </button>
+                  <a href={`https://wa.me/${c.cliente.celular?.replace(/\D/g,"")}?text=${msg}`} target="_blank" rel="noopener noreferrer"
+                    style={{background:"#25D366",border:"none",borderRadius:8,padding:"6px 13px",color:C.white,fontWeight:700,fontSize:12,cursor:"pointer",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:6}}>
+                    📱 WA
+                  </a>
+                </div>
               </div>
             </div>
-            <div style={{textAlign:"right",flexShrink:0}}>
-              <div style={{fontSize:20,fontWeight:800,color:C.green}}>{fmt(c.monto)}<span style={{fontSize:12,color:C.muted}}>/mes</span></div>
-              <a href={`https://wa.me/${c.cliente.celular?.replace(/\D/g,"")}?text=${msg}`} target="_blank" rel="noopener noreferrer"
-                style={{background:"#25D366",border:"none",borderRadius:8,padding:"7px 13px",color:C.white,fontWeight:700,fontSize:12,cursor:"pointer",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:6,marginTop:10}}>
-                📱 WhatsApp
-              </a>
-            </div>
+
+            {/* HISTORIAL DE PAGOS */}
+            {isOpen&&(
+              <div style={{borderTop:`1px solid ${C.border}`,padding:"16px 20px",background:C.surface+"88"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                  <span style={{fontSize:12,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:1}}>💳 Historial de Pagos Mensual</span>
+                  <span style={{fontSize:12,color:C.cyan}}>{totalPagado}/{meses.length} meses pagados · {fmt(totalPagado*Number(c.monto))} cobrado</span>
+                </div>
+                {loadPagos&&!pagosHist[c.id]?<Spinner/>:(
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(130px,1fr))",gap:8}}>
+                    {pagosMes.map(m=>(
+                      <button key={m.mes} onClick={()=>togglePago(c.id,m.mes,c.monto,m.pagado)}
+                        style={{background:m.pagado?C.green+"22":C.bg,border:`1px solid ${m.pagado?C.green:C.border}`,borderRadius:10,padding:"10px 12px",cursor:"pointer",textAlign:"left",transition:"all .15s"}}>
+                        <div style={{fontSize:11,fontWeight:700,color:m.pagado?C.green:C.muted,marginBottom:3}}>{m.label}</div>
+                        <div style={{fontSize:13,fontWeight:800,color:m.pagado?C.green:C.muted}}>{m.pagado?"✓ Pagado":"○ Pendiente"}</div>
+                        {m.fecha_pago&&<div style={{fontSize:10,color:C.muted,marginTop:2}}>{fmtF(m.fecha_pago)}</div>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <div style={{marginTop:10,fontSize:11,color:C.muted}}>💡 Clic en un mes para marcar / desmarcar como pagado. Requiere tabla <strong style={{color:C.cyan}}>pagos</strong> en Supabase.</div>
+              </div>
+            )}
           </Card>
         );
       })}
       {fil.length===0&&<Card style={{textAlign:"center",color:C.muted,padding:40}}>
         <div style={{fontSize:32,marginBottom:10}}>{filtro==="Activos"?"📋":filtro==="Por vencer"?"⏰":"📚"}</div>
         <div style={{fontSize:15,fontWeight:700,color:C.white,marginBottom:6}}>Sin contratos {filtro.toLowerCase()}</div>
-        <div style={{fontSize:13}}>
-          {filtro==="Históricos"?"Todos los contratos vencidos aparecerán aquí, sin límite de tiempo.":
-           filtro==="Por vencer"?"Los contratos que vencen en los próximos 60 días aparecerán aquí.":
-           "Los contratos activos con fecha de vencimiento futura aparecerán aquí."}
-        </div>
+        <div style={{fontSize:13}}>{filtro==="Históricos"?"Todos los contratos vencidos aparecerán aquí.":filtro==="Por vencer"?"Los contratos que vencen en los próximos 60 días aparecerán aquí.":"Los contratos activos aparecerán aquí."}</div>
       </Card>}
     </div>}
   </div>);
@@ -841,9 +962,15 @@ function CRM({clientes,setClientes,loading}){
   const td={padding:"12px 13px",verticalAlign:"middle",borderBottom:`1px solid ${C.border}`};
 
   return(<div>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:22}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:22,flexWrap:"wrap",gap:10}}>
       <PgTit icon="👥" title="Clientes & Prospectos" sub={`CRM · ${clientes.length} contactos`}/>
-      <button onClick={openNew} style={{background:C.accent,border:"none",borderRadius:11,padding:"10px 20px",color:C.white,fontWeight:700,fontSize:13,cursor:"pointer"}}>＋ Nuevo contacto</button>
+      <div style={{display:"flex",gap:8}}>
+        <button onClick={()=>exportExcel("CRM_Vista360",[{nombre:"CRM",cabeceras:["Tipo","Empresa","Contacto","Celular","Email","Ciudad","Sector","Estado","Valor"],datos:clientes.map(r=>({Tipo:r.tipo,Empresa:r.empresa,Contacto:r.contacto,Celular:r.celular||"",Email:r.email||"",Ciudad:r.ciudad,Sector:r.sector,Estado:r.estado,Valor:Number(r.valor||0)}))}])}
+          style={{padding:"8px 14px",background:C.green+"22",border:`1px solid ${C.green}44`,borderRadius:9,color:C.green,fontWeight:700,fontSize:12,cursor:"pointer"}}>📊 Excel</button>
+        <button onClick={()=>exportPDF("👥 CRM — Vista360",`Total: ${clientes.length} contactos`,["Tipo","Empresa","Contacto","Ciudad","Estado","Valor"],clientes.map(r=>[r.tipo,r.empresa,r.contacto,r.ciudad,r.estado,fmt(r.valor)]),"CRM_Vista360")}
+          style={{padding:"8px 14px",background:C.red+"22",border:`1px solid ${C.red}44`,borderRadius:9,color:C.red,fontWeight:700,fontSize:12,cursor:"pointer"}}>📄 PDF</button>
+        <button onClick={openNew} style={{background:C.accent,border:"none",borderRadius:11,padding:"10px 20px",color:C.white,fontWeight:700,fontSize:13,cursor:"pointer"}}>＋ Nuevo contacto</button>
+      </div>
     </div>
 
     <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:20}}>
@@ -1097,15 +1224,15 @@ function Resultados({contratos,loading}){
                 const exportarPDF=(mes,label,ing,gas,util,margen,gastosList)=>{
                   const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Vista360 - ${label}</title><style>
                     *{box-sizing:border-box}
-                    body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;padding:50px;color:#0D1421;max-width:900px;margin:0 auto;background:#fff;line-height:1.6}
-                    .header{display:flex;align-items:center;justify-content:space-between;padding-bottom:24px;border-bottom:3px solid #2563EB;margin-bottom:32px;background:linear-gradient(135deg,#f8f9ff 0%,#fff 100%);padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(37,99,235,0.1)}
+                    body{font-family:Arial,sans-serif;padding:40px;color:#1a1a2e;max-width:820px;margin:0 auto;background:#fff}
+                    .header{display:flex;align-items:center;justify-content:space-between;padding-bottom:20px;border-bottom:2px solid #2563EB;margin-bottom:28px}
                     .header-left{display:flex;align-items:center;gap:16px}
-                    .header-logo{height:65px;width:auto;filter:drop-shadow(0 2px 4px rgba(37,99,235,0.2))}
-                    .header-info h1{margin:0;font-size:26px;color:#0D1421;font-weight:900;letter-spacing:-0.5px}
+                    .header-logo{height:52px;width:auto}
+                    .header-info h1{margin:0;font-size:22px;color:#1a1a2e;font-weight:800}
                     .header-info p{margin:4px 0 0;font-size:14px;color:#2563EB;font-weight:600}
                     .header-fecha{text-align:right;font-size:12px;color:#888;line-height:1.6}
                     .metricas{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0 0 24px}
-                    .metrica{background:linear-gradient(135deg,#f8f9ff,#eef2ff);border:2px solid #dde5ff;border-radius:14px;padding:20px;box-shadow:0 2px 6px rgba(37,99,235,0.08);transition:all 0.3s ease}
+                    .metrica{background:linear-gradient(135deg,#f8f9ff,#eef2ff);border:1px solid #dde5ff;border-radius:12px;padding:16px}
                     .metrica-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:#666;margin-bottom:8px;font-weight:700}
                     .metrica-val{font-size:24px;font-weight:800}
                     .verde{color:#10B981} .rojo{color:#EF4444} .azul{color:#2563EB}
@@ -1276,46 +1403,59 @@ function Alertas({contratos,paneles,clientes}){
     return {...c,panel,cliente,d};
   }).filter(c=>c.panel&&c.cliente);
 
-  const criticos=datos.filter(c=>c.d>0&&c.d<=15).sort((a,b)=>a.d-b.d); // 🔴 Críticos: ≤15 días
-  const proximos=datos.filter(c=>c.d>15&&c.d<=30).sort((a,b)=>a.d-b.d); // 🟡 Advertencia: 16-30 días
+  const criticos=datos.filter(c=>c.d>0&&c.d<=15).sort((a,b)=>a.d-b.d);
+  const proximos=datos.filter(c=>c.d>15&&c.d<=30).sort((a,b)=>a.d-b.d);
   const vencidos=datos.filter(c=>c.d<=0).sort((a,b)=>a.d-b.d);
+  const enRiesgo=[...vencidos,...criticos,...proximos];
 
   const [notifPerm,setNotifPerm]=useState(typeof Notification!=="undefined"?Notification.permission:"default");
 
   const activarNotif=async()=>{
-    if(typeof Notification==="undefined") return alert("Tu navegador no soporta notificaciones.\nEn iPhone necesitas iOS 16.4+ y agregar la app a Inicio primero.");
+    if(typeof Notification==="undefined") return alert("Tu navegador no soporta notificaciones push");
     const p=await Notification.requestPermission();
     setNotifPerm(p);
     if(p==="granted"){
-      // Notificación de bienvenida inmediata
-      new Notification("✅ Vista360 — Alertas activadas",{
-        body:"Te avisaremos 15 días y 5 días antes de cada vencimiento",
-        tag:"bienvenida"
+      new Notification("✅ Vista360 activado",{body:"Recibirás alertas 15 y 30 días antes del vencimiento",tag:"bienvenida"});
+      // Disparar notificaciones inmediatas para críticos
+      criticos.slice(0,3).forEach(c=>{
+        setTimeout(()=>new Notification(`🔴 Vence en ${c.d} días`,{body:`${c.panel?.nombre} · ${c.cliente?.empresa}`,tag:c.id}),800);
       });
-      // Limpiar historial para que re-evalúe todos los contratos ahora
-      try{ localStorage.removeItem("v360_notif"); }catch{}
-    } else if(p==="denied"){
-      alert("Bloqueaste las notificaciones.\nPara activarlas: Ajustes del navegador → Notificaciones → Permitir para este sitio.");
     }
   };
 
+  // Exportar alertas a PDF
+  const exportarPDFAlertas=()=>{
+    exportPDF(
+      "🔔 Alertas de Vencimiento — Vista360",
+      `${criticos.length} críticos · ${proximos.length} próximos · ${vencidos.length} vencidos`,
+      ["Panel","Cliente","Empresa","Vence","Días","Monto/mes","Estado"],
+      enRiesgo.map(c=>[c.panel?.nombre||"",c.cliente?.contacto||"",c.cliente?.empresa||"",fmtF(c.fin),c.d<=0?`Venció hace ${Math.abs(c.d)}d`:`${c.d}d restantes`,fmt(c.monto),c.d<=0?"VENCIDO":c.d<=15?"CRÍTICO":"PRÓXIMO"]),
+      "Alertas_Vista360"
+    );
+  };
+
+  const exportarExcelAlertas=()=>{
+    exportExcel("Alertas_Vista360",[{
+      nombre:"Alertas",
+      cabeceras:["Panel","Cliente","Empresa","Vence","Dias","Monto","Estado"],
+      datos:enRiesgo.map(c=>({Panel:c.panel?.nombre||"",Cliente:c.cliente?.contacto||"",Empresa:c.cliente?.empresa||"",Vence:fmtF(c.fin),Dias:c.d,Monto:Number(c.monto||0),Estado:c.d<=0?"VENCIDO":c.d<=15?"CRÍTICO":"PRÓXIMO"}))
+    }]);
+  };
+
   const NotifStatus=()=>(
-    <div style={{display:"flex",alignItems:"center",gap:10}}>
+    <div style={{display:"flex",alignItems:"center",gap:8}}>
       {notifPerm==="granted"
-        ? <div style={{display:"flex",alignItems:"center",gap:6,background:C.green+"18",border:`1px solid ${C.green}44`,borderRadius:10,padding:"8px 14px"}}>
-            <div style={{width:8,height:8,borderRadius:"50%",background:C.green,animation:"pulse 1.5s infinite"}}/>
-            <span style={{fontSize:12,fontWeight:700,color:C.green}}>🔔 Notificaciones activas · 15d y 5d antes</span>
+        ?<div style={{display:"flex",alignItems:"center",gap:6,background:C.green+"18",border:`1px solid ${C.green}44`,borderRadius:10,padding:"8px 14px"}}>
+            <div style={{width:8,height:8,borderRadius:"50%",background:C.green}}/>
+            <span style={{fontSize:12,fontWeight:700,color:C.green}}>Notificaciones activas</span>
           </div>
-        : notifPerm==="denied"
-        ? <div style={{fontSize:12,fontWeight:700,color:C.red,background:C.red+"18",border:`1px solid ${C.red}44`,borderRadius:10,padding:"8px 14px"}}>
-            🚫 Bloqueadas — ve a Ajustes del navegador para permitirlas
+        :notifPerm==="denied"
+        ?<div style={{display:"flex",alignItems:"center",gap:6,background:C.red+"18",border:`1px solid ${C.red}44`,borderRadius:10,padding:"8px 14px"}}>
+            <span style={{fontSize:12,fontWeight:700,color:C.red}}>🚫 Bloqueadas — actívalas en ajustes del navegador</span>
           </div>
-        : <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}>
-            <button onClick={activarNotif} style={{background:C.accent,border:"none",borderRadius:10,padding:"9px 18px",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",gap:7}}>
-              📲 Activar alertas en celular
-            </button>
-            <span style={{fontSize:10,color:C.muted}}>iPhone: primero agrega la app a Inicio (Safari → Compartir → Agregar a inicio)</span>
-          </div>
+        :<button onClick={activarNotif} style={{background:C.accent,border:"none",borderRadius:10,padding:"8px 16px",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",gap:7}}>
+            📲 Activar alertas en celular
+          </button>
       }
     </div>
   );
@@ -1341,11 +1481,36 @@ function Alertas({contratos,paneles,clientes}){
     );
   };
 
+  // Ingreso en riesgo total
+  const ingresoRiesgo=enRiesgo.reduce((a,c)=>a+Number(c.monto||0),0);
+
   return(<div>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:22}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:18,flexWrap:"wrap",gap:10}}>
       <PgTit icon="🔔" title="Alertas de Vencimiento" sub="Contratos que requieren atención inmediata"/>
-      <NotifStatus/>
+      <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+        <NotifStatus/>
+        <button onClick={exportarExcelAlertas} style={{padding:"8px 14px",background:C.green+"22",border:`1px solid ${C.green}44`,borderRadius:9,color:C.green,fontWeight:700,fontSize:12,cursor:"pointer"}}>📊 Excel</button>
+        <button onClick={exportarPDFAlertas} style={{padding:"8px 14px",background:C.red+"22",border:`1px solid ${C.red}44`,borderRadius:9,color:C.red,fontWeight:700,fontSize:12,cursor:"pointer"}}>📄 PDF</button>
+      </div>
     </div>
+
+    {/* Resumen ejecutivo proactivo */}
+    {enRiesgo.length>0&&(
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:20}}>
+        {[
+          ["🚨 Vencidos",vencidos.length,C.red,"requieren gestión"],
+          ["🔴 Críticos (≤15d)",criticos.length,C.amber,"urgentes"],
+          ["🟡 Próximos (≤30d)",proximos.length,C.cyan,"en seguimiento"],
+          ["💸 Ingreso en riesgo",fmt(ingresoRiesgo),C.purple,"por mes"],
+        ].map(([l,v,c,s])=>(
+          <Card key={l} style={{padding:"16px 18px",borderColor:c+"33"}}>
+            <div style={{fontSize:11,color:C.muted,fontWeight:700,marginBottom:6,textTransform:"uppercase",letterSpacing:1}}>{l}</div>
+            <div style={{fontSize:26,fontWeight:800,color:c,letterSpacing:"-1px"}}>{v}</div>
+            <div style={{fontSize:12,color:C.muted}}>{s}</div>
+          </Card>
+        ))}
+      </div>
+    )}
 
     {criticos.length===0&&proximos.length===0&&vencidos.length===0&&(
       <Card style={{textAlign:"center",padding:48}}>
@@ -1357,7 +1522,7 @@ function Alertas({contratos,paneles,clientes}){
 
     {vencidos.length>0&&(
       <Card style={{marginBottom:16,borderColor:C.red+"55"}}>
-        <SecTit ch={`🚨 Vencidos — ${vencidos.length} contratos`}/>
+        <SecTit ch={`🚨 Vencidos — ${vencidos.length} contratos · ${fmt(vencidos.reduce((a,c)=>a+Number(c.monto||0),0))}/mes en riesgo`}/>
         {vencidos.map(c=><AlertRow key={c.id} c={c} color={C.red} label={`Venció hace ${Math.abs(c.d)}d`}/>)}
       </Card>
     )}
@@ -1393,53 +1558,29 @@ function ROI({paneles,contratos}){
   const realOcu=paneles.length?Math.round((paneles.filter(p=>p.estado==="Ocupado").length/paneles.length)*100):0;
   const realIng=contratos.filter(c=>c.pagado).reduce((a,c)=>a+Number(c.monto),0);
 
-  // Control numérico táctil — botones grandes + y −
-  const NumControl=({label,val,min,max,step=1,set,suffix="",icon})=>{
-    const display=typeof val==="number"&&val>999?fmt(val):`${val}${suffix}`;
-    const pct=Math.round(((val-min)/(max-min))*100);
-    return(
-      <div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:16,padding:"14px 16px",marginBottom:12}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-          <div style={{display:"flex",alignItems:"center",gap:8}}>
-            <span style={{fontSize:18}}>{icon}</span>
-            <span style={{fontSize:12,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:0.8}}>{label}</span>
-          </div>
-          <span style={{fontSize:20,fontWeight:800,color:C.accent}}>{display}</span>
-        </div>
-        {/* Barra de progreso visual */}
-        <div style={{height:4,borderRadius:2,background:C.border,marginBottom:12,overflow:"hidden"}}>
-          <div style={{height:"100%",width:`${pct}%`,background:`linear-gradient(90deg,${C.accent},${C.cyan})`,borderRadius:2,transition:"width .15s"}}/>
-        </div>
-        {/* Botones - y + */}
-        <div style={{display:"flex",gap:8,alignItems:"center"}}>
-          <button
-            onPointerDown={()=>set(v=>Math.max(min,v-step))}
-            style={{flex:1,height:44,borderRadius:12,border:`1px solid ${C.border}`,background:C.card,color:C.white,fontSize:22,fontWeight:700,cursor:"pointer",userSelect:"none",WebkitUserSelect:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
-            −
-          </button>
-          <div style={{fontSize:12,color:C.muted,minWidth:60,textAlign:"center",fontWeight:600}}>
-            {min}{suffix} → {max}{suffix}
-          </div>
-          <button
-            onPointerDown={()=>set(v=>Math.min(max,v+step))}
-            style={{flex:1,height:44,borderRadius:12,border:"none",background:C.accent,color:C.white,fontSize:22,fontWeight:700,cursor:"pointer",userSelect:"none",WebkitUserSelect:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
-            +
-          </button>
-        </div>
+  const NumField=({label,val,min,max,step=1,set,suffix=""})=>(
+    <div style={{marginBottom:18}}>
+      <label style={{display:"block",fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>{label}</label>
+      <div style={{display:"flex",alignItems:"center",gap:8}}>
+        <input type="number" min={min} max={max} step={step} value={val}
+          onChange={e=>{const v=Number(e.target.value);if(v>=min&&v<=max)set(v);}}
+          style={{flex:1,background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:"10px 13px",color:C.white,fontSize:15,fontWeight:700,outline:"none",fontFamily:"inherit",textAlign:"right"}}/>
+        {suffix&&<span style={{fontSize:14,fontWeight:700,color:C.muted}}>{suffix}</span>}
       </div>
-    );
-  };
+      <div style={{fontSize:10,color:C.border,marginTop:3}}>Rango: {min}{suffix} – {max}{suffix}</div>
+    </div>
+  );
 
   return(<div>
     <PgTit icon="💡" title="Calculadora de ROI" sub="Proyecta tu retorno de inversión por panel"/>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
       <Card>
         <SecTit ch="⚙️ Parámetros"/>
-        <NumControl icon="💵" label="Precio por panel/mes" val={precio} min={200} max={5000} step={50} set={setPrecio}/>
-        <NumControl icon="🖥️" label="Número de paneles"    val={panelCount} min={1} max={50} step={1} set={setPanelCount}/>
-        <NumControl icon="📊" label="Ocupación esperada"   val={ocup} min={10} max={100} step={5} set={setOcup} suffix="%"/>
-        <NumControl icon="⚙️" label="Costo operativo/panel/mes" val={costoMes} min={0} max={2000} step={10} set={setCostoMes}/>
-        <NumControl icon="📅" label="Horizonte (meses)"   val={meses} min={1} max={36} step={1} set={setMeses} suffix=" mes"/>
+        <NumField label="Precio por panel/mes" val={precio} min={200} max={5000} step={50} set={setPrecio} suffix=""/>
+        <NumField label="Número de paneles" val={panelCount} min={1} max={50} set={setPanelCount}/>
+        <NumField label="Ocupación esperada" val={ocup} min={10} max={100} set={setOcup} suffix="%"/>
+        <NumField label="Costo operativo/panel/mes" val={costoMes} min={0} max={2000} step={10} set={setCostoMes}/>
+        <NumField label="Horizonte (meses)" val={meses} min={1} max={36} set={setMeses}/>
       </Card>
 
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -1492,83 +1633,8 @@ export default function App(){
 
   const noConf = false; // credenciales ya configuradas
 
-  // ── 🔔 PUSH NOTIFICATIONS — Compatible con Chrome, Safari iOS 16.4+, Edge ──
-  // Estrategia: Notification API nativa (sin servidor externo).
-  // Funciona en celular cuando la app está instalada como PWA (Agregar a inicio).
-  // El Service Worker se registra como blob para no necesitar archivo extra.
-
-  const swRef = useRef(null);
-
-  // 1️⃣ Registrar Service Worker una sola vez al montar
-  useEffect(() => {
-    if (!("serviceWorker" in navigator)) return;
-    const SW = `
-      self.addEventListener("install", e => self.skipWaiting());
-      self.addEventListener("activate", e => e.waitUntil(clients.claim()));
-      self.addEventListener("notificationclick", e => {
-        e.notification.close();
-        e.waitUntil(clients.matchAll({type:"window"}).then(list => {
-          if (list.length) return list[0].focus();
-          return clients.openWindow("/");
-        }));
-      });
-    `;
-    const blob = new Blob([SW], { type: "application/javascript" });
-    const url  = URL.createObjectURL(blob);
-    navigator.serviceWorker.register(url)
-      .then(reg => { swRef.current = reg; URL.revokeObjectURL(url); })
-      .catch(() => {});
-  }, []);
-
-  // 2️⃣ Revisar contratos y disparar notificaciones cuando hay datos
-  useEffect(() => {
-    if (!contratos.length || !paneles.length || !clientes.length) return;
-    if (typeof Notification === "undefined") return;
-    if (Notification.permission !== "granted") return;
-
-    const hoyD  = new Date();
-    // Leer qué notificaciones ya enviamos (guardado en localStorage)
-    let enviadas = {};
-    try { enviadas = JSON.parse(localStorage.getItem("v360_notif") || "{}"); } catch {}
-
-    contratos.forEach(c => {
-      const d = Math.ceil((new Date(c.fin) - hoyD) / 86400000);
-      // Disparar a los 15 días y a los 5 días
-      [15, 5].forEach(umbral => {
-        if (d > 0 && d <= umbral) {
-          const key = `${c.id}_${umbral}`;
-          if (enviadas[key]) return; // ya enviada
-
-          const panel   = paneles.find(p => p.id === c.panel_id);
-          const cliente = clientes.find(cl => cl.id === c.cliente_id);
-          if (!panel || !cliente) return;
-
-          // Mostrar notificación nativa
-          const titulo = d <= 5
-            ? `🚨 Vence en ${d} día${d===1?"":"s"} — ${panel.nombre}`
-            : `⚠️ Vence en ${d} días — ${panel.nombre}`;
-          const cuerpo = `Cliente: ${cliente.empresa} · ${fmt(c.monto)}/mes`;
-
-          try {
-            if (swRef.current && swRef.current.showNotification) {
-              // Via Service Worker (mejor soporte en móvil)
-              swRef.current.showNotification(titulo, {
-                body: cuerpo, tag: key, icon: "/favicon.ico",
-                badge: "/favicon.ico", vibrate: [200, 100, 200],
-                requireInteraction: d <= 5,
-              });
-            } else {
-              // Fallback: Notification API directa
-              new Notification(titulo, { body: cuerpo, tag: key });
-            }
-            enviadas[key] = true;
-          } catch {}
-        }
-      });
-    });
-
-    try { localStorage.setItem("v360_notif", JSON.stringify(enviadas)); } catch {}
-  }, [contratos, paneles, clientes]);
+  // 🔔 Push notifications
+  // Push notifications removidas para compatibilidad
 
 
   useEffect(()=>{
@@ -1584,15 +1650,33 @@ export default function App(){
     }).catch(()=>{ setError(true); setLoading(false); });
   },[]);
 
+  // Banner proactivo de alertas
+  const hoyRef=new Date();
+  const alertasCriticas=contratos.filter(c=>{ const d=Math.ceil((new Date(c.fin)-hoyRef)/86400000); return d>0&&d<=15; });
+  const alertasVencidas=contratos.filter(c=>Math.ceil((new Date(c.fin)-hoyRef)/86400000)<=0);
+  const [bannerCerrado,setBannerCerrado]=useState(false);
+
   const tabs=[{id:"dashboard",icon:"⚡",label:"Dashboard"},{id:"mapa",icon:"🗺️",label:"Mapa"},{id:"paneles",icon:"🖥️",label:"Paneles"},{id:"contratos",icon:"📋",label:"Contratos"},{id:"crm",icon:"👥",label:"Clientes"},{id:"resultados",icon:"📈",label:"Resultados"},{id:"roi",icon:"💡",label:"ROI"},{id:"alertas",icon:"🔔",label:"Alertas"}];
 
   return(<>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <style>{`*{box-sizing:border-box}body{margin:0}::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:${C.bg}}::-webkit-scrollbar-thumb{background:${C.border};border-radius:3px}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{from{opacity:.2}to{opacity:.6}}`}</style>
 
     {splash&&<Splash done={()=>setSplash(false)}/>}
 
     {/* Banner de notificaciones push */}
+    {/* Banner proactivo de alertas urgentes */}
+    {!bannerCerrado&&!loading&&(alertasCriticas.length>0||alertasVencidas.length>0)&&(
+      <div style={{background:`linear-gradient(90deg,${C.red}22,${C.amber}18)`,borderBottom:`1px solid ${C.red}44`,padding:"10px 24px",display:"flex",alignItems:"center",gap:12}}>
+        <div style={{fontSize:20}}>🚨</div>
+        <div style={{flex:1,fontSize:13,color:C.text}}>
+          {alertasVencidas.length>0&&<strong style={{color:C.red}}>{alertasVencidas.length} contrato{alertasVencidas.length>1?"s":""} vencido{alertasVencidas.length>1?"s":""}. </strong>}
+          {alertasCriticas.length>0&&<strong style={{color:C.amber}}>{alertasCriticas.length} contrato{alertasCriticas.length>1?"s":""} vence{alertasCriticas.length>1?"n":""} en ≤15 días. </strong>}
+          <button onClick={()=>setTab("alertas")} style={{background:"none",border:"none",color:C.cyan,fontWeight:700,fontSize:13,cursor:"pointer",textDecoration:"underline",padding:0}}>Ver alertas →</button>
+        </div>
+        <button onClick={()=>setBannerCerrado(true)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:16,padding:"0 4px"}}>✕</button>
+      </div>
+    )}
 
     <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg,minHeight:"100vh",color:C.text,display:"flex",flexDirection:"column"}}>
       <nav style={{background:C.surface,borderBottom:`1px solid ${C.border}`,padding:"0 16px",display:"flex",alignItems:"center",height:56,position:"sticky",top:0,zIndex:100,gap:2,overflowX:"auto",scrollbarWidth:"none"}}>
@@ -1649,10 +1733,8 @@ export default function App(){
   </>);
 }
 
-// Mount app
-const domRoot = ReactDOM.createRoot(document.getElementById('root'));
-domRoot.render(React.createElement(App));
-window.__hideLoading && window.__hideLoading();
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
   </script>
 </body>
 </html>
