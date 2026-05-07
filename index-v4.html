@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0A0F1E" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Vista360</title>
+    <style>
+      /* ELIMINACIÓN DE LÍMITES DEL SISTEMA */
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        background-color: #0A0F1E !important;
+        position: fixed; /* Anclaje total */
+        top: 0; left: 0; right: 0; bottom: 0;
+        overscroll-behavior: none;
+      }
+      #root {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        /* iOS PWA: fuerza el contenido hasta el borde físico */
+        padding-bottom: env(safe-area-inset-bottom);
+        box-sizing: border-box;
+        background-color: #0A0F1E;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
