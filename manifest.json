@@ -1,0 +1,17 @@
+{
+  "name": "Vista360",
+  "short_name": "Vista360",
+  "description": "Gestión integral Vista360 - 8 Millas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
