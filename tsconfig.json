@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    // ── Strict mode ───────────────────────────────────────────────
+    // Activa: noImplicitAny, strictNullChecks, strictFunctionTypes,
+    //         strictBindCallApply, strictPropertyInitialization,
+    //         noImplicitThis, alwaysStrict — todo de una vez.
+    "strict": true,
+
+    // Errores adicionales recomendados
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // ── Módulos / entorno ─────────────────────────────────────────
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    // ── Resolución de módulos ─────────────────────────────────────
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+
+    // ── JSX ───────────────────────────────────────────────────────
+    "jsx": "react-jsx"
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
