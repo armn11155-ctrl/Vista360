@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { T } from "../config/theme";
+import { Logo360 } from "../components/layout/Logo360";
+
+interface SplashProps { done: () => void; }
 
 function Splash({ done }: SplashProps){
   const [f,setF]=useState(0);
@@ -150,14 +153,4 @@ function Splash({ done }: SplashProps){
   );
 }
 
-// ── DONUT / BARCHART ─────────────────────────────────────────────
-
-// ══════════════════════════════════════════════════════════════════
-// PANTALLAS
-// ══════════════════════════════════════════════════════════════════
-
-
-
-// ── MINI MAPA INTERACTIVO (formulario de paneles) ────────────────
-// Mueve el pin → la dirección se llena sola via Nominatim
-function MiniMapaPanel({ lat, lng, nombre, foto, onMove }: MiniMapaPanelProps){
+export default Splash;
