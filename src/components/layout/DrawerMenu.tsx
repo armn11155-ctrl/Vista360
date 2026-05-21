@@ -263,3 +263,4 @@ const ALLOWED_EMAILS: string[] = (import.meta.env.VITE_ALLOWED_EMAILS ?? "")
   .map((e: string) => e.trim())
   .filter(Boolean);
 
+export default DrawerMenu;
