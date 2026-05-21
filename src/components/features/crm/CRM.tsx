@@ -448,3 +448,5 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
 }
 
 // ══════════════════════════════════════════════════════════════════
+
+export default CRM;
