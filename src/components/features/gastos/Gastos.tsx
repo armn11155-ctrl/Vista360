@@ -1148,3 +1148,5 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
 // ══════════════════════════════════════════════════════════════════
 // 📚 HISTÓRICO — Registro de paneles alquilados y contratos
 // ══════════════════════════════════════════════════════════════════
+
+export default GastosKInp;
