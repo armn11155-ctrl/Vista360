@@ -412,3 +412,5 @@ const fBuildMeses = (desde: string, hasta: string): string[] => {
 const fNMesesAtras = (n: number): string => { const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()-(n-1)); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; };
 
 // ── Sub-components ─────────────────────────────────────────────────
+
+export default Proveedores;
