@@ -7,10 +7,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          "firebase": ["firebase/app","firebase/firestore","firebase/auth"],
-          "react":    ["react","react-dom"],
-        }
-      }
-    }
-  }
+          "vendor-firebase": ["firebase/app", "firebase/firestore", "firebase/auth"],
+          "vendor-react":    ["react", "react-dom"],
+        },
+      },
+    },
+  },
 });
