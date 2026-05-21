@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { signInWithPopup, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
-import { auth, googleProvider } from "../../config/firebase";
-import { T } from "../../config/theme";
-import { ALLOWED_EMAILS } from "../../config/constants";
+import { auth, googleProvider } from "../../../config/firebase";
+import { T } from "../../../config/theme";
+import { ALLOWED_EMAILS } from "../../../config/constants";
 
 function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [loading, setLoading] = useState(false);
