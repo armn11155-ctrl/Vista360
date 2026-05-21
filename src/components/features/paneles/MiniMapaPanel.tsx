@@ -96,3 +96,5 @@ function MiniMapaPanel({ lat, lng, nombre, foto, onMove }: MiniMapaPanelProps){
 }
 
 // ── GESTIÓN DE PANELES ───────────────────────────────────────────
+
+export default MiniMapaPanel;
