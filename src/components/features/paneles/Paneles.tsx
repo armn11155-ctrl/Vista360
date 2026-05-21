@@ -442,3 +442,4 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
 
 // ── MAPA — Leaflet + OpenStreetMap (100% gratis) ─────────────────
 
+export default Paneles;
