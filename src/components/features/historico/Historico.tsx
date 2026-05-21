@@ -512,3 +512,5 @@ async function fetchFacturas() {
 // y permite abrir el PDF/XML que ese sistema generó.
 // NO edita, NO crea, NO envía emails, NO registra pagos.
 // ──────────────────────────────────────────────────────────────────
+
+export default Historico;
