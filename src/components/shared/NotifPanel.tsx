@@ -266,3 +266,5 @@ function getHeaderColor(t: string, profile: boolean): string {
 // ══════════════════════════════════════════════════════════════════
 // APP ROOT — nuevo diseño + lógica Firebase original
 // ══════════════════════════════════════════════════════════════════
+
+export default NotifPanel;
