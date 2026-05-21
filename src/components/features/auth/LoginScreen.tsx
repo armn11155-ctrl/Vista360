@@ -178,3 +178,5 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 // ══════════════════════════════════════════════════════════════════
 // CENTRO DE NOTIFICACIONES
 // ══════════════════════════════════════════════════════════════════
+
+export default LoginScreen;
