@@ -384,3 +384,5 @@ function Mapa({ paneles, clientes, contratos }: MapaProps){
 }
 
 // ── CONTRATOS ────────────────────────────────────────────────────
+
+export default Mapa;
