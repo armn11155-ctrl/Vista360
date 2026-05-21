@@ -696,3 +696,5 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
 // ══════════════════════════════════════════════════════════════════
 // 🗑️ TRASH MODAL — archivos eliminados (papelera global)
 // ══════════════════════════════════════════════════════════════════
+
+export default CapModal;
