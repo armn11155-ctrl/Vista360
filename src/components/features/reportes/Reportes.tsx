@@ -810,4 +810,4 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
 // WAVE — mini sparkline decorativa
 // ══════════════════════════════════════════════════════════════════
 
-export default MesCard;
+export default Reportes;
