@@ -350,3 +350,5 @@ function ResumenNuevo({ clientes, contratos, paneles, gastos, setTab, userName =
 
 
 // ══════════════════════════════════════════════════════════════════
+
+export default Wave;
