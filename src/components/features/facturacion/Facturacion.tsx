@@ -1251,3 +1251,4 @@ function MesCard({ m, anio, contratos, paneles, clientes, exportMesPDF }: {
   );
 }
 
+export default ModalDetalleFactura;
