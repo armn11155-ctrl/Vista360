@@ -156,3 +156,4 @@ function BusquedaGlobal({ open, onClose, paneles, clientes, contratos, onNavigat
   );
 }
 
+export default BusquedaGlobal;
