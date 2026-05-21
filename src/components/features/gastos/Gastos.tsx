@@ -639,7 +639,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                   </button>
                   {/* Btn PAGAR */}
                   <button onClick={()=>pagarSueldo(s.id)} style={{
-                    display:"flex",alignItems:"center",gap:6,padding:"8px 18px",borderRadius:50,border:"none",
+                    display:"flex",alignItems:"center",gap:6,padding:"8px 18px",borderRadius:50,
                     background: pagado ? "rgba(16,185,129,0.15)" : "linear-gradient(135deg,#2563EB,#1D4ED8)",
                     color: pagado ? T.green : "#fff",
                     fontWeight:700,fontSize:13,cursor:"pointer",touchAction:"manipulation",fontFamily:"inherit",
