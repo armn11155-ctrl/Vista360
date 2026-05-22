@@ -138,7 +138,14 @@ function MesCard({
               lineHeight: 1,
             }}
           >
-            <div style={{ fontSize: 9, fontWeight: 800, color: T.accent, letterSpacing: 0.6 }}>
+            <div
+              style={{
+                fontSize: 9,
+                fontWeight: 800,
+                color: T.accent,
+                letterSpacing: 0.6,
+              }}
+            >
               {anio}
             </div>
             <div
@@ -165,7 +172,12 @@ function MesCard({
               }}
             >
               <span
-                style={{ fontSize: 15, fontWeight: 900, color: T.white, letterSpacing: "-0.2px" }}
+                style={{
+                  fontSize: 15,
+                  fontWeight: 900,
+                  color: T.white,
+                  letterSpacing: "-0.2px",
+                }}
               >
                 {mesLabel(m.mes)}
               </span>
@@ -257,11 +269,20 @@ function MesCard({
                   c: pendiente > 0 ? T.amber : "rgba(160,180,220,0.4)",
                 },
                 { l: "GASTOS", v: fmt(m.gastosMes), c: T.red },
-                { l: "UTILIDAD", v: fmt(m.utilidad), c: m.utilidad >= 0 ? T.green : T.red },
+                {
+                  l: "UTILIDAD",
+                  v: fmt(m.utilidad),
+                  c: m.utilidad >= 0 ? T.green : T.red,
+                },
               ].map(k => (
                 <div key={k.l}>
                   <div
-                    style={{ fontSize: 8.5, fontWeight: 700, color: "#5B7FCC", letterSpacing: 0.8 }}
+                    style={{
+                      fontSize: 8.5,
+                      fontWeight: 700,
+                      color: "#5B7FCC",
+                      letterSpacing: 0.8,
+                    }}
                   >
                     {k.l}
                   </div>
@@ -283,9 +304,19 @@ function MesCard({
             {/* Barra cobrado/facturado */}
             {m.ingTotal > 0 && (
               <div style={{ marginBottom: 8 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 3,
+                  }}
+                >
                   <span
-                    style={{ fontSize: 9.5, color: "rgba(160,180,220,0.6)", letterSpacing: 0.4 }}
+                    style={{
+                      fontSize: 9.5,
+                      color: "rgba(160,180,220,0.6)",
+                      letterSpacing: 0.4,
+                    }}
                   >
                     COBRADO / FACTURADO
                   </span>
@@ -315,9 +346,19 @@ function MesCard({
             {/* Barra gastos/cobrado */}
             {m.ingPagado > 0 && m.gastosMes > 0 && (
               <div style={{ marginBottom: 8 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 3,
+                  }}
+                >
                   <span
-                    style={{ fontSize: 9.5, color: "rgba(160,180,220,0.6)", letterSpacing: 0.4 }}
+                    style={{
+                      fontSize: 9.5,
+                      color: "rgba(160,180,220,0.6)",
+                      letterSpacing: 0.4,
+                    }}
                   >
                     GASTOS / COBRADO
                   </span>
@@ -385,7 +426,14 @@ function MesCard({
             )}
             {/* Lista contratos */}
             {expandido && ctrsConDetalle.length > 0 && (
-              <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 5 }}>
+              <div
+                style={{
+                  marginTop: 8,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 5,
+                }}
+              >
                 {ctrsConDetalle.map(c => (
                   <div
                     key={c.id}
@@ -412,11 +460,23 @@ function MesCard({
                       >
                         {c.cliente?.empresa || "—"}
                       </div>
-                      <div style={{ fontSize: 10, color: "rgba(160,180,220,0.6)", marginTop: 1 }}>
+                      <div
+                        style={{
+                          fontSize: 10,
+                          color: "rgba(160,180,220,0.6)",
+                          marginTop: 1,
+                        }}
+                      >
                         {c.panel?.nombre || "—"}
                       </div>
                     </div>
-                    <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 8 }}>
+                    <div
+                      style={{
+                        textAlign: "right",
+                        flexShrink: 0,
+                        marginLeft: 8,
+                      }}
+                    >
                       <div
                         style={{
                           fontSize: 12,
@@ -479,7 +539,8 @@ function Resultados({
 
     if (subTab === "porMes") {
       ctrsFiltrados = contratos.filter(
-        c => c.inicio && c.fin && c.inicio.slice(0, 7) <= mesFiltro && c.fin.slice(0, 7) >= mesFiltro,
+        c =>
+          c.inicio && c.fin && c.inicio.slice(0, 7) <= mesFiltro && c.fin.slice(0, 7) >= mesFiltro,
       );
     } else if (subTab === "porAnio") {
       const anioStr = String(anioFiltro);
@@ -488,7 +549,11 @@ function Resultados({
       );
     } else {
       ctrsFiltrados = contratos.filter(
-        c => c.inicio && c.fin && c.inicio.slice(0, 7) <= periodoFin && c.fin.slice(0, 7) >= periodoInicio,
+        c =>
+          c.inicio &&
+          c.fin &&
+          c.inicio.slice(0, 7) <= periodoFin &&
+          c.fin.slice(0, 7) >= periodoInicio,
       );
     }
 
@@ -498,17 +563,29 @@ function Resultados({
     } else if (subTab === "porAnio") {
       gastosFiltrados = gastos.filter(g => g.fecha?.startsWith(String(anioFiltro)));
     } else {
-      gastosFiltrados = gastos.filter(g => g.fecha && g.fecha >= periodoInicio && g.fecha <= periodoFin + "-31");
+      gastosFiltrados = gastos.filter(
+        g => g.fecha && g.fecha >= periodoInicio && g.fecha <= periodoFin + "-31",
+      );
     }
 
-    const ingCobrado = ctrsFiltrados.filter(c => c.pagado).reduce((a, c) => a + Number(c.monto || 0), 0);
+    const ingCobrado = ctrsFiltrados
+      .filter(c => c.pagado)
+      .reduce((a, c) => a + Number(c.monto || 0), 0);
     const ingTotal = ctrsFiltrados.reduce((a, c) => a + Number(c.monto || 0), 0);
     const pendiente = ingTotal - ingCobrado;
     const totalGastos = gastosFiltrados.reduce((a, g) => a + Number(g.monto || 0), 0);
     const utilidad = ingCobrado - totalGastos;
     const panelesActivos = [...new Set(ctrsFiltrados.map(c => c.panel_id))].length;
 
-    return { ingCobrado, ingTotal, pendiente, totalGastos, utilidad, panelesActivos, numCtrs: ctrsFiltrados.length };
+    return {
+      ingCobrado,
+      ingTotal,
+      pendiente,
+      totalGastos,
+      utilidad,
+      panelesActivos,
+      numCtrs: ctrsFiltrados.length,
+    };
   }, [subTab, contratos, gastos, mesFiltro, anioFiltro, periodoInicio, periodoFin]);
 
   const subTabs = [
@@ -516,7 +593,15 @@ function Resultados({
       id: "porMes" as const,
       label: "Por Mes",
       icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
           <rect x="3" y="4" width="18" height="18" rx="2" />
           <line x1="16" y1="2" x2="16" y2="6" />
           <line x1="8" y1="2" x2="8" y2="6" />
@@ -528,7 +613,15 @@ function Resultados({
       id: "porAnio" as const,
       label: "Por Año",
       icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
           <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
           <polyline points="17 6 23 6 23 12" />
         </svg>
@@ -538,7 +631,15 @@ function Resultados({
       id: "periodo" as const,
       label: "Período",
       icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
           <line x1="3" y1="6" x2="21" y2="6" />
           <line x1="6" y1="12" x2="18" y2="12" />
           <line x1="9" y1="18" x2="15" y2="18" />
@@ -548,14 +649,41 @@ function Resultados({
   ];
 
   const kpiCards = [
-    { label: "Cobrado", value: fmt(kpis.ingCobrado), color: "#065F46", bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.2)" },
-    { label: "Pendiente", value: fmt(kpis.pendiente), color: kpis.pendiente > 0 ? "#92400E" : "#9CA3AF", bg: kpis.pendiente > 0 ? "rgba(245,158,11,0.08)" : "rgba(0,0,0,0.03)", border: kpis.pendiente > 0 ? "rgba(245,158,11,0.2)" : "#E5E7EB" },
-    { label: "Gastos", value: fmt(kpis.totalGastos), color: "#991B1B", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)" },
-    { label: "Utilidad", value: fmt(kpis.utilidad), color: kpis.utilidad >= 0 ? "#065F46" : "#991B1B", bg: kpis.utilidad >= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: kpis.utilidad >= 0 ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)" },
+    {
+      label: "Cobrado",
+      value: fmt(kpis.ingCobrado),
+      color: "#065F46",
+      bg: "rgba(16,185,129,0.08)",
+      border: "rgba(16,185,129,0.2)",
+    },
+    {
+      label: "Pendiente",
+      value: fmt(kpis.pendiente),
+      color: kpis.pendiente > 0 ? "#92400E" : "#9CA3AF",
+      bg: kpis.pendiente > 0 ? "rgba(245,158,11,0.08)" : "rgba(0,0,0,0.03)",
+      border: kpis.pendiente > 0 ? "rgba(245,158,11,0.2)" : "#E5E7EB",
+    },
+    {
+      label: "Gastos",
+      value: fmt(kpis.totalGastos),
+      color: "#991B1B",
+      bg: "rgba(239,68,68,0.08)",
+      border: "rgba(239,68,68,0.2)",
+    },
+    {
+      label: "Utilidad",
+      value: fmt(kpis.utilidad),
+      color: kpis.utilidad >= 0 ? "#065F46" : "#991B1B",
+      bg: kpis.utilidad >= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)",
+      border: kpis.utilidad >= 0 ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)",
+    },
   ];
 
   const mesLabel2 = (m: string) =>
-    new Date(m + "-02").toLocaleDateString("es-PE", { month: "long", year: "numeric" });
+    new Date(m + "-02").toLocaleDateString("es-PE", {
+      month: "long",
+      year: "numeric",
+    });
 
   return (
     <div>
@@ -643,9 +771,48 @@ function Resultados({
         {subTab === "porAnio" && (
           <>
             <span style={{ fontSize: 12, fontWeight: 700, color: "#1D4ED8" }}>Año:</span>
-            <button onClick={() => setAnioFiltro(a => a - 1)} style={{ border: "1.5px solid #DBEAFE", background: "#F0F7FF", borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: "#1D4ED8", fontWeight: 700, fontFamily: "inherit" }}>‹</button>
-            <span style={{ fontSize: 16, fontWeight: 900, color: "#1D4ED8", fontFamily: "monospace", minWidth: 50, textAlign: "center" }}>{anioFiltro}</span>
-            <button onClick={() => setAnioFiltro(a => a + 1)} style={{ border: "1.5px solid #DBEAFE", background: "#F0F7FF", borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: "#1D4ED8", fontWeight: 700, fontFamily: "inherit" }}>›</button>
+            <button
+              onClick={() => setAnioFiltro(a => a - 1)}
+              style={{
+                border: "1.5px solid #DBEAFE",
+                background: "#F0F7FF",
+                borderRadius: 8,
+                padding: "4px 10px",
+                cursor: "pointer",
+                color: "#1D4ED8",
+                fontWeight: 700,
+                fontFamily: "inherit",
+              }}
+            >
+              ‹
+            </button>
+            <span
+              style={{
+                fontSize: 16,
+                fontWeight: 900,
+                color: "#1D4ED8",
+                fontFamily: "monospace",
+                minWidth: 50,
+                textAlign: "center",
+              }}
+            >
+              {anioFiltro}
+            </span>
+            <button
+              onClick={() => setAnioFiltro(a => a + 1)}
+              style={{
+                border: "1.5px solid #DBEAFE",
+                background: "#F0F7FF",
+                borderRadius: 8,
+                padding: "4px 10px",
+                cursor: "pointer",
+                color: "#1D4ED8",
+                fontWeight: 700,
+                fontFamily: "inherit",
+              }}
+            >
+              ›
+            </button>
           </>
         )}
         {subTab === "periodo" && (
@@ -655,20 +822,49 @@ function Resultados({
               type="month"
               value={periodoInicio}
               onChange={e => setPeriodoInicio(e.target.value)}
-              style={{ border: "1.5px solid #DBEAFE", borderRadius: 8, padding: "5px 10px", fontSize: 13, color: "#1D4ED8", fontWeight: 600, fontFamily: "inherit", background: "#F0F7FF", outline: "none" }}
+              style={{
+                border: "1.5px solid #DBEAFE",
+                borderRadius: 8,
+                padding: "5px 10px",
+                fontSize: 13,
+                color: "#1D4ED8",
+                fontWeight: 600,
+                fontFamily: "inherit",
+                background: "#F0F7FF",
+                outline: "none",
+              }}
             />
             <span style={{ fontSize: 12, fontWeight: 700, color: "#1D4ED8" }}>Hasta:</span>
             <input
               type="month"
               value={periodoFin}
               onChange={e => setPeriodoFin(e.target.value)}
-              style={{ border: "1.5px solid #DBEAFE", borderRadius: 8, padding: "5px 10px", fontSize: 13, color: "#1D4ED8", fontWeight: 600, fontFamily: "inherit", background: "#F0F7FF", outline: "none" }}
+              style={{
+                border: "1.5px solid #DBEAFE",
+                borderRadius: 8,
+                padding: "5px 10px",
+                fontSize: 13,
+                color: "#1D4ED8",
+                fontWeight: 600,
+                fontFamily: "inherit",
+                background: "#F0F7FF",
+                outline: "none",
+              }}
             />
           </>
         )}
         {/* Panel + contrato count */}
-        <span style={{ fontSize: 11, color: "#64748B", marginLeft: subTab !== "porMes" ? "auto" : 0, whiteSpace: "nowrap" }}>
-          {kpis.numCtrs > 0 ? `${kpis.numCtrs} contrato(s) · ${kpis.panelesActivos} panel(es)` : "Sin datos"}
+        <span
+          style={{
+            fontSize: 11,
+            color: "#64748B",
+            marginLeft: subTab !== "porMes" ? "auto" : 0,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {kpis.numCtrs > 0
+            ? `${kpis.numCtrs} contrato(s) · ${kpis.panelesActivos} panel(es)`
+            : "Sin datos"}
         </span>
       </div>
 
@@ -691,10 +887,27 @@ function Resultados({
               padding: "14px 12px",
             }}
           >
-            <div style={{ fontSize: 10, fontWeight: 700, color: k.color, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 }}>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: k.color,
+                textTransform: "uppercase",
+                letterSpacing: 0.8,
+                marginBottom: 4,
+              }}
+            >
               {k.label}
             </div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: k.color, fontFamily: "monospace", letterSpacing: "-0.5px" }}>
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 900,
+                color: k.color,
+                fontFamily: "monospace",
+                letterSpacing: "-0.5px",
+              }}
+            >
               {k.value}
             </div>
           </div>
@@ -712,13 +925,28 @@ function Resultados({
             marginBottom: 10,
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#1D4ED8" }}>Cobrado / Facturado</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 8,
+            }}
+          >
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#1D4ED8" }}>
+              Cobrado / Facturado
+            </span>
             <span style={{ fontSize: 12, fontWeight: 800, color: "#065F46" }}>
               {Math.round((kpis.ingCobrado / kpis.ingTotal) * 100)}%
             </span>
           </div>
-          <div style={{ height: 6, background: "#E5E7EB", borderRadius: 4, overflow: "hidden" }}>
+          <div
+            style={{
+              height: 6,
+              background: "#E5E7EB",
+              borderRadius: 4,
+              overflow: "hidden",
+            }}
+          >
             <div
               style={{
                 height: "100%",
@@ -728,7 +956,13 @@ function Resultados({
               }}
             />
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: 5,
+            }}
+          >
             <span style={{ fontSize: 10, color: "#64748B" }}>Cobrado: {fmt(kpis.ingCobrado)}</span>
             <span style={{ fontSize: 10, color: "#64748B" }}>Total: {fmt(kpis.ingTotal)}</span>
           </div>
@@ -737,7 +971,6 @@ function Resultados({
     </div>
   );
 }
-
 
 function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: ReportesProps) {
   const [seccion, setSeccion] = useState(initialSeccion || "resumen");
@@ -779,7 +1012,14 @@ function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: Repo
     const totalUtilidad = totalIngPagado - totalGastos;
     const pendiente = totalIngTotal - totalIngPagado;
     const mesTop = [...mesesAnio].sort((a, b) => b.ingPagado - a.ingPagado)[0];
-    return { totalIngPagado, totalIngTotal, totalGastos, totalUtilidad, pendiente, mesTop };
+    return {
+      totalIngPagado,
+      totalIngTotal,
+      totalGastos,
+      totalUtilidad,
+      pendiente,
+      mesTop,
+    };
   }, [mesesAnio]);
 
   const rentPaneles = useMemo(() => {
@@ -806,7 +1046,15 @@ function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: Repo
           });
           return total > 0 ? Math.round((activo / total) * 100) : 0;
         })();
-        return { ...p, ingreso, pendiente, gastP, utilidad, numCtrs: ctrs.length, ocupPct };
+        return {
+          ...p,
+          ingreso,
+          pendiente,
+          gastP,
+          utilidad,
+          numCtrs: ctrs.length,
+          ocupPct,
+        };
       })
       .sort((a, b) => b.ingreso - a.ingreso);
   }, [paneles, contratos, gastos]);
@@ -1397,7 +1645,12 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
             Reportes & Facturación
           </div>
           <div
-            style={{ fontSize: 12, color: "rgba(180,200,255,0.7)", marginTop: 3, fontWeight: 500 }}
+            style={{
+              fontSize: 12,
+              color: "rgba(180,200,255,0.7)",
+              marginTop: 3,
+              fontWeight: 500,
+            }}
           >
             Análisis financiero · RUC {EMISOR.ruc}
           </div>
@@ -1405,7 +1658,14 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
       </div>
 
       {/* Tabs — 2 botones, fondo blanco */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 8,
+          marginBottom: 22,
+        }}
+      >
         {secciones.map(s => {
           const active = seccion === s.id;
           const iconMap = {
@@ -1532,11 +1792,22 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
             >
               <div>
                 <div
-                  style={{ fontSize: 10, fontWeight: 800, color: "#5B7FCC", letterSpacing: 1.4 }}
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 800,
+                    color: "#5B7FCC",
+                    letterSpacing: 1.4,
+                  }}
                 >
                   DETALLE MENSUAL
                 </div>
-                <div style={{ fontSize: 13, color: "rgba(160,180,220,0.7)", marginTop: 2 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: "rgba(160,180,220,0.7)",
+                    marginTop: 2,
+                  }}
+                >
                   {mesesAnio.filter(m => m.ingPagado > 0 || m.gastosMes > 0).length} mes(es) con
                   datos
                 </div>
@@ -1652,7 +1923,12 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                   }}
                 >
                   <div
-                    style={{ fontSize: 9.5, fontWeight: 800, color: esHoy ? "#065F46" : tieneData ? "#1D4ED8" : "#64748B", letterSpacing: 0.4 }}
+                    style={{
+                      fontSize: 9.5,
+                      fontWeight: 800,
+                      color: esHoy ? "#065F46" : tieneData ? "#1D4ED8" : "#64748B",
+                      letterSpacing: 0.4,
+                    }}
                   >
                     {mShort}
                   </div>
