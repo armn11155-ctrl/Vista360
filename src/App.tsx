@@ -1,12 +1,4 @@
-import {
-  useState,
-  useMemo,
-  useEffect,
-  useCallback,
-  useRef,
-  lazy,
-  Suspense,
-} from "react";
+import React, { useState, useMemo, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import { HashRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
@@ -114,24 +106,22 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
   const proveedores = useCollection<Proveedor>("proveedores");
 
   const loading =
-    paneles.loading || clientes.loading || contratos.loading || gastos.loading || proveedores.loading;
+    paneles.loading ||
+    clientes.loading ||
+    contratos.loading ||
+    gastos.loading ||
+    proveedores.loading;
   const error =
     paneles.error ?? clientes.error ?? contratos.error ?? gastos.error ?? proveedores.error;
 
   // ── Derived data ──────────────────────────────────────────────────
-  const contractsActive = useMemo(
-    () => contratos.data.filter(x => !x.deleted),
-    [contratos.data],
-  );
+  const contractsActive = useMemo(() => contratos.data.filter(x => !x.deleted), [contratos.data]);
   const clientesActive = useMemo(() => clientes.data.filter(x => !x.deleted), [clientes.data]);
   const proveedoresActive = useMemo(
     () => proveedores.data.filter(x => !x.deleted),
     [proveedores.data],
   );
-  const trashCount = useMemo(
-    () => contratos.data.filter(x => x.deleted).length,
-    [contratos.data],
-  );
+  const trashCount = useMemo(() => contratos.data.filter(x => x.deleted).length, [contratos.data]);
 
   const notifCount = useMemo(() => {
     if (!contractsActive.length) return 0;
@@ -295,7 +285,6 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
     <AppProvider data={appData} setters={appSetters} derived={appDerived}>
       {!isOnline && <OfflineBanner />}
       <div className={styles.appRoot} style={{ background: T.bg, color: T.text }}>
-
         {/* ── TOP NAV ── */}
         <nav
           aria-label="Encabezado principal"
@@ -317,10 +306,14 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
             aria-label="Abrir menú"
             aria-expanded={drawerOpen}
             style={{
-              width: 40, height: 40, borderRadius: 12,
+              width: 40,
+              height: 40,
+              borderRadius: 12,
               background: headerDark ? "rgba(255,255,255,0.10)" : T.text,
               border: headerDark ? "1px solid rgba(255,255,255,0.14)" : "none",
-              display: "flex", alignItems: "center", justifyContent: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               flexShrink: 0,
               boxShadow: headerDark ? "none" : "0 4px 12px rgba(15,23,41,0.18)",
             }}
@@ -334,7 +327,14 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           </button>
 
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: headerDark ? "#fff" : T.text, lineHeight: 1.1 }}>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: 700,
+                color: headerDark ? "#fff" : T.text,
+                lineHeight: 1.1,
+              }}
+            >
               {showProfile ? "Perfil" : (TAB_TITLES[location.pathname] ?? "Vista360")}
             </div>
           </div>
@@ -345,17 +345,23 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
               onClick={() => setGlobalSearch(true)}
               aria-label="Buscar"
               style={{
-                width: 40, height: 40, borderRadius: "50%",
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
                 background: headerDark ? "rgba(255,255,255,0.10)" : T.white,
                 border: headerDark ? "1px solid rgba(255,255,255,0.14)" : `1px solid ${T.border}`,
-                display: "flex", alignItems: "center", justifyContent: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
                 <path
                   d="M21 21L15 15M17 11C17 14.866 13.866 18 10 18C6.134 18 3 14.866 3 11C3 7.134 6.134 4 10 4C13.866 4 17 7.134 17 11Z"
                   stroke={headerDark ? "#fff" : T.text}
-                  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </svg>
             </button>
@@ -366,10 +372,14 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
               aria-label="Notificaciones"
               aria-expanded={notifOpen}
               style={{
-                width: 40, height: 40, borderRadius: "50%",
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
                 background: headerDark ? "rgba(255,255,255,0.10)" : T.white,
                 border: headerDark ? "1px solid rgba(255,255,255,0.14)" : `1px solid ${T.border}`,
-                display: "flex", alignItems: "center", justifyContent: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 position: "relative",
               }}
             >
@@ -377,16 +387,23 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                 <path
                   d="M15 17H9M15 17C15 18.657 13.657 20 12 20C10.343 20 9 18.657 9 17M15 17H20L18.784 15.784C18.284 15.284 18 14.612 18 13.914V10C18 7.239 15.761 5 13 5H11C8.239 5 6 7.239 6 10V13.914C6 14.612 5.716 15.284 5.216 15.784L4 17H9"
                   stroke={headerDark ? "#fff" : T.text}
-                  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </svg>
               {notifCount > 0 && (
                 <div
                   aria-label={`${notifCount} notificaciones`}
                   style={{
-                    position: "absolute", top: 7, right: 7,
-                    width: 8, height: 8, borderRadius: "50%",
-                    background: T.red, border: `2px solid ${T.white}`,
+                    position: "absolute",
+                    top: 7,
+                    right: 7,
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    background: T.red,
+                    border: `2px solid ${T.white}`,
                   }}
                 />
               )}
@@ -398,10 +415,16 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
               aria-label="Ver perfil"
               aria-current={showProfile ? "page" : undefined}
               style={{
-                width: 40, height: 40, borderRadius: "50%",
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
                 background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 60%, #2A5BD9 100%)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: "#fff", fontWeight: 800, fontSize: 13,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                fontWeight: 800,
+                fontSize: 13,
                 border: showProfile ? `2px solid ${T.accent}` : "2px solid transparent",
                 boxShadow: "0 4px 12px rgba(30,58,138,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
                 letterSpacing: "0.5px",
@@ -417,8 +440,12 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           ref={scrollRef}
           data-scroll
           style={{
-            flex: 1, minHeight: 0, overflowY: "scroll", overflowX: "hidden",
-            overscrollBehavior: "none", touchAction: "pan-y",
+            flex: 1,
+            minHeight: 0,
+            overflowY: "scroll",
+            overflowX: "hidden",
+            overscrollBehavior: "none",
+            touchAction: "pan-y",
             background: ["contratos", "capital"].some(s => location.pathname.includes(s))
               ? "#0E1A3B"
               : location.pathname === "/mapa"
@@ -429,7 +456,9 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
         >
           {loading ? (
             <div style={{ padding: "20px 16px", display: "flex", flexDirection: "column", gap: 0 }}>
-              {[1, 2, 3, 4].map(i => <SkDarkCard key={i} />)}
+              {[1, 2, 3, 4].map(i => (
+                <SkDarkCard key={i} />
+              ))}
             </div>
           ) : showProfile ? (
             <ProfileView
@@ -483,93 +512,178 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                     </div>
                   }
                 />
-                <Route path="/paneles" element={
-                  <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
-                    <ErrorBoundary label="Paneles">
-                      <Paneles paneles={paneles.data} setPaneles={paneles.setData} contratos={contratos.data}
-                        loading={loading} setTab={(id: string) => navigate(`/${id}`)} onModalChange={setAnyModalOpen} />
-                    </ErrorBoundary>
-                  </div>
-                } />
-                <Route path="/contratos" element={
-                  <div className={`${styles.tabPanel} ${styles.tabFlush}`}>
-                    <ErrorBoundary label="Contratos">
-                      <Contratos contratos={contratos.data} setContratos={contratos.setData}
-                        paneles={paneles.data} clientes={clientesActive} loading={loading}
-                        setTab={(id: string) => navigate(`/${id}`)} onModalChange={setAnyModalOpen} />
-                    </ErrorBoundary>
-                  </div>
-                } />
-                <Route path="/historico" element={
-                  <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
-                    <ErrorBoundary label="Histórico">
-                      <Historico contratos={contractsActive} setContratos={contratos.setData}
-                        paneles={paneles.data} clientes={clientesActive} onModalChange={setAnyModalOpen} />
-                    </ErrorBoundary>
-                  </div>
-                } />
-                <Route path="/crm" element={
-                  <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
-                    <ErrorBoundary label="CRM">
-                      <CRM clientes={clientesActive} setClientes={clientes.setData}
-                        contratos={contractsActive} loading={loading} onModalChange={setAnyModalOpen} />
-                    </ErrorBoundary>
-                  </div>
-                } />
-                <Route path="/gastos" element={
-                  <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
-                    <ErrorBoundary label="Gastos">
-                      <Gastos gastos={gastos.data} setGastos={gastos.setData}
-                        autoScan={autoScan} setAutoScan={setAutoScan} onModalChange={setAnyModalOpen} />
-                    </ErrorBoundary>
-                  </div>
-                } />
-                <Route path="/proveedores" element={
-                  <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
-                    <ErrorBoundary label="Proveedores">
-                      <Proveedores proveedores={proveedoresActive} setProveedores={proveedores.setData}
-                        loading={loading} onModalChange={setAnyModalOpen} />
-                    </ErrorBoundary>
-                  </div>
-                } />
-                <Route path="/facturacion" element={
-                  <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
-                    <ErrorBoundary label="Facturación">
-                      <Facturacion contratos={contractsActive} paneles={paneles.data} clientes={clientesActive} />
-                    </ErrorBoundary>
-                  </div>
-                } />
-                <Route path="/resultados" element={
-                  <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
-                    <ErrorBoundary label="Resultados">
-                      <Reportes contratos={contractsActive} paneles={paneles.data}
-                        clientes={clientesActive} gastos={gastos.data} initialSeccion="resultados" />
-                    </ErrorBoundary>
-                  </div>
-                } />
-                <Route path="/reportes" element={
-                  <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
-                    <ErrorBoundary label="Reportes">
-                      <Reportes contratos={contractsActive} paneles={paneles.data}
-                        clientes={clientesActive} gastos={gastos.data} />
-                    </ErrorBoundary>
-                  </div>
-                } />
-                <Route path="/capital" element={
-                  <div className={`${styles.tabPanel} ${styles.tabFlush}`}>
-                    <ErrorBoundary label="Capital">
-                      <Capital paneles={paneles.data} contratos={contractsActive}
-                        gastos={gastos.data} proveedores={proveedoresActive} />
-                    </ErrorBoundary>
-                  </div>
-                } />
-                <Route path="/mapa" element={
-                  <div className={`${styles.tabPanel} ${styles.tabFlush}`}>
-                    <ErrorBoundary label="Mapa">
-                      <Mapa paneles={paneles.data} clientes={clientesActive} contratos={contractsActive} />
-                    </ErrorBoundary>
-                  </div>
-                } />
+                <Route
+                  path="/paneles"
+                  element={
+                    <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
+                      <ErrorBoundary label="Paneles">
+                        <Paneles
+                          paneles={paneles.data}
+                          setPaneles={paneles.setData}
+                          contratos={contratos.data}
+                          loading={loading}
+                          setTab={(id: string) => navigate(`/${id}`)}
+                          onModalChange={setAnyModalOpen}
+                        />
+                      </ErrorBoundary>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/contratos"
+                  element={
+                    <div className={`${styles.tabPanel} ${styles.tabFlush}`}>
+                      <ErrorBoundary label="Contratos">
+                        <Contratos
+                          contratos={contratos.data}
+                          setContratos={contratos.setData}
+                          paneles={paneles.data}
+                          clientes={clientesActive}
+                          loading={loading}
+                          setTab={(id: string) => navigate(`/${id}`)}
+                          onModalChange={setAnyModalOpen}
+                        />
+                      </ErrorBoundary>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/historico"
+                  element={
+                    <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
+                      <ErrorBoundary label="Histórico">
+                        <Historico
+                          contratos={contractsActive}
+                          setContratos={contratos.setData}
+                          paneles={paneles.data}
+                          clientes={clientesActive}
+                          onModalChange={setAnyModalOpen}
+                        />
+                      </ErrorBoundary>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/crm"
+                  element={
+                    <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
+                      <ErrorBoundary label="CRM">
+                        <CRM
+                          clientes={clientesActive}
+                          setClientes={clientes.setData}
+                          contratos={contractsActive}
+                          loading={loading}
+                          onModalChange={setAnyModalOpen}
+                        />
+                      </ErrorBoundary>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/gastos"
+                  element={
+                    <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
+                      <ErrorBoundary label="Gastos">
+                        <Gastos
+                          gastos={gastos.data}
+                          setGastos={gastos.setData}
+                          autoScan={autoScan}
+                          setAutoScan={setAutoScan}
+                          onModalChange={setAnyModalOpen}
+                        />
+                      </ErrorBoundary>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/proveedores"
+                  element={
+                    <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
+                      <ErrorBoundary label="Proveedores">
+                        <Proveedores
+                          proveedores={proveedoresActive}
+                          setProveedores={proveedores.setData}
+                          loading={loading}
+                          onModalChange={setAnyModalOpen}
+                        />
+                      </ErrorBoundary>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/facturacion"
+                  element={
+                    <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
+                      <ErrorBoundary label="Facturación">
+                        <Facturacion
+                          contratos={contractsActive}
+                          paneles={paneles.data}
+                          clientes={clientesActive}
+                        />
+                      </ErrorBoundary>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/resultados"
+                  element={
+                    <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
+                      <ErrorBoundary label="Resultados">
+                        <Reportes
+                          contratos={contractsActive}
+                          paneles={paneles.data}
+                          clientes={clientesActive}
+                          gastos={gastos.data}
+                          initialSeccion="resultados"
+                        />
+                      </ErrorBoundary>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/reportes"
+                  element={
+                    <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
+                      <ErrorBoundary label="Reportes">
+                        <Reportes
+                          contratos={contractsActive}
+                          paneles={paneles.data}
+                          clientes={clientesActive}
+                          gastos={gastos.data}
+                        />
+                      </ErrorBoundary>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/capital"
+                  element={
+                    <div className={`${styles.tabPanel} ${styles.tabFlush}`}>
+                      <ErrorBoundary label="Capital">
+                        <Capital
+                          paneles={paneles.data}
+                          contratos={contractsActive}
+                          gastos={gastos.data}
+                          proveedores={proveedoresActive}
+                        />
+                      </ErrorBoundary>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/mapa"
+                  element={
+                    <div className={`${styles.tabPanel} ${styles.tabFlush}`}>
+                      <ErrorBoundary label="Mapa">
+                        <Mapa
+                          paneles={paneles.data}
+                          clientes={clientesActive}
+                          contratos={contractsActive}
+                        />
+                      </ErrorBoundary>
+                    </div>
+                  }
+                />
               </Routes>
             </Suspense>
           )}
@@ -577,18 +691,27 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
 
         {/* ── BOTTOM TAB BAR ── */}
         {!anyModalOpen && (
-          <div style={{
-            position: "fixed",
-            bottom: "calc(env(safe-area-inset-bottom) + 4px)",
-            left: 12, right: 12, zIndex: 100, pointerEvents: "none",
-          }}>
+          <div
+            style={{
+              position: "fixed",
+              bottom: "calc(env(safe-area-inset-bottom) + 4px)",
+              left: 12,
+              right: 12,
+              zIndex: 100,
+              pointerEvents: "none",
+            }}
+          >
             <div
               role="tablist"
               aria-label="Navegación principal"
               style={{
-                display: "flex", alignItems: "center",
-                padding: "6px 6px", maxWidth: 480, margin: "0 auto",
-                pointerEvents: "auto", background: T.white,
+                display: "flex",
+                alignItems: "center",
+                padding: "6px 6px",
+                maxWidth: 480,
+                margin: "0 auto",
+                pointerEvents: "auto",
+                background: T.white,
                 border: "1px solid rgba(229,231,235,0.9)",
                 borderRadius: 28,
                 boxShadow: "0 8px 28px rgba(15,23,41,0.14), 0 2px 8px rgba(15,23,41,0.06)",
@@ -600,18 +723,31 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                     <div key="add" style={{ flex: 1, display: "flex", justifyContent: "center" }}>
                       <button
                         aria-label="Registrar gasto rápido"
-                        onClick={() => { setAutoScan(true); navigate("/gastos"); }}
+                        onClick={() => {
+                          setAutoScan(true);
+                          navigate("/gastos");
+                        }}
                         style={{
-                          width: 54, height: 54, borderRadius: "50%",
+                          width: 54,
+                          height: 54,
+                          borderRadius: "50%",
                           background: "linear-gradient(180deg, #0E1A3B 0%, #15265A 100%)",
                           border: "3px solid rgba(255,255,255,0.95)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          boxShadow: "0 8px 24px rgba(37,99,235,0.42), 0 2px 8px rgba(37,99,235,0.2)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          boxShadow:
+                            "0 8px 24px rgba(37,99,235,0.42), 0 2px 8px rgba(37,99,235,0.2)",
                           marginTop: -28,
                         }}
                       >
                         <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                          <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                          <path
+                            d="M12 5V19M5 12H19"
+                            stroke="white"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                          />
                         </svg>
                       </button>
                     </div>
@@ -627,7 +763,10 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                     aria-selected={active}
                     aria-label={t.label}
                     tabIndex={active ? 0 : -1}
-                    onClick={() => { setShowProfile(false); navigate(routePath); }}
+                    onClick={() => {
+                      setShowProfile(false);
+                      navigate(routePath);
+                    }}
                     onKeyDown={e => {
                       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
                       e.preventDefault();
@@ -640,21 +779,37 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                       navigate(next === "hoy" ? "/" : `/${next}`);
                     }}
                     style={{
-                      flex: 1, display: "flex", flexDirection: "column",
-                      alignItems: "center", justifyContent: "center", gap: 3,
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 3,
                       background: active ? "rgba(37,99,235,0.08)" : "none",
-                      border: "none", color: active ? T.accent : "#9CA3AF",
-                      padding: "6px 4px", minHeight: 48, borderRadius: 18, margin: "0 2px",
+                      border: "none",
+                      color: active ? T.accent : "#9CA3AF",
+                      padding: "6px 4px",
+                      minHeight: 48,
+                      borderRadius: 18,
+                      margin: "0 2px",
                       transition: "background 0.18s ease, color 0.18s ease",
                     }}
                   >
-                    <div style={{
-                      transition: "transform 0.18s cubic-bezier(.34,1.56,.64,1)",
-                      transform: active ? "scale(1.12)" : "scale(1)",
-                    }}>
+                    <div
+                      style={{
+                        transition: "transform 0.18s cubic-bezier(.34,1.56,.64,1)",
+                        transform: active ? "scale(1.12)" : "scale(1)",
+                      }}
+                    >
                       {BTM_ICONS[t.id]}
                     </div>
-                    <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, letterSpacing: active ? "0.01em" : 0 }}>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: active ? 700 : 500,
+                        letterSpacing: active ? "0.01em" : 0,
+                      }}
+                    >
                       {t.label}
                     </span>
                   </button>
@@ -665,21 +820,44 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
         )}
 
         {/* ── OVERLAYS ── */}
-        <NotifPanel open={notifOpen} onClose={() => setNotifOpen(false)}
-          contratos={contratos.data} clientes={clientesActive}
-          paneles={paneles.data} gastos={gastos.data} />
-        <BusquedaGlobal open={globalSearch} onClose={() => setGlobalSearch(false)}
-          paneles={paneles.data} clientes={clientesActive} contratos={contratos.data}
-          onNavigate={(id: string) => navigate(id === "hoy" ? "/" : `/${id}`)} />
-        <DrawerMenu open={drawerOpen} onClose={() => setDrawerOpen(false)}
+        <NotifPanel
+          open={notifOpen}
+          onClose={() => setNotifOpen(false)}
+          contratos={contratos.data}
+          clientes={clientesActive}
+          paneles={paneles.data}
+          gastos={gastos.data}
+        />
+        <BusquedaGlobal
+          open={globalSearch}
+          onClose={() => setGlobalSearch(false)}
+          paneles={paneles.data}
+          clientes={clientesActive}
+          contratos={contratos.data}
+          onNavigate={(id: string) => navigate(id === "hoy" ? "/" : `/${id}`)}
+        />
+        <DrawerMenu
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
           activeTab={showProfile ? "perfil" : location.pathname.replace("/", "") || "hoy"}
-          onTabClick={handleTabClick} onTrashOpen={() => setTrashOpen(true)}
-          trashCount={trashCount} userName={userName} userInitials={userInitials} />
-        <TrashModal open={trashOpen} onClose={() => setTrashOpen(false)}
-          contratos={contratos.data} clientes={clientes.data}
-          paneles={paneles.data} proveedores={proveedores.data}
-          setContratos={contratos.setData} setClientes={clientes.setData}
-          setPaneles={paneles.setData} setProveedores={proveedores.setData} />
+          onTabClick={handleTabClick}
+          onTrashOpen={() => setTrashOpen(true)}
+          trashCount={trashCount}
+          userName={userName}
+          userInitials={userInitials}
+        />
+        <TrashModal
+          open={trashOpen}
+          onClose={() => setTrashOpen(false)}
+          contratos={contratos.data}
+          clientes={clientes.data}
+          paneles={paneles.data}
+          proveedores={proveedores.data}
+          setContratos={contratos.setData}
+          setClientes={clientes.setData}
+          setPaneles={paneles.setData}
+          setProveedores={proveedores.setData}
+        />
       </div>
     </AppProvider>
   );
@@ -748,7 +926,10 @@ function AppShell() {
       clearTimeout(fallback);
       setAuthReady(true);
     }
-    return () => { clearTimeout(fallback); unsub?.(); };
+    return () => {
+      clearTimeout(fallback);
+      unsub?.();
+    };
   }, []);
 
   return (
@@ -775,9 +956,7 @@ function AppShell() {
 
       {splash && <Splash done={() => setSplash(false)} />}
       {!splash && authReady && !user && <LoginScreen onLoginSuccess={(u: User) => setUser(u)} />}
-      {!splash && !!user && (
-        <AuthenticatedShell user={user} onLogout={() => setUser(null)} />
-      )}
+      {!splash && !!user && <AuthenticatedShell user={user} onLogout={() => setUser(null)} />}
     </ToastProvider>
   );
 }
