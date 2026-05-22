@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback, useRef, lazy, Suspense } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import { HashRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
