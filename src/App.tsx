@@ -19,7 +19,8 @@ import { ALLOWED_EMAILS, BOTTOM_TABS_LIST, NAV_TAB_IDS } from "./config/constant
 import { fb } from "./services/firestore";
 import { ToastProvider } from "./context/UIContext";
 import { AppProvider } from "./context/AppContext";
-import type { AppData, AppSetters, AppDerivedData } from "./context/AppContext";
+import type { AppDerivedData } from "./context/AppContext";
+import type { AppData, AppSetters } from "./types";
 import { useViewportSetup } from "./hooks/useViewportSetup";
 import { useOnlineStatus } from "./hooks/useOnlineStatus";
 
@@ -316,7 +317,7 @@ function AppShell() {
           if (swRef.current?.showNotification) {
             swRef.current.showNotification(titulo, {
               body: cuerpo, tag: key, icon: "/favicon.ico",
-              badge: "/favicon.ico", vibrate: [200, 100, 200], requireInteraction: d <= 5,
+              badge: "/favicon.ico", ...({ vibrate: [200, 100, 200] } as Record<string, unknown>), requireInteraction: d <= 5,
             });
           } else {
             new Notification(titulo, { body: cuerpo, tag: key });
@@ -466,7 +467,7 @@ function AppShell() {
       <ToastProvider>
         {!isOnline && <OfflineBanner />}
         {splash && <Splash done={() => setSplash(false)} />}
-        {!splash && authReady && !user && <LoginScreen onLoginSuccess={u => setUser(u)} />}
+        {!splash && authReady && !user && <LoginScreen onLoginSuccess={(u: User) => setUser(u)} />}
 
         {!splash && !!user && (
           <AppProvider data={appData} setters={appSetters} derived={appDerived}>
