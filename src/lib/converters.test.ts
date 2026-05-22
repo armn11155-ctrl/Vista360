@@ -43,7 +43,7 @@ describe("toDate", () => {
   it("retorna new Date() como fallback para null", () => {
     const before = Date.now();
     const result = toDate(null);
-    const after  = Date.now();
+    const after = Date.now();
     expect(result.getTime()).toBeGreaterThanOrEqual(before);
     expect(result.getTime()).toBeLessThanOrEqual(after);
   });

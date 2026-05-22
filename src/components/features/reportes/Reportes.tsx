@@ -1,6 +1,16 @@
 // @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, onSnapshot, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+  onSnapshot,
+  Timestamp,
+} from "firebase/firestore";
 import { getAuth, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from "../../../types";
@@ -9,121 +19,424 @@ import { T, tCol, catCol } from "../../../config/theme";
 import { toast, confirmAsync } from "../../../context/UIContext";
 import { fmt, fmtF, dias, mesHoy, mesLabel, hoy, validate, haptic } from "../../../lib/utils";
 import { toNumber, toDate } from "../../../lib/converters";
-import { CIUDADES, CAT_GASTOS, CAT_PROVE, SECTORES, ESTADOS_CLI, ESTADOS_PRO, EMOJIS, EMISOR } from "../../../config/constants";
-import { Modal, FieldGroup, Badge, Tag, Card, SecTit, PgTit, Pagination, Spinner, SwipeRow, SkCard, SkPulse } from "../../ui";
+import {
+  CIUDADES,
+  CAT_GASTOS,
+  CAT_PROVE,
+  SECTORES,
+  ESTADOS_CLI,
+  ESTADOS_PRO,
+  EMOJIS,
+  EMISOR,
+} from "../../../config/constants";
+import {
+  Modal,
+  FieldGroup,
+  Badge,
+  Tag,
+  Card,
+  SecTit,
+  PgTit,
+  Pagination,
+  Spinner,
+  SwipeRow,
+  SkCard,
+  SkPulse,
+} from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
 
-const CardWave = ({color="#4F7CFF"}: {color?: string}) => (
-  <svg width="120" height="30" viewBox="0 0 120 30" style={{position:"absolute",bottom:0,right:0,opacity:0.18}} preserveAspectRatio="none">
-    <polyline points="0,25 15,18 30,22 45,10 60,15 75,8 90,14 105,6 120,12" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+const CardWave = ({ color = "#4F7CFF" }: { color?: string }) => (
+  <svg
+    width="120"
+    height="30"
+    viewBox="0 0 120 30"
+    style={{ position: "absolute", bottom: 0, right: 0, opacity: 0.18 }}
+    preserveAspectRatio="none"
+  >
+    <polyline
+      points="0,25 15,18 30,22 45,10 60,15 75,8 90,14 105,6 120,12"
+      fill="none"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
 // ── Card mensual con estado expandible (extraído para poder usar useState) ──
-function MesCard({ m, anio, contratos, paneles, clientes, exportMesPDF }: {
-  m: { mes:string; label:string; ingPagado:number; ingTotal:number; gastosMes:number; utilidad:number; contrActivos:number };
-  anio: number; contratos: Contrato[]; paneles: Panel[]; clientes: Cliente[];
+function MesCard({
+  m,
+  anio,
+  contratos,
+  paneles,
+  clientes,
+  exportMesPDF,
+}: {
+  m: {
+    mes: string;
+    label: string;
+    ingPagado: number;
+    ingTotal: number;
+    gastosMes: number;
+    utilidad: number;
+    contrActivos: number;
+  };
+  anio: number;
+  contratos: Contrato[];
+  paneles: Panel[];
+  clientes: Cliente[];
   exportMesPDF: (m: unknown) => void;
 }) {
   const [expandido, setExpandido] = useState(false);
-  const monthShort = new Date(m.mes+"-02").toLocaleDateString("es-PE",{month:"short"}).toUpperCase().replace(".","");
+  const monthShort = new Date(m.mes + "-02")
+    .toLocaleDateString("es-PE", { month: "short" })
+    .toUpperCase()
+    .replace(".", "");
   const pendiente = m.ingTotal - m.ingPagado;
-  const margen = m.ingPagado > 0 ? Math.round(((m.ingPagado - m.gastosMes) / m.ingPagado) * 100) : 0;
+  const margen =
+    m.ingPagado > 0 ? Math.round(((m.ingPagado - m.gastosMes) / m.ingPagado) * 100) : 0;
   const ctrsConDetalle = contratos
-    .filter(c => c.inicio && c.fin && c.inicio.slice(0,7) <= m.mes && c.fin.slice(0,7) >= m.mes)
-    .map(c => ({ ...c, panel: paneles.find(p=>p.id===c.panel_id), cliente: clientes.find(cl=>cl.id===c.cliente_id) }))
-    .filter(c=>c.panel&&c.cliente);
+    .filter(c => c.inicio && c.fin && c.inicio.slice(0, 7) <= m.mes && c.fin.slice(0, 7) >= m.mes)
+    .map(c => ({
+      ...c,
+      panel: paneles.find(p => p.id === c.panel_id),
+      cliente: clientes.find(cl => cl.id === c.cliente_id),
+    }))
+    .filter(c => c.panel && c.cliente);
 
   return (
-    <div id={`mes-${m.mes}`} style={{
-      position:"relative",overflow:"hidden",
-      background:"linear-gradient(145deg,#0E1835 0%,#0A1228 100%)",
-      border:"1px solid rgba(79,124,255,0.14)",
-      borderRadius:18,padding:"14px 16px",
-      boxShadow:"0 6px 20px rgba(8,12,28,0.4), inset 0 1px 0 rgba(255,255,255,0.04)",
-    }}>
-      <CardWave color={T.accent}/>
-      <div style={{position:"relative",zIndex:2}}>
-        <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
+    <div
+      id={`mes-${m.mes}`}
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        background: "linear-gradient(145deg,#0E1835 0%,#0A1228 100%)",
+        border: "1px solid rgba(79,124,255,0.14)",
+        borderRadius: 18,
+        padding: "14px 16px",
+        boxShadow: "0 6px 20px rgba(8,12,28,0.4), inset 0 1px 0 rgba(255,255,255,0.04)",
+      }}
+    >
+      <CardWave color={T.accent} />
+      <div style={{ position: "relative", zIndex: 2 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
           {/* Thumbnail mes */}
-          <div style={{flexShrink:0,width:50,height:60,borderRadius:8,background:T.white,border:"1px solid #E5E7EB",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 6px rgba(0,0,0,0.25)",lineHeight:1}}>
-            <div style={{fontSize:9,fontWeight:800,color:T.accent,letterSpacing:0.6}}>{anio}</div>
-            <div style={{fontSize:17,fontWeight:900,color:T.text,marginTop:3,letterSpacing:"-0.5px"}}>{monthShort}</div>
+          <div
+            style={{
+              flexShrink: 0,
+              width: 50,
+              height: 60,
+              borderRadius: 8,
+              background: T.white,
+              border: "1px solid #E5E7EB",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+              lineHeight: 1,
+            }}
+          >
+            <div style={{ fontSize: 9, fontWeight: 800, color: T.accent, letterSpacing: 0.6 }}>
+              {anio}
+            </div>
+            <div
+              style={{
+                fontSize: 17,
+                fontWeight: 900,
+                color: T.text,
+                marginTop: 3,
+                letterSpacing: "-0.5px",
+              }}
+            >
+              {monthShort}
+            </div>
           </div>
-          <div style={{flex:1,minWidth:0}}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             {/* Cabecera */}
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
-              <span style={{fontSize:15,fontWeight:900,color:T.white,letterSpacing:"-0.2px"}}>{mesLabel(m.mes)}</span>
-              <span style={{background:"rgba(37,99,235,0.18)",color:"#7FAEFF",border:"1px solid rgba(37,99,235,0.4)",borderRadius:8,padding:"2px 9px",fontSize:10.5,fontWeight:700,whiteSpace:"nowrap"}}>
-                {m.contrActivos} CONTRATO{m.contrActivos!==1?"S":""}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 10,
+                flexWrap: "wrap",
+              }}
+            >
+              <span
+                style={{ fontSize: 15, fontWeight: 900, color: T.white, letterSpacing: "-0.2px" }}
+              >
+                {mesLabel(m.mes)}
+              </span>
+              <span
+                style={{
+                  background: "rgba(37,99,235,0.18)",
+                  color: "#7FAEFF",
+                  border: "1px solid rgba(37,99,235,0.4)",
+                  borderRadius: 8,
+                  padding: "2px 9px",
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {m.contrActivos} CONTRATO{m.contrActivos !== 1 ? "S" : ""}
               </span>
               {margen > 0 && (
-                <span style={{background:margen>=50?"rgba(16,185,129,0.18)":"rgba(245,158,11,0.18)",color:margen>=50?T.green:T.amber,border:`1px solid ${margen>=50?"rgba(16,185,129,0.4)":"rgba(245,158,11,0.4)"}`,borderRadius:8,padding:"2px 9px",fontSize:10.5,fontWeight:700,whiteSpace:"nowrap"}}>
+                <span
+                  style={{
+                    background: margen >= 50 ? "rgba(16,185,129,0.18)" : "rgba(245,158,11,0.18)",
+                    color: margen >= 50 ? T.green : T.amber,
+                    border: `1px solid ${margen >= 50 ? "rgba(16,185,129,0.4)" : "rgba(245,158,11,0.4)"}`,
+                    borderRadius: 8,
+                    padding: "2px 9px",
+                    fontSize: 10.5,
+                    fontWeight: 700,
+                    whiteSpace: "nowrap",
+                  }}
+                >
                   {margen}% margen
                 </span>
               )}
-              <button onClick={()=>exportMesPDF(m)} style={{marginLeft:"auto",display:"inline-flex",alignItems:"center",gap:5,padding:"7px 14px",borderRadius:50,border:"none",background:"linear-gradient(135deg,#1E35C8 0%,#3854EE 100%)",color:T.white,fontWeight:700,fontSize:12,cursor:"pointer",touchAction:"manipulation",fontFamily:"inherit",boxShadow:"0 3px 14px rgba(30,53,200,0.45), inset 0 1px 0 rgba(255,255,255,0.22)",letterSpacing:"0.01em",minHeight:32}}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+              <button
+                onClick={() => exportMesPDF(m)}
+                style={{
+                  marginLeft: "auto",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  padding: "7px 14px",
+                  borderRadius: 50,
+                  border: "none",
+                  background: "linear-gradient(135deg,#1E35C8 0%,#3854EE 100%)",
+                  color: T.white,
+                  fontWeight: 700,
+                  fontSize: 12,
+                  cursor: "pointer",
+                  touchAction: "manipulation",
+                  fontFamily: "inherit",
+                  boxShadow:
+                    "0 3px 14px rgba(30,53,200,0.45), inset 0 1px 0 rgba(255,255,255,0.22)",
+                  letterSpacing: "0.01em",
+                  minHeight: 32,
+                }}
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="12" y1="18" x2="12" y2="12" />
+                  <polyline points="9 15 12 18 15 15" />
+                </svg>
                 PDF
               </button>
             </div>
             {/* 4 columnas */}
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6,marginBottom:10}}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 1fr",
+                gap: 6,
+                marginBottom: 10,
+              }}
+            >
               {[
-                {l:"COBRADO",   v:fmt(m.ingPagado), c:T.green},
-                {l:"PENDIENTE", v:fmt(pendiente),   c:pendiente>0?T.amber:"rgba(160,180,220,0.4)"},
-                {l:"GASTOS",    v:fmt(m.gastosMes),  c:T.red},
-                {l:"UTILIDAD",  v:fmt(m.utilidad),   c:m.utilidad>=0?T.green:T.red},
-              ].map(k=>(
+                { l: "COBRADO", v: fmt(m.ingPagado), c: T.green },
+                {
+                  l: "PENDIENTE",
+                  v: fmt(pendiente),
+                  c: pendiente > 0 ? T.amber : "rgba(160,180,220,0.4)",
+                },
+                { l: "GASTOS", v: fmt(m.gastosMes), c: T.red },
+                { l: "UTILIDAD", v: fmt(m.utilidad), c: m.utilidad >= 0 ? T.green : T.red },
+              ].map(k => (
                 <div key={k.l}>
-                  <div style={{fontSize:8.5,fontWeight:700,color:"#5B7FCC",letterSpacing:0.8}}>{k.l}</div>
-                  <div style={{fontSize:12.5,fontWeight:900,color:k.c,fontFamily:"monospace",marginTop:2,fontVariantNumeric:"tabular-nums"}}>{k.v}</div>
+                  <div
+                    style={{ fontSize: 8.5, fontWeight: 700, color: "#5B7FCC", letterSpacing: 0.8 }}
+                  >
+                    {k.l}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12.5,
+                      fontWeight: 900,
+                      color: k.c,
+                      fontFamily: "monospace",
+                      marginTop: 2,
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
+                    {k.v}
+                  </div>
                 </div>
               ))}
             </div>
             {/* Barra cobrado/facturado */}
-            {m.ingTotal>0&&(
-              <div style={{marginBottom:8}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-                  <span style={{fontSize:9.5,color:"rgba(160,180,220,0.6)",letterSpacing:0.4}}>COBRADO / FACTURADO</span>
-                  <span style={{fontSize:9.5,color:T.white,fontWeight:700}}>{Math.round((m.ingPagado/m.ingTotal)*100)}%</span>
+            {m.ingTotal > 0 && (
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                  <span
+                    style={{ fontSize: 9.5, color: "rgba(160,180,220,0.6)", letterSpacing: 0.4 }}
+                  >
+                    COBRADO / FACTURADO
+                  </span>
+                  <span style={{ fontSize: 9.5, color: T.white, fontWeight: 700 }}>
+                    {Math.round((m.ingPagado / m.ingTotal) * 100)}%
+                  </span>
                 </div>
-                <div style={{height:4,background:"rgba(255,255,255,0.08)",borderRadius:3,overflow:"hidden"}}>
-                  <div style={{height:"100%",borderRadius:3,width:`${Math.round((m.ingPagado/m.ingTotal)*100)}%`,background:T.green}}/>
+                <div
+                  style={{
+                    height: 4,
+                    background: "rgba(255,255,255,0.08)",
+                    borderRadius: 3,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      borderRadius: 3,
+                      width: `${Math.round((m.ingPagado / m.ingTotal) * 100)}%`,
+                      background: T.green,
+                    }}
+                  />
                 </div>
               </div>
             )}
             {/* Barra gastos/cobrado */}
-            {m.ingPagado>0&&m.gastosMes>0&&(
-              <div style={{marginBottom:8}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-                  <span style={{fontSize:9.5,color:"rgba(160,180,220,0.6)",letterSpacing:0.4}}>GASTOS / COBRADO</span>
-                  <span style={{fontSize:9.5,color:T.amber,fontWeight:700}}>{Math.min(100,Math.round((m.gastosMes/m.ingPagado)*100))}%</span>
+            {m.ingPagado > 0 && m.gastosMes > 0 && (
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                  <span
+                    style={{ fontSize: 9.5, color: "rgba(160,180,220,0.6)", letterSpacing: 0.4 }}
+                  >
+                    GASTOS / COBRADO
+                  </span>
+                  <span style={{ fontSize: 9.5, color: T.amber, fontWeight: 700 }}>
+                    {Math.min(100, Math.round((m.gastosMes / m.ingPagado) * 100))}%
+                  </span>
                 </div>
-                <div style={{height:4,background:"rgba(255,255,255,0.08)",borderRadius:3,overflow:"hidden"}}>
-                  <div style={{height:"100%",borderRadius:3,width:`${Math.min(100,Math.round((m.gastosMes/m.ingPagado)*100))}%`,background:T.amber}}/>
+                <div
+                  style={{
+                    height: 4,
+                    background: "rgba(255,255,255,0.08)",
+                    borderRadius: 3,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      borderRadius: 3,
+                      width: `${Math.min(100, Math.round((m.gastosMes / m.ingPagado) * 100))}%`,
+                      background: T.amber,
+                    }}
+                  />
                 </div>
               </div>
             )}
             {/* Expandir contratos */}
             {ctrsConDetalle.length > 0 && (
-              <button onClick={()=>setExpandido(e=>!e)} style={{width:"100%",marginTop:4,display:"flex",alignItems:"center",justifyContent:"space-between",background:"rgba(79,124,255,0.08)",border:"1px solid rgba(79,124,255,0.18)",borderRadius:10,padding:"7px 12px",cursor:"pointer",touchAction:"manipulation",fontFamily:"inherit"}}>
-                <span style={{fontSize:11,fontWeight:600,color:"#7FAEFF"}}>{expandido?"Ocultar":"Ver"} contratos del mes ({ctrsConDetalle.length})</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7FAEFF" strokeWidth="2.5" strokeLinecap="round" style={{transform:expandido?"rotate(180deg)":"none",transition:"transform .2s"}}><polyline points="6 9 12 15 18 9"/></svg>
+              <button
+                onClick={() => setExpandido(e => !e)}
+                style={{
+                  width: "100%",
+                  marginTop: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  background: "rgba(79,124,255,0.08)",
+                  border: "1px solid rgba(79,124,255,0.18)",
+                  borderRadius: 10,
+                  padding: "7px 12px",
+                  cursor: "pointer",
+                  touchAction: "manipulation",
+                  fontFamily: "inherit",
+                }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 600, color: "#7FAEFF" }}>
+                  {expandido ? "Ocultar" : "Ver"} contratos del mes ({ctrsConDetalle.length})
+                </span>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#7FAEFF"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  style={{
+                    transform: expandido ? "rotate(180deg)" : "none",
+                    transition: "transform .2s",
+                  }}
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
               </button>
             )}
             {/* Lista contratos */}
             {expandido && ctrsConDetalle.length > 0 && (
-              <div style={{marginTop:8,display:"flex",flexDirection:"column",gap:5}}>
-                {ctrsConDetalle.map(c=>(
-                  <div key={c.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:9,padding:"8px 11px"}}>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:11.5,fontWeight:700,color:T.white,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.cliente?.empresa||"—"}</div>
-                      <div style={{fontSize:10,color:"rgba(160,180,220,0.6)",marginTop:1}}>{c.panel?.nombre||"—"}</div>
+              <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 5 }}>
+                {ctrsConDetalle.map(c => (
+                  <div
+                    key={c.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.07)",
+                      borderRadius: 9,
+                      padding: "8px 11px",
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: 11.5,
+                          fontWeight: 700,
+                          color: T.white,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {c.cliente?.empresa || "—"}
+                      </div>
+                      <div style={{ fontSize: 10, color: "rgba(160,180,220,0.6)", marginTop: 1 }}>
+                        {c.panel?.nombre || "—"}
+                      </div>
                     </div>
-                    <div style={{textAlign:"right",flexShrink:0,marginLeft:8}}>
-                      <div style={{fontSize:12,fontWeight:800,color:c.pagado?T.green:T.amber,fontFamily:"monospace"}}>{fmt(c.monto)}</div>
-                      <div style={{fontSize:9.5,fontWeight:700,color:c.pagado?T.green:T.amber,marginTop:1}}>{c.pagado?"✓ Cobrado":"⏳ Pendiente"}</div>
+                    <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 8 }}>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 800,
+                          color: c.pagado ? T.green : T.amber,
+                          fontFamily: "monospace",
+                        }}
+                      >
+                        {fmt(c.monto)}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 9.5,
+                          fontWeight: 700,
+                          color: c.pagado ? T.green : T.amber,
+                          marginTop: 1,
+                        }}
+                      >
+                        {c.pagado ? "✓ Cobrado" : "⏳ Pendiente"}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -143,79 +456,97 @@ function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: Repo
 
   // ── Datos por año ─────────────────────────────────────────────
   const mesesAnio = useMemo(() => {
-    return Array.from({length:12},(_,i)=>{
-      const m = `${anio}-${String(i+1).padStart(2,"0")}`;
-      const ctrsMes = contratos.filter(c =>
-        c.inicio && c.fin &&
-        c.inicio.slice(0,7) <= m && c.fin.slice(0,7) >= m
+    return Array.from({ length: 12 }, (_, i) => {
+      const m = `${anio}-${String(i + 1).padStart(2, "0")}`;
+      const ctrsMes = contratos.filter(
+        c => c.inicio && c.fin && c.inicio.slice(0, 7) <= m && c.fin.slice(0, 7) >= m,
       );
-      const ingPagado  = ctrsMes.filter(c=>c.pagado).reduce((a,c)=>a+Number(c.monto||0),0);
-      const ingTotal   = ctrsMes.reduce((a,c)=>a+Number(c.monto||0),0);
-      const gastosMes  = gastos.filter(g=>g.fecha?.startsWith(m)).reduce((a,g)=>a+Number(g.monto||0),0);
-      const utilidad   = ingPagado - gastosMes;
+      const ingPagado = ctrsMes.filter(c => c.pagado).reduce((a, c) => a + Number(c.monto || 0), 0);
+      const ingTotal = ctrsMes.reduce((a, c) => a + Number(c.monto || 0), 0);
+      const gastosMes = gastos
+        .filter(g => g.fecha?.startsWith(m))
+        .reduce((a, g) => a + Number(g.monto || 0), 0);
+      const utilidad = ingPagado - gastosMes;
       const contrActivos = ctrsMes.length;
-      return { mes:m, label:new Date(m+"-02").toLocaleDateString("es-PE",{month:"short"}).toUpperCase(),
-               ingPagado, ingTotal, gastosMes, utilidad, contrActivos };
+      return {
+        mes: m,
+        label: new Date(m + "-02").toLocaleDateString("es-PE", { month: "short" }).toUpperCase(),
+        ingPagado,
+        ingTotal,
+        gastosMes,
+        utilidad,
+        contrActivos,
+      };
     });
   }, [contratos, gastos, anio]);
 
-  const maxIngreso = Math.max(...mesesAnio.map(m=>m.ingTotal), 1);
+  const maxIngreso = Math.max(...mesesAnio.map(m => m.ingTotal), 1);
 
   const kpis = useMemo(() => {
-    const totalIngPagado  = mesesAnio.reduce((a,m)=>a+m.ingPagado, 0);
-    const totalIngTotal   = mesesAnio.reduce((a,m)=>a+m.ingTotal, 0);
-    const totalGastos     = mesesAnio.reduce((a,m)=>a+m.gastosMes, 0);
-    const totalUtilidad   = totalIngPagado - totalGastos;
-    const pendiente       = totalIngTotal - totalIngPagado;
-    const mesTop          = [...mesesAnio].sort((a,b)=>b.ingPagado-a.ingPagado)[0];
+    const totalIngPagado = mesesAnio.reduce((a, m) => a + m.ingPagado, 0);
+    const totalIngTotal = mesesAnio.reduce((a, m) => a + m.ingTotal, 0);
+    const totalGastos = mesesAnio.reduce((a, m) => a + m.gastosMes, 0);
+    const totalUtilidad = totalIngPagado - totalGastos;
+    const pendiente = totalIngTotal - totalIngPagado;
+    const mesTop = [...mesesAnio].sort((a, b) => b.ingPagado - a.ingPagado)[0];
     return { totalIngPagado, totalIngTotal, totalGastos, totalUtilidad, pendiente, mesTop };
   }, [mesesAnio]);
 
   const rentPaneles = useMemo(() => {
-    return paneles.map(p => {
-      const ctrs = contratos.filter(c=>c.panel_id===p.id);
-      const ingreso  = ctrs.filter(c=>c.pagado).reduce((a,c)=>a+Number(c.monto||0),0);
-      const pendiente= ctrs.filter(c=>!c.pagado).reduce((a,c)=>a+Number(c.monto||0),0);
-      const gastP    = gastos.filter(g=>g.panel_id===p.id).reduce((a,g)=>a+Number(g.monto||0),0);
-      const utilidad = ingreso - gastP;
-      const ocupPct  = (() => {
-        const hoyD = new Date();
-        let activo=0, total=0;
-        ctrs.forEach(c=>{
-          if(!c.inicio||!c.fin) return;
-          const ini=new Date(c.inicio), fin=new Date(c.fin);
-          if(fin<ini) return;
-          total += Math.ceil((Math.min(fin,hoyD)-ini)/86400000);
-          if(ini<=hoyD) activo += Math.ceil((Math.min(fin,hoyD)-ini)/86400000);
-        });
-        return total>0 ? Math.round((activo/total)*100) : 0;
-      })();
-      return {...p, ingreso, pendiente, gastP, utilidad, numCtrs:ctrs.length, ocupPct};
-    }).sort((a,b)=>b.ingreso-a.ingreso);
+    return paneles
+      .map(p => {
+        const ctrs = contratos.filter(c => c.panel_id === p.id);
+        const ingreso = ctrs.filter(c => c.pagado).reduce((a, c) => a + Number(c.monto || 0), 0);
+        const pendiente = ctrs.filter(c => !c.pagado).reduce((a, c) => a + Number(c.monto || 0), 0);
+        const gastP = gastos
+          .filter(g => g.panel_id === p.id)
+          .reduce((a, g) => a + Number(g.monto || 0), 0);
+        const utilidad = ingreso - gastP;
+        const ocupPct = (() => {
+          const hoyD = new Date();
+          let activo = 0,
+            total = 0;
+          ctrs.forEach(c => {
+            if (!c.inicio || !c.fin) return;
+            const ini = new Date(c.inicio),
+              fin = new Date(c.fin);
+            if (fin < ini) return;
+            total += Math.ceil((Math.min(fin, hoyD) - ini) / 86400000);
+            if (ini <= hoyD) activo += Math.ceil((Math.min(fin, hoyD) - ini) / 86400000);
+          });
+          return total > 0 ? Math.round((activo / total) * 100) : 0;
+        })();
+        return { ...p, ingreso, pendiente, gastP, utilidad, numCtrs: ctrs.length, ocupPct };
+      })
+      .sort((a, b) => b.ingreso - a.ingreso);
   }, [paneles, contratos, gastos]);
 
   const contratosFact = useMemo(() => {
     return contratos
-      .map(c => ({...c, panel: paneles.find(p=>p.id===c.panel_id), cliente:clientes.find(cl=>cl.id===c.cliente_id)}))
-      .filter(c=>c.panel&&c.cliente)
-      .sort((a,b)=>new Date(b.inicio||0)-new Date(a.inicio||0));
+      .map(c => ({
+        ...c,
+        panel: paneles.find(p => p.id === c.panel_id),
+        cliente: clientes.find(cl => cl.id === c.cliente_id),
+      }))
+      .filter(c => c.panel && c.cliente)
+      .sort((a, b) => new Date(b.inicio || 0) - new Date(a.inicio || 0));
   }, [contratos, paneles, clientes]);
 
   const secciones = [
-    {id:"resumen", label:"Estado de Resultados"},
-    {id:"mensual", label:"Por Mes"},
+    { id: "resumen", label: "Estado de Resultados" },
+    { id: "mensual", label: "Por Mes" },
   ];
 
   // ── Colores dark (inline con C) ──────────────────────────────
   const D = {
-    bg:      "linear-gradient(145deg,rgba(14,24,42,0.97) 0%,rgba(8,14,26,0.99) 100%)",
-    border:  "rgba(79,124,255,0.15)",
-    text:    T.white,
-    muted:   "#8892A4",
-    green:   T.green,
-    amber:   T.amber,
-    red:     T.red,
-    accent:  "#4F7CFF",
+    bg: "linear-gradient(145deg,rgba(14,24,42,0.97) 0%,rgba(8,14,26,0.99) 100%)",
+    border: "rgba(79,124,255,0.15)",
+    text: T.white,
+    muted: "#8892A4",
+    green: T.green,
+    amber: T.amber,
+    red: T.red,
+    accent: "#4F7CFF",
     surface: "rgba(255,255,255,0.05)",
   };
 
@@ -233,8 +564,8 @@ function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: Repo
   const exportResumenPDF = () => {
     const DARK = "#0D1B3E";
     const BLUE = "#1A3066";
-    const ACC  = "#1E4D9B";
-    const LB   = "#D6E4F7";
+    const ACC = "#1E4D9B";
+    const LB = "#D6E4F7";
     const html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/><title>Reporte Anual ${anio}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -279,7 +610,7 @@ tbody td{padding:9px 11px;font-size:11px;color:#1e293b;border-bottom:1px solid #
   <div class="h-right">
     <div class="titulo">Reporte Anual</div>
     <div class="anio">${anio}</div>
-    <div class="fecha">Generado: ${new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"})}</div>
+    <div class="fecha">Generado: ${new Date().toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" })}</div>
   </div>
 </div>
 <div class="divider"></div>
@@ -288,25 +619,31 @@ tbody td{padding:9px 11px;font-size:11px;color:#1e293b;border-bottom:1px solid #
     <div class="kpi"><div class="ic">💰</div><div class="lb">Ingresos Cobrados</div><div class="vl" style="color:#065F46">${fmt(kpis.totalIngPagado)}</div><div class="sl">Contratos pagados</div></div>
     <div class="kpi"><div class="ic">⏳</div><div class="lb">Por Cobrar</div><div class="vl" style="color:#92400E">${fmt(kpis.pendiente)}</div><div class="sl">Pendientes</div></div>
     <div class="kpi"><div class="ic">💸</div><div class="lb">Gastos Totales</div><div class="vl" style="color:#991B1B">${fmt(kpis.totalGastos)}</div><div class="sl">Todos los gastos</div></div>
-    <div class="kpi"><div class="ic">📈</div><div class="lb">Utilidad Neta</div><div class="vl" style="color:${kpis.totalUtilidad>=0?"#065F46":"#991B1B"}">${fmt(kpis.totalUtilidad)}</div><div class="sl">Cobrado − Gastos</div></div>
+    <div class="kpi"><div class="ic">📈</div><div class="lb">Utilidad Neta</div><div class="vl" style="color:${kpis.totalUtilidad >= 0 ? "#065F46" : "#991B1B"}">${fmt(kpis.totalUtilidad)}</div><div class="sl">Cobrado − Gastos</div></div>
   </div>
 
   <div class="section-title">Detalle Mensual ${anio}</div>
   <table>
     <thead><tr><th>Mes</th><th>Contratos</th><th class="num">Cobrado</th><th class="num">Gastos</th><th class="num">Utilidad</th><th class="num">% Cobrado</th></tr></thead>
     <tbody>
-      ${mesesAnio.map(m=>`<tr>
+      ${mesesAnio
+        .map(
+          m => `<tr>
         <td><strong>${mesLabel(m.mes)}</strong></td>
         <td style="text-align:center">${m.contrActivos}</td>
         <td class="num pos">${fmt(m.ingPagado)}</td>
         <td class="num neg">${fmt(m.gastosMes)}</td>
-        <td class="num ${m.utilidad>=0?"pos":"neg"}">${fmt(m.utilidad)}</td>
-        <td class="num">${m.ingTotal>0?Math.round((m.ingPagado/m.ingTotal)*100):0}%</td>
-      </tr>`).join("")}
+        <td class="num ${m.utilidad >= 0 ? "pos" : "neg"}">${fmt(m.utilidad)}</td>
+        <td class="num">${m.ingTotal > 0 ? Math.round((m.ingPagado / m.ingTotal) * 100) : 0}%</td>
+      </tr>`,
+        )
+        .join("")}
     </tbody>
   </table>
 
-  ${kpis.mesTop&&kpis.mesTop.ingPagado>0?`
+  ${
+    kpis.mesTop && kpis.mesTop.ingPagado > 0
+      ? `
   <div class="section-title">🏆 Mejor Mes del Año</div>
   <div class="best-mes">
     <div class="ic">🏆</div>
@@ -316,7 +653,9 @@ tbody td{padding:9px 11px;font-size:11px;color:#1e293b;border-bottom:1px solid #
       <div class="vl">${fmt(kpis.mesTop.ingPagado)}</div>
       <div style="font-size:10px;opacity:.75;margin-top:3px">${kpis.mesTop.contrActivos} contrato(s) activos</div>
     </div>
-  </div>`:""}
+  </div>`
+      : ""
+  }
 </div>
 <div class="footer">
   <span>8 MILLAS · RUC ${EMISOR.ruc} · ${EMISOR.ciudad}</span>
@@ -325,81 +664,108 @@ tbody td{padding:9px 11px;font-size:11px;color:#1e293b;border-bottom:1px solid #
 </div>
 <script>window.onload=function(){setTimeout(function(){window.print()},350)}</script>
 </body></html>`;
-    const w = window.open("","_blank","width=900,height=700");
-    if(w){ w.document.write(html); w.document.close(); }
+    const w = window.open("", "_blank", "width=900,height=700");
+    if (w) {
+      w.document.write(html);
+      w.document.close();
+    }
   };
 
   // ── EXPORT PDF ANUAL MENSUAL (todos los meses del año) ────────
   const exportAnualMensualPDF = () => {
     const DARK = "#0D1B3E";
     const BLUE = "#1A3066";
-    const ACC  = "#1E4D9B";
-    const LB   = "#D6E4F7";
+    const ACC = "#1E4D9B";
+    const LB = "#D6E4F7";
 
     // Construir detalle de contratos por mes
     const mesesConDetalle = mesesAnio.map(m => {
       const ctrsDelMes = contratos
-        .map(c=>({...c,panel:paneles.find(p=>p.id===c.panel_id),cliente:clientes.find(cl=>cl.id===c.cliente_id)}))
-        .filter(c=>c.panel&&c.cliente&&c.inicio&&c.fin&&c.inicio.slice(0,7)<=m.mes&&c.fin.slice(0,7)>=m.mes);
-      const gastosDelMes = gastos.filter(g=>g.fecha?.startsWith(m.mes));
+        .map(c => ({
+          ...c,
+          panel: paneles.find(p => p.id === c.panel_id),
+          cliente: clientes.find(cl => cl.id === c.cliente_id),
+        }))
+        .filter(
+          c =>
+            c.panel &&
+            c.cliente &&
+            c.inicio &&
+            c.fin &&
+            c.inicio.slice(0, 7) <= m.mes &&
+            c.fin.slice(0, 7) >= m.mes,
+        );
+      const gastosDelMes = gastos.filter(g => g.fecha?.startsWith(m.mes));
       return { ...m, ctrsDelMes, gastosDelMes };
     });
 
-    const totalIng   = kpis.totalIngPagado;
-    const totalGast  = kpis.totalGastos;
-    const totalUtil  = kpis.totalUtilidad;
-    const mesTopLabel= kpis.mesTop?.ingPagado>0 ? mesLabel(kpis.mesTop.mes) : "—";
-    const mesTopVal  = kpis.mesTop?.ingPagado>0 ? fmt(kpis.mesTop.ingPagado) : "—";
+    const totalIng = kpis.totalIngPagado;
+    const totalGast = kpis.totalGastos;
+    const totalUtil = kpis.totalUtilidad;
+    const mesTopLabel = kpis.mesTop?.ingPagado > 0 ? mesLabel(kpis.mesTop.mes) : "—";
+    const mesTopVal = kpis.mesTop?.ingPagado > 0 ? fmt(kpis.mesTop.ingPagado) : "—";
 
-    const filasMeses = mesesAnio.map(m => {
-      const pct = m.ingTotal>0 ? Math.round((m.ingPagado/m.ingTotal)*100) : 0;
-      return `<tr>
+    const filasMeses = mesesAnio
+      .map(m => {
+        const pct = m.ingTotal > 0 ? Math.round((m.ingPagado / m.ingTotal) * 100) : 0;
+        return `<tr>
         <td><strong>${mesLabel(m.mes)}</strong></td>
         <td style="text-align:center">${m.contrActivos}</td>
         <td class="num pos">${fmt(m.ingPagado)}</td>
-        <td class="num" style="color:#92400E">${fmt(m.ingTotal-m.ingPagado)}</td>
+        <td class="num" style="color:#92400E">${fmt(m.ingTotal - m.ingPagado)}</td>
         <td class="num neg">${fmt(m.gastosMes)}</td>
-        <td class="num ${m.utilidad>=0?"pos":"neg"}">${fmt(m.utilidad)}</td>
+        <td class="num ${m.utilidad >= 0 ? "pos" : "neg"}">${fmt(m.utilidad)}</td>
         <td class="num">${pct}%</td>
       </tr>`;
-    }).join("");
+      })
+      .join("");
 
     // Detalle expandido por mes (solo los que tienen datos)
     const detalleMeses = mesesConDetalle
-      .filter(m=>m.ingPagado>0||m.gastosMes>0)
-      .map(m=>{
-        const filasCtrs = m.ctrsDelMes.length>0
-          ? m.ctrsDelMes.map(c=>`<tr>
-              <td>${c.cliente?.empresa||c.cliente?.nombre||"—"}</td>
-              <td>${c.panel?.nombre||"—"}</td>
+      .filter(m => m.ingPagado > 0 || m.gastosMes > 0)
+      .map(m => {
+        const filasCtrs =
+          m.ctrsDelMes.length > 0
+            ? m.ctrsDelMes
+                .map(
+                  c => `<tr>
+              <td>${c.cliente?.empresa || c.cliente?.nombre || "—"}</td>
+              <td>${c.panel?.nombre || "—"}</td>
               <td>${fmtF(c.inicio)} → ${fmtF(c.fin)}</td>
               <td class="num">${fmt(c.monto)}</td>
-              <td class="num ${c.pagado?"pag":"pend"}">${c.pagado?"✓ Pagado":"Pendiente"}</td>
-            </tr>`).join("")
-          : `<tr><td colspan="5" style="text-align:center;color:#94A3B8;font-style:italic">Sin contratos activos este mes</td></tr>`;
+              <td class="num ${c.pagado ? "pag" : "pend"}">${c.pagado ? "✓ Pagado" : "Pendiente"}</td>
+            </tr>`,
+                )
+                .join("")
+            : `<tr><td colspan="5" style="text-align:center;color:#94A3B8;font-style:italic">Sin contratos activos este mes</td></tr>`;
 
-        const filasGastos = m.gastosDelMes.length>0
-          ? m.gastosDelMes.map(g=>`<tr>
-              <td>${g.descripcion||"—"}</td>
-              <td>${g.categoria||"—"}</td>
+        const filasGastos =
+          m.gastosDelMes.length > 0
+            ? m.gastosDelMes
+                .map(
+                  g => `<tr>
+              <td>${g.descripcion || "—"}</td>
+              <td>${g.categoria || "—"}</td>
               <td>${fmtF(g.fecha)}</td>
               <td class="num neg">${fmt(g.monto)}</td>
-            </tr>`).join("")
-          : `<tr><td colspan="4" style="text-align:center;color:#94A3B8;font-style:italic">Sin gastos registrados</td></tr>`;
+            </tr>`,
+                )
+                .join("")
+            : `<tr><td colspan="4" style="text-align:center;color:#94A3B8;font-style:italic">Sin gastos registrados</td></tr>`;
 
         return `
           <div class="mes-block">
             <div class="mes-header">
               <div class="mes-cal">
                 <div class="mes-anio">${anio}</div>
-                <div class="mes-nombre">${new Date(m.mes+"-02").toLocaleDateString("es-PE",{month:"short"}).toUpperCase().replace(".","")}</div>
+                <div class="mes-nombre">${new Date(m.mes + "-02").toLocaleDateString("es-PE", { month: "short" }).toUpperCase().replace(".", "")}</div>
               </div>
               <div class="mes-info">
                 <div class="mes-titulo">${mesLabel(m.mes)}</div>
                 <div class="mes-kpis">
                   <span class="mk pos">💰 ${fmt(m.ingPagado)}</span>
                   <span class="mk neg">💸 ${fmt(m.gastosMes)}</span>
-                  <span class="mk ${m.utilidad>=0?"pos":"neg"}">📈 ${fmt(m.utilidad)}</span>
+                  <span class="mk ${m.utilidad >= 0 ? "pos" : "neg"}">📈 ${fmt(m.utilidad)}</span>
                 </div>
               </div>
             </div>
@@ -414,7 +780,8 @@ tbody td{padding:9px 11px;font-size:11px;color:#1e293b;border-bottom:1px solid #
               <tbody>${filasGastos}</tbody>
             </table>
           </div>`;
-      }).join("");
+      })
+      .join("");
 
     const html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/><title>Reporte Anual Detallado ${anio} — 8 Millas</title>
 <style>
@@ -478,7 +845,7 @@ tbody td{padding:7px 10px;color:#1e293b;border-bottom:1px solid #E2E8F0}
     <div class="titulo">Reporte Anual Detallado</div>
     <div class="subtitulo">Ingresos · Gastos · Utilidad por mes</div>
     <div class="anio">${anio}</div>
-    <div class="ruc" style="color:rgba(255,255,255,0.65);margin-top:4px">Generado: ${new Date().toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"})}</div>
+    <div class="ruc" style="color:rgba(255,255,255,0.65);margin-top:4px">Generado: ${new Date().toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" })}</div>
   </div>
 </div>
 <div class="divider"></div>
@@ -489,10 +856,12 @@ tbody td{padding:7px 10px;color:#1e293b;border-bottom:1px solid #E2E8F0}
     <div class="kpi"><div class="ic">💰</div><div class="lb">Total Cobrado</div><div class="vl" style="color:#065F46">${fmt(totalIng)}</div><div class="sl">Contratos pagados</div></div>
     <div class="kpi"><div class="ic">⏳</div><div class="lb">Por Cobrar</div><div class="vl" style="color:#92400E">${fmt(kpis.pendiente)}</div><div class="sl">Pendientes</div></div>
     <div class="kpi"><div class="ic">💸</div><div class="lb">Total Gastos</div><div class="vl" style="color:#991B1B">${fmt(totalGast)}</div><div class="sl">Todos los gastos</div></div>
-    <div class="kpi"><div class="ic">📈</div><div class="lb">Utilidad Neta</div><div class="vl" style="color:${totalUtil>=0?"#065F46":"#991B1B"}">${fmt(totalUtil)}</div><div class="sl">Cobrado − Gastos</div></div>
+    <div class="kpi"><div class="ic">📈</div><div class="lb">Utilidad Neta</div><div class="vl" style="color:${totalUtil >= 0 ? "#065F46" : "#991B1B"}">${fmt(totalUtil)}</div><div class="sl">Cobrado − Gastos</div></div>
   </div>
 
-  ${kpis.mesTop?.ingPagado>0?`
+  ${
+    kpis.mesTop?.ingPagado > 0
+      ? `
   <div class="best">
     <div class="ic">🏆</div>
     <div>
@@ -500,7 +869,9 @@ tbody td{padding:7px 10px;color:#1e293b;border-bottom:1px solid #E2E8F0}
       <div class="nm">${mesTopLabel}</div>
       <div class="vl">${mesTopVal}</div>
     </div>
-  </div>`:""}
+  </div>`
+      : ""
+  }
 
   <div class="section-title">Cuadro consolidado por mes</div>
   <table>
@@ -515,7 +886,7 @@ tbody td{padding:7px 10px;color:#1e293b;border-bottom:1px solid #E2E8F0}
         <td class="num pos"><strong>${fmt(totalIng)}</strong></td>
         <td class="num" style="color:#92400E"><strong>${fmt(kpis.pendiente)}</strong></td>
         <td class="num neg"><strong>${fmt(totalGast)}</strong></td>
-        <td class="num ${totalUtil>=0?"pos":"neg"}"><strong>${fmt(totalUtil)}</strong></td>
+        <td class="num ${totalUtil >= 0 ? "pos" : "neg"}"><strong>${fmt(totalUtil)}</strong></td>
         <td class="num"></td>
       </tr>
     </tbody>
@@ -533,20 +904,35 @@ tbody td{padding:7px 10px;color:#1e293b;border-bottom:1px solid #E2E8F0}
 <script>window.onload=function(){setTimeout(function(){window.print()},400)}</script>
 </body></html>`;
 
-    const w = window.open("","_blank","width=960,height=750");
-    if(w){ w.document.write(html); w.document.close(); }
+    const w = window.open("", "_blank", "width=960,height=750");
+    if (w) {
+      w.document.write(html);
+      w.document.close();
+    }
   };
 
   // ── EXPORT PDF MES ────────────────────────────────────────────
-  const exportMesPDF = (m) => {
+  const exportMesPDF = m => {
     const DARK = "#0D1B3E";
     const BLUE = "#1A3066";
-    const ACC  = "#1E4D9B";
-    const LB   = "#D6E4F7";
+    const ACC = "#1E4D9B";
+    const LB = "#D6E4F7";
     const ctrsDelMes = contratos
-      .map(c=>({...c,panel:paneles.find(p=>p.id===c.panel_id),cliente:clientes.find(cl=>cl.id===c.cliente_id)}))
-      .filter(c=>c.panel&&c.cliente&&c.inicio&&c.fin&&c.inicio.slice(0,7)<=m.mes&&c.fin.slice(0,7)>=m.mes);
-    const gastosDelMes = gastos.filter(g=>g.fecha?.startsWith(m.mes));
+      .map(c => ({
+        ...c,
+        panel: paneles.find(p => p.id === c.panel_id),
+        cliente: clientes.find(cl => cl.id === c.cliente_id),
+      }))
+      .filter(
+        c =>
+          c.panel &&
+          c.cliente &&
+          c.inicio &&
+          c.fin &&
+          c.inicio.slice(0, 7) <= m.mes &&
+          c.fin.slice(0, 7) >= m.mes,
+      );
+    const gastosDelMes = gastos.filter(g => g.fecha?.startsWith(m.mes));
 
     const html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/><title>Reporte ${mesLabel(m.mes)}</title>
 <style>
@@ -588,38 +974,54 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
   <div class="kpis">
     <div class="kpi"><div class="lb">Cobrado</div><div class="vl" style="color:#065F46">${fmt(m.ingPagado)}</div></div>
     <div class="kpi"><div class="lb">Gastos</div><div class="vl" style="color:#991B1B">${fmt(m.gastosMes)}</div></div>
-    <div class="kpi"><div class="lb">Utilidad Neta</div><div class="vl" style="color:${m.utilidad>=0?"#065F46":"#991B1B"}">${fmt(m.utilidad)}</div></div>
+    <div class="kpi"><div class="lb">Utilidad Neta</div><div class="vl" style="color:${m.utilidad >= 0 ? "#065F46" : "#991B1B"}">${fmt(m.utilidad)}</div></div>
   </div>
-  ${m.ingTotal>0?`<div style="margin-bottom:16px;font-size:11px;color:#475569">Cobrado vs Total Facturado: <strong>${Math.round((m.ingPagado/m.ingTotal)*100)}%</strong> (${fmt(m.ingPagado)} de ${fmt(m.ingTotal)})<div class="bar-wrap"><div class="bar-fill" style="width:${Math.round((m.ingPagado/m.ingTotal)*100)}%"></div></div></div>`:""}
+  ${m.ingTotal > 0 ? `<div style="margin-bottom:16px;font-size:11px;color:#475569">Cobrado vs Total Facturado: <strong>${Math.round((m.ingPagado / m.ingTotal) * 100)}%</strong> (${fmt(m.ingPagado)} de ${fmt(m.ingTotal)})<div class="bar-wrap"><div class="bar-fill" style="width:${Math.round((m.ingPagado / m.ingTotal) * 100)}%"></div></div></div>` : ""}
 
-  ${ctrsDelMes.length>0?`
+  ${
+    ctrsDelMes.length > 0
+      ? `
   <div class="sec">Contratos del mes (${ctrsDelMes.length})</div>
   <table>
     <thead><tr><th>Cliente</th><th>Panel</th><th>Estado</th><th class="num">Monto/mes</th><th>Período</th></tr></thead>
     <tbody>
-      ${ctrsDelMes.map(c=>`<tr>
-        <td><strong>${c.cliente?.empresa||"—"}</strong>${c.cliente?.ruc?`<br/><span style="font-size:9px;color:#64748B">RUC: ${c.cliente.ruc}</span>`:""}</td>
-        <td>${c.panel?.nombre||"—"}</td>
-        <td class="${c.pagado?"pag":"pend"}">${c.pagado?"✅ Pagado":"⏳ Pendiente"}</td>
+      ${ctrsDelMes
+        .map(
+          c => `<tr>
+        <td><strong>${c.cliente?.empresa || "—"}</strong>${c.cliente?.ruc ? `<br/><span style="font-size:9px;color:#64748B">RUC: ${c.cliente.ruc}</span>` : ""}</td>
+        <td>${c.panel?.nombre || "—"}</td>
+        <td class="${c.pagado ? "pag" : "pend"}">${c.pagado ? "✅ Pagado" : "⏳ Pendiente"}</td>
         <td class="num">${fmt(c.monto)}</td>
         <td style="font-size:10px;color:#64748B">${fmtF(c.inicio)}<br/>${fmtF(c.fin)}</td>
-      </tr>`).join("")}
+      </tr>`,
+        )
+        .join("")}
     </tbody>
-  </table>`:"<div style='color:#64748B;font-style:italic;margin-bottom:14px'>Sin contratos en este mes.</div>"}
+  </table>`
+      : "<div style='color:#64748B;font-style:italic;margin-bottom:14px'>Sin contratos en este mes.</div>"
+  }
 
-  ${gastosDelMes.length>0?`
+  ${
+    gastosDelMes.length > 0
+      ? `
   <div class="sec">Gastos del mes (${gastosDelMes.length})</div>
   <table>
     <thead><tr><th>Descripción</th><th>Categoría</th><th class="num">Monto</th><th>Fecha</th></tr></thead>
     <tbody>
-      ${gastosDelMes.map(g=>`<tr>
-        <td>${g.descripcion||"—"}</td>
-        <td>${g.categoria||"—"}</td>
+      ${gastosDelMes
+        .map(
+          g => `<tr>
+        <td>${g.descripcion || "—"}</td>
+        <td>${g.categoria || "—"}</td>
         <td class="num neg">${fmt(g.monto)}</td>
         <td style="font-size:10px;color:#64748B">${fmtF(g.fecha)}</td>
-      </tr>`).join("")}
+      </tr>`,
+        )
+        .join("")}
     </tbody>
-  </table>`:""}
+  </table>`
+      : ""
+  }
 </div>
 <div class="footer">
   <span>8 MILLAS · RUC ${EMISOR.ruc}</span>
@@ -628,56 +1030,169 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
 </div>
 <script>window.onload=function(){setTimeout(function(){window.print()},350)}</script>
 </body></html>`;
-    const w = window.open("","_blank","width=900,height=700");
-    if(w){ w.document.write(html); w.document.close(); }
+    const w = window.open("", "_blank", "width=900,height=700");
+    if (w) {
+      w.document.write(html);
+      w.document.close();
+    }
   };
 
   return (
-    <div style={{color:T.text}}>
+    <div style={{ color: T.text }}>
       {/* Header */}
-      <div style={{
-        display:"flex",alignItems:"center",gap:14,
-        background:"linear-gradient(135deg,#0F1729 0%,#1E3A8A 100%)",
-        borderRadius:18,padding:"16px 20px",marginBottom:20,
-        boxShadow:"0 6px 24px rgba(15,23,41,0.32)",
-        position:"relative",overflow:"hidden",
-      }}>
-        <div style={{position:"absolute",top:0,left:0,right:0,height:"50%",background:"linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 100%)",borderRadius:"18px 18px 0 0",pointerEvents:"none"}}/>
-        <div style={{width:42,height:42,borderRadius:12,flexShrink:0,position:"relative",zIndex:1,background:"rgba(255,255,255,0.14)",border:"1px solid rgba(255,255,255,0.22)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 14,
+          background: "linear-gradient(135deg,#0F1729 0%,#1E3A8A 100%)",
+          borderRadius: 18,
+          padding: "16px 20px",
+          marginBottom: 20,
+          boxShadow: "0 6px 24px rgba(15,23,41,0.32)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "50%",
+            background: "linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 100%)",
+            borderRadius: "18px 18px 0 0",
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          style={{
+            width: 42,
+            height: 42,
+            borderRadius: 12,
+            flexShrink: 0,
+            position: "relative",
+            zIndex: 1,
+            background: "rgba(255,255,255,0.14)",
+            border: "1px solid rgba(255,255,255,0.22)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+          }}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
         </div>
-        <div style={{position:"relative",zIndex:1}}>
-          <div style={{fontSize:17,fontWeight:800,color:"#fff",letterSpacing:"-0.3px",lineHeight:1.2}}>Reportes & Facturación</div>
-          <div style={{fontSize:12,color:"rgba(180,200,255,0.7)",marginTop:3,fontWeight:500}}>Análisis financiero · RUC {EMISOR.ruc}</div>
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div
+            style={{
+              fontSize: 17,
+              fontWeight: 800,
+              color: "#fff",
+              letterSpacing: "-0.3px",
+              lineHeight: 1.2,
+            }}
+          >
+            Reportes & Facturación
+          </div>
+          <div
+            style={{ fontSize: 12, color: "rgba(180,200,255,0.7)", marginTop: 3, fontWeight: 500 }}
+          >
+            Análisis financiero · RUC {EMISOR.ruc}
+          </div>
         </div>
       </div>
 
       {/* Tabs — 2 botones, fondo blanco */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:22}}>
-        {secciones.map(s=>{
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>
+        {secciones.map(s => {
           const active = seccion === s.id;
           const iconMap = {
-            resumen: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
-            mensual: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+            resumen: (
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+            ),
+            mensual: (
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            ),
           };
           return (
-            <button key={s.id} onClick={()=>setSeccion(s.id)} style={{
-              display:"flex",alignItems:"center",justifyContent:"center",gap:8,
-              padding:"14px 10px",borderRadius:16,border:"none",cursor:"pointer",touchAction:"manipulation",
-              background: active ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#fff",
-              color: active ? "#fff" : "#1E3A8A",
-              fontWeight: active ? 700 : 600, fontSize:13,
-              boxShadow: active
-                ? "0 6px 20px rgba(15,23,41,0.35)"
-                : "0 1px 4px rgba(15,23,41,0.08)",
-              outline: active ? "none" : "1px solid #E2E8F0",
-              fontFamily:"inherit", transition:"all .15s",
-            }}>
-              <div style={{
-                width:32,height:32,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",
-                background: active ? "rgba(255,255,255,0.15)" : "#EFF6FF",
-                color: active ? "#fff" : "#1E40AF",
-              }}>{iconMap[s.id]}</div>
+            <button
+              key={s.id}
+              onClick={() => setSeccion(s.id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                padding: "14px 10px",
+                borderRadius: 16,
+                border: "none",
+                cursor: "pointer",
+                touchAction: "manipulation",
+                background: active ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#fff",
+                color: active ? "#fff" : "#1E3A8A",
+                fontWeight: active ? 700 : 600,
+                fontSize: 13,
+                boxShadow: active
+                  ? "0 6px 20px rgba(15,23,41,0.35)"
+                  : "0 1px 4px rgba(15,23,41,0.08)",
+                outline: active ? "none" : "1px solid #E2E8F0",
+                fontFamily: "inherit",
+                transition: "all .15s",
+              }}
+            >
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 9,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: active ? "rgba(255,255,255,0.15)" : "#EFF6FF",
+                  color: active ? "#fff" : "#1E40AF",
+                }}
+              >
+                {iconMap[s.id]}
+              </div>
               {s.label}
             </button>
           );
@@ -685,90 +1200,235 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
       </div>
 
       {/* ════════ RESUMEN = ESTADO DE RESULTADOS ════════ */}
-      {seccion==="resumen" && (
+      {seccion === "resumen" && (
         <div>
-          <Resultados contratos={contratos} paneles={paneles} clientes={clientes} gastos={gastos} loading={false}/>
+          <Resultados
+            contratos={contratos}
+            paneles={paneles}
+            clientes={clientes}
+            gastos={gastos}
+            loading={false}
+          />
         </div>
       )}
 
       {/* ════════ POR MES ════════ */}
-      {seccion==="mensual" && (
+      {seccion === "mensual" && (
         <div>
           {/* ── Barra de año con logo 8 Millas ── */}
-          <div style={{
-            position:"relative",overflow:"hidden",
-            background:"linear-gradient(145deg,#0E1835 0%,#0A1228 100%)",
-            border:"1px solid rgba(79,124,255,0.18)",
-            borderRadius:18,padding:"14px 18px",marginBottom:12,
-            boxShadow:"0 6px 20px rgba(8,12,28,0.4), inset 0 1px 0 rgba(255,255,255,0.04)",
-            display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,
-          }}>
-            <CardWave color={T.accent}/>
-            <div style={{position:"relative",zIndex:2,display:"flex",alignItems:"center",gap:12}}>
+          <div
+            style={{
+              position: "relative",
+              overflow: "hidden",
+              background: "linear-gradient(145deg,#0E1835 0%,#0A1228 100%)",
+              border: "1px solid rgba(79,124,255,0.18)",
+              borderRadius: 18,
+              padding: "14px 18px",
+              marginBottom: 12,
+              boxShadow: "0 6px 20px rgba(8,12,28,0.4), inset 0 1px 0 rgba(255,255,255,0.04)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+            }}
+          >
+            <CardWave color={T.accent} />
+            <div
+              style={{
+                position: "relative",
+                zIndex: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
               <div>
-                <div style={{fontSize:10,fontWeight:800,color:"#5B7FCC",letterSpacing:1.4}}>DETALLE MENSUAL</div>
-                <div style={{fontSize:13,color:"rgba(160,180,220,0.7)",marginTop:2}}>
-                  {mesesAnio.filter(m=>m.ingPagado>0||m.gastosMes>0).length} mes(es) con datos
+                <div
+                  style={{ fontSize: 10, fontWeight: 800, color: "#5B7FCC", letterSpacing: 1.4 }}
+                >
+                  DETALLE MENSUAL
+                </div>
+                <div style={{ fontSize: 13, color: "rgba(160,180,220,0.7)", marginTop: 2 }}>
+                  {mesesAnio.filter(m => m.ingPagado > 0 || m.gastosMes > 0).length} mes(es) con
+                  datos
                 </div>
               </div>
             </div>
-            <div style={{position:"relative",zIndex:2,display:"flex",alignItems:"center",gap:10}}>
-              <button onClick={()=>setAnio(a=>a-1)} style={{
-                width:34,height:34,borderRadius:10,border:"1px solid rgba(255,255,255,0.18)",
-                background:"rgba(255,255,255,0.06)",color:"#fff",cursor:"pointer",touchAction:"manipulation",fontSize:16,fontWeight:700,
-                display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
-              <div style={{fontSize:22,fontWeight:900,color:"#fff",fontFamily:"monospace",letterSpacing:"-0.5px",minWidth:60,textAlign:"center"}}>{anio}</div>
-              <button onClick={()=>setAnio(a=>a+1)} style={{
-                width:34,height:34,borderRadius:10,border:"1px solid rgba(255,255,255,0.18)",
-                background:"rgba(255,255,255,0.06)",color:"#fff",cursor:"pointer",touchAction:"manipulation",fontSize:16,fontWeight:700,
-                display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
+            <div
+              style={{
+                position: "relative",
+                zIndex: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <button
+                onClick={() => setAnio(a => a - 1)}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  background: "rgba(255,255,255,0.06)",
+                  color: "#fff",
+                  cursor: "pointer",
+                  touchAction: "manipulation",
+                  fontSize: 16,
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                ‹
+              </button>
+              <div
+                style={{
+                  fontSize: 22,
+                  fontWeight: 900,
+                  color: "#fff",
+                  fontFamily: "monospace",
+                  letterSpacing: "-0.5px",
+                  minWidth: 60,
+                  textAlign: "center",
+                }}
+              >
+                {anio}
+              </div>
+              <button
+                onClick={() => setAnio(a => a + 1)}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  background: "rgba(255,255,255,0.06)",
+                  color: "#fff",
+                  cursor: "pointer",
+                  touchAction: "manipulation",
+                  fontSize: 16,
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                ›
+              </button>
             </div>
           </div>
 
           {/* ── Selector rápido de meses ── */}
-          <div style={{
-            display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:5,marginBottom:14,
-          }}>
-            {mesesAnio.map((m,idx)=>{
-              const tieneData = m.ingPagado>0||m.gastosMes>0;
-              const mShort = new Date(m.mes+"-02").toLocaleDateString("es-PE",{month:"short"}).toUpperCase().replace(".","");
-              const hoyM = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,"0")}`;
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(6,1fr)",
+              gap: 5,
+              marginBottom: 14,
+            }}
+          >
+            {mesesAnio.map((m, idx) => {
+              const tieneData = m.ingPagado > 0 || m.gastosMes > 0;
+              const mShort = new Date(m.mes + "-02")
+                .toLocaleDateString("es-PE", { month: "short" })
+                .toUpperCase()
+                .replace(".", "");
+              const hoyM = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
               const esHoy = m.mes === hoyM;
               return (
-                <a key={m.mes} href={`#mes-${m.mes}`} style={{
-                  display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
-                  padding:"7px 4px",borderRadius:10,textDecoration:"none",cursor:"pointer",touchAction:"manipulation",
-                  background:esHoy
-                    ?"linear-gradient(135deg,rgba(16,185,129,0.28),rgba(5,150,105,0.18))"
-                    :tieneData
-                      ?"rgba(79,124,255,0.1)"
-                      :"rgba(255,255,255,0.03)",
-                  border:esHoy?"1px solid rgba(16,185,129,0.45)":tieneData?"1px solid rgba(79,124,255,0.2)":"1px solid rgba(255,255,255,0.05)",
-                  transition:"background .08s",
-                }}>
-                  <div style={{fontSize:9.5,fontWeight:800,color:"#1E3A8A",letterSpacing:0.4}}>{mShort}</div>
-                  {tieneData && <div style={{width:4,height:4,borderRadius:"50%",background:m.utilidad>=0?T.green:T.red,marginTop:3}}/>}
+                <a
+                  key={m.mes}
+                  href={`#mes-${m.mes}`}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "7px 4px",
+                    borderRadius: 10,
+                    textDecoration: "none",
+                    cursor: "pointer",
+                    touchAction: "manipulation",
+                    background: esHoy
+                      ? "linear-gradient(135deg,rgba(16,185,129,0.28),rgba(5,150,105,0.18))"
+                      : tieneData
+                        ? "rgba(79,124,255,0.1)"
+                        : "rgba(255,255,255,0.03)",
+                    border: esHoy
+                      ? "1px solid rgba(16,185,129,0.45)"
+                      : tieneData
+                        ? "1px solid rgba(79,124,255,0.2)"
+                        : "1px solid rgba(255,255,255,0.05)",
+                    transition: "background .08s",
+                  }}
+                >
+                  <div
+                    style={{ fontSize: 9.5, fontWeight: 800, color: "#1E3A8A", letterSpacing: 0.4 }}
+                  >
+                    {mShort}
+                  </div>
+                  {tieneData && (
+                    <div
+                      style={{
+                        width: 4,
+                        height: 4,
+                        borderRadius: "50%",
+                        background: m.utilidad >= 0 ? T.green : T.red,
+                        marginTop: 3,
+                      }}
+                    />
+                  )}
                 </a>
               );
             })}
           </div>
 
           {/* ── Botón exportar PDF anual ── */}
-          <button onClick={exportAnualMensualPDF} style={{
-            width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:10,
-            padding:"13px 24px",borderRadius:50,marginBottom:14,cursor:"pointer",touchAction:"manipulation",
-            background:"linear-gradient(135deg,#1E35C8 0%,#3854EE 100%)",
-            border:"none",
-            color:T.white,fontWeight:700,fontSize:14,fontFamily:"inherit",
-            boxShadow:"0 4px 22px rgba(30,53,200,0.45), inset 0 1px 0 rgba(255,255,255,0.22)",
-            letterSpacing:"0.01em",minHeight:48,
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+          <button
+            onClick={exportAnualMensualPDF}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 10,
+              padding: "13px 24px",
+              borderRadius: 50,
+              marginBottom: 14,
+              cursor: "pointer",
+              touchAction: "manipulation",
+              background: "linear-gradient(135deg,#1E35C8 0%,#3854EE 100%)",
+              border: "none",
+              color: T.white,
+              fontWeight: 700,
+              fontSize: 14,
+              fontFamily: "inherit",
+              boxShadow: "0 4px 22px rgba(30,53,200,0.45), inset 0 1px 0 rgba(255,255,255,0.22)",
+              letterSpacing: "0.01em",
+              minHeight: 48,
+            }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="12" y1="18" x2="12" y2="12" />
+              <polyline points="9 15 12 18 15 15" />
+            </svg>
             Generar PDF Anual {anio} — Detalle completo por mes
           </button>
 
           {/* ── Cards mensuales estilo factura ── */}
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {mesesAnio.map(m => (
               <MesCard
                 key={m.mes}
@@ -784,14 +1444,13 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
         </div>
       )}
 
-
       {/* Modal comprobante */}
       {modalFactura && (
         <ModalPreFactura
           contrato={modalFactura.contrato}
           panel={modalFactura.panel}
           cliente={modalFactura.cliente}
-          onClose={()=>setModalFactura(null)}
+          onClose={() => setModalFactura(null)}
         />
       )}
     </div>

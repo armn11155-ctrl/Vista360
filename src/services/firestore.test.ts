@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ── Mock de Firebase ───────────────────────────────────────────────
-const mockAddDoc  = vi.fn();
+const mockAddDoc = vi.fn();
 const mockGetDocs = vi.fn();
 const mockUpdateDoc = vi.fn();
 const mockDeleteDoc = vi.fn();
@@ -18,17 +18,17 @@ const mockServerTimestamp = vi.fn(() => ({ _type: "serverTimestamp" }));
 const MockTimestamp = { now: vi.fn(() => ({ seconds: 0, nanoseconds: 0 })) };
 
 vi.mock("firebase/firestore", () => ({
-  collection:      mockCollection,
-  getDocs:         mockGetDocs,
-  addDoc:          mockAddDoc,
-  updateDoc:       mockUpdateDoc,
-  deleteDoc:       mockDeleteDoc,
-  doc:             mockDoc,
-  orderBy:         mockOrderBy,
-  query:           mockQuery,
+  collection: mockCollection,
+  getDocs: mockGetDocs,
+  addDoc: mockAddDoc,
+  updateDoc: mockUpdateDoc,
+  deleteDoc: mockDeleteDoc,
+  doc: mockDoc,
+  orderBy: mockOrderBy,
+  query: mockQuery,
   serverTimestamp: mockServerTimestamp,
-  onSnapshot:      mockOnSnapshot,
-  Timestamp:       MockTimestamp,
+  onSnapshot: mockOnSnapshot,
+  Timestamp: MockTimestamp,
 }));
 
 vi.mock("../config/firebase", () => ({ db: {} }));
@@ -47,9 +47,7 @@ describe("fb.get", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("retorna documentos de Firestore mapeados con id", async () => {
-    mockGetDocs.mockResolvedValue(makeSnap([
-      { id: "p1", data: { nombre: "Panel Centro" } },
-    ]));
+    mockGetDocs.mockResolvedValue(makeSnap([{ id: "p1", data: { nombre: "Panel Centro" } }]));
     const result = await fb.get("paneles");
     expect(result).toEqual([{ id: "p1", nombre: "Panel Centro" }]);
   });

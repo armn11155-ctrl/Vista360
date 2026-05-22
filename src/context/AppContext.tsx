@@ -47,11 +47,11 @@ export function useAppSetters(): AppSetters {
 // ── Vistas derivadas (memoizadas en el proveedor) ─────────────────
 
 export interface AppDerivedData {
-  contractsActive:   Contrato[];
-  clientesActive:    Cliente[];
+  contractsActive: Contrato[];
+  clientesActive: Cliente[];
   proveedoresActive: Proveedor[];
-  trashCount:        number;
-  notifCount:        number;
+  trashCount: number;
+  notifCount: number;
 }
 
 const AppDerivedContext = createContext<AppDerivedData | null>(null);
@@ -65,9 +65,9 @@ export function useAppDerived(): AppDerivedData {
 // ── Proveedor ─────────────────────────────────────────────────────
 
 interface AppProviderProps {
-  data:     AppData;
-  setters:  AppSetters;
-  derived:  AppDerivedData;
+  data: AppData;
+  setters: AppSetters;
+  derived: AppDerivedData;
   children: React.ReactNode;
 }
 
@@ -75,9 +75,7 @@ export function AppProvider({ data, setters, derived, children }: AppProviderPro
   return (
     <AppDataContext.Provider value={data}>
       <AppSettersContext.Provider value={setters}>
-        <AppDerivedContext.Provider value={derived}>
-          {children}
-        </AppDerivedContext.Provider>
+        <AppDerivedContext.Provider value={derived}>{children}</AppDerivedContext.Provider>
       </AppSettersContext.Provider>
     </AppDataContext.Provider>
   );

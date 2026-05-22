@@ -17,47 +17,88 @@ import { ToastProvider } from "./context/UIContext";
 import { useViewportSetup } from "./hooks/useViewportSetup";
 
 // ── Componentes de features ────────────────────────────────────────
-import Splash        from "./pages/Splash";
-import LoginScreen   from "./components/features/auth/LoginScreen";
-import ResumenNuevo  from "./components/features/dashboard/ResumenNuevo";
-import Paneles       from "./components/features/paneles/Paneles";
-import Contratos     from "./components/features/contratos/Contratos";
-import Historico     from "./components/features/historico/Historico";
-import CRM           from "./components/features/crm/CRM";
-import Gastos        from "./components/features/gastos/Gastos";
-import Proveedores   from "./components/features/proveedores/Proveedores";
-import Facturacion   from "./components/features/facturacion/Facturacion";
-import Reportes      from "./components/features/reportes/Reportes";
-import Capital       from "./components/features/capital/Capital";
-import Mapa          from "./components/features/mapa/Mapa";
-import NotifPanel    from "./components/shared/NotifPanel";
-import DrawerMenu    from "./components/layout/DrawerMenu";
+import Splash from "./pages/Splash";
+import LoginScreen from "./components/features/auth/LoginScreen";
+import ResumenNuevo from "./components/features/dashboard/ResumenNuevo";
+import Paneles from "./components/features/paneles/Paneles";
+import Contratos from "./components/features/contratos/Contratos";
+import Historico from "./components/features/historico/Historico";
+import CRM from "./components/features/crm/CRM";
+import Gastos from "./components/features/gastos/Gastos";
+import Proveedores from "./components/features/proveedores/Proveedores";
+import Facturacion from "./components/features/facturacion/Facturacion";
+import Reportes from "./components/features/reportes/Reportes";
+import Capital from "./components/features/capital/Capital";
+import Mapa from "./components/features/mapa/Mapa";
+import NotifPanel from "./components/shared/NotifPanel";
+import DrawerMenu from "./components/layout/DrawerMenu";
 import BusquedaGlobal from "./components/shared/BusquedaGlobal";
-import TrashModal    from "./components/shared/TrashModal";
+import TrashModal from "./components/shared/TrashModal";
 
 // ── UI primitivos ─────────────────────────────────────────────────
 import { OfflineBanner } from "./components/ui";
 
-
 // ── BTM_ICONS: iconos del bottom tab bar ─────────────────────────
 const BTM_ICONS: Record<string, React.ReactNode> = {
-  hoy:       <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M3 12L5 10M5 10L12 3L19 10M5 10V20C5 20.552 5.448 21 6 21H9M19 10L21 12M19 10V20C19 20.552 18.552 21 18 21H15M9 21V15C9 14.448 9.448 14 10 14H14C14.552 14 15 14.448 15 15V21M9 21H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
-  paneles:   <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2"/></svg>,
-  contratos: <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M9 12H15M9 16H15M17 21H7C5.895 21 5 20.105 5 19V5C5 3.895 5.895 3 7 3H14L19 8V19C19 20.105 18.105 21 17 21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
-  crm:       <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M17 21V19C17 17.343 15.657 16 14 16H10C8.343 16 7 17.343 7 19V21M12 13C14.209 13 16 11.209 16 9C16 6.791 14.209 5 12 5C9.791 5 8 6.791 8 9C8 11.209 9.791 13 12 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,
+  hoy: (
+    <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M3 12L5 10M5 10L12 3L19 10M5 10V20C5 20.552 5.448 21 6 21H9M19 10L21 12M19 10V20C19 20.552 18.552 21 18 21H15M9 21V15C9 14.448 9.448 14 10 14H14C14.552 14 15 14.448 15 15V21M9 21H15"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  paneles: (
+    <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  ),
+  contratos: (
+    <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M9 12H15M9 16H15M17 21H7C5.895 21 5 20.105 5 19V5C5 3.895 5.895 3 7 3H14L19 8V19C19 20.105 18.105 21 17 21Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  crm: (
+    <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M17 21V19C17 17.343 15.657 16 14 16H10C8.343 16 7 17.343 7 19V21M12 13C14.209 13 16 11.209 16 9C16 6.791 14.209 5 12 5C9.791 5 8 6.791 8 9C8 11.209 9.791 13 12 13Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
 };
 
 // ── ErrorBoundary ─────────────────────────────────────────────────
-interface EBState { hasError: boolean; msg: string; }
+interface EBState {
+  hasError: boolean;
+  msg: string;
+}
 class ErrorBoundary extends Component<{ label: string; children: React.ReactNode }, EBState> {
   state: EBState = { hasError: false, msg: "" };
-  static getDerivedStateFromError(e: Error): EBState { return { hasError: true, msg: e.message }; }
+  static getDerivedStateFromError(e: Error): EBState {
+    return { hasError: true, msg: e.message };
+  }
   render() {
-    if (this.state.hasError) return (
-      <div style={{ padding: 20, color: T.red, fontSize: 13 }}>
-        [{this.props.label}] Error: {this.state.msg}
-      </div>
-    );
+    if (this.state.hasError)
+      return (
+        <div style={{ padding: 20, color: T.red, fontSize: 13 }}>
+          [{this.props.label}] Error: {this.state.msg}
+        </div>
+      );
     return this.props.children;
   }
 }
@@ -65,38 +106,92 @@ class ErrorBoundary extends Component<{ label: string; children: React.ReactNode
 // ── SkDarkCard: skeleton de carga para el estado inicial ──────────
 function SkDarkCard() {
   return (
-    <div style={{ background: "#1A2744", borderRadius: 16, padding: "18px 16px", marginBottom: 12,
-      animation: "skPulse 1.6s ease-in-out infinite", backgroundSize: "200% 100%",
-      backgroundImage: "linear-gradient(90deg,#1A2744 25%,#243059 50%,#1A2744 75%)" }}>
-      <div style={{ height: 12, background: "rgba(255,255,255,0.07)", borderRadius: 6, width: "60%", marginBottom: 10 }}/>
-      <div style={{ height: 28, background: "rgba(255,255,255,0.05)", borderRadius: 8, width: "40%", marginBottom: 8 }}/>
-      <div style={{ height: 10, background: "rgba(255,255,255,0.04)", borderRadius: 6, width: "80%" }}/>
+    <div
+      style={{
+        background: "#1A2744",
+        borderRadius: 16,
+        padding: "18px 16px",
+        marginBottom: 12,
+        animation: "skPulse 1.6s ease-in-out infinite",
+        backgroundSize: "200% 100%",
+        backgroundImage: "linear-gradient(90deg,#1A2744 25%,#243059 50%,#1A2744 75%)",
+      }}
+    >
+      <div
+        style={{
+          height: 12,
+          background: "rgba(255,255,255,0.07)",
+          borderRadius: 6,
+          width: "60%",
+          marginBottom: 10,
+        }}
+      />
+      <div
+        style={{
+          height: 28,
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: 8,
+          width: "40%",
+          marginBottom: 8,
+        }}
+      />
+      <div
+        style={{ height: 10, background: "rgba(255,255,255,0.04)", borderRadius: 6, width: "80%" }}
+      />
     </div>
   );
 }
 
 // ── FirebaseStatus: resumen de datos en la pantalla de perfil ─────
-function FirebaseStatus({ contratos, paneles, clientes, gastos, fbConnected, fbLoading, fbError }:
-  { contratos: Contrato[]; paneles: Panel[]; clientes: Cliente[]; gastos: Gasto[];
-    fbConnected: boolean; fbLoading: boolean; fbError: boolean; }) {
+function FirebaseStatus({
+  contratos,
+  paneles,
+  clientes,
+  gastos,
+  fbConnected,
+  fbLoading,
+  fbError,
+}: {
+  contratos: Contrato[];
+  paneles: Panel[];
+  clientes: Cliente[];
+  gastos: Gasto[];
+  fbConnected: boolean;
+  fbLoading: boolean;
+  fbError: boolean;
+}) {
   const statusColor = fbError ? T.red : fbLoading ? T.amber : "#22C55E";
-  const statusText  = fbError ? "Error" : fbLoading ? "Conectando…" : "Conectado";
+  const statusText = fbError ? "Error" : fbLoading ? "Conectando…" : "Conectado";
   return (
-    <div style={{ background: "#0E1835", borderRadius: 16, padding: 16, border: "1px solid rgba(59,110,248,0.15)" }}>
+    <div
+      style={{
+        background: "#0E1835",
+        borderRadius: 16,
+        padding: 16,
+        border: "1px solid rgba(59,110,248,0.15)",
+      }}
+    >
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-        <div style={{ width: 8, height: 8, borderRadius: "50%", background: statusColor }}/>
-        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Firebase · {statusText}</span>
+        <div style={{ width: 8, height: 8, borderRadius: "50%", background: statusColor }} />
+        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>
+          Firebase · {statusText}
+        </span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         {[
           { label: "Contratos", value: contratos.length },
-          { label: "Paneles",   value: paneles.length   },
-          { label: "Clientes",  value: clientes.length  },
-          { label: "Gastos",    value: gastos.length    },
+          { label: "Paneles", value: paneles.length },
+          { label: "Clientes", value: clientes.length },
+          { label: "Gastos", value: gastos.length },
         ].map(item => (
-          <div key={item.label} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "10px 12px" }}>
+          <div
+            key={item.label}
+            style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "10px 12px" }}
+          >
             <div style={{ fontSize: 20, fontWeight: 700, color: "#fff" }}>{item.value}</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{item.label}</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+              {item.label}
+            </div>
           </div>
         ))}
       </div>
@@ -121,39 +216,43 @@ export default function App() {
   // Antes era un IIFE; ahora es un hook declarativo y testeable.
   useViewportSetup();
 
-  const [splash, setSplash]         = useState(true);
-  const [user, setUser] = useState<User | null>(null);   // Firebase Auth user
-  const [authReady, setAuthReady]   = useState(false);  // true cuando ya sabemos si hay sesión o no
+  const [splash, setSplash] = useState(true);
+  const [user, setUser] = useState<User | null>(null); // Firebase Auth user
+  const [authReady, setAuthReady] = useState(false); // true cuando ya sabemos si hay sesión o no
   const [showProfile, setShowProfile] = useState(false);
-  const [tab, setTab]               = useState("hoy");
+  const [tab, setTab] = useState("hoy");
 
   const headerColor = getHeaderColor(tab, showProfile);
-  const headerDark  = headerColor !== T.bg;
+  const headerDark = headerColor !== T.bg;
   useEffect(() => {
     let meta = document.querySelector('meta[name="theme-color"]');
-    if (!meta) { meta = document.createElement("meta"); meta.setAttribute("name","theme-color"); document.head.appendChild(meta); }
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.setAttribute("name", "theme-color");
+      document.head.appendChild(meta);
+    }
     const color = splash ? T.dark : headerColor;
     meta.setAttribute("content", color);
     document.documentElement.style.background = color;
     document.body.style.background = color;
     document.documentElement.style.setProperty("--app-bg", color);
   }, [headerColor, splash]);
-  const [clientes, setClientes]     = useState<Cliente[]>([]);
-  const [paneles, setPaneles]       = useState<Panel[]>([]);
-  const [contratos, setContratos]   = useState<Contrato[]>([]);
-  const [gastos, setGastos]         = useState<Gasto[]>([]);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [paneles, setPaneles] = useState<Panel[]>([]);
+  const [contratos, setContratos] = useState<Contrato[]>([]);
+  const [gastos, setGastos] = useState<Gasto[]>([]);
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
-  const [loading, setLoading]       = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [trashOpen, setTrashOpen]   = useState(false);
-  const [autoScan, setAutoScan]     = useState(false);
+  const [trashOpen, setTrashOpen] = useState(false);
+  const [autoScan, setAutoScan] = useState(false);
   const [globalSearch, setGlobalSearch] = useState(false);
-  const [notifOpen, setNotifOpen]   = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [anyModalOpen, setAnyModalOpen] = useState(false);
 
-  const swRef    = useRef<ServiceWorkerRegistration | null>(null);
+  const swRef = useRef<ServiceWorkerRegistration | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   // ── iOS SAFARI: FIJAR SCROLL DEL DOCUMENTO ──────────────────────
@@ -177,19 +276,21 @@ export default function App() {
     lockScroll();
 
     // Escuchar scroll del documento y cambios del viewport
-    window.addEventListener("scroll",  lockScroll, { passive: true });
+    window.addEventListener("scroll", lockScroll, { passive: true });
     window.visualViewport?.addEventListener("resize", lockScroll, { passive: true });
     window.visualViewport?.addEventListener("scroll", lockScroll, { passive: true });
-    window.addEventListener("resize",  lockScroll, { passive: true });
+    window.addEventListener("resize", lockScroll, { passive: true });
 
     // Navegación global desde componentes internos (ej: "Ver todas" en ActividadReciente)
-    const handleNav = (e: Event) => { setTab((e as CustomEvent<string>).detail); };
+    const handleNav = (e: Event) => {
+      setTab((e as CustomEvent<string>).detail);
+    };
     window.addEventListener("vista360_nav", handleNav);
 
     return () => {
       document.removeEventListener("touchstart", noop);
-      window.removeEventListener("scroll",  lockScroll);
-      window.removeEventListener("resize",  lockScroll);
+      window.removeEventListener("scroll", lockScroll);
+      window.removeEventListener("resize", lockScroll);
       window.removeEventListener("vista360_nav", handleNav);
       window.visualViewport?.removeEventListener("resize", lockScroll);
       window.visualViewport?.removeEventListener("scroll", lockScroll);
@@ -205,28 +306,32 @@ export default function App() {
 
     let unsub: (() => void) | undefined;
     try {
-      unsub = onAuthStateChanged(auth, (u) => {
-        clearTimeout(fallback);
-        // Whitelist check si el usuario ya estaba logueado y se restringe
-        if (u && ALLOWED_EMAILS.length > 0 && !ALLOWED_EMAILS.includes(u.email ?? "")) {
-          signOut(auth);
-          setUser(null);
-        } else {
-          setUser(u);
-          // ── Solicitar permiso de notificaciones al iniciar sesión ──
-          // Solo si el navegador lo soporta y aún no se ha decidido.
-          // No bloqueante: si el usuario cancela, todo sigue funcionando.
-          if (u && "Notification" in window && Notification.permission === "default") {
-            Notification.requestPermission().catch(() => {});
+      unsub = onAuthStateChanged(
+        auth,
+        u => {
+          clearTimeout(fallback);
+          // Whitelist check si el usuario ya estaba logueado y se restringe
+          if (u && ALLOWED_EMAILS.length > 0 && !ALLOWED_EMAILS.includes(u.email ?? "")) {
+            signOut(auth);
+            setUser(null);
+          } else {
+            setUser(u);
+            // ── Solicitar permiso de notificaciones al iniciar sesión ──
+            // Solo si el navegador lo soporta y aún no se ha decidido.
+            // No bloqueante: si el usuario cancela, todo sigue funcionando.
+            if (u && "Notification" in window && Notification.permission === "default") {
+              Notification.requestPermission().catch(() => {});
+            }
           }
-        }
-        setAuthReady(true);
-      }, (err) => {
-        // Error de Firebase (dominio no autorizado, config inválida, etc.)
-        console.error("[Auth] onAuthStateChanged error:", err);
-        clearTimeout(fallback);
-        setAuthReady(true); // Mostrar login aunque Firebase falle
-      });
+          setAuthReady(true);
+        },
+        err => {
+          // Error de Firebase (dominio no autorizado, config inválida, etc.)
+          console.error("[Auth] onAuthStateChanged error:", err);
+          clearTimeout(fallback);
+          setAuthReady(true); // Mostrar login aunque Firebase falle
+        },
+      );
     } catch (err) {
       // Firebase no inicializado correctamente (variables de entorno ausentes)
       console.error("[Auth] Firebase init error:", err);
@@ -247,8 +352,11 @@ export default function App() {
   // sí puede, lo que habilita caché offline genuina + push remoto.
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
-    navigator.serviceWorker.register("/sw.js")
-      .then(reg => { swRef.current = reg; })
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then(reg => {
+        swRef.current = reg;
+      })
       .catch(err => console.warn("[SW] Registro fallido:", err));
   }, []);
 
@@ -259,32 +367,50 @@ export default function App() {
     if (Notification.permission !== "granted") return;
     const hoyD = new Date();
     let enviadas: Record<string, boolean> = {};
-    try { enviadas = JSON.parse(localStorage.getItem("v360_notif") || "{}"); } catch { /* localStorage bloqueado en modo privado — se ignora y se usan notifs vacías */ }
+    try {
+      enviadas = JSON.parse(localStorage.getItem("v360_notif") || "{}");
+    } catch {
+      /* localStorage bloqueado en modo privado — se ignora y se usan notifs vacías */
+    }
     contratos.forEach(c => {
       const d = Math.ceil((new Date(c.fin).getTime() - hoyD.getTime()) / 86400000);
       [30, 15].forEach(umbral => {
         if (d > 0 && d <= umbral) {
           const key = `${c.id}_${umbral}`;
           if (enviadas[key]) return;
-          const panel   = paneles.find(p => p.id === c.panel_id);
+          const panel = paneles.find(p => p.id === c.panel_id);
           const cliente = clientes.find(cl => cl.id === c.cliente_id);
           if (!panel || !cliente) return;
-          const titulo = d <= 5
-            ? `🚨 Vence en ${d} día${d===1?"":"s"} — ${panel.nombre}`
-            : `⚠️ Vence en ${d} días — ${panel.nombre}`;
+          const titulo =
+            d <= 5
+              ? `🚨 Vence en ${d} día${d === 1 ? "" : "s"} — ${panel.nombre}`
+              : `⚠️ Vence en ${d} días — ${panel.nombre}`;
           const cuerpo = `Cliente: ${cliente.empresa} · ${fmt(c.monto)}/mes`;
           try {
             if (swRef.current?.showNotification) {
-              swRef.current.showNotification(titulo, { body: cuerpo, tag: key, icon: "/favicon.ico", badge: "/favicon.ico", vibrate: [200, 100, 200], requireInteraction: d <= 5 });
+              swRef.current.showNotification(titulo, {
+                body: cuerpo,
+                tag: key,
+                icon: "/favicon.ico",
+                badge: "/favicon.ico",
+                vibrate: [200, 100, 200],
+                requireInteraction: d <= 5,
+              });
             } else {
               new Notification(titulo, { body: cuerpo, tag: key });
             }
             enviadas[key] = true;
-          } catch { /* Notification() puede lanzar en algunos browsers por permisos */ }
+          } catch {
+            /* Notification() puede lanzar en algunos browsers por permisos */
+          }
         }
       });
     });
-    try { localStorage.setItem("v360_notif", JSON.stringify(enviadas)); } catch { /* localStorage lleno o bloqueado — las notifs se reenviarán la próxima sesión */ }
+    try {
+      localStorage.setItem("v360_notif", JSON.stringify(enviadas));
+    } catch {
+      /* localStorage lleno o bloqueado — las notifs se reenviarán la próxima sesión */
+    }
   }, [contratos, paneles, clientes]);
 
   // ── Carga de datos en TIEMPO REAL con onSnapshot ──
@@ -308,28 +434,64 @@ export default function App() {
     const unsubs = [
       fb.subscribe<Cliente>(
         "clientes",
-        items => { setClientes(items); setError(null); checkDone("clientes"); },
-        err   => { console.error("[Snapshot] clientes:",   err); setError((err as Error).message ?? "Error Firebase"); checkDone("clientes"); },
+        items => {
+          setClientes(items);
+          setError(null);
+          checkDone("clientes");
+        },
+        err => {
+          console.error("[Snapshot] clientes:", err);
+          setError((err as Error).message ?? "Error Firebase");
+          checkDone("clientes");
+        },
       ),
       fb.subscribe<Panel>(
         "paneles",
-        items => { setPaneles(items); checkDone("paneles"); },
-        err   => { console.error("[Snapshot] paneles:",    err); setError((err as Error).message ?? "Error Firebase"); checkDone("paneles"); },
+        items => {
+          setPaneles(items);
+          checkDone("paneles");
+        },
+        err => {
+          console.error("[Snapshot] paneles:", err);
+          setError((err as Error).message ?? "Error Firebase");
+          checkDone("paneles");
+        },
       ),
       fb.subscribe<Contrato>(
         "contratos",
-        items => { setContratos(items); checkDone("contratos"); },
-        err   => { console.error("[Snapshot] contratos:",  err); setError((err as Error).message ?? "Error Firebase"); checkDone("contratos"); },
+        items => {
+          setContratos(items);
+          checkDone("contratos");
+        },
+        err => {
+          console.error("[Snapshot] contratos:", err);
+          setError((err as Error).message ?? "Error Firebase");
+          checkDone("contratos");
+        },
       ),
       fb.subscribe<Gasto>(
         "gastos",
-        items => { setGastos(items); checkDone("gastos"); },
-        err   => { console.error("[Snapshot] gastos:",     err); setError((err as Error).message ?? "Error Firebase"); checkDone("gastos"); },
+        items => {
+          setGastos(items);
+          checkDone("gastos");
+        },
+        err => {
+          console.error("[Snapshot] gastos:", err);
+          setError((err as Error).message ?? "Error Firebase");
+          checkDone("gastos");
+        },
       ),
       fb.subscribe<Proveedor>(
         "proveedores",
-        items => { setProveedores(items); checkDone("proveedores"); },
-        err   => { console.error("[Snapshot] proveedores:",err); setError((err as Error).message ?? "Error Firebase"); checkDone("proveedores"); },
+        items => {
+          setProveedores(items);
+          checkDone("proveedores");
+        },
+        err => {
+          console.error("[Snapshot] proveedores:", err);
+          setError((err as Error).message ?? "Error Firebase");
+          checkDone("proveedores");
+        },
       ),
     ];
 
@@ -362,28 +524,47 @@ export default function App() {
   const handleTabClick = useCallback((id: string) => {
     // Reset scroll to top instantly al cambiar de tab — se siente premium
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
-    if (id === "perfil") { setShowProfile(true); setTab("hoy"); }
-    else { setTab(id); setShowProfile(false); }
+    if (id === "perfil") {
+      setShowProfile(true);
+      setTab("hoy");
+    } else {
+      setTab(id);
+      setShowProfile(false);
+    }
   }, []);
 
   // fechaCap: calculado UNA sola vez al montar. useRef garantiza que React
   // nunca descarte el valor (a diferencia de useMemo con deps vacías, que
   // puede ser invalidado por el scheduler en React 18+ concurrent mode).
-  const fechaCapRef = useRef((() => {
-    const f = new Date().toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-    return f.charAt(0).toUpperCase() + f.slice(1);
-  })());
+  const fechaCapRef = useRef(
+    (() => {
+      const f = new Date().toLocaleDateString("es-PE", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      return f.charAt(0).toUpperCase() + f.slice(1);
+    })(),
+  );
   const fechaCap = fechaCapRef.current;
-
 
   // ── Título de la pestaña del navegador / barra de título en PWA ──
   // Ayuda a distinguir múltiples ventanas y mejora la experiencia en desktop.
   useEffect(() => {
     const TAB_TITLES: Record<string, string> = {
-      hoy: "Inicio", paneles: "Paneles", contratos: "Contratos",
-      historico: "Histórico", crm: "Clientes", resultados: "Resultados",
-      reportes: "Reportes", gastos: "Gastos", proveedores: "Proveedores",
-      facturacion: "Facturación", capital: "Capital", mapa: "Mapa",
+      hoy: "Inicio",
+      paneles: "Paneles",
+      contratos: "Contratos",
+      historico: "Histórico",
+      crm: "Clientes",
+      resultados: "Resultados",
+      reportes: "Reportes",
+      gastos: "Gastos",
+      proveedores: "Proveedores",
+      facturacion: "Facturación",
+      capital: "Capital",
+      mapa: "Mapa",
     };
     const section = showProfile ? "Perfil" : (TAB_TITLES[tab] ?? "Vista360");
     document.title = `${section} | Vista360`;
@@ -395,11 +576,11 @@ export default function App() {
   //   Ideal para tabs pesados (Mapa, Capital, Reportes, Facturación) que
   //   consumen recursos incluso cuando están ocultos. Una vez montados,
   //   quedan en memoria para no perder el estado al volver.
-  const show = (id: string) => ({ display: activeTab === id ? undefined : "none" } as const);
+  const show = (id: string) => ({ display: activeTab === id ? undefined : "none" }) as const;
 
   // Registra qué tabs han sido visitados al menos una vez
   const [visitedTabs, setVisitedTabs] = useState<Set<string>>(
-    () => new Set(["hoy"]) // "hoy" se monta desde el inicio
+    () => new Set(["hoy"]), // "hoy" se monta desde el inicio
   );
   // Actualiza el set al cambiar de tab
   useEffect(() => {
@@ -417,11 +598,11 @@ export default function App() {
   // useMemo garantiza que el .filter() solo corre cuando cambia el array
   // fuente, no en cada render del App raíz (que puede ocurrir por cualquier
   // cambio de estado: tab, modales, scroll, etc.).
-  const contractsActive   = useMemo(() => contratos.filter(x => !x.deleted),      [contratos]);
-  const clientesActive    = useMemo(() => clientes.filter(x => !x.deleted),        [clientes]);
-  const proveedoresActive = useMemo(() => proveedores.filter(x => !x.deleted),     [proveedores]);
+  const contractsActive = useMemo(() => contratos.filter(x => !x.deleted), [contratos]);
+  const clientesActive = useMemo(() => clientes.filter(x => !x.deleted), [clientes]);
+  const proveedoresActive = useMemo(() => proveedores.filter(x => !x.deleted), [proveedores]);
   // trashCount: extrae el cálculo inline del JSX de DrawerMenu (evita array temporal en cada render)
-  const trashCount        = useMemo(() => contratos.filter(x =>  x.deleted).length,[contratos]);
+  const trashCount = useMemo(() => contratos.filter(x => x.deleted).length, [contratos]);
   // notifCount: número de alertas para el badge del botón de campana.
   // Vencimientos próximos (≤30 días) + contratos sin pagar con monto > 0.
   const notifCount = useMemo(() => {
@@ -523,315 +704,759 @@ export default function App() {
       `}</style>
 
       <ToastProvider>
-      <OfflineBanner/>
-      {splash && <Splash done={() => setSplash(false)}/>}
+        <OfflineBanner />
+        {splash && <Splash done={() => setSplash(false)} />}
 
-      {/* Pantalla de login: se muestra solo si no hay usuario y ya verificamos auth */}
-      {!splash && authReady && !user && (
-        <LoginScreen onLoginSuccess={(u) => setUser(u)}/>
-      )}
+        {/* Pantalla de login: se muestra solo si no hay usuario y ya verificamos auth */}
+        {!splash && authReady && !user && <LoginScreen onLoginSuccess={u => setUser(u)} />}
 
-      {/* App principal: solo se muestra cuando hay sesión activa */}
-      {!splash && !!user && <div className="v360-app-root" style={{ background: T.bg, color: T.text }}>
+        {/* App principal: solo se muestra cuando hay sesión activa */}
+        {!splash && !!user && (
+          <div className="v360-app-root" style={{ background: T.bg, color: T.text }}>
+            {/* ── TOP NAV ── */}
+            <div
+              style={{
+                flexShrink: 0,
+                paddingTop: "env(safe-area-inset-top)",
+                paddingLeft: 16,
+                paddingRight: 16,
+                paddingBottom: 12,
+                background: headerColor,
+                borderBottom: headerDark ? "none" : `1px solid rgba(229,231,235,0.8)`,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              {/* Botón menú */}
+              <button
+                onClick={() => setDrawerOpen(true)}
+                aria-label="Menú"
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
+                  background: headerDark ? "rgba(255,255,255,0.10)" : T.text,
+                  border: headerDark ? "1px solid rgba(255,255,255,0.14)" : "none",
+                  cursor: "pointer",
+                  touchAction: "manipulation",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  boxShadow: headerDark ? "none" : "0 4px 12px rgba(15,23,41,0.18)",
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="3" width="8" height="8" rx="2" fill="white" />
+                  <rect x="13" y="3" width="8" height="8" rx="2" fill="white" />
+                  <rect x="3" y="13" width="8" height="8" rx="2" fill="white" />
+                  <rect x="13" y="13" width="8" height="8" rx="2" fill="white" />
+                </svg>
+              </button>
 
-        {/* ── TOP NAV ── */}
-        <div style={{
-          flexShrink: 0,
-          paddingTop: "env(safe-area-inset-top)",
-          paddingLeft: 16, paddingRight: 16, paddingBottom: 12,
-          background: headerColor,
-          borderBottom: headerDark
-            ? "none"
-            : `1px solid rgba(229,231,235,0.8)`,
-          display: "flex", alignItems: "center", gap: 10,
-        }}>
-          {/* Botón menú */}
-          <button onClick={() => setDrawerOpen(true)} aria-label="Menú" style={{
-            width: 40, height: 40, borderRadius: 12,
-            background: headerDark ? "rgba(255,255,255,0.10)" : T.text,
-            border: headerDark ? "1px solid rgba(255,255,255,0.14)" : "none",
-            cursor: "pointer", touchAction: "manipulation",
-            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            boxShadow: headerDark ? "none" : "0 4px 12px rgba(15,23,41,0.18)",
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="3" width="8" height="8" rx="2" fill="white"/>
-              <rect x="13" y="3" width="8" height="8" rx="2" fill="white"/>
-              <rect x="3" y="13" width="8" height="8" rx="2" fill="white"/>
-              <rect x="13" y="13" width="8" height="8" rx="2" fill="white"/>
-            </svg>
-          </button>
+              {/* Título de sección + fecha */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: headerDark ? "#fff" : T.text,
+                    lineHeight: 1.1,
+                  }}
+                >
+                  {showProfile
+                    ? "Perfil"
+                    : {
+                        hoy: "Inicio",
+                        mapa: "Mapa",
+                        capital: "Capital",
+                        paneles: "Paneles",
+                        contratos: "Contratos",
+                        historico: "Histórico",
+                        crm: "Clientes",
+                        resultados: "Resultados",
+                        reportes: "Reportes",
+                        gastos: "Gastos",
+                        proveedores: "Proveedores",
+                        facturacion: "Facturación",
+                      }[tab] || "Vista360"}
+                </div>
+              </div>
 
-          {/* Título de sección + fecha */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: headerDark ? "#fff" : T.text, lineHeight: 1.1 }}>
-              {showProfile ? "Perfil" : {
-                hoy:"Inicio", mapa:"Mapa",
-                capital:"Capital",
-                paneles:"Paneles", contratos:"Contratos", historico:"Histórico",
-                crm:"Clientes", resultados:"Resultados", reportes:"Reportes",
-                gastos:"Gastos", proveedores:"Proveedores", facturacion:"Facturación",
-              }[tab] || "Vista360"}
+              {/* Acciones */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                <button
+                  onClick={() => setGlobalSearch(true)}
+                  aria-label="Buscar"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    background: headerDark ? "rgba(255,255,255,0.10)" : T.white,
+                    border: headerDark
+                      ? "1px solid rgba(255,255,255,0.14)"
+                      : `1px solid ${T.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    touchAction: "manipulation",
+                  }}
+                >
+                  <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
+                    <path
+                      d="M21 21L15 15M17 11C17 14.866 13.866 18 10 18C6.134 18 3 14.866 3 11C3 7.134 6.134 4 10 4C13.866 4 17 7.134 17 11Z"
+                      stroke={headerDark ? "#fff" : T.text}
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setNotifOpen(v => !v)}
+                  aria-label="Notificaciones"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    background: headerDark ? "rgba(255,255,255,0.10)" : T.white,
+                    border: headerDark
+                      ? "1px solid rgba(255,255,255,0.14)"
+                      : `1px solid ${T.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    touchAction: "manipulation",
+                    position: "relative",
+                  }}
+                >
+                  <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
+                    <path
+                      d="M15 17H9M15 17C15 18.657 13.657 20 12 20C10.343 20 9 18.657 9 17M15 17H20L18.784 15.784C18.284 15.284 18 14.612 18 13.914V10C18 7.239 15.761 5 13 5H11C8.239 5 6 7.239 6 10V13.914C6 14.612 5.716 15.284 5.216 15.784L4 17H9"
+                      stroke={headerDark ? "#fff" : T.text}
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  {notifCount > 0 && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 7,
+                        right: 7,
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        background: T.red,
+                        border: `2px solid ${T.white}`,
+                      }}
+                    />
+                  )}
+                </button>
+                <button
+                  onClick={() => handleTabClick("perfil")}
+                  aria-label="Perfil"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 60%, #2A5BD9 100%)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#fff",
+                    fontWeight: 800,
+                    fontSize: 13,
+                    border: showProfile ? `2px solid ${T.accent}` : "2px solid transparent",
+                    cursor: "pointer",
+                    touchAction: "manipulation",
+                    boxShadow:
+                      "0 4px 12px rgba(30,58,138,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  {userInitials}
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Acciones */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-            <button onClick={() => setGlobalSearch(true)} aria-label="Buscar" style={{ width: 40, height: 40, borderRadius: "50%", background: headerDark ? "rgba(255,255,255,0.10)" : T.white, border: headerDark ? "1px solid rgba(255,255,255,0.14)" : `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", touchAction: "manipulation" }}>
-              <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
-                <path d="M21 21L15 15M17 11C17 14.866 13.866 18 10 18C6.134 18 3 14.866 3 11C3 7.134 6.134 4 10 4C13.866 4 17 7.134 17 11Z" stroke={headerDark ? "#fff" : T.text} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-            <button onClick={() => setNotifOpen(v => !v)} aria-label="Notificaciones" style={{ width: 40, height: 40, borderRadius: "50%", background: headerDark ? "rgba(255,255,255,0.10)" : T.white, border: headerDark ? "1px solid rgba(255,255,255,0.14)" : `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", touchAction: "manipulation", position: "relative" }}>
-              <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
-                <path d="M15 17H9M15 17C15 18.657 13.657 20 12 20C10.343 20 9 18.657 9 17M15 17H20L18.784 15.784C18.284 15.284 18 14.612 18 13.914V10C18 7.239 15.761 5 13 5H11C8.239 5 6 7.239 6 10V13.914C6 14.612 5.716 15.284 5.216 15.784L4 17H9" stroke={headerDark ? "#fff" : T.text} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {notifCount > 0 && (
-                <div style={{ position: "absolute", top: 7, right: 7, width: 8, height: 8, borderRadius: "50%", background: T.red, border: `2px solid ${T.white}` }}/>
-              )}
-            </button>
-            <button onClick={() => handleTabClick("perfil")} aria-label="Perfil" style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 60%, #2A5BD9 100%)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 13, border: showProfile ? `2px solid ${T.accent}` : "2px solid transparent", cursor: "pointer", touchAction: "manipulation", boxShadow: "0 4px 12px rgba(30,58,138,0.35), inset 0 1px 0 rgba(255,255,255,0.18)", letterSpacing: "0.5px" }}>
-              {userInitials}
-            </button>
-          </div>
-        </div>
-
-        {/* ── CONTENIDO ── */}
-        <div
-          ref={scrollRef}
-          data-scroll
-          style={{ flex: 1, minHeight: 0, overflowY: "scroll", overflowX: "hidden", overscrollBehavior: "none", touchAction: "pan-y",
-            background: (activeTab === "contratos" || activeTab === "capital") ? "#0E1A3B" : activeTab === "mapa" ? "#070D1C" : T.bg,
-            position:"relative" }}
-        >
-          {/* ── TAB PANELS ─────────────────────────────────────────────
+            {/* ── CONTENIDO ── */}
+            <div
+              ref={scrollRef}
+              data-scroll
+              style={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: "scroll",
+                overflowX: "hidden",
+                overscrollBehavior: "none",
+                touchAction: "pan-y",
+                background:
+                  activeTab === "contratos" || activeTab === "capital"
+                    ? "#0E1A3B"
+                    : activeTab === "mapa"
+                      ? "#070D1C"
+                      : T.bg,
+                position: "relative",
+              }}
+            >
+              {/* ── TAB PANELS ─────────────────────────────────────────────
                Todos los tabs se montan una sola vez al cargar datos.
                La visibilidad se controla con display:none para que cada
                tab conserve su estado local (filtros, scroll, formularios)
                al volver a él sin necesidad de re-fetch ni re-render.
                paddingTop/Left/Right varía según si el tab tiene cabecera propia. */}
 
-          {loading ? (
-            <div style={{ padding: "20px 16px", display:"flex", flexDirection:"column", gap:0 }}>
-              {[1,2,3,4].map(i => <SkDarkCard key={i}/>)}
-            </div>
-          ) : (
-            <>
-              {/* ── PERFIL ── */}
-              <div className="v360-tab-panel v360-tab-padded" role="tabpanel" aria-hidden={activeTab !== "perfil"} style={show("perfil")}>
-                {(() => {
-                  const userEmail = user?.email || "";
-                  const userPhoto = user?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=2563EB&color=fff&size=64&bold=true`;
-                  return (
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20, padding: "20px", background: "linear-gradient(135deg,#0E1835,#0A1228)", borderRadius: 20, border: "1px solid rgba(59,110,248,0.2)", boxShadow: "0 4px 32px rgba(0,0,0,0.5)" }}>
-                        <img src={userPhoto} style={{ width: 64, height: 64, borderRadius: "50%", border: "3px solid #3B82F6" }} alt="perfil"/>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 22, fontWeight: 800, color: "#fff" }}>{userName}</div>
-                          {userEmail && <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{userEmail}</div>}
-                        </div>
-                      </div>
-                      <button className="v360-btn-logout" onClick={() => setConfirmLogout(true)}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={T.red} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                          <polyline points="16 17 21 12 16 7"/>
-                          <line x1="21" y1="12" x2="9" y2="12"/>
-                        </svg>
-                        Cerrar sesión
-                      </button>
-                      {confirmLogout && (
-                        <div className="v360-overlay">
-                          <div className="v360-confirm-box">
-                            <div style={{fontSize:36,marginBottom:12}}>👋</div>
-                            <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:8}}>¿Cerrar sesión?</div>
-                            <div style={{fontSize:13,color:T.muted,marginBottom:24}}>Tendrás que volver a iniciar sesión con Google.</div>
-                            <div style={{display:"flex",gap:10}}>
-                              <button className="v360-confirm-cancel" onClick={()=>setConfirmLogout(false)}>Cancelar</button>
-                              <button className="v360-confirm-ok" onClick={async()=>{ await signOut(auth); setUser(null); setShowProfile(false); setConfirmLogout(false); }}>Salir</button>
+              {loading ? (
+                <div
+                  style={{ padding: "20px 16px", display: "flex", flexDirection: "column", gap: 0 }}
+                >
+                  {[1, 2, 3, 4].map(i => (
+                    <SkDarkCard key={i} />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {/* ── PERFIL ── */}
+                  <div
+                    className="v360-tab-panel v360-tab-padded"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "perfil"}
+                    style={show("perfil")}
+                  >
+                    {(() => {
+                      const userEmail = user?.email || "";
+                      const userPhoto =
+                        user?.photoURL ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=2563EB&color=fff&size=64&bold=true`;
+                      return (
+                        <div>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 16,
+                              marginBottom: 20,
+                              padding: "20px",
+                              background: "linear-gradient(135deg,#0E1835,#0A1228)",
+                              borderRadius: 20,
+                              border: "1px solid rgba(59,110,248,0.2)",
+                              boxShadow: "0 4px 32px rgba(0,0,0,0.5)",
+                            }}
+                          >
+                            <img
+                              src={userPhoto}
+                              style={{
+                                width: 64,
+                                height: 64,
+                                borderRadius: "50%",
+                                border: "3px solid #3B82F6",
+                              }}
+                              alt="perfil"
+                            />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: 22, fontWeight: 800, color: "#fff" }}>
+                                {userName}
+                              </div>
+                              {userEmail && (
+                                <div
+                                  style={{
+                                    fontSize: 11,
+                                    color: "rgba(255,255,255,0.35)",
+                                    marginTop: 2,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {userEmail}
+                                </div>
+                              )}
                             </div>
                           </div>
+                          <button
+                            className="v360-btn-logout"
+                            onClick={() => setConfirmLogout(true)}
+                          >
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke={T.red}
+                              strokeWidth="2.2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                              <polyline points="16 17 21 12 16 7" />
+                              <line x1="21" y1="12" x2="9" y2="12" />
+                            </svg>
+                            Cerrar sesión
+                          </button>
+                          {confirmLogout && (
+                            <div className="v360-overlay">
+                              <div className="v360-confirm-box">
+                                <div style={{ fontSize: 36, marginBottom: 12 }}>👋</div>
+                                <div
+                                  style={{
+                                    fontSize: 17,
+                                    fontWeight: 800,
+                                    color: T.text,
+                                    marginBottom: 8,
+                                  }}
+                                >
+                                  ¿Cerrar sesión?
+                                </div>
+                                <div style={{ fontSize: 13, color: T.muted, marginBottom: 24 }}>
+                                  Tendrás que volver a iniciar sesión con Google.
+                                </div>
+                                <div style={{ display: "flex", gap: 10 }}>
+                                  <button
+                                    className="v360-confirm-cancel"
+                                    onClick={() => setConfirmLogout(false)}
+                                  >
+                                    Cancelar
+                                  </button>
+                                  <button
+                                    className="v360-confirm-ok"
+                                    onClick={async () => {
+                                      await signOut(auth);
+                                      setUser(null);
+                                      setShowProfile(false);
+                                      setConfirmLogout(false);
+                                    }}
+                                  >
+                                    Salir
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          <FirebaseStatus
+                            contratos={contratos}
+                            paneles={paneles}
+                            clientes={clientesActive}
+                            gastos={gastos}
+                            fbConnected={!error && !loading}
+                            fbLoading={loading}
+                            fbError={!!error}
+                          />
                         </div>
-                      )}
-                      <FirebaseStatus contratos={contratos} paneles={paneles} clientes={clientesActive} gastos={gastos} fbConnected={!error && !loading} fbLoading={loading} fbError={!!error}/>
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* ── TABS CON PADDING ESTÁNDAR ── */}
-              <div className="v360-tab-panel v360-tab-padded" role="tabpanel" aria-hidden={activeTab !== "hoy"} style={show("hoy")}>
-                {error && <div className="v360-firebase-error"><span style={{fontSize:22}}>⚠️</span><div><div style={{fontWeight:700,color:T.amber,fontSize:14}}>Sin conexión a Firebase</div><div style={{fontSize:12,color:T.muted}}>Despliega en Vercel para conectar.</div></div></div>}
-                <ErrorBoundary label="Hoy"><ResumenNuevo clientes={clientesActive} contratos={contratos} paneles={paneles} gastos={gastos} setTab={setTab} userName={userName}/></ErrorBoundary>
-              </div>
-
-              <div className="v360-tab-panel v360-tab-padded" role="tabpanel" aria-hidden={activeTab !== "paneles"} style={show("paneles")}>
-                <ErrorBoundary label="Paneles"><Paneles paneles={paneles} setPaneles={setPaneles} contratos={contratos} loading={loading} setTab={setTab} onModalChange={setAnyModalOpen}/></ErrorBoundary>
-              </div>
-
-              <div className="v360-tab-panel v360-tab-padded" role="tabpanel" aria-hidden={activeTab !== "historico"} style={show("historico")}>
-                <ErrorBoundary label="Histórico"><Historico contratos={contractsActive} setContratos={setContratos} paneles={paneles} clientes={clientesActive} onModalChange={setAnyModalOpen}/></ErrorBoundary>
-              </div>
-
-              <div className="v360-tab-panel v360-tab-padded" role="tabpanel" aria-hidden={activeTab !== "crm"} style={show("crm")}>
-                <ErrorBoundary label="CRM"><CRM clientes={clientesActive} setClientes={setClientes} contratos={contractsActive} loading={loading} onModalChange={setAnyModalOpen}/></ErrorBoundary>
-              </div>
-
-              <div className="v360-tab-panel v360-tab-padded" role="tabpanel" aria-hidden={activeTab !== "resultados"} style={show("resultados")}>
-                {/* lazyTab: solo se monta al visitar por primera vez */}
-                {lazyTab("resultados") && <ErrorBoundary label="Resultados"><Reportes contratos={contractsActive} paneles={paneles} clientes={clientesActive} gastos={gastos} initialSeccion="resultados"/></ErrorBoundary>}
-              </div>
-
-              <div className="v360-tab-panel v360-tab-padded" role="tabpanel" aria-hidden={activeTab !== "reportes"} style={show("reportes")}>
-                {lazyTab("reportes") && <ErrorBoundary label="Reportes"><Reportes contratos={contractsActive} paneles={paneles} clientes={clientesActive} gastos={gastos}/></ErrorBoundary>}
-              </div>
-
-              <div className="v360-tab-panel v360-tab-padded" role="tabpanel" aria-hidden={activeTab !== "gastos"} style={show("gastos")}>
-                <ErrorBoundary label="Gastos"><Gastos gastos={gastos} setGastos={setGastos} autoScan={autoScan} setAutoScan={setAutoScan} onModalChange={setAnyModalOpen}/></ErrorBoundary>
-              </div>
-
-              <div className="v360-tab-panel v360-tab-padded" role="tabpanel" aria-hidden={activeTab !== "proveedores"} style={show("proveedores")}>
-                <ErrorBoundary label="Proveedores"><Proveedores proveedores={proveedoresActive} setProveedores={setProveedores} loading={loading} onModalChange={setAnyModalOpen}/></ErrorBoundary>
-              </div>
-
-              <div className="v360-tab-panel v360-tab-padded" role="tabpanel" aria-hidden={activeTab !== "facturacion"} style={show("facturacion")}>
-                {lazyTab("facturacion") && <ErrorBoundary label="Facturación"><Facturacion contratos={contractsActive} paneles={paneles} clientes={clientesActive}/></ErrorBoundary>}
-              </div>
-
-              {/* ── TABS SIN PADDING (tienen cabecera de ancho completo) ── */}
-              <div className="v360-tab-panel v360-tab-flush" role="tabpanel" aria-hidden={activeTab !== "contratos"} style={show("contratos")}>
-                <ErrorBoundary label="Contratos"><Contratos contratos={contratos} setContratos={setContratos} paneles={paneles} clientes={clientesActive} loading={loading} setTab={setTab} onModalChange={setAnyModalOpen}/></ErrorBoundary>
-              </div>
-
-              <div className="v360-tab-panel v360-tab-flush" role="tabpanel" aria-hidden={activeTab !== "capital"} style={show("capital")}>
-                {lazyTab("capital") && <ErrorBoundary label="Capital"><Capital paneles={paneles} contratos={contractsActive} gastos={gastos} proveedores={proveedoresActive}/></ErrorBoundary>}
-              </div>
-
-              <div className="v360-tab-panel v360-tab-flush" role="tabpanel" aria-hidden={activeTab !== "mapa"} style={show("mapa")}>
-                {lazyTab("mapa") && <ErrorBoundary label="Mapa"><Mapa paneles={paneles} clientes={clientesActive} contratos={contractsActive}/></ErrorBoundary>}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* ── BOTTOM TAB BAR (flotante) ── */}
-        {!anyModalOpen && <div style={{
-          position: "fixed",
-          bottom: "calc(env(safe-area-inset-bottom) + 4px)",
-          left: 12,
-          right: 12,
-          zIndex: 100,
-          pointerEvents: "none",
-        }}>
-          <div
-            role="tablist"
-            aria-label="Navegación principal"
-            style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "6px 6px",
-            maxWidth: 480,
-            margin: "0 auto",
-            pointerEvents: "auto",
-            background: T.white,
-            border: "1px solid rgba(229,231,235,0.9)",
-            borderRadius: 28,
-            boxShadow: "0 8px 28px rgba(15,23,41,0.14), 0 2px 8px rgba(15,23,41,0.06)",
-          }}>
-            {BOTTOM_TABS_LIST.map(t => {
-              if (t.id === "__add__") return (
-                <div key="add" style={{ flex: 1, display: "flex", justifyContent: "center" }}>
-                  <button
-                    aria-label="Agregar gasto"
-                    onClick={() => { setAutoScan(true); handleTabClick("gastos"); }}
-                    style={{
-                      width: 54, height: 54, borderRadius: "50%",
-                      background: "linear-gradient(180deg, #0E1A3B 0%, #15265A 100%)",
-                      border: "3px solid rgba(255,255,255,0.95)",
-                      cursor: "pointer", touchAction: "manipulation",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      boxShadow: "0 8px 24px rgba(37,99,235,0.42), 0 2px 8px rgba(37,99,235,0.2)",
-                      marginTop: -28,
-                      transition: "transform 0.15s ease, box-shadow 0.15s ease",
-                    }}
-                  >
-                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                      <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-                    </svg>
-                  </button>
-                </div>
-              );
-              const active = activeTab === t.id;
-              return (
-                <button
-                  key={t.id}
-                  role="tab"
-                  aria-selected={active}
-                  aria-label={t.label}
-                  tabIndex={active ? 0 : -1}
-                  onClick={() => handleTabClick(t.id)}
-                  onKeyDown={e => {
-                    // Patrón ARIA tablist: flechas ← → navegan entre tabs
-                    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-                    e.preventDefault();
-                    const idx  = NAV_TAB_IDS.indexOf(t.id);
-                    if (idx === -1) return;
-                    const next = e.key === "ArrowRight"
-                      ? NAV_TAB_IDS[(idx + 1) % NAV_TAB_IDS.length]
-                      : NAV_TAB_IDS[(idx - 1 + NAV_TAB_IDS.length) % NAV_TAB_IDS.length];
-                    handleTabClick(next);
-                  }}
-                  style={{
-                  flex: 1, display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center", gap: 3,
-                  background: active ? "rgba(37,99,235,0.08)" : "none",
-                  border: "none", cursor: "pointer", touchAction: "manipulation",
-                  color: active ? T.accent : "#9CA3AF",
-                  padding: "6px 4px",
-                  minHeight: 48,
-                  borderRadius: 18,
-                  margin: "0 2px",
-                  transition: "background 0.18s ease, color 0.18s ease",
-                }}>
-                  <div style={{ transition: "transform 0.18s cubic-bezier(.34,1.56,.64,1)", transform: active ? "scale(1.12)" : "scale(1)" }}>
-                    {BTM_ICONS[t.id]}
+                      );
+                    })()}
                   </div>
-                  <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, letterSpacing: active ? "0.01em" : 0 }}>{t.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>}
 
-        {/* ── DRAWER ── */}
-        {/* ── NOTIF PANEL — a nivel raíz para evitar z-index/stacking-context bugs ── */}
-        <NotifPanel
-          open={notifOpen}
-          onClose={() => setNotifOpen(false)}
-          contratos={contratos}
-          clientes={clientesActive}
-          paneles={paneles}
-          gastos={gastos}
-        />
-        <BusquedaGlobal open={globalSearch} onClose={() => setGlobalSearch(false)} paneles={paneles} clientes={clientesActive} contratos={contratos} onNavigate={handleTabClick}/>
-        <DrawerMenu open={drawerOpen} onClose={() => setDrawerOpen(false)} activeTab={activeTab} onTabClick={handleTabClick} onTrashOpen={() => setTrashOpen(true)} trashCount={trashCount} userName={userName} userInitials={userInitials}/>
-        <TrashModal
-          open={trashOpen}
-          onClose={() => setTrashOpen(false)}
-          contratos={contratos}
-          clientes={clientes}
-          paneles={paneles}
-          proveedores={proveedores}
-          setContratos={setContratos}
-          setClientes={setClientes}
-          setPaneles={setPaneles}
-          setProveedores={setProveedores}
-        />
-      </div>}
+                  {/* ── TABS CON PADDING ESTÁNDAR ── */}
+                  <div
+                    className="v360-tab-panel v360-tab-padded"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "hoy"}
+                    style={show("hoy")}
+                  >
+                    {error && (
+                      <div className="v360-firebase-error">
+                        <span style={{ fontSize: 22 }}>⚠️</span>
+                        <div>
+                          <div style={{ fontWeight: 700, color: T.amber, fontSize: 14 }}>
+                            Sin conexión a Firebase
+                          </div>
+                          <div style={{ fontSize: 12, color: T.muted }}>
+                            Despliega en Vercel para conectar.
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <ErrorBoundary label="Hoy">
+                      <ResumenNuevo
+                        clientes={clientesActive}
+                        contratos={contratos}
+                        paneles={paneles}
+                        gastos={gastos}
+                        setTab={setTab}
+                        userName={userName}
+                      />
+                    </ErrorBoundary>
+                  </div>
+
+                  <div
+                    className="v360-tab-panel v360-tab-padded"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "paneles"}
+                    style={show("paneles")}
+                  >
+                    <ErrorBoundary label="Paneles">
+                      <Paneles
+                        paneles={paneles}
+                        setPaneles={setPaneles}
+                        contratos={contratos}
+                        loading={loading}
+                        setTab={setTab}
+                        onModalChange={setAnyModalOpen}
+                      />
+                    </ErrorBoundary>
+                  </div>
+
+                  <div
+                    className="v360-tab-panel v360-tab-padded"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "historico"}
+                    style={show("historico")}
+                  >
+                    <ErrorBoundary label="Histórico">
+                      <Historico
+                        contratos={contractsActive}
+                        setContratos={setContratos}
+                        paneles={paneles}
+                        clientes={clientesActive}
+                        onModalChange={setAnyModalOpen}
+                      />
+                    </ErrorBoundary>
+                  </div>
+
+                  <div
+                    className="v360-tab-panel v360-tab-padded"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "crm"}
+                    style={show("crm")}
+                  >
+                    <ErrorBoundary label="CRM">
+                      <CRM
+                        clientes={clientesActive}
+                        setClientes={setClientes}
+                        contratos={contractsActive}
+                        loading={loading}
+                        onModalChange={setAnyModalOpen}
+                      />
+                    </ErrorBoundary>
+                  </div>
+
+                  <div
+                    className="v360-tab-panel v360-tab-padded"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "resultados"}
+                    style={show("resultados")}
+                  >
+                    {/* lazyTab: solo se monta al visitar por primera vez */}
+                    {lazyTab("resultados") && (
+                      <ErrorBoundary label="Resultados">
+                        <Reportes
+                          contratos={contractsActive}
+                          paneles={paneles}
+                          clientes={clientesActive}
+                          gastos={gastos}
+                          initialSeccion="resultados"
+                        />
+                      </ErrorBoundary>
+                    )}
+                  </div>
+
+                  <div
+                    className="v360-tab-panel v360-tab-padded"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "reportes"}
+                    style={show("reportes")}
+                  >
+                    {lazyTab("reportes") && (
+                      <ErrorBoundary label="Reportes">
+                        <Reportes
+                          contratos={contractsActive}
+                          paneles={paneles}
+                          clientes={clientesActive}
+                          gastos={gastos}
+                        />
+                      </ErrorBoundary>
+                    )}
+                  </div>
+
+                  <div
+                    className="v360-tab-panel v360-tab-padded"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "gastos"}
+                    style={show("gastos")}
+                  >
+                    <ErrorBoundary label="Gastos">
+                      <Gastos
+                        gastos={gastos}
+                        setGastos={setGastos}
+                        autoScan={autoScan}
+                        setAutoScan={setAutoScan}
+                        onModalChange={setAnyModalOpen}
+                      />
+                    </ErrorBoundary>
+                  </div>
+
+                  <div
+                    className="v360-tab-panel v360-tab-padded"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "proveedores"}
+                    style={show("proveedores")}
+                  >
+                    <ErrorBoundary label="Proveedores">
+                      <Proveedores
+                        proveedores={proveedoresActive}
+                        setProveedores={setProveedores}
+                        loading={loading}
+                        onModalChange={setAnyModalOpen}
+                      />
+                    </ErrorBoundary>
+                  </div>
+
+                  <div
+                    className="v360-tab-panel v360-tab-padded"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "facturacion"}
+                    style={show("facturacion")}
+                  >
+                    {lazyTab("facturacion") && (
+                      <ErrorBoundary label="Facturación">
+                        <Facturacion
+                          contratos={contractsActive}
+                          paneles={paneles}
+                          clientes={clientesActive}
+                        />
+                      </ErrorBoundary>
+                    )}
+                  </div>
+
+                  {/* ── TABS SIN PADDING (tienen cabecera de ancho completo) ── */}
+                  <div
+                    className="v360-tab-panel v360-tab-flush"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "contratos"}
+                    style={show("contratos")}
+                  >
+                    <ErrorBoundary label="Contratos">
+                      <Contratos
+                        contratos={contratos}
+                        setContratos={setContratos}
+                        paneles={paneles}
+                        clientes={clientesActive}
+                        loading={loading}
+                        setTab={setTab}
+                        onModalChange={setAnyModalOpen}
+                      />
+                    </ErrorBoundary>
+                  </div>
+
+                  <div
+                    className="v360-tab-panel v360-tab-flush"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "capital"}
+                    style={show("capital")}
+                  >
+                    {lazyTab("capital") && (
+                      <ErrorBoundary label="Capital">
+                        <Capital
+                          paneles={paneles}
+                          contratos={contractsActive}
+                          gastos={gastos}
+                          proveedores={proveedoresActive}
+                        />
+                      </ErrorBoundary>
+                    )}
+                  </div>
+
+                  <div
+                    className="v360-tab-panel v360-tab-flush"
+                    role="tabpanel"
+                    aria-hidden={activeTab !== "mapa"}
+                    style={show("mapa")}
+                  >
+                    {lazyTab("mapa") && (
+                      <ErrorBoundary label="Mapa">
+                        <Mapa
+                          paneles={paneles}
+                          clientes={clientesActive}
+                          contratos={contractsActive}
+                        />
+                      </ErrorBoundary>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* ── BOTTOM TAB BAR (flotante) ── */}
+            {!anyModalOpen && (
+              <div
+                style={{
+                  position: "fixed",
+                  bottom: "calc(env(safe-area-inset-bottom) + 4px)",
+                  left: 12,
+                  right: 12,
+                  zIndex: 100,
+                  pointerEvents: "none",
+                }}
+              >
+                <div
+                  role="tablist"
+                  aria-label="Navegación principal"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "6px 6px",
+                    maxWidth: 480,
+                    margin: "0 auto",
+                    pointerEvents: "auto",
+                    background: T.white,
+                    border: "1px solid rgba(229,231,235,0.9)",
+                    borderRadius: 28,
+                    boxShadow: "0 8px 28px rgba(15,23,41,0.14), 0 2px 8px rgba(15,23,41,0.06)",
+                  }}
+                >
+                  {BOTTOM_TABS_LIST.map(t => {
+                    if (t.id === "__add__")
+                      return (
+                        <div
+                          key="add"
+                          style={{ flex: 1, display: "flex", justifyContent: "center" }}
+                        >
+                          <button
+                            aria-label="Agregar gasto"
+                            onClick={() => {
+                              setAutoScan(true);
+                              handleTabClick("gastos");
+                            }}
+                            style={{
+                              width: 54,
+                              height: 54,
+                              borderRadius: "50%",
+                              background: "linear-gradient(180deg, #0E1A3B 0%, #15265A 100%)",
+                              border: "3px solid rgba(255,255,255,0.95)",
+                              cursor: "pointer",
+                              touchAction: "manipulation",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              boxShadow:
+                                "0 8px 24px rgba(37,99,235,0.42), 0 2px 8px rgba(37,99,235,0.2)",
+                              marginTop: -28,
+                              transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                            }}
+                          >
+                            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+                              <path
+                                d="M12 5V19M5 12H19"
+                                stroke="white"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      );
+                    const active = activeTab === t.id;
+                    return (
+                      <button
+                        key={t.id}
+                        role="tab"
+                        aria-selected={active}
+                        aria-label={t.label}
+                        tabIndex={active ? 0 : -1}
+                        onClick={() => handleTabClick(t.id)}
+                        onKeyDown={e => {
+                          // Patrón ARIA tablist: flechas ← → navegan entre tabs
+                          if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+                          e.preventDefault();
+                          const idx = NAV_TAB_IDS.indexOf(t.id);
+                          if (idx === -1) return;
+                          const next =
+                            e.key === "ArrowRight"
+                              ? NAV_TAB_IDS[(idx + 1) % NAV_TAB_IDS.length]
+                              : NAV_TAB_IDS[(idx - 1 + NAV_TAB_IDS.length) % NAV_TAB_IDS.length];
+                          handleTabClick(next);
+                        }}
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 3,
+                          background: active ? "rgba(37,99,235,0.08)" : "none",
+                          border: "none",
+                          cursor: "pointer",
+                          touchAction: "manipulation",
+                          color: active ? T.accent : "#9CA3AF",
+                          padding: "6px 4px",
+                          minHeight: 48,
+                          borderRadius: 18,
+                          margin: "0 2px",
+                          transition: "background 0.18s ease, color 0.18s ease",
+                        }}
+                      >
+                        <div
+                          style={{
+                            transition: "transform 0.18s cubic-bezier(.34,1.56,.64,1)",
+                            transform: active ? "scale(1.12)" : "scale(1)",
+                          }}
+                        >
+                          {BTM_ICONS[t.id]}
+                        </div>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            fontWeight: active ? 700 : 500,
+                            letterSpacing: active ? "0.01em" : 0,
+                          }}
+                        >
+                          {t.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ── DRAWER ── */}
+            {/* ── NOTIF PANEL — a nivel raíz para evitar z-index/stacking-context bugs ── */}
+            <NotifPanel
+              open={notifOpen}
+              onClose={() => setNotifOpen(false)}
+              contratos={contratos}
+              clientes={clientesActive}
+              paneles={paneles}
+              gastos={gastos}
+            />
+            <BusquedaGlobal
+              open={globalSearch}
+              onClose={() => setGlobalSearch(false)}
+              paneles={paneles}
+              clientes={clientesActive}
+              contratos={contratos}
+              onNavigate={handleTabClick}
+            />
+            <DrawerMenu
+              open={drawerOpen}
+              onClose={() => setDrawerOpen(false)}
+              activeTab={activeTab}
+              onTabClick={handleTabClick}
+              onTrashOpen={() => setTrashOpen(true)}
+              trashCount={trashCount}
+              userName={userName}
+              userInitials={userInitials}
+            />
+            <TrashModal
+              open={trashOpen}
+              onClose={() => setTrashOpen(false)}
+              contratos={contratos}
+              clientes={clientes}
+              paneles={paneles}
+              proveedores={proveedores}
+              setContratos={setContratos}
+              setClientes={setClientes}
+              setPaneles={setPaneles}
+              setProveedores={setProveedores}
+            />
+          </div>
+        )}
       </ToastProvider>
     </>
   );
 }
-
-
-
-

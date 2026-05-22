@@ -130,9 +130,19 @@ describe("validate.monto", () => {
 
 describe("validate.contrato", () => {
   it("rechaza contrato sin panel_id", () => {
-    expect(validate.contrato({ cliente_id: "c1", inicio: "2025-01-01", fin: "2025-12-31", monto: 500 })).not.toBeNull();
+    expect(
+      validate.contrato({ cliente_id: "c1", inicio: "2025-01-01", fin: "2025-12-31", monto: 500 }),
+    ).not.toBeNull();
   });
   it("acepta contrato completo válido", () => {
-    expect(validate.contrato({ panel_id: "p1", cliente_id: "c1", inicio: "2025-01-01", fin: "2025-12-31", monto: 500 })).toBeNull();
+    expect(
+      validate.contrato({
+        panel_id: "p1",
+        cliente_id: "c1",
+        inicio: "2025-01-01",
+        fin: "2025-12-31",
+        monto: 500,
+      }),
+    ).toBeNull();
   });
 });
