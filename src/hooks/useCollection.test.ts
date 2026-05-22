@@ -23,8 +23,9 @@ describe("useCollection", () => {
   });
 
   it("actualiza data cuando onSnapshot emite documentos", async () => {
-    const items = [{ id: "p1", nombre: "Panel" }];
-    mockSubscribe.mockImplementation((_col: unknown, onData: (items: typeof items) => void) => {
+    type Item = { id: string; nombre: string };
+    const items: Item[] = [{ id: "p1", nombre: "Panel" }];
+    mockSubscribe.mockImplementation((_col: unknown, onData: (data: Item[]) => void) => {
       onData(items);
       return () => {};
     });

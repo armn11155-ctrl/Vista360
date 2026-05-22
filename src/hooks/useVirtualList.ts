@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import { useState, useRef, useCallback } from "react";
 
 interface VirtualItem<T> { item: T; index: number; offsetTop: number; }

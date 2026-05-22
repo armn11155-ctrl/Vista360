@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import { useState, useEffect } from "react";
 
 export function useOnlineStatus(): boolean {

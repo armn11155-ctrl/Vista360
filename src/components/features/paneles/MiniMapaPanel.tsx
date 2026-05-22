@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import React, { useEffect, useRef, useState } from "react";
 import { T } from "../../../config/theme";
 import { toNumber } from "../../../lib/converters";

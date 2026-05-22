@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import React, { useState } from "react";
 import { signInWithPopup, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";

@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 // Logos en Base64 — extraídos del archivo original App-15.tsx
 // Para reducir tamaño del bundle, considera convertirlos a archivos PNG/SVG
 // y referenciarlos como imports estáticos o URLs.

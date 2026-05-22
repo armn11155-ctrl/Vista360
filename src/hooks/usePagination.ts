@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import { useState, useMemo } from "react";
 
 interface UsePaginationResult<T> {

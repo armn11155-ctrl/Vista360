@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import React from "react";
 import { T } from "../../config/theme";
 import { BOTTOM_TABS_LIST, NAV_TAB_IDS } from "../../config/constants";

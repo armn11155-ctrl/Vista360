@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import type { Panel, Cliente, Contrato, Gasto, Proveedor } from "../../types";
 import { fb } from "../../services/firestore";

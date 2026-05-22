@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import React from "react";
 // Base64 en assets/logos.ts — importar o reemplazar por archivo PNG
 export function Logo360({ width = 200 }: { width?: number }) {

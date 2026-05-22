@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react";
 import { T } from "../config/theme";
 

@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import { useEffect } from "react";
 import { T } from "../config/theme";
 

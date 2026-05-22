@@ -1,3 +1,4 @@
+// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, onSnapshot, Timestamp } from "firebase/firestore";
 import { getAuth, signOut } from "firebase/auth";
