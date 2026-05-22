@@ -435,7 +435,7 @@ function MesCard({
                           marginTop: 1,
                         }}
                       >
-                        {c.pagado ? "✓ Cobrado" : "⏳ Pendiente"}
+                        {c.pagado ? "Cobrado" : "Pendiente"}
                       </div>
                     </div>
                   </div>
@@ -616,10 +616,10 @@ tbody td{padding:9px 11px;font-size:11px;color:#1e293b;border-bottom:1px solid #
 <div class="divider"></div>
 <div class="body">
   <div class="kpis">
-    <div class="kpi"><div class="ic">💰</div><div class="lb">Ingresos Cobrados</div><div class="vl" style="color:#065F46">${fmt(kpis.totalIngPagado)}</div><div class="sl">Contratos pagados</div></div>
-    <div class="kpi"><div class="ic">⏳</div><div class="lb">Por Cobrar</div><div class="vl" style="color:#92400E">${fmt(kpis.pendiente)}</div><div class="sl">Pendientes</div></div>
-    <div class="kpi"><div class="ic">💸</div><div class="lb">Gastos Totales</div><div class="vl" style="color:#991B1B">${fmt(kpis.totalGastos)}</div><div class="sl">Todos los gastos</div></div>
-    <div class="kpi"><div class="ic">📈</div><div class="lb">Utilidad Neta</div><div class="vl" style="color:${kpis.totalUtilidad >= 0 ? "#065F46" : "#991B1B"}">${fmt(kpis.totalUtilidad)}</div><div class="sl">Cobrado − Gastos</div></div>
+    <div class="kpi"><div class="lb">Ingresos Cobrados</div><div class="vl" style="color:#065F46">${fmt(kpis.totalIngPagado)}</div><div class="sl">Contratos pagados</div></div>
+    <div class="kpi"><div class="lb">Por Cobrar</div><div class="vl" style="color:#92400E">${fmt(kpis.pendiente)}</div><div class="sl">Pendientes</div></div>
+    <div class="kpi"><div class="lb">Gastos Totales</div><div class="vl" style="color:#991B1B">${fmt(kpis.totalGastos)}</div><div class="sl">Todos los gastos</div></div>
+    <div class="kpi"><div class="lb">Utilidad Neta</div><div class="vl" style="color:${kpis.totalUtilidad >= 0 ? "#065F46" : "#991B1B"}">${fmt(kpis.totalUtilidad)}</div><div class="sl">Cobrado − Gastos</div></div>
   </div>
 
   <div class="section-title">Detalle Mensual ${anio}</div>
@@ -644,9 +644,8 @@ tbody td{padding:9px 11px;font-size:11px;color:#1e293b;border-bottom:1px solid #
   ${
     kpis.mesTop && kpis.mesTop.ingPagado > 0
       ? `
-  <div class="section-title">🏆 Mejor Mes del Año</div>
+  <div class="section-title">Mejor Mes del Año</div>
   <div class="best-mes">
-    <div class="ic">🏆</div>
     <div>
       <div class="lb">Mejor rendimiento en ${anio}</div>
       <div class="nm">${mesLabel(kpis.mesTop.mes)}</div>
@@ -763,9 +762,9 @@ tbody td{padding:9px 11px;font-size:11px;color:#1e293b;border-bottom:1px solid #
               <div class="mes-info">
                 <div class="mes-titulo">${mesLabel(m.mes)}</div>
                 <div class="mes-kpis">
-                  <span class="mk pos">💰 ${fmt(m.ingPagado)}</span>
-                  <span class="mk neg">💸 ${fmt(m.gastosMes)}</span>
-                  <span class="mk ${m.utilidad >= 0 ? "pos" : "neg"}">📈 ${fmt(m.utilidad)}</span>
+                  <span class="mk pos">Ing: ${fmt(m.ingPagado)}</span>
+                  <span class="mk neg">Gas: ${fmt(m.gastosMes)}</span>
+                  <span class="mk ${m.utilidad >= 0 ? "pos" : "neg"}">Util: ${fmt(m.utilidad)}</span>
                 </div>
               </div>
             </div>
@@ -853,17 +852,16 @@ tbody td{padding:7px 10px;color:#1e293b;border-bottom:1px solid #E2E8F0}
 
   <div class="section-title">Resumen del año ${anio}</div>
   <div class="kpis-wrap">
-    <div class="kpi"><div class="ic">💰</div><div class="lb">Total Cobrado</div><div class="vl" style="color:#065F46">${fmt(totalIng)}</div><div class="sl">Contratos pagados</div></div>
-    <div class="kpi"><div class="ic">⏳</div><div class="lb">Por Cobrar</div><div class="vl" style="color:#92400E">${fmt(kpis.pendiente)}</div><div class="sl">Pendientes</div></div>
-    <div class="kpi"><div class="ic">💸</div><div class="lb">Total Gastos</div><div class="vl" style="color:#991B1B">${fmt(totalGast)}</div><div class="sl">Todos los gastos</div></div>
-    <div class="kpi"><div class="ic">📈</div><div class="lb">Utilidad Neta</div><div class="vl" style="color:${totalUtil >= 0 ? "#065F46" : "#991B1B"}">${fmt(totalUtil)}</div><div class="sl">Cobrado − Gastos</div></div>
+    <div class="kpi"><div class="lb">Total Cobrado</div><div class="vl" style="color:#065F46">${fmt(totalIng)}</div><div class="sl">Contratos pagados</div></div>
+    <div class="kpi"><div class="lb">Por Cobrar</div><div class="vl" style="color:#92400E">${fmt(kpis.pendiente)}</div><div class="sl">Pendientes</div></div>
+    <div class="kpi"><div class="lb">Total Gastos</div><div class="vl" style="color:#991B1B">${fmt(totalGast)}</div><div class="sl">Todos los gastos</div></div>
+    <div class="kpi"><div class="lb">Utilidad Neta</div><div class="vl" style="color:${totalUtil >= 0 ? "#065F46" : "#991B1B"}">${fmt(totalUtil)}</div><div class="sl">Cobrado − Gastos</div></div>
   </div>
 
   ${
     kpis.mesTop?.ingPagado > 0
       ? `
   <div class="best">
-    <div class="ic">🏆</div>
     <div>
       <div class="lb">Mejor mes del año</div>
       <div class="nm">${mesTopLabel}</div>
@@ -990,7 +988,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
           c => `<tr>
         <td><strong>${c.cliente?.empresa || "—"}</strong>${c.cliente?.ruc ? `<br/><span style="font-size:9px;color:#64748B">RUC: ${c.cliente.ruc}</span>` : ""}</td>
         <td>${c.panel?.nombre || "—"}</td>
-        <td class="${c.pagado ? "pag" : "pend"}">${c.pagado ? "✅ Pagado" : "⏳ Pendiente"}</td>
+        <td class="${c.pagado ? "pag" : "pend"}">${c.pagado ? "Pagado" : "Pendiente"}</td>
         <td class="num">${fmt(c.monto)}</td>
         <td style="font-size:10px;color:#64748B">${fmtF(c.inicio)}<br/>${fmtF(c.fin)}</td>
       </tr>`,
@@ -1364,7 +1362,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                   }}
                 >
                   <div
-                    style={{ fontSize: 9.5, fontWeight: 800, color: "#1E3A8A", letterSpacing: 0.4 }}
+                    style={{ fontSize: 9.5, fontWeight: 800, color: "#FFFFFF", letterSpacing: 0.4 }}
                   >
                     {mShort}
                   </div>
