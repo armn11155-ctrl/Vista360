@@ -21,20 +21,21 @@ export const fb = {
       try {
         const snap = await getDocs(collection(db, col));
         return snap.docs.map(d => ({ id: d.id, ...d.data() } as T));
-      } catch(e2) { console.error("[Firebase] get falló:", e2); return []; }
+      } catch (e2) { console.error("[Firebase] get falló:", e2); return []; }
     }
   },
 
-  async post<T extends FirebaseDoc>(col: ColName, body: Omit<T, "id" | "createdAt">): Promise<T[]> {
+  /** Crea un documento y devuelve el objeto recién creado con su id. */
+  async post<T extends FirebaseDoc>(col: ColName, body: Omit<T, "id" | "createdAt">): Promise<T> {
     const payload = { ...body, createdAt: serverTimestamp() };
     const ref     = await addDoc(collection(db, col), payload);
-    // Usamos unknown como paso intermedio para evitar el error TS2352
-    return [{ ...body, id: ref.id, createdAt: Timestamp.now() } as unknown as T];
+    return { ...body, id: ref.id, createdAt: Timestamp.now() } as unknown as T;
   },
 
-  async patch<T extends FirebaseDoc>(col: ColName, id: string, body: Partial<Omit<T, "id">>): Promise<T[]> {
+  /** Actualiza campos de un documento y devuelve el objeto parcialmente actualizado. */
+  async patch<T extends FirebaseDoc>(col: ColName, id: string, body: Partial<Omit<T, "id">>): Promise<T> {
     await updateDoc(doc(db, col, id), body as Record<string, unknown>);
-    return [{ ...body, id } as unknown as T];
+    return { ...body, id } as unknown as T;
   },
 
   async del(col: ColName, id: string, { hardDelete = false }: DelOptions = {}): Promise<void> {

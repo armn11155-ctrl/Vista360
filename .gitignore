@@ -1,6 +1,31 @@
+# dependencies
 node_modules/
+
+# build outputs
 dist/
+dist-ssr/
+
+# environment variables (NUNCA commitear)
 .env
 .env.local
+.env.*.local
+
+# test coverage
+coverage/
+
+# editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
 .DS_Store
+Thumbs.db
+
+# logs
 *.log
+npm-debug.log*
