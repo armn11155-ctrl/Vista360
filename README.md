@@ -183,6 +183,6 @@ El proyecto usa `strict: true`. Los archivos de features llevan `// @ts-nocheck`
 
 <div align="center">
 
-*Vista360 v1.0 · © 2026 8 Millas · Publicidad Exterior*
+*Vista360 v1.1.0 · © 2026 8 Millas · Publicidad Exterior*
 
 </div>
