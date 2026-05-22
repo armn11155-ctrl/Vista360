@@ -1,152 +1,188 @@
-# Vista360 — Gestión de Paneles Publicitarios 📡
+<div align="center">
 
-> Aplicación React + Firebase para la gestión integral de paneles publicitarios (OOH).
+# Vista360
 
-## 🏗️ Arquitectura del Proyecto
+**Gestión integral de paneles publicitarios OOH**
+
+[![CI](https://github.com/armn11155-ctrl/Vista360/actions/workflows/ci.yml/badge.svg)](https://github.com/armn11155-ctrl/Vista360/actions/workflows/ci.yml)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Firebase](https://img.shields.io/badge/Firebase-10-FFCA28?logo=firebase&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)
+
+[**Demo en vivo →**](https://b65a6b26.vista360.pages.dev)
+
+</div>
+
+---
+
+## ¿Qué es Vista360?
+
+Vista360 es una PWA mobile-first para la gestión de un portafolio de paneles publicitarios exteriores (OOH — Out of Home). Permite controlar todo el ciclo de vida del negocio desde un solo lugar: desde el alta de un panel hasta la emisión de la factura electrónica a SUNAT.
+
+### Módulos principales
+
+| Módulo | Descripción |
+|--------|-------------|
+| **Dashboard** | Resumen del día: vencimientos, cobros pendientes, actividad reciente |
+| **Paneles** | CRUD completo con fotos, coordenadas GPS y estado en tiempo real |
+| **Contratos** | Arrendamientos con control de pagos mensuales por panel |
+| **Histórico** | Línea de tiempo de contratos y registro de pagos por mes |
+| **CRM** | Base de clientes y prospectos con pipeline de ventas |
+| **Gastos** | Registro de egresos con OCR automático via Cloudinary |
+| **Proveedores** | Directorio de proveedores por categoría |
+| **Facturación** | Emisión de comprobantes electrónicos (SUNAT — Perú) |
+| **Reportes** | P&L, ocupación, resultados OOH por período |
+| **Capital** | Dashboard de inversión y rentabilidad del portafolio |
+| **Mapa** | Vista geográfica interactiva de todos los paneles |
+
+---
+
+## Stack tecnológico
+
+```
+React 18 + TypeScript 5.9 (strict)
+Firebase 10  →  Firestore (real-time + offline) + Auth (Google OAuth)
+Vite 6       →  bundler + PWA
+Cloudinary   →  OCR y almacenamiento de fotos de gastos
+Vitest       →  53 tests unitarios (converters · utils · firestore · hooks)
+ESLint 9     →  flat config con typescript-eslint + react-hooks + jsx-a11y
+Prettier 3   →  formateo consistente
+GitHub Actions →  CI/CD (typecheck → lint → test:coverage → build)
+```
+
+---
+
+## Arquitectura
+
+El proyecto migró de un monolito de **11 700 líneas** (`App-15.tsx`) a una arquitectura **feature-first** con separación estricta de responsabilidades.
 
 ```
 src/
-├── types/                    # Interfaces & tipos TypeScript
-│   └── index.ts              # Panel, Cliente, Contrato, Gasto, Proveedor, Factura…
-│
-├── config/                   # Configuración global
-│   ├── firebase.ts           # Inicialización Firebase + Firestore offline
-│   ├── constants.ts          # Constantes app (estados, categorías, tabs)
-│   └── theme.ts              # Design tokens (T.accent, T.red, T.muted…)
-│
-├── lib/                      # Utilitarios puros (sin React)
-│   ├── converters.ts         # toNumber(), toDate() — normalize Firestore types
-│   └── utils.ts              # fmt(), días(), validate, haptic()
-│
-├── services/                 # Capa de acceso a datos
-│   └── firestore.ts          # fb.get/post/patch/del/subscribe — cliente Firestore
-│
-├── hooks/                    # Custom React hooks
-│   ├── useViewportSetup.ts   # Inyecta meta tags PWA + Google Fonts
-│   ├── useOnlineStatus.ts    # Detecta estado online/offline
-│   ├── useCollection.ts      # Hook genérico para colecciones Firestore
-│   ├── usePagination.ts      # Paginación de listas
-│   └── useVirtualList.ts     # Virtualización para listas largas (500+ items)
-│
+├── types/index.ts              ← Interfaces de dominio (Panel, Cliente, Contrato…)
+├── config/
+│   ├── firebase.ts             ← Init Firebase + Firestore offline cache
+│   ├── constants.ts            ← Estados, categorías, tabs de navegación
+│   └── theme.ts                ← Design tokens (T.accent, T.red, T.muted…)
+├── lib/
+│   ├── converters.ts           ← toNumber(), toDate() — normaliza tipos Firestore
+│   └── utils.ts                ← fmt(), dias(), validate.*, haptic()
+├── services/
+│   └── firestore.ts            ← fb.get / post / patch / del / subscribe
+├── hooks/
+│   ├── useCollection.ts        ← Hook genérico Firestore con real-time + refetch
+│   ├── useOnlineStatus.ts      ← Detecta conexión online/offline
+│   ├── usePagination.ts        ← Paginación de listas
+│   ├── useVirtualList.ts       ← Virtualización para 500+ registros
+│   └── useViewportSetup.ts     ← Meta tags PWA + Google Fonts en <head>
 ├── context/
-│   └── UIContext.tsx          # ToastProvider + confirmAsync() — sistema de notificaciones
-│
+│   ├── UIContext.tsx            ← ToastProvider + confirmAsync()
+│   └── AppContext.tsx           ← AppProvider: datos globales sin prop-drilling
 ├── components/
-│   ├── ui/                   # Primitivos de UI reutilizables
-│   │   └── index.tsx         # Badge, Card, Modal, Pagination, Spinner, SwipeRow, Skeleton…
-│   │
-│   ├── layout/               # Estructura de la app
-│   │   ├── BottomTabBar.tsx  # Barra de navegación flotante
-│   │   ├── DrawerMenu.tsx    # Menú lateral deslizable
-│   │   └── Logo360.tsx       # Logo de la marca
-│   │
-│   ├── shared/               # Componentes compartidos entre features
-│   │   ├── NotifPanel.tsx    # Centro de notificaciones
-│   │   ├── BusquedaGlobal.tsx# Búsqueda global (paneles, clientes, contratos)
-│   │   └── TrashModal.tsx    # Papelera (soft delete)
-│   │
-│   └── features/             # Módulos de negocio
-│       ├── auth/             # LoginScreen (Google OAuth)
-│       ├── dashboard/        # ResumenNuevo — pantalla principal (Hoy)
-│       ├── paneles/          # CRUD de paneles publicitarios
-│       ├── contratos/        # Contratos de arrendamiento
-│       ├── historico/        # Histórico de contratos + pagos mensuales
-│       ├── crm/              # CRM de clientes y prospectos
-│       ├── gastos/           # Registro de gastos con OCR (Cloudinary)
-│       ├── proveedores/      # Directorio de proveedores
-│       ├── facturacion/      # Facturación electrónica (SUNAT)
-│       ├── reportes/         # Reportes financieros + Resultados OOH
-│       ├── capital/          # Dashboard de capital e inversión
-│       └── mapa/             # Mapa interactivo de paneles
-│
-├── assets/
-│   └── logos.ts              # Logos en Base64 (Vista360, drawer)
-│
-├── pages/
-│   └── Splash.tsx            # Pantalla de carga inicial
-│
-├── App.tsx                   # Componente raíz — auth, data, routing por tabs
-└── main.tsx                  # Entry point React
+│   ├── ui/index.tsx            ← Badge, Card, Modal, Spinner, SwipeRow, Skeleton…
+│   ├── layout/                 ← BottomTabBar, DrawerMenu, Logo360
+│   ├── shared/                 ← NotifPanel, BusquedaGlobal, TrashModal
+│   └── features/               ← 12 módulos de negocio autocontenidos
+│       ├── auth/
+│       ├── dashboard/
+│       ├── paneles/
+│       ├── contratos/
+│       ├── historico/
+│       ├── crm/
+│       ├── gastos/
+│       ├── proveedores/
+│       ├── facturacion/
+│       ├── reportes/
+│       ├── capital/
+│       └── mapa/
+├── pages/Splash.tsx            ← Pantalla de carga inicial
+├── App.tsx                     ← Raíz: auth, data, routing por tabs
+└── main.tsx                    ← Entry point
 ```
 
-## 🧩 Principios de Arquitectura
+### Principios de diseño
 
-| Patrón | Descripción |
-|--------|-------------|
-| **Feature-first** | Cada módulo de negocio es autocontenido en `features/` |
-| **Separation of concerns** | `types` → `lib` → `services` → `hooks` → `components` |
-| **Soft delete** | Los registros se marcan como `deleted:true`, no se borran |
-| **Optimistic UI** | Las mutaciones actualizan el estado local antes de Firestore |
-| **Real-time** | `fb.subscribe()` mantiene los datos sincronizados con `onSnapshot` |
-| **Code splitting** | Los tabs pesados se importan con `React.lazy()` |
-| **Offline-first** | Firestore `persistentLocalCache` para funcionamiento offline |
+| Patrón | Implementación |
+|--------|----------------|
+| **Feature-first** | Cada módulo vive en su propia carpeta bajo `features/` |
+| **Capas** | `types` → `lib` → `services` → `hooks` → `components` |
+| **Real-time** | `fb.subscribe()` con `onSnapshot` en todas las colecciones |
+| **Offline-first** | `persistentLocalCache` de Firestore — funciona sin red |
+| **Soft delete** | Los registros se marcan `deleted: true`, nunca se borran |
+| **Optimistic UI** | El estado local se actualiza antes de esperar a Firestore |
+| **Lazy mount** | Tabs pesados (Mapa, Capital) se montan solo al primer acceso |
+| **AppContext** | Estado global sin prop-drilling hacia los 12 módulos |
 
-## 🚀 Setup
+---
+
+## Desarrollo local
 
 ```bash
-# 1. Instalar dependencias
+# Instalar dependencias
 npm install
 
-# 2. Configurar variables de entorno
-cp .env.example .env.local
-# Completa con tus credenciales de Firebase y Cloudinary
-
-# 3. Desarrollo
+# Servidor de desarrollo (hot reload)
 npm run dev
 
-# 4. Build producción
+# Build de producción
 npm run build
 ```
 
-## 🔐 Variables de Entorno
-
-Ver `.env.example` para la lista completa. Las más importantes:
-
-- `VITE_FIREBASE_*` — Credenciales del proyecto Firebase
-- `VITE_ALLOWED_EMAILS` — Lista de emails con acceso (vacío = acceso libre)
-- `VITE_CLOUDINARY_*` — Para la subida de fotos en Gastos
-- `VITE_EMISOR_*` — Datos de la empresa para facturación
-
-## 📦 Stack Tecnológico
-
-- **React 18** + **TypeScript**
-- **Firebase 10** (Firestore, Auth)
-- **Vite 5** (bundler)
-- **Google Fonts** DM Sans + Barlow Condensed
-- **Cloudinary** (OCR y almacenamiento de fotos)
-
-## 🗂️ Migración desde App-15.tsx (monolito → módulos)
-
-El proyecto original era un único archivo `App-15.tsx` de ~11,700 líneas.
-Esta arquitectura divide ese monolito en módulos cohesivos:
-
-| Módulo | Líneas originales | Archivo destino |
-|--------|-------------------|-----------------|
-| Tipos  | 1–172             | `types/index.ts` |
-| Firebase config | 224–270 | `config/firebase.ts` |
-| Firestore client | 272–424 | `services/firestore.ts` |
-| Constantes | 407–432 | `config/constants.ts` |
-| Utils + Validate | 433–553 | `lib/utils.ts` |
-| Theme | 554–586 | `config/theme.ts` |
-| UIContext | 587–755 | `context/UIContext.tsx` |
-| UI primitivos | 756–1660 | `components/ui/index.tsx` |
-| Paneles | 1928–2350 | `features/paneles/` |
-| Mapa | 2351–2715 | `features/mapa/` |
-| Contratos | 2716–3251 | `features/contratos/` |
-| CRM | 3308–3736 | `features/crm/` |
-| Proveedores | 3737–4090 | `features/proveedores/` |
-| Resultados | 4091–5000 | `features/reportes/` |
-| Gastos | 5284–6396 | `features/gastos/` |
-| Histórico | 6400–6755 | `features/historico/` |
-| Facturación | 6756–8138 | `features/facturacion/` |
-| Reportes | 8139–8803 | `features/reportes/` |
-| Dashboard | 8803–9150 | `features/dashboard/` |
-| Capital | 9281–9850 | `features/capital/` |
-| TrashModal | 9853–10068 | `components/shared/` |
-| DrawerMenu + Búsqueda | 10068–10510 | `components/layout/` + `shared/` |
-| Auth | 10533–10721 | `features/auth/` |
-| NotifPanel | 10723–11000 | `components/shared/` |
-| App root | 11000–11708 | `App.tsx` |
+> Las variables de entorno están configuradas en el deployer (Cloudflare Pages). No se requiere `.env` local para desarrollo con datos reales.
 
 ---
+
+## Scripts disponibles
+
+```bash
+npm run dev            # Servidor de desarrollo
+npm run build          # Build de producción
+npm run typecheck      # tsc --noEmit (strict mode)
+npm run test           # Vitest — 53 tests
+npm run test:coverage  # Tests + reporte de cobertura
+npm run lint           # ESLint
+npm run lint:fix       # ESLint con auto-fix
+npm run format         # Prettier
+npm run format:check   # Prettier check (usado en CI)
+npm run ci             # Suite completa: typecheck + lint + format:check + test
+```
+
+---
+
+## CI/CD
+
+Cada push a `main` ejecuta el pipeline completo en GitHub Actions:
+
+```
+typecheck → lint → format:check → test:coverage → build
+```
+
+Los secretos de Firebase se inyectan desde el entorno del runner. El reporte de cobertura se sube como artefacto con retención de 14 días.
+
+---
+
+## Tests
+
+```
+src/lib/converters.test.ts      — toNumber, toDate                    (12 tests)
+src/lib/utils.test.ts           — dias, fmt, fmtF, mesHoy, validate   (27 tests)
+src/services/firestore.test.ts  — fb.get/post/patch/del/subscribe     ( 9 tests)
+src/hooks/useCollection.test.ts — loading, onData, error, refetch     ( 5 tests)
+                                                               Total:   53 tests
+```
+
+Firebase se mockea completamente — los tests no requieren conexión ni credenciales.
+
+---
+
+## TypeScript
+
+El proyecto usa `strict: true`. Los archivos de features llevan `// @ts-nocheck` durante la migración gradual — cada módulo elimina la directiva a medida que se tipifica correctamente. Los archivos nuevos deben cumplir strict desde el primer commit.
+
+---
+
+<div align="center">
+
 *Vista360 v1.0 · © 2026 8 Millas · Publicidad Exterior*
+
+</div>
