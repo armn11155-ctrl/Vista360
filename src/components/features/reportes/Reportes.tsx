@@ -449,6 +449,296 @@ function MesCard({
   );
 }
 
+// ══════════════════════════════════════════════════════════════════
+// RESULTADOS — Estado de Resultados con sub-tabs Por Mes / Por Año / Período
+// ══════════════════════════════════════════════════════════════════
+function Resultados({
+  contratos,
+  paneles,
+  clientes,
+  gastos,
+  loading,
+}: {
+  contratos: Contrato[];
+  paneles: Panel[];
+  clientes: Cliente[];
+  gastos: Gasto[];
+  loading: boolean;
+}) {
+  const [subTab, setSubTab] = useState<"porMes" | "porAnio" | "periodo">("porMes");
+  const hoyStr = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+  const anioHoy = new Date().getFullYear();
+  const [mesFiltro, setMesFiltro] = useState(hoyStr);
+  const [anioFiltro, setAnioFiltro] = useState(anioHoy);
+  const [periodoInicio, setPeriodoInicio] = useState(hoyStr);
+  const [periodoFin, setPeriodoFin] = useState(hoyStr);
+
+  // ── Calcular KPIs según sub-tab ─────────────────────────────────
+  const kpis = useMemo(() => {
+    let ctrsFiltrados: Contrato[] = [];
+
+    if (subTab === "porMes") {
+      ctrsFiltrados = contratos.filter(
+        c => c.inicio && c.fin && c.inicio.slice(0, 7) <= mesFiltro && c.fin.slice(0, 7) >= mesFiltro,
+      );
+    } else if (subTab === "porAnio") {
+      const anioStr = String(anioFiltro);
+      ctrsFiltrados = contratos.filter(
+        c => c.inicio && c.fin && c.inicio.slice(0, 4) <= anioStr && c.fin.slice(0, 4) >= anioStr,
+      );
+    } else {
+      ctrsFiltrados = contratos.filter(
+        c => c.inicio && c.fin && c.inicio.slice(0, 7) <= periodoFin && c.fin.slice(0, 7) >= periodoInicio,
+      );
+    }
+
+    let gastosFiltrados: Gasto[] = [];
+    if (subTab === "porMes") {
+      gastosFiltrados = gastos.filter(g => g.fecha?.startsWith(mesFiltro));
+    } else if (subTab === "porAnio") {
+      gastosFiltrados = gastos.filter(g => g.fecha?.startsWith(String(anioFiltro)));
+    } else {
+      gastosFiltrados = gastos.filter(g => g.fecha && g.fecha >= periodoInicio && g.fecha <= periodoFin + "-31");
+    }
+
+    const ingCobrado = ctrsFiltrados.filter(c => c.pagado).reduce((a, c) => a + Number(c.monto || 0), 0);
+    const ingTotal = ctrsFiltrados.reduce((a, c) => a + Number(c.monto || 0), 0);
+    const pendiente = ingTotal - ingCobrado;
+    const totalGastos = gastosFiltrados.reduce((a, g) => a + Number(g.monto || 0), 0);
+    const utilidad = ingCobrado - totalGastos;
+    const panelesActivos = [...new Set(ctrsFiltrados.map(c => c.panel_id))].length;
+
+    return { ingCobrado, ingTotal, pendiente, totalGastos, utilidad, panelesActivos, numCtrs: ctrsFiltrados.length };
+  }, [subTab, contratos, gastos, mesFiltro, anioFiltro, periodoInicio, periodoFin]);
+
+  const subTabs = [
+    {
+      id: "porMes" as const,
+      label: "Por Mes",
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+      ),
+    },
+    {
+      id: "porAnio" as const,
+      label: "Por Año",
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+          <polyline points="17 6 23 6 23 12" />
+        </svg>
+      ),
+    },
+    {
+      id: "periodo" as const,
+      label: "Período",
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="6" y1="12" x2="18" y2="12" />
+          <line x1="9" y1="18" x2="15" y2="18" />
+        </svg>
+      ),
+    },
+  ];
+
+  const kpiCards = [
+    { label: "Cobrado", value: fmt(kpis.ingCobrado), color: "#065F46", bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.2)" },
+    { label: "Pendiente", value: fmt(kpis.pendiente), color: kpis.pendiente > 0 ? "#92400E" : "#9CA3AF", bg: kpis.pendiente > 0 ? "rgba(245,158,11,0.08)" : "rgba(0,0,0,0.03)", border: kpis.pendiente > 0 ? "rgba(245,158,11,0.2)" : "#E5E7EB" },
+    { label: "Gastos", value: fmt(kpis.totalGastos), color: "#991B1B", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)" },
+    { label: "Utilidad", value: fmt(kpis.utilidad), color: kpis.utilidad >= 0 ? "#065F46" : "#991B1B", bg: kpis.utilidad >= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: kpis.utilidad >= 0 ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)" },
+  ];
+
+  const mesLabel2 = (m: string) =>
+    new Date(m + "-02").toLocaleDateString("es-PE", { month: "long", year: "numeric" });
+
+  return (
+    <div>
+      {/* ── Sub-tabs: Por Mes / Por Año / Período ── */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          gap: 8,
+          marginBottom: 16,
+        }}
+      >
+        {subTabs.map(st => {
+          const active = subTab === st.id;
+          return (
+            <button
+              key={st.id}
+              onClick={() => setSubTab(st.id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 7,
+                padding: "12px 8px",
+                borderRadius: 14,
+                border: active ? "none" : "1.5px solid #DBEAFE",
+                cursor: "pointer",
+                touchAction: "manipulation",
+                background: active ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#fff",
+                color: active ? "#fff" : "#1D4ED8",
+                fontWeight: 700,
+                fontSize: 13,
+                fontFamily: "inherit",
+                boxShadow: active
+                  ? "0 6px 20px rgba(15,23,41,0.35)"
+                  : "0 1px 6px rgba(15,23,41,0.08)",
+                transition: "all .15s",
+              }}
+            >
+              {st.icon}
+              {st.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Selector de período ── */}
+      <div
+        style={{
+          background: "#fff",
+          border: "1.5px solid #DBEAFE",
+          borderRadius: 14,
+          padding: "12px 14px",
+          marginBottom: 16,
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          flexWrap: "wrap",
+        }}
+      >
+        {subTab === "porMes" && (
+          <>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#1D4ED8" }}>Mes:</span>
+            <input
+              type="month"
+              value={mesFiltro}
+              onChange={e => setMesFiltro(e.target.value)}
+              style={{
+                border: "1.5px solid #DBEAFE",
+                borderRadius: 8,
+                padding: "5px 10px",
+                fontSize: 13,
+                color: "#1D4ED8",
+                fontWeight: 600,
+                fontFamily: "inherit",
+                background: "#F0F7FF",
+                outline: "none",
+              }}
+            />
+            <span style={{ fontSize: 12, color: "#64748B", marginLeft: "auto" }}>
+              {mesLabel2(mesFiltro)}
+            </span>
+          </>
+        )}
+        {subTab === "porAnio" && (
+          <>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#1D4ED8" }}>Año:</span>
+            <button onClick={() => setAnioFiltro(a => a - 1)} style={{ border: "1.5px solid #DBEAFE", background: "#F0F7FF", borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: "#1D4ED8", fontWeight: 700, fontFamily: "inherit" }}>‹</button>
+            <span style={{ fontSize: 16, fontWeight: 900, color: "#1D4ED8", fontFamily: "monospace", minWidth: 50, textAlign: "center" }}>{anioFiltro}</span>
+            <button onClick={() => setAnioFiltro(a => a + 1)} style={{ border: "1.5px solid #DBEAFE", background: "#F0F7FF", borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: "#1D4ED8", fontWeight: 700, fontFamily: "inherit" }}>›</button>
+          </>
+        )}
+        {subTab === "periodo" && (
+          <>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#1D4ED8" }}>Desde:</span>
+            <input
+              type="month"
+              value={periodoInicio}
+              onChange={e => setPeriodoInicio(e.target.value)}
+              style={{ border: "1.5px solid #DBEAFE", borderRadius: 8, padding: "5px 10px", fontSize: 13, color: "#1D4ED8", fontWeight: 600, fontFamily: "inherit", background: "#F0F7FF", outline: "none" }}
+            />
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#1D4ED8" }}>Hasta:</span>
+            <input
+              type="month"
+              value={periodoFin}
+              onChange={e => setPeriodoFin(e.target.value)}
+              style={{ border: "1.5px solid #DBEAFE", borderRadius: 8, padding: "5px 10px", fontSize: 13, color: "#1D4ED8", fontWeight: 600, fontFamily: "inherit", background: "#F0F7FF", outline: "none" }}
+            />
+          </>
+        )}
+        {/* Panel + contrato count */}
+        <span style={{ fontSize: 11, color: "#64748B", marginLeft: subTab !== "porMes" ? "auto" : 0, whiteSpace: "nowrap" }}>
+          {kpis.numCtrs > 0 ? `${kpis.numCtrs} contrato(s) · ${kpis.panelesActivos} panel(es)` : "Sin datos"}
+        </span>
+      </div>
+
+      {/* ── KPI cards ── */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 10,
+          marginBottom: 14,
+        }}
+      >
+        {kpiCards.map(k => (
+          <div
+            key={k.label}
+            style={{
+              background: k.bg,
+              border: `1.5px solid ${k.border}`,
+              borderRadius: 14,
+              padding: "14px 12px",
+            }}
+          >
+            <div style={{ fontSize: 10, fontWeight: 700, color: k.color, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 }}>
+              {k.label}
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: k.color, fontFamily: "monospace", letterSpacing: "-0.5px" }}>
+              {k.value}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Barra de progreso cobrado / total ── */}
+      {kpis.ingTotal > 0 && (
+        <div
+          style={{
+            background: "#fff",
+            border: "1.5px solid #DBEAFE",
+            borderRadius: 14,
+            padding: "14px 16px",
+            marginBottom: 10,
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#1D4ED8" }}>Cobrado / Facturado</span>
+            <span style={{ fontSize: 12, fontWeight: 800, color: "#065F46" }}>
+              {Math.round((kpis.ingCobrado / kpis.ingTotal) * 100)}%
+            </span>
+          </div>
+          <div style={{ height: 6, background: "#E5E7EB", borderRadius: 4, overflow: "hidden" }}>
+            <div
+              style={{
+                height: "100%",
+                borderRadius: 4,
+                width: `${Math.round((kpis.ingCobrado / kpis.ingTotal) * 100)}%`,
+                background: "linear-gradient(90deg,#10B981,#059669)",
+              }}
+            />
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}>
+            <span style={{ fontSize: 10, color: "#64748B" }}>Cobrado: {fmt(kpis.ingCobrado)}</span>
+            <span style={{ fontSize: 10, color: "#64748B" }}>Total: {fmt(kpis.ingTotal)}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: ReportesProps) {
   const [seccion, setSeccion] = useState(initialSeccion || "resumen");
   const [anio, setAnio] = useState(() => new Date().getFullYear());
@@ -1166,7 +1456,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                 cursor: "pointer",
                 touchAction: "manipulation",
                 background: active ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#fff",
-                color: active ? "#fff" : "#0F172A",
+                color: active ? "#fff" : "#1D4ED8",
                 fontWeight: 700,
                 fontSize: 13,
                 boxShadow: active
@@ -1362,7 +1652,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                   }}
                 >
                   <div
-                    style={{ fontSize: 9.5, fontWeight: 800, color: "#FFFFFF", letterSpacing: 0.4 }}
+                    style={{ fontSize: 9.5, fontWeight: 800, color: esHoy ? "#065F46" : tieneData ? "#1D4ED8" : "#64748B", letterSpacing: 0.4 }}
                   >
                     {mShort}
                   </div>
