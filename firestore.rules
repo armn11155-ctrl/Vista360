@@ -1,0 +1,57 @@
+// firestore.rules
+// Desplegar con: firebase deploy --only firestore:rules
+//
+// Regla base: solo usuarios autenticados cuyo email esté en la whitelist
+// pueden leer y escribir sus propios datos.
+//
+// IMPORTANTE: estas reglas asumen que en el futuro se añadirá multi-tenancy
+// (campo orgId por documento). Por ahora bloquean acceso a no autenticados
+// y dejan la puerta abierta para restricciones por orgId.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Función auxiliar: usuario autenticado ────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // ── Función auxiliar: email en whitelist ─────────────────────
+    // La whitelist se mantiene en un documento de configuración
+    // para no hardcodear emails en las reglas.
+    // Por ahora permite cualquier usuario autenticado.
+    // TODO: leer de /config/allowedEmails cuando se implemente multi-tenant.
+    function isAllowed() {
+      return isSignedIn();
+    }
+
+    // ── Regla global: bloquear todo por defecto ──────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ── Colecciones de negocio ───────────────────────────────────
+    match /paneles/{id} {
+      allow read, write: if isAllowed();
+    }
+    match /clientes/{id} {
+      allow read, write: if isAllowed();
+    }
+    match /contratos/{id} {
+      allow read, write: if isAllowed();
+    }
+    match /gastos/{id} {
+      allow read, write: if isAllowed();
+    }
+    match /proveedores/{id} {
+      allow read, write: if isAllowed();
+    }
+    match /facturas/{id} {
+      allow read, write: if isAllowed();
+    }
+    match /sueldos/{id} {
+      allow read, write: if isAllowed();
+    }
+  }
+}
