@@ -657,12 +657,12 @@ function Resultados({
                 fontWeight: 700,
                 fontSize: 13,
                 transition: "all .15s",
-                background: active ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#FFFFFF",
-                color: active ? "#FFFFFF" : "#1D4ED8",
-                border: active ? "none" : "1.5px solid #CBD5E1",
+                background: active ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#EFF6FF",
+                color: active ? "#FFFFFF" : "#1E40AF",
+                border: active ? "2px solid transparent" : "2px solid #3B82F6",
                 boxShadow: active
                   ? "0 6px 20px rgba(15,23,41,0.35)"
-                  : "0 1px 6px rgba(15,23,41,0.12)",
+                  : "0 2px 10px rgba(59,130,246,0.18)",
               }}
             >
               <div
@@ -673,8 +673,8 @@ function Resultados({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: active ? "rgba(255,255,255,0.15)" : "#DBEAFE",
-                  color: active ? "#FFFFFF" : "#1D4ED8",
+                  background: active ? "rgba(255,255,255,0.18)" : "#DBEAFE",
+                  color: active ? "#FFFFFF" : "#1E40AF",
                   flexShrink: 0,
                 }}
               >
