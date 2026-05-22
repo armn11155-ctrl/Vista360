@@ -1,37 +1,50 @@
 // firestore.rules
 // Desplegar con: firebase deploy --only firestore:rules
 //
-// Regla base: solo usuarios autenticados cuyo email esté en la whitelist
-// pueden leer y escribir sus propios datos.
+// Seguridad:
+// - Bloqueo total por defecto (deny all).
+// - Solo usuarios autenticados cuyo email esté en /config/allowedEmails
+//   pueden leer y escribir en las colecciones de negocio.
+// - La whitelist vive en Firestore (no hardcodeada en el código fuente)
+//   para evitar exponer emails en el repositorio.
 //
-// IMPORTANTE: estas reglas asumen que en el futuro se añadirá multi-tenancy
-// (campo orgId por documento). Por ahora bloquean acceso a no autenticados
-// y dejan la puerta abierta para restricciones por orgId.
+// Setup inicial: ejecutar `node scripts/seed-allowed-emails.mjs`
+// que crea el documento /config/allowedEmails con la lista de emails
+// definida en VITE_ALLOWED_EMAILS (o en .env.local).
 
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── Función auxiliar: usuario autenticado ────────────────────
+    // ── Helpers ──────────────────────────────────────────────────
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // ── Función auxiliar: email en whitelist ─────────────────────
-    // La whitelist se mantiene en un documento de configuración
-    // para no hardcodear emails en las reglas.
-    // Por ahora permite cualquier usuario autenticado.
-    // TODO: leer de /config/allowedEmails cuando se implemente multi-tenant.
+    // Lee la whitelist desde /config/allowedEmails { emails: ["a@b.com", ...] }
+    // Si el documento no existe aún, deniega acceso (falla segura).
     function isAllowed() {
-      return isSignedIn();
+      let cfg = get(/databases/$(database)/documents/config/allowedEmails);
+      return isSignedIn()
+        && cfg != null
+        && request.auth.token.email in cfg.data.emails;
     }
 
-    // ── Regla global: bloquear todo por defecto ──────────────────
+    // ── Regla base: bloquear todo por defecto ─────────────────────
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // ── Colecciones de negocio ───────────────────────────────────
+    // ── Documento de configuración ────────────────────────────────
+    // Lectura: cualquier usuario autenticado (necesario para que
+    //          isAllowed() funcione durante el login inicial).
+    // Escritura: solo usuarios ya en la whitelist (previene auto-inclusión).
+    match /config/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAllowed();
+    }
+
+    // ── Colecciones de negocio ────────────────────────────────────
     match /paneles/{id} {
       allow read, write: if isAllowed();
     }
