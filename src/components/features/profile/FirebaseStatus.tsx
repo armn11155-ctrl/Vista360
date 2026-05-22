@@ -11,7 +11,14 @@ interface Props {
   fbError: boolean;
 }
 
-export function FirebaseStatus({ contratos, paneles, clientes, gastos, fbError, fbLoading }: Props) {
+export function FirebaseStatus({
+  contratos,
+  paneles,
+  clientes,
+  gastos,
+  fbError,
+  fbLoading,
+}: Props) {
   const statusColor = fbError ? T.red : fbLoading ? T.amber : "#22C55E";
   const statusText = fbError ? "Error" : fbLoading ? "Conectando…" : "Conectado";
 
