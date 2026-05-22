@@ -631,11 +631,6 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
               setAnioSel(Number(e.target.value));
               setMesSel(null);
             }}
-            onMouseDown={e => e.stopPropagation()}
-            onTouchStart={e => e.stopPropagation()}
-            onTouchEnd={e => e.stopPropagation()}
-            onPointerDown={e => e.stopPropagation()}
-            onClick={e => e.stopPropagation()}
             style={{
               padding: "8px 14px",
               borderRadius: 12,
@@ -663,11 +658,6 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
               const v = e.target.value;
               setMesSel(v === "" ? null : Number(v));
             }}
-            onMouseDown={e => e.stopPropagation()}
-            onTouchStart={e => e.stopPropagation()}
-            onTouchEnd={e => e.stopPropagation()}
-            onPointerDown={e => e.stopPropagation()}
-            onClick={e => e.stopPropagation()}
             style={{
               flex: 1,
               padding: "8px 14px",
