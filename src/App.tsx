@@ -6,29 +6,14 @@ import type { User } from "firebase/auth";
 import type { Panel, Cliente, Contrato, Gasto, Proveedor } from "./types";
 
 // ── Config / Firebase ─────────────────────────────────────────────
-import { db, auth, googleProvider } from "./config/firebase";
+import { auth } from "./config/firebase";
 import { T } from "./config/theme";
-import { ALLOWED_EMAILS } from "./config/constants";
-
-// ── Firestore (collection, query, etc. — usados en el cuerpo de App) ─
-import {
-  collection, getDocs, addDoc, updateDoc, deleteDoc,
-  doc, orderBy, query, serverTimestamp, onSnapshot, Timestamp,
-  initializeFirestore, persistentLocalCache,
-  persistentMultipleTabManager, persistentSingleTabManager,
-} from "firebase/firestore";
-import { initializeApp } from "firebase/app";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { ALLOWED_EMAILS, BOTTOM_TABS_LIST, NAV_TAB_IDS } from "./config/constants";
 
 // ── Servicios y utilidades ────────────────────────────────────────
 import { fb } from "./services/firestore";
-import { toast, confirmAsync, ToastProvider } from "./context/UIContext";
+import { ToastProvider } from "./context/UIContext";
 import { useViewportSetup } from "./hooks/useViewportSetup";
-import { useOnlineStatus } from "./hooks/useOnlineStatus";
-import { fmt, fmtF, dias, mesHoy, mesLabel, hoy, validate, haptic } from "./lib/utils";
-import { toNumber, toDate } from "./lib/converters";
-import { CIUDADES, CAT_GASTOS, CAT_PROVE, SECTORES, ESTADOS_CLI, ESTADOS_PRO, EMOJIS, EMISOR } from "./config/constants";
-import { tCol, catCol } from "./config/theme";
 
 // ── Componentes de features ────────────────────────────────────────
 import Splash        from "./pages/Splash";
@@ -48,12 +33,10 @@ import NotifPanel    from "./components/shared/NotifPanel";
 import DrawerMenu    from "./components/layout/DrawerMenu";
 import BusquedaGlobal from "./components/shared/BusquedaGlobal";
 import TrashModal    from "./components/shared/TrashModal";
+import { BTM_ICONS } from "./components/layout/BottomTabBar";
 
-// ── UI primitivos (usados dentro del App) ─────────────────────────
-import {
-  Modal, FieldGroup, Badge, Tag, Card, SecTit, PgTit,
-  Pagination, Spinner, SwipeRow, SkCard, SkPulse, OfflineBanner,
-} from "./components/ui";
+// ── UI primitivos ─────────────────────────────────────────────────
+import { OfflineBanner } from "./components/ui";
 
 // ── ErrorBoundary ─────────────────────────────────────────────────
 interface EBState { hasError: boolean; msg: string; }
@@ -68,6 +51,48 @@ class ErrorBoundary extends Component<{ label: string; children: React.ReactNode
     );
     return this.props.children;
   }
+}
+
+// ── SkDarkCard: skeleton de carga para el estado inicial ──────────
+function SkDarkCard() {
+  return (
+    <div style={{ background: "#1A2744", borderRadius: 16, padding: "18px 16px", marginBottom: 12,
+      animation: "skPulse 1.6s ease-in-out infinite", backgroundSize: "200% 100%",
+      backgroundImage: "linear-gradient(90deg,#1A2744 25%,#243059 50%,#1A2744 75%)" }}>
+      <div style={{ height: 12, background: "rgba(255,255,255,0.07)", borderRadius: 6, width: "60%", marginBottom: 10 }}/>
+      <div style={{ height: 28, background: "rgba(255,255,255,0.05)", borderRadius: 8, width: "40%", marginBottom: 8 }}/>
+      <div style={{ height: 10, background: "rgba(255,255,255,0.04)", borderRadius: 6, width: "80%" }}/>
+    </div>
+  );
+}
+
+// ── FirebaseStatus: resumen de datos en la pantalla de perfil ─────
+function FirebaseStatus({ contratos, paneles, clientes, gastos, fbConnected, fbLoading, fbError }:
+  { contratos: Contrato[]; paneles: Panel[]; clientes: Cliente[]; gastos: Gasto[];
+    fbConnected: boolean; fbLoading: boolean; fbError: boolean; }) {
+  const statusColor = fbError ? T.red : fbLoading ? T.amber : "#22C55E";
+  const statusText  = fbError ? "Error" : fbLoading ? "Conectando…" : "Conectado";
+  return (
+    <div style={{ background: "#0E1835", borderRadius: 16, padding: 16, border: "1px solid rgba(59,110,248,0.15)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+        <div style={{ width: 8, height: 8, borderRadius: "50%", background: statusColor }}/>
+        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Firebase · {statusText}</span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        {[
+          { label: "Contratos", value: contratos.length },
+          { label: "Paneles",   value: paneles.length   },
+          { label: "Clientes",  value: clientes.length  },
+          { label: "Gastos",    value: gastos.length    },
+        ].map(item => (
+          <div key={item.label} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "10px 12px" }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: "#fff" }}>{item.value}</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{item.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function getHeaderColor(t: string, profile: boolean): string {
@@ -134,10 +159,6 @@ export default function App() {
       }
     };
 
-    const onVVChange = () => {
-      lockScroll();
-    };
-
     // TRUCO PWA iOS: listener de touchstart en el documento hace que WKWebView
     // reconozca todos los elementos como tocables → click events funcionan
     const noop = () => {};
@@ -145,13 +166,12 @@ export default function App() {
 
     // Ejecutar de inmediato
     lockScroll();
-    onVVChange();
 
     // Escuchar scroll del documento y cambios del viewport
-    window.addEventListener("scroll",  lockScroll,  { passive: true });
-    window.visualViewport?.addEventListener("resize", onVVChange, { passive: true });
-    window.visualViewport?.addEventListener("scroll", onVVChange, { passive: true });
-    window.addEventListener("resize",  onVVChange,  { passive: true });
+    window.addEventListener("scroll",  lockScroll, { passive: true });
+    window.visualViewport?.addEventListener("resize", lockScroll, { passive: true });
+    window.visualViewport?.addEventListener("scroll", lockScroll, { passive: true });
+    window.addEventListener("resize",  lockScroll, { passive: true });
 
     // Navegación global desde componentes internos (ej: "Ver todas" en ActividadReciente)
     const handleNav = (e: Event) => { setTab((e as CustomEvent<string>).detail); };
@@ -160,10 +180,10 @@ export default function App() {
     return () => {
       document.removeEventListener("touchstart", noop);
       window.removeEventListener("scroll",  lockScroll);
-      window.removeEventListener("resize",  onVVChange);
+      window.removeEventListener("resize",  lockScroll);
       window.removeEventListener("vista360_nav", handleNav);
-      window.visualViewport?.removeEventListener("resize", onVVChange);
-      window.visualViewport?.removeEventListener("scroll", onVVChange);
+      window.visualViewport?.removeEventListener("resize", lockScroll);
+      window.visualViewport?.removeEventListener("scroll", lockScroll);
     };
   }, []);
 
@@ -277,30 +297,30 @@ export default function App() {
     };
 
     const unsubs = [
-      onSnapshot(
-        snapQuery("clientes"),
-        s  => { setClientes(s.docs.map(d=>({id:d.id,...d.data()}))); setError(null); checkDone("clientes"); },
-        err => { console.error("[Snapshot] clientes:", err);   setError(err.message ?? "Error Firebase"); checkDone("clientes"); },
+      fb.subscribe<Cliente>(
+        "clientes",
+        items => { setClientes(items); setError(null); checkDone("clientes"); },
+        err   => { console.error("[Snapshot] clientes:",   err); setError((err as Error).message ?? "Error Firebase"); checkDone("clientes"); },
       ),
-      onSnapshot(
-        snapQuery("paneles"),
-        s  => { setPaneles(s.docs.map(d=>({id:d.id,...d.data()}))); checkDone("paneles"); },
-        err => { console.error("[Snapshot] paneles:", err);    setError(err.message ?? "Error Firebase"); checkDone("paneles"); },
+      fb.subscribe<Panel>(
+        "paneles",
+        items => { setPaneles(items); checkDone("paneles"); },
+        err   => { console.error("[Snapshot] paneles:",    err); setError((err as Error).message ?? "Error Firebase"); checkDone("paneles"); },
       ),
-      onSnapshot(
-        snapQuery("contratos"),
-        s  => { setContratos(s.docs.map(d=>({id:d.id,...d.data()}))); checkDone("contratos"); },
-        err => { console.error("[Snapshot] contratos:", err);  setError(err.message ?? "Error Firebase"); checkDone("contratos"); },
+      fb.subscribe<Contrato>(
+        "contratos",
+        items => { setContratos(items); checkDone("contratos"); },
+        err   => { console.error("[Snapshot] contratos:",  err); setError((err as Error).message ?? "Error Firebase"); checkDone("contratos"); },
       ),
-      onSnapshot(
-        snapQuery("gastos"),
-        s  => { setGastos(s.docs.map(d=>({id:d.id,...d.data()}))); checkDone("gastos"); },
-        err => { console.error("[Snapshot] gastos:", err);     setError(err.message ?? "Error Firebase"); checkDone("gastos"); },
+      fb.subscribe<Gasto>(
+        "gastos",
+        items => { setGastos(items); checkDone("gastos"); },
+        err   => { console.error("[Snapshot] gastos:",     err); setError((err as Error).message ?? "Error Firebase"); checkDone("gastos"); },
       ),
-      onSnapshot(
-        snapQuery("proveedores"),
-        s  => { setProveedores(s.docs.map(d=>({id:d.id,...d.data()}))); checkDone("proveedores"); },
-        err => { console.error("[Snapshot] proveedores:", err);setError(err.message ?? "Error Firebase"); checkDone("proveedores"); },
+      fb.subscribe<Proveedor>(
+        "proveedores",
+        items => { setProveedores(items); checkDone("proveedores"); },
+        err   => { console.error("[Snapshot] proveedores:",err); setError((err as Error).message ?? "Error Firebase"); checkDone("proveedores"); },
       ),
     ];
 
@@ -396,7 +416,7 @@ export default function App() {
   // notifCount: número de alertas para el badge del botón de campana.
   // Vencimientos próximos (≤30 días) + contratos sin pagar con monto > 0.
   const notifCount = useMemo(() => {
-    if (!contratos.length) return 0;
+    if (!contractsActive.length) return 0;
     const hoyD = new Date();
     const proxVencer = contractsActive.filter(c => {
       const d = Math.ceil((new Date(c.fin).getTime() - hoyD.getTime()) / 86400000);
@@ -404,7 +424,7 @@ export default function App() {
     }).length;
     const sinPagar = contractsActive.filter(c => !c.pagado && c.monto > 0).length;
     return proxVencer + sinPagar;
-  }, [contratos, contractsActive]);
+  }, [contractsActive]);
 
   return (
     <>
@@ -599,7 +619,6 @@ export default function App() {
                         <img src={userPhoto} style={{ width: 64, height: 64, borderRadius: "50%", border: "3px solid #3B82F6" }} alt="perfil"/>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 22, fontWeight: 800, color: "#fff" }}>{userName}</div>
-                          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>8 Millas</div>
                           {userEmail && <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{userEmail}</div>}
                         </div>
                       </div>
@@ -624,7 +643,7 @@ export default function App() {
                           </div>
                         </div>
                       )}
-                      <Firebase contratos={contratos} paneles={paneles} clientes={clientesActive} gastos={gastos} fbConnected={!error && !loading} fbLoading={loading} fbError={!!error}/>
+                      <FirebaseStatus contratos={contratos} paneles={paneles} clientes={clientesActive} gastos={gastos} fbConnected={!error && !loading} fbLoading={loading} fbError={!!error}/>
                     </div>
                   );
                 })()}
@@ -803,6 +822,7 @@ export default function App() {
     </>
   );
 }
+
 
 
 
