@@ -1,17 +1,24 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Dispatch, SetStateAction } from "react";
 import { fb } from "../services/firestore";
 import type { FirebaseDoc, ColName } from "../types";
 
 interface UseCollectionResult<T> {
   data: T[];
+  setData: Dispatch<SetStateAction<T[]>>;
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
 }
 
 /**
- * Hook para cargar y suscribirse a una colección Firestore en tiempo real.
- * Uso: const { data, loading } = useCollection<Panel>("paneles");
+ * Hook genérico para suscribirse a una colección Firestore en tiempo real.
+ *
+ * Expone `setData` para mutaciones optimistas desde los componentes feature,
+ * de forma que el estado local se actualiza inmediatamente mientras Firestore
+ * confirma el cambio en background.
+ *
+ * Uso:
+ *   const { data, setData, loading, error } = useCollection<Panel>("paneles");
  */
 export function useCollection<T extends FirebaseDoc>(col: ColName): UseCollectionResult<T> {
   const [data, setData] = useState<T[]>([]);
@@ -48,5 +55,5 @@ export function useCollection<T extends FirebaseDoc>(col: ColName): UseCollectio
     return unsub;
   }, [col]);
 
-  return { data, loading, error, refetch };
+  return { data, setData, loading, error, refetch };
 }
