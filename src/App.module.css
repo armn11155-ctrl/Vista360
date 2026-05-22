@@ -1,0 +1,144 @@
+/* ── Reset y base ──────────────────────────────────────────────── */
+.appGlobalReset *,
+.appGlobalReset *::before,
+.appGlobalReset *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* ── Raíz de la app ─────────────────────────────────────────────── */
+.appRoot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: "DM Sans", sans-serif;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* ── Panel de contenido por ruta ────────────────────────────────── */
+.tabPanel {
+  width: 100%;
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+  animation: fadeTab 0.2s ease;
+}
+
+.tabPadded {
+  padding-top: 20px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.tabFlush {
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ── Botón logout ───────────────────────────────────────────────── */
+.btnLogout {
+  width: 100%;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  font-family: inherit;
+}
+
+/* ── Overlay / modal de confirmación ────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.confirmBox {
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.confirmCancel {
+  flex: 1;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+  color: #64748b;
+  font-family: inherit;
+}
+
+.confirmOk {
+  flex: 1;
+  padding: 12px;
+  background: #ef4444;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+  color: #fff;
+  font-family: inherit;
+}
+
+/* ── Banner de error Firebase ────────────────────────────────────── */
+.firebaseError {
+  background: #fff8ec;
+  border: 1px solid rgba(245, 158, 11, 0.33);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* ── Animaciones ────────────────────────────────────────────────── */
+@keyframes fadeTab {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes skPulse {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
