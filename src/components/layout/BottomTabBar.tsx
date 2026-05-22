@@ -61,4 +61,3 @@ export default function BottomTabBar({ activeTab, onTabClick, onScanPress }: Bot
     </div>
   );
 }
-
