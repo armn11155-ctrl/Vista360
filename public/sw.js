@@ -1,15 +1,14 @@
 /**
- * Vista360 — Service Worker (auto-update, network-first)
+ * Vista360 — Service Worker
  *
  * Estrategia:
- *   • Assets estáticos JS/CSS: NETWORK-FIRST (siempre intenta lo nuevo)
+ *   • JS/CSS: NETWORK-FIRST (siempre intenta lo nuevo, fallback al caché si offline)
+ *   • Imágenes/fuentes: Cache-First
  *   • HTML: Network-First con fallback offline
  *   • APIs (Firebase, Cloudinary): Network-Only
- *
- * Auto-update: skipWaiting + clients.claim para que cambios se vean YA.
  */
 
-const CACHE_VERSION = "v360-v4";
+const CACHE_VERSION = "v360-v5";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -31,7 +30,6 @@ const NETWORK_ONLY_ORIGINS = [
   "api.cloudinary.com",
 ];
 
-// ── Instalación: precachear y activar inmediatamente ─────────────
 self.addEventListener("install", event => {
   event.waitUntil(
     caches
@@ -41,7 +39,6 @@ self.addEventListener("install", event => {
   );
 });
 
-// ── Activación: limpiar TODO el caché viejo y tomar control ya ──
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys()
@@ -52,45 +49,36 @@ self.addEventListener("activate", event => {
             .map(key => caches.delete(key)),
         ),
       )
-      .then(() => self.clients.claim())
-      .then(() => self.clients.matchAll({ type: "window" }))
-      .then(clients => {
-        // Avisar a las pestañas abiertas que se recarguen
-        clients.forEach(client => client.postMessage({ type: "SW_UPDATED" }));
-      }),
+      .then(() => self.clients.claim()),
   );
 });
 
-// ── Fetch: NETWORK-FIRST para JS/CSS, así siempre se ve lo último ─
 self.addEventListener("fetch", event => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // 1. Network-Only: Firebase, Cloudinary
   if (NETWORK_ONLY_ORIGINS.some(origin => url.hostname.includes(origin))) {
     event.respondWith(fetch(request));
     return;
   }
 
-  // 2. Network-Only: mutaciones
   if (request.method !== "GET") {
     event.respondWith(fetch(request));
     return;
   }
 
-  // 3. NETWORK-FIRST para JS/CSS (clave del fix) — siempre intenta lo nuevo
+  // NETWORK-FIRST para JS/CSS (clave para que los cambios se vean siempre)
   if (isCodeAsset(url)) {
     event.respondWith(networkFirst(request, RUNTIME_CACHE));
     return;
   }
 
-  // 4. Cache-First para imágenes/fuentes (no cambian seguido)
+  // Cache-First para imágenes/fuentes
   if (isStaticImage(url)) {
     event.respondWith(cacheFirst(request, RUNTIME_CACHE));
     return;
   }
 
-  // 5. Network-First para navegación HTML
   if (request.mode === "navigate") {
     event.respondWith(networkFirstWithOfflineFallback(request));
     return;
@@ -98,8 +86,6 @@ self.addEventListener("fetch", event => {
 
   event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
 });
-
-// ── Helpers ──────────────────────────────────────────────────────
 
 function isCodeAsset(url) {
   return /\.(js|mjs|css)(\?.*)?$/.test(url.pathname);
@@ -166,7 +152,6 @@ async function staleWhileRevalidate(request, cacheName) {
   return cached || fetchPromise;
 }
 
-// ── Push notifications ────────────────────────────────────────────
 self.addEventListener("notificationclick", event => {
   event.notification.close();
   event.waitUntil(
