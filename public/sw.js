@@ -1,21 +1,18 @@
 /**
- * Vista360 — Service Worker
+ * Vista360 — Service Worker (auto-update, network-first)
  *
  * Estrategia:
- *   • Assets estáticos (JS, CSS, imágenes, fuentes): Cache-First
- *     → Carga instantánea sin red; se actualiza en background.
- *   • Navegación (HTML): Network-First con fallback offline.
- *   • API calls (Firebase, Cloudinary): Network-Only (sin caché).
+ *   • Assets estáticos JS/CSS: NETWORK-FIRST (siempre intenta lo nuevo)
+ *   • HTML: Network-First con fallback offline
+ *   • APIs (Firebase, Cloudinary): Network-Only
  *
- * Versión: actualizar CACHE_VERSION al hacer deploy para
- * invalidar el caché anterior.
+ * Auto-update: skipWaiting + clients.claim para que cambios se vean YA.
  */
 
-const CACHE_VERSION = "v360-v3";
+const CACHE_VERSION = "v360-v4";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
-// Recursos precacheados al instalar el SW
 const PRECACHE_URLS = [
   "/",
   "/index.html",
@@ -25,7 +22,6 @@ const PRECACHE_URLS = [
   "/apple-touch-icon.png",
 ];
 
-// Dominios que NUNCA se cachean (Firebase, Cloudinary, APIs)
 const NETWORK_ONLY_ORIGINS = [
   "firestore.googleapis.com",
   "firebase.googleapis.com",
@@ -35,7 +31,7 @@ const NETWORK_ONLY_ORIGINS = [
   "api.cloudinary.com",
 ];
 
-// ── Instalación: precachear recursos estáticos ────────────────────
+// ── Instalación: precachear y activar inmediatamente ─────────────
 self.addEventListener("install", event => {
   event.waitUntil(
     caches
@@ -45,59 +41,87 @@ self.addEventListener("install", event => {
   );
 });
 
-// ── Activación: limpiar cachés obsoletos ──────────────────────────
+// ── Activación: limpiar TODO el caché viejo y tomar control ya ──
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches
-      .keys()
+    caches.keys()
       .then(keys =>
         Promise.all(
           keys
-            .filter(key => key.startsWith("v360-") && key !== STATIC_CACHE && key !== RUNTIME_CACHE)
+            .filter(key => key !== STATIC_CACHE && key !== RUNTIME_CACHE)
             .map(key => caches.delete(key)),
         ),
       )
-      .then(() => self.clients.claim()),
+      .then(() => self.clients.claim())
+      .then(() => self.clients.matchAll({ type: "window" }))
+      .then(clients => {
+        // Avisar a las pestañas abiertas que se recarguen
+        clients.forEach(client => client.postMessage({ type: "SW_UPDATED" }));
+      }),
   );
 });
 
-// ── Fetch: estrategia por tipo de recurso ─────────────────────────
+// ── Fetch: NETWORK-FIRST para JS/CSS, así siempre se ve lo último ─
 self.addEventListener("fetch", event => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // 1. Network-Only: Firebase y otras APIs externas
+  // 1. Network-Only: Firebase, Cloudinary
   if (NETWORK_ONLY_ORIGINS.some(origin => url.hostname.includes(origin))) {
     event.respondWith(fetch(request));
     return;
   }
 
-  // 2. Network-Only: POST, PUT, PATCH, DELETE (mutaciones)
+  // 2. Network-Only: mutaciones
   if (request.method !== "GET") {
     event.respondWith(fetch(request));
     return;
   }
 
-  // 3. Cache-First: assets estáticos (JS, CSS, imágenes, fuentes)
-  if (isStaticAsset(url)) {
+  // 3. NETWORK-FIRST para JS/CSS (clave del fix) — siempre intenta lo nuevo
+  if (isCodeAsset(url)) {
+    event.respondWith(networkFirst(request, RUNTIME_CACHE));
+    return;
+  }
+
+  // 4. Cache-First para imágenes/fuentes (no cambian seguido)
+  if (isStaticImage(url)) {
     event.respondWith(cacheFirst(request, RUNTIME_CACHE));
     return;
   }
 
-  // 4. Network-First: navegación HTML (con fallback offline)
+  // 5. Network-First para navegación HTML
   if (request.mode === "navigate") {
     event.respondWith(networkFirstWithOfflineFallback(request));
     return;
   }
 
-  // 5. Stale-While-Revalidate: resto de GETs
   event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
 });
 
-// ── Helpers de estrategia ─────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────
 
-function isStaticAsset(url) {
-  return /\.(js|css|woff2?|ttf|otf|png|jpg|jpeg|gif|svg|ico|webp)(\?.*)?$/.test(url.pathname);
+function isCodeAsset(url) {
+  return /\.(js|mjs|css)(\?.*)?$/.test(url.pathname);
+}
+
+function isStaticImage(url) {
+  return /\.(woff2?|ttf|otf|png|jpg|jpeg|gif|svg|ico|webp)(\?.*)?$/.test(url.pathname);
+}
+
+async function networkFirst(request, cacheName) {
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    return new Response("Sin conexión", { status: 503 });
+  }
 }
 
 async function cacheFirst(request, cacheName) {
@@ -125,7 +149,7 @@ async function networkFirstWithOfflineFallback(request) {
     return new Response(
       `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Sin conexión | Vista360</title></head>
        <body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#0E1A3B;color:#fff;">
-         <div style="text-align:center"><h2>📡 Sin conexión</h2><p>Los datos guardados estarán disponibles cuando vuelva la red.</p></div>
+         <div style="text-align:center"><h2>Sin conexión</h2><p>Los datos guardados estarán disponibles cuando vuelva la red.</p></div>
        </body></html>`,
       { headers: { "Content-Type": "text/html" } },
     );
