@@ -172,9 +172,12 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
     document.title = `${section} | Vista360`;
   }, [location.pathname, showProfile]);
 
-  // ── Service Worker ────────────────────────────────────────────────
+  // ── Service Worker (desactivado temporalmente para evitar loops de caché)
+  // El SW kill-switch en /sw.js se auto-elimina y limpia cachés
+  // Lo re-habilitaremos cuando esté todo estable
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
+    // Registramos el kill-switch para que limpie cachés viejos y luego se vaya
     navigator.serviceWorker
       .register("/sw.js")
       .then(reg => {
