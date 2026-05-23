@@ -172,32 +172,13 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
     document.title = `${section} | Vista360`;
   }, [location.pathname, showProfile]);
 
-  // ── Service Worker (auto-update on new version) ───────────────────
+  // ── Service Worker ────────────────────────────────────────────────
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
-
-    // Recargar automáticamente cuando el SW nuevo toma control
-    let reloading = false;
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (reloading) return;
-      reloading = true;
-      window.location.reload();
-    });
-
-    // Escuchar avisos de actualización del SW
-    navigator.serviceWorker.addEventListener("message", e => {
-      if (e.data && e.data.type === "SW_UPDATED" && !reloading) {
-        reloading = true;
-        window.location.reload();
-      }
-    });
-
     navigator.serviceWorker
       .register("/sw.js")
       .then(reg => {
         swRef.current = reg;
-        // Forzar revisión de actualizaciones cada vez que la app carga
-        reg.update();
       })
       .catch(err => console.warn("[SW] Registro fallido:", err));
   }, []);
