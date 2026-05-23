@@ -657,12 +657,12 @@ function Resultados({
                 fontWeight: 700,
                 fontSize: 13,
                 transition: "all .15s",
-                background: active ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#fff",
-                color: active ? "#fff" : "#1D4ED8",
-                border: active ? "none" : "1.5px solid #CBD5E1",
+                background: active ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#FFFFFF",
+                color: active ? "#FFFFFF" : "#1E40AF",
+                border: active ? "2px solid transparent" : "2px solid #2563EB",
                 boxShadow: active
                   ? "0 6px 20px rgba(15,23,41,0.35)"
-                  : "0 1px 6px rgba(15,23,41,0.12)",
+                  : "0 2px 12px rgba(37,99,235,0.20)",
               }}
             >
               <div
@@ -674,7 +674,7 @@ function Resultados({
                   alignItems: "center",
                   justifyContent: "center",
                   background: active ? "rgba(255,255,255,0.15)" : "#DBEAFE",
-                  color: active ? "#fff" : "#1D4ED8",
+                  color: active ? "#FFFFFF" : "#1E40AF",
                   flexShrink: 0,
                 }}
               >
@@ -1693,7 +1693,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                   alignItems: "center",
                   justifyContent: "center",
                   background: active ? "rgba(255,255,255,0.15)" : "#DBEAFE",
-                  color: active ? "#fff" : "#1D4ED8",
+                  color: active ? "#FFFFFF" : "#1E40AF",
                 }}
               >
                 {iconMap[s.id]}
