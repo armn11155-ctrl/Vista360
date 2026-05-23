@@ -68,7 +68,6 @@ import {
 import { usePagination } from "../../../hooks/usePagination";
 import { useVirtualList } from "../../../hooks/useVirtualList";
 
-
 // ══════════════════════════════════════════════════════════════════
 // MINI MAPA (sub-componente del modal de edición de paneles)
 // ══════════════════════════════════════════════════════════════════
