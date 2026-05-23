@@ -32,6 +32,7 @@ import type { User } from "firebase/auth";
 
 // ── Tipos e interfaces ────────────────────────────────────────────
 import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from "../../../types";
+import MiniMapaPanel from "./MiniMapaPanel";
 
 // ── Servicios y utilidades ────────────────────────────────────────
 import { fb } from "../../../services/firestore";
