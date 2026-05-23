@@ -16,7 +16,6 @@ interface Props {
   onLogout: () => Promise<void>;
 }
 
-
 interface FirebaseStatusProps {
   contratos: Contrato[];
   paneles: Panel[];
