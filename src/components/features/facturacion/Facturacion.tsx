@@ -44,6 +44,7 @@ import {
   SkPulse,
 } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
+import LoginFacturacion from "./LoginFacturacion";
 
 function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetalleFacturaProps) {
   // Cliente: prefiere campos directos del API, cae a lookup en CRM por ID
@@ -3082,4 +3083,32 @@ function MesCard({
   );
 }
 
-export default Facturacion;
+// ══════════════════════════════════════════════════════════════════
+// 🔐 WRAPPER CON LOGIN — Facturación Web (JWT)
+// ──────────────────────────────────────────────────────────────────
+// Si VITE_FACTURACION_API_URL está configurado, muestra el login
+// antes de acceder a la vista de facturación.
+// Si no está configurado, muestra directamente (modo Firebase).
+// ══════════════════════════════════════════════════════════════════
+function FacturacionConLogin(props: FacturacionProps) {
+  const apiUrl = (import.meta.env.VITE_FACTURACION_API_URL ?? "").trim();
+
+  // Sin API configurada → modo solo Firebase, sin login extra
+  const [token, setToken] = React.useState<string | null>(() => {
+    if (!apiUrl) return "no-api";
+    return localStorage.getItem("facturacion_token");
+  });
+
+  if (!token) {
+    return (
+      <LoginFacturacion
+        onLoginSuccess={(tk) => setToken(tk)}
+      />
+    );
+  }
+
+  return <Facturacion {...props} />;
+}
+
+export default FacturacionConLogin;
+
