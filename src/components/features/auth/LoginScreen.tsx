@@ -5,6 +5,7 @@ import type { User } from "firebase/auth";
 import { auth, googleProvider } from "../../../config/firebase";
 import { T } from "../../../config/theme";
 import { ALLOWED_EMAILS } from "../../../config/constants";
+import { Logo360 } from "../../layout/Logo360";
 
 function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [loading, setLoading] = useState(false);
@@ -254,3 +255,4 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 // ══════════════════════════════════════════════════════════════════
 
 export default LoginScreen;
+
