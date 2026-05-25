@@ -743,6 +743,13 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
 //   • API externa (cuando FACTURACION_API.enabled = true)
 //   • Firebase "facturas" como fallback de prueba
 // ──────────────────────────────────────────────────────────────────
+const FACTURACION_API = {
+  enabled: false, // ← cambia a true cuando tu sistema esté listo
+  endpoint: "", // ← URL GET que devuelve array de comprobantes
+  token: "", // ← Bearer token / API key
+  rucEmisor: EMISOR.ruc,
+};
+
 function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
   // contratos se recibe pero no se usa (compat con la firma anterior)
   const [facturas, setFacturas] = useState<Factura[]>([]);
