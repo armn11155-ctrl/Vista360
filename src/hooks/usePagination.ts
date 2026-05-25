@@ -5,15 +5,28 @@ interface UsePaginationResult<T> {
   page: number;
   setPage: (p: number) => void;
   totalPages: number;
+  total: number;
+  pageSize: number;
   paged: T[];
+  paginated: T[]; // alias for backwards compatibility
 }
 
 export function usePagination<T>(items: T[], pageSize = 10): UsePaginationResult<T> {
   const [page, setPage] = useState(1);
-  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+  const safeItems = Array.isArray(items) ? items : [];
+  const totalPages = Math.max(1, Math.ceil(safeItems.length / pageSize));
+  const safePage = Math.min(page, totalPages);
   const paged = useMemo(
-    () => items.slice((page - 1) * pageSize, page * pageSize),
-    [items, page, pageSize],
+    () => safeItems.slice((safePage - 1) * pageSize, safePage * pageSize),
+    [safeItems, safePage, pageSize],
   );
-  return { page, setPage, totalPages, paged };
+  return {
+    page: safePage,
+    setPage,
+    totalPages,
+    total: safeItems.length,
+    pageSize,
+    paged,
+    paginated: paged, // alias — several components use this name
+  };
 }
