@@ -48,6 +48,27 @@ import {
 } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
 
+// ── Helpers de formato ──
+function fmtMes(ym: string): string {
+  if (!ym) return ym;
+  const [y, m] = ym.split("-");
+  const meses = [
+    "Ene",
+    "Feb",
+    "Mar",
+    "Abr",
+    "May",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dic",
+  ];
+  return `${meses[parseInt(m, 10) - 1] ?? m} ${y}`;
+}
+
 // ── Constantes de estados de factura ──
 const EST_FAC = [
   "Borrador",
