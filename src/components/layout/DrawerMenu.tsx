@@ -7,6 +7,138 @@ import { toast, confirmAsync } from "../../context/UIContext";
 import { fmt, fmtF, dias, haptic } from "../../lib/utils";
 import { Modal, FieldGroup, Badge, Card, Spinner } from "../ui";
 
+// ── Menú drawer: todos los destinos de navegación ────────────────
+const MENU_DRAWER = [
+  { id: "hoy", label: "Inicio" },
+  { id: "paneles", label: "Paneles" },
+  { id: "contratos", label: "Contratos" },
+  { id: "historico", label: "Histórico" },
+  { id: "crm", label: "Clientes" },
+  { id: "gastos", label: "Gastos" },
+  { id: "proveedores", label: "Proveedores" },
+  { id: "facturacion", label: "Facturación" },
+  { id: "capital", label: "Capital" },
+  { id: "reportes", label: "Reportes" },
+  { id: "mapa", label: "Mapa" },
+];
+
+// ── Iconos del drawer por id de tab ───────────────────────────────
+const DRAWER_ICONS: Record<string, React.ReactNode> = {
+  hoy: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M3 12L5 10M5 10L12 3L19 10M5 10V20C5 20.552 5.448 21 6 21H9M19 10L21 12M19 10V20C19 20.552 18.552 21 18 21H15M9 21V15C9 14.448 9.448 14 10 14H14C14.552 14 15 14.448 15 15V21M9 21H15"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  paneles: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  ),
+  contratos: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M9 12H15M9 16H15M17 21H7C5.895 21 5 20.105 5 19V5C5 3.895 5.895 3 7 3H14L19 8V19C19 20.105 18.105 21 17 21Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  historico: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M12 8V12L15 15M21 12C21 16.971 16.971 21 12 21C7.029 21 3 16.971 3 12C3 7.029 7.029 3 12 3C16.971 3 21 7.029 21 12Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
+  crm: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M17 21V19C17 17.343 15.657 16 14 16H10C8.343 16 7 17.343 7 19V21M12 13C14.209 13 16 11.209 16 9C16 6.791 14.209 5 12 5C9.791 5 8 6.791 8 9C8 11.209 9.791 13 12 13Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
+  gastos: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M3 10H21M7 15H8M12 15H13M6 19H18C19.105 19 20 18.105 20 17V7C20 5.895 19.105 5 18 5H6C4.895 5 4 5.895 4 7V17C4 18.105 4.895 19 6 19Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
+  proveedores: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M19 21V5C19 3.895 18.105 3 17 3H7C5.895 3 5 3.895 5 5V21M3 21H21M9 21V15H15V21"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  facturacion: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M9 5H7C5.895 5 5 5.895 5 7V19C5 20.105 5.895 21 7 21H17C18.105 21 19 20.105 19 19V7C19 5.895 18.105 5 17 5H15M9 5C9 5.552 9.448 6 10 6H14C14.552 6 15 5.552 15 5M9 5C9 4.448 9.448 4 10 4H14C14.552 4 15 4.448 15 5M12 11V17M9 14H15"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
+  capital: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M13 7H7M13 11H7M17 15H7M3 5C3 3.895 3.895 3 5 3H19C20.105 3 21 3.895 21 5V19C21 20.105 20.105 21 19 21H5C3.895 21 3 20.105 3 19V5Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
+  reportes: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M9 19V13M12 19V7M15 19V13M3 20H21"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  mapa: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M9 20L3 17V4L9 7M9 20L15 17M9 20V7M15 17L21 20V7L15 4M15 17V4M9 7L15 4"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+};
+
 function DrawerMenu({
   open,
   onClose,
