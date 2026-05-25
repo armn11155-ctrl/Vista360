@@ -104,14 +104,16 @@ export const fb = {
     formData.append("upload_preset", uploadPreset);
     formData.append("folder", "vista360/boletas");
 
-    const res = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      { method: "POST", body: formData },
-    );
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: "POST",
+      body: formData,
+    });
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(`Cloudinary error ${res.status}: ${(err as any).error?.message ?? res.statusText}`);
+      throw new Error(
+        `Cloudinary error ${res.status}: ${(err as any).error?.message ?? res.statusText}`,
+      );
     }
 
     const data = await res.json();
