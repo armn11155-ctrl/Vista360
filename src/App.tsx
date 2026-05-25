@@ -44,12 +44,42 @@ import styles from "./App.module.css";
 
 // ── Carga lazy (code splitting por ruta) ─────────────────────────
 const ResumenNuevo = lazy(() => import("./components/features/dashboard/ResumenNuevo"));
-const Paneles = lazy(() => import("./components/features/paneles/Paneles"));
-const Contratos = lazy(() => import("./components/features/contratos/Contratos"));
-const Historico = lazy(() => import("./components/features/historico/Historico"));
-const CRM = lazy(() => import("./components/features/crm/CRM"));
-const Gastos = lazy(() => import("./components/features/gastos/Gastos"));
-const Proveedores = lazy(() => import("./components/features/proveedores/Proveedores"));
+const Paneles      = lazy(() => import("./components/features/paneles/Paneles"));
+const Contratos    = lazy(() => import("./components/features/contratos/Contratos"));
+const Historico    = lazy(() => import("./components/features/historico/Historico"));
+const CRM          = lazy(() => import("./components/features/crm/CRM"));
+const Gastos       = lazy(() => import("./components/features/gastos/Gastos"));
+const Proveedores  = lazy(() => import("./components/features/proveedores/Proveedores"));
+const Facturacion  = lazy(() => import("./components/features/facturacion/Facturacion"));
+const Reportes     = lazy(() => import("./components/features/reportes/Reportes"));
+const Capital      = lazy(() => import("./components/features/capital/Capital"));
+const Mapa         = lazy(() => import("./components/features/mapa/Mapa"));
+
+/**
+ * Prefetch de todos los chunks de pestañas en segundo plano.
+ * Se llama una vez que el usuario está autenticado.
+ * El browser descarga y cachea cada módulo mientras el usuario
+ * ve la primera pestaña — al cambiar de pestaña ya está en memoria.
+ */
+function prefetchAllTabs() {
+  // requestIdleCallback asegura que no compite con el primer render
+  const schedule = typeof requestIdleCallback !== "undefined"
+    ? requestIdleCallback
+    : (cb: () => void) => setTimeout(cb, 200);
+
+  schedule(() => {
+    import("./components/features/paneles/Paneles");
+    import("./components/features/contratos/Contratos");
+    import("./components/features/crm/CRM");
+    import("./components/features/gastos/Gastos");
+    import("./components/features/proveedores/Proveedores");
+    import("./components/features/facturacion/Facturacion");
+    import("./components/features/reportes/Reportes");
+    import("./components/features/historico/Historico");
+    import("./components/features/capital/Capital");
+    import("./components/features/mapa/Mapa");
+  });
+}/proveedores/Proveedores"));
 const Facturacion = lazy(() => import("./components/features/facturacion/Facturacion"));
 const Reportes = lazy(() => import("./components/features/reportes/Reportes"));
 const Capital = lazy(() => import("./components/features/capital/Capital"));
@@ -969,6 +999,8 @@ function AppShell() {
             setUser(null);
           } else {
             setUser(u);
+            // Prefetch todos los chunks de pestañas mientras el usuario ve la primera tab
+            prefetchAllTabs();
             if (u && "Notification" in window && Notification.permission === "default") {
               Notification.requestPermission().catch(() => {});
             }
