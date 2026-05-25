@@ -7,7 +7,8 @@ import * as authCtrl from '../controllers/auth.js'
 import * as factCtrl from '../controllers/facturas.js'
 import * as cliCtrl  from '../controllers/clientes.js'
 import { analizarImagen } from '../controllers/ocr.js'
-import { eliminarImagen } from '../controllers/cloudinary.js'
+import { eliminarImagen }    from '../controllers/cloudinary.js'
+import { getFirebaseUsage }  from '../controllers/firebaseUsage.js'
 
 const router = Router()
 
@@ -28,6 +29,11 @@ router.post('/ocr', ocrLimit, authApiKey, analizarImagen)
 // ── CLOUDINARY — Eliminación segura de imágenes ───────────────────
 // El frontend no tiene el API Secret; el backend firma la petición
 router.post('/cloudinary/delete', authApiKey, eliminarImagen)
+
+// ── FIREBASE USAGE — Almacenamiento real vía Cloud Monitoring ─────
+// Requiere GOOGLE_SERVICE_ACCOUNT_JSON en el backend
+// Resultado cacheado 10 min para no exceder cuotas de la API
+router.get('/firebase/usage', authApiKey, getFirebaseUsage)
 
 // ── FACTURAS ──────────────────────────────────────────────────────
 router.get ('/facturas',            auth, factCtrl.listar)

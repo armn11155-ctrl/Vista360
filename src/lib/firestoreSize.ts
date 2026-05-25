@@ -131,3 +131,41 @@ export function estimarBytesCloudinary(gastos: Array<Record<string, unknown>>): 
   const fotosCount = gastos.filter(g => g.fotoUrl || g.foto_url || g.foto).length;
   return fotosCount * 150 * 1024; // 150 KB por foto
 }
+
+// ── Consulta al backend el uso REAL de Firestore ─────────────────
+
+export interface FirebaseRealUsage {
+  ok:            boolean
+  projectId?:    string
+  documentCount?: number | null
+  storageDocs?:  number | null
+  storageIndex?: number | null
+  storageTotal?: number | null
+  updatedAt?:    string
+  limits?:       { storage: number }
+  error?:        string
+  hint?:         string
+  cached?:       boolean
+}
+
+/**
+ * Obtiene el uso REAL de Firebase Firestore consultando Google Cloud Monitoring
+ * a través del backend (que tiene la cuenta de servicio).
+ * Si el backend no está configurado, devuelve null.
+ */
+export async function fetchFirebaseRealUsage(
+  apiUrl: string,
+  apiKey: string,
+): Promise<FirebaseRealUsage | null> {
+  if (!apiUrl || !apiKey) return null
+  try {
+    const res = await fetch(`${apiUrl}/api/firebase/usage`, {
+      headers: { 'x-api-key': apiKey },
+      signal: AbortSignal.timeout(12_000),
+    })
+    const data = await res.json() as FirebaseRealUsage
+    return data
+  } catch {
+    return null
+  }
+}

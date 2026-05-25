@@ -6,10 +6,12 @@ import { db } from "../../../config/firebase";
 import {
   calcularUsoFirestore,
   estimarBytesCloudinary,
+  fetchFirebaseRealUsage,
   fmtBytes,
   FIRESTORE_LIMIT_BYTES,
   CLOUDINARY_LIMIT_BYTES,
   type ColStats,
+  type FirebaseRealUsage,
 } from "../../../lib/firestoreSize";
 
 interface Props {
@@ -68,21 +70,34 @@ export function ProfileView({
       .catch(() => setFbStatus("error"));
   }, []);
 
-  // Cálculo real con fórmula oficial de Firestore
-  const [fsStats, setFsStats] = useState<{
-    cols: ColStats[];
-    totalData: number;
-    totalConIndices: number;
+  // ── Uso REAL de Firestore via backend (Google Cloud Monitoring) ──
+  const [realUsage,  setRealUsage]  = useState<FirebaseRealUsage | null>(null);
+  const [fsStats,    setFsStats]    = useState<{
+    cols: ColStats[]; totalData: number; totalConIndices: number;
   } | null>(null);
-  const [fsLoading, setFsLoading] = useState(true);
+  const [fsLoading,  setFsLoading]  = useState(true);
+
+  const API_URL = import.meta.env.VITE_API_URL ?? "";
+  const API_KEY = import.meta.env.VITE_API_KEY ?? "";
 
   useEffect(() => {
+    // Intento 1: datos reales del backend (Cloud Monitoring)
+    fetchFirebaseRealUsage(API_URL, API_KEY).then(data => {
+      if (data?.ok) setRealUsage(data);
+    });
+    // Intento 2: estimación con fórmula oficial (siempre corre, para las barras por colección)
     calcularUsoFirestore(db)
       .then(stats => { setFsStats(stats); setFsLoading(false); })
       .catch(() => setFsLoading(false));
   }, []);
 
-  const totalBytes  = fsStats?.totalConIndices ?? 0;   // datos + índices automáticos
+  // Usar el dato real si está disponible, si no la estimación
+  const tieneRealUsage = realUsage?.storageTotal != null;
+  const totalBytes  = tieneRealUsage
+    ? realUsage!.storageTotal!
+    : (fsStats?.totalConIndices ?? 0);
+  const limitBytes  = realUsage?.limits?.storage ?? FIRESTORE_LIMIT_BYTES;
+
   const cloudBytes  = estimarBytesCloudinary(gastos as unknown as Array<Record<string, unknown>>);
   const fotosCount  = gastos.filter(g => (g as any).fotoUrl || (g as any).foto_url).length;
 
@@ -291,12 +306,12 @@ export function ProfileView({
                 height: "100%",
                 borderRadius: 99,
                 background: "linear-gradient(90deg,#22C55E,#3B82F6)",
-                width: `${Math.max(0.5, (totalBytes / FIRESTORE_LIMIT_BYTES) * 100)}%`,
+                width: `${Math.max(0.5, (totalBytes / limitBytes) * 100)}%`,
               }}
             />
           </div>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginBottom: 14 }}>
-            {((totalBytes / FIRESTORE_LIMIT_BYTES) * 100).toFixed(4)}% del límite gratuito
+            {((totalBytes / limitBytes) * 100).toFixed(4)}% del límite gratuito
           </div>
 
           {/* Collection cards */}
