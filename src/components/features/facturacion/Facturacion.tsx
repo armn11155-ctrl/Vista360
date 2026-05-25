@@ -743,12 +743,30 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
 //   • API externa (cuando FACTURACION_API.enabled = true)
 //   • Firebase "facturas" como fallback de prueba
 // ──────────────────────────────────────────────────────────────────
+// ── Config desde variables de entorno de Vercel ──
 const FACTURACION_API = {
-  enabled: false, // ← cambia a true cuando tu sistema esté listo
-  endpoint: "", // ← URL GET que devuelve array de comprobantes
-  token: "", // ← Bearer token / API key
+  enabled: !!import.meta.env.VITE_FACTURACION_API_URL,
+  endpoint: import.meta.env.VITE_FACTURACION_API_URL || "",
+  token: import.meta.env.VITE_FACTURACION_API_KEY || "",
   rucEmisor: EMISOR.ruc,
 };
+
+// ── Carga facturas: API externa → Firebase fallback ──
+async function fetchFacturas(): Promise<Factura[]> {
+  if (FACTURACION_API.enabled && FACTURACION_API.endpoint) {
+    const res = await fetch(`${FACTURACION_API.endpoint}/api/vista360/facturas?limit=100`, {
+      headers: { "x-api-key": FACTURACION_API.token },
+    });
+    if (!res.ok) throw new Error(`API Facturación error ${res.status}`);
+    const json = await res.json();
+    return (json.data ?? []) as Factura[];
+  }
+  // Fallback: leer desde colección Firebase "facturas"
+  const { getDocs: _getDocs, collection: _col } = await import("firebase/firestore");
+  const { db: _db } = await import("../../../config/firebase");
+  const snap = await _getDocs(_col(_db, "facturas"));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() })) as unknown as Factura[];
+}
 
 function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
   // contratos se recibe pero no se usa (compat con la firma anterior)
