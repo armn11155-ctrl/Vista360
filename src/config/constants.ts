@@ -56,10 +56,10 @@ export const EMISOR = {
 // Bottom nav
 export const BOTTOM_TABS_LIST = [
   { id: "hoy", label: "Inicio" },
-  { id: "paneles", label: "Paneles" },
-  { id: "__add__", label: "" },
   { id: "contratos", label: "Contratos" },
+  { id: "__add__", label: "" },
   { id: "crm", label: "Clientes" },
+  { id: "paneles", label: "Paneles" },
 ];
 export const NAV_TAB_IDS = BOTTOM_TABS_LIST.filter(t => t.id !== "__add__").map(t => t.id);
 
