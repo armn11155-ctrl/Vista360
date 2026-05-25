@@ -620,17 +620,16 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
     ).substring(0, 255);
 
     // ── Subir foto WebP a Firebase Storage si hay imagen nueva ──
+    // Si hay una imagen nueva escaneada, subirla a Cloudinary (reemplaza la anterior si había)
     let fotoUrl = form.fotoUrl || "";
     const archivoNuevo = ocr._file;
-    if (archivoNuevo && !form.fotoUrl) {
+    if (archivoNuevo) {
       try {
-        fotoUrl = await Promise.race([
-          fb.uploadImagen(archivoNuevo),
-          new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 15000)),
-        ]);
+        // uploadImagen ya maneja timeout de 20s internamente
+        fotoUrl = await fb.uploadImagen(archivoNuevo);
       } catch (e) {
-        console.warn("Foto no subida:", e.message);
-        fotoUrl = "";
+        console.warn("Foto no subida a Cloudinary:", (e as Error).message);
+        // No bloquear el guardado si la foto falla — el gasto se guarda igual
       }
     }
 
