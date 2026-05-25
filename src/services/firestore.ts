@@ -82,4 +82,39 @@ export const fb = {
       },
     );
   },
+
+  /**
+   * Sube una imagen a Cloudinary y devuelve la URL segura.
+   * Requiere las variables de entorno:
+   *   VITE_CLOUDINARY_CLOUD_NAME   — nombre del cloud (ej: "mi-cloud")
+   *   VITE_CLOUDINARY_UPLOAD_PRESET — upload preset sin firmar (ej: "boletas_unsigned")
+   */
+  async uploadImagen(file: File): Promise<string> {
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      throw new Error(
+        "Cloudinary no configurado. Agrega VITE_CLOUDINARY_CLOUD_NAME y VITE_CLOUDINARY_UPLOAD_PRESET en Vercel.",
+      );
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+    formData.append("folder", "vista360/boletas");
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      { method: "POST", body: formData },
+    );
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(`Cloudinary error ${res.status}: ${(err as any).error?.message ?? res.statusText}`);
+    }
+
+    const data = await res.json();
+    return data.secure_url as string;
+  },
 };
