@@ -449,6 +449,192 @@ function MesCard({
   );
 }
 
+// ══════════════════════════════════════════════════════════════════
+// RESULTADOS — Estado de Resultados anual (P&L)
+// ══════════════════════════════════════════════════════════════════
+interface ResultadosProps {
+  contratos: Contrato[];
+  paneles: Panel[];
+  clientes: Cliente[];
+  gastos: Gasto[];
+  loading: boolean;
+}
+
+function Resultados({ contratos, paneles, clientes, gastos, loading }: ResultadosProps) {
+  const [anio, setAnio] = useState(() => new Date().getFullYear());
+  const anos = [anio - 1, anio, anio + 1].filter(a => a <= new Date().getFullYear());
+
+  const meses = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => {
+      const m = `${anio}-${String(i + 1).padStart(2, "0")}`;
+      const ctrsMes = contratos.filter(
+        c => !c.deleted && c.inicio && c.fin && c.inicio.slice(0, 7) <= m && c.fin.slice(0, 7) >= m,
+      );
+      const ingresos = ctrsMes.filter(c => c.pagado).reduce((a, c) => a + Number(c.monto || 0), 0);
+      const porCobrar = ctrsMes
+        .filter(c => !c.pagado)
+        .reduce((a, c) => a + Number(c.monto || 0), 0);
+      const egresos = gastos
+        .filter(g => (g.fecha || "").startsWith(m))
+        .reduce((a, g) => a + Number(g.monto || 0), 0);
+      return {
+        label: new Date(m + "-02").toLocaleDateString("es-PE", { month: "short" }).toUpperCase(),
+        ingresos,
+        porCobrar,
+        egresos,
+        utilidad: ingresos - egresos,
+      };
+    });
+  }, [contratos, gastos, anio]);
+
+  const totales = useMemo(
+    () => ({
+      ingresos: meses.reduce((a, m) => a + m.ingresos, 0),
+      porCobrar: meses.reduce((a, m) => a + m.porCobrar, 0),
+      egresos: meses.reduce((a, m) => a + m.egresos, 0),
+      utilidad: meses.reduce((a, m) => a + m.utilidad, 0),
+    }),
+    [meses],
+  );
+
+  const DARK = "#0E1A3B";
+  const col = (v: number) => (v >= 0 ? T.green : T.red);
+
+  if (loading)
+    return <div style={{ padding: 24, color: T.muted, textAlign: "center" }}>Cargando…</div>;
+
+  return (
+    <div style={{ padding: "0 0 32px" }}>
+      {/* Selector de año */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        {[anio - 1, anio].map(a => (
+          <button
+            key={a}
+            onClick={() => setAnio(a)}
+            style={{
+              padding: "6px 16px",
+              borderRadius: 20,
+              border: "none",
+              background: a === anio ? T.accent : "rgba(255,255,255,0.08)",
+              color: a === anio ? "#fff" : "rgba(255,255,255,0.6)",
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
+            {a}
+          </button>
+        ))}
+      </div>
+
+      {/* KPI Cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+        {[
+          { label: "Ingresos cobrados", val: totales.ingresos, color: T.green },
+          { label: "Por cobrar", val: totales.porCobrar, color: T.amber },
+          { label: "Egresos", val: totales.egresos, color: T.red },
+          { label: "Utilidad neta", val: totales.utilidad, color: col(totales.utilidad) },
+        ].map(({ label, val, color }) => (
+          <div
+            key={label}
+            style={{
+              background: DARK,
+              border: "1px solid rgba(79,124,255,0.15)",
+              borderRadius: 16,
+              padding: "14px 16px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                color: "rgba(255,255,255,0.5)",
+                fontWeight: 600,
+                marginBottom: 4,
+              }}
+            >
+              {label}
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 800, color }}>{fmt(val)}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabla mensual */}
+      <div
+        style={{
+          background: DARK,
+          border: "1px solid rgba(79,124,255,0.15)",
+          borderRadius: 16,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "2fr 2fr 2fr 2fr 2fr",
+            padding: "10px 14px",
+            background: "rgba(255,255,255,0.04)",
+            fontSize: 10,
+            fontWeight: 700,
+            color: "rgba(255,255,255,0.4)",
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+          }}
+        >
+          <span>Mes</span>
+          <span style={{ textAlign: "right" }}>Ingresado</span>
+          <span style={{ textAlign: "right" }}>Por cobrar</span>
+          <span style={{ textAlign: "right" }}>Egreso</span>
+          <span style={{ textAlign: "right" }}>Utilidad</span>
+        </div>
+        {meses.map((m, i) => (
+          <div
+            key={i}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "2fr 2fr 2fr 2fr 2fr",
+              padding: "10px 14px",
+              borderTop: "1px solid rgba(255,255,255,0.04)",
+              fontSize: 12,
+              alignItems: "center",
+            }}
+          >
+            <span style={{ color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{m.label}</span>
+            <span style={{ textAlign: "right", color: T.green, fontWeight: 600 }}>
+              {fmt(m.ingresos)}
+            </span>
+            <span style={{ textAlign: "right", color: T.amber }}>{fmt(m.porCobrar)}</span>
+            <span style={{ textAlign: "right", color: T.red }}>{fmt(m.egresos)}</span>
+            <span style={{ textAlign: "right", color: col(m.utilidad), fontWeight: 700 }}>
+              {fmt(m.utilidad)}
+            </span>
+          </div>
+        ))}
+        {/* Total row */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "2fr 2fr 2fr 2fr 2fr",
+            padding: "12px 14px",
+            borderTop: "1px solid rgba(255,255,255,0.12)",
+            fontSize: 12,
+            fontWeight: 800,
+            background: "rgba(255,255,255,0.04)",
+          }}
+        >
+          <span style={{ color: "#fff" }}>TOTAL</span>
+          <span style={{ textAlign: "right", color: T.green }}>{fmt(totales.ingresos)}</span>
+          <span style={{ textAlign: "right", color: T.amber }}>{fmt(totales.porCobrar)}</span>
+          <span style={{ textAlign: "right", color: T.red }}>{fmt(totales.egresos)}</span>
+          <span style={{ textAlign: "right", color: col(totales.utilidad) }}>
+            {fmt(totales.utilidad)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: ReportesProps) {
   const [seccion, setSeccion] = useState(initialSeccion || "resumen");
   const [anio, setAnio] = useState(() => new Date().getFullYear());
