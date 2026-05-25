@@ -26,6 +26,47 @@ interface DelOptions {
   hardDelete?: boolean;
 }
 
+// ── Helpers de URL de Cloudinary ─────────────────────────────────
+// Cloudinary permite aplicar transformaciones en la URL sin re-subir la imagen.
+
+/**
+ * URL para thumbnail pequeño (lista de gastos, preview en form).
+ * ~8-15 KB: WebP, 400px ancho, calidad baja automática.
+ */
+export function cloudinaryThumb(url: string | undefined | null): string {
+  if (!url || !url.includes("cloudinary.com")) return url ?? "";
+  return url.replace("/upload/", "/upload/f_webp,q_auto:low,w_400,c_limit/");
+}
+
+/**
+ * URL para vista de detalle (modal de detalle del gasto).
+ * ~40-80 KB: WebP, 800px ancho, calidad buena automática.
+ */
+export function cloudinaryDetail(url: string | undefined | null): string {
+  if (!url || !url.includes("cloudinary.com")) return url ?? "";
+  return url.replace("/upload/", "/upload/f_webp,q_auto:good,w_800,c_limit/");
+}
+
+/**
+ * URL para PDF (resolución alta para impresión).
+ * ~200-400 KB: formato original, calidad best, 1600px ancho.
+ */
+export function cloudinaryPdf(url: string | undefined | null): string {
+  if (!url || !url.includes("cloudinary.com")) return url ?? "";
+  return url.replace("/upload/", "/upload/q_auto:best,w_1600,c_limit/");
+}
+
+/**
+ * Extrae el publicId de una URL de Cloudinary.
+ * Ej: "https://res.cloudinary.com/mi-cloud/image/upload/v1234/vista360/boletas/abc.jpg"
+ *       → "vista360/boletas/abc"
+ */
+export function cloudinaryPublicId(url: string | undefined | null): string | null {
+  if (!url || !url.includes("cloudinary.com")) return null;
+  const match = url.match(/\/upload\/(?:[^/]+\/)*(?:v\d+\/)?(.+?)(?:\.\w+)?$/);
+  return match ? match[1] : null;
+}
+
 export const fb = {
   async get<T extends FirebaseDoc>(col: ColName): Promise<T[]> {
     try {
@@ -82,18 +123,19 @@ export const fb = {
   },
 
   /**
-   * Sube una imagen a Cloudinary y devuelve la URL segura (formato WebP optimizado).
+   * Sube una imagen a Cloudinary con compresión máxima.
    *
-   * Variables de entorno requeridas en Vercel / .env.local:
-   *   VITE_CLOUDINARY_CLOUD_NAME    — nombre del cloud (ej: "mi-cloud")
-   *   VITE_CLOUDINARY_UPLOAD_PRESET — upload preset sin firmar (ej: "boletas_unsigned")
+   * Variables de entorno requeridas:
+   *   VITE_CLOUDINARY_CLOUD_NAME    — nombre del cloud
+   *   VITE_CLOUDINARY_UPLOAD_PRESET — upload preset sin firmar
    *
-   * El preset debe tener habilitado:
-   *   - Folder: vista360/boletas
-   *   - Incoming transformations: q_auto,f_webp (opcional, mejora velocidad)
+   * La imagen siempre se comprime antes de subir:
+   *   - Máx 1200px de ancho (suficiente para OCR y vista de detalle)
+   *   - JPEG calidad 72% (buen balance texto/tamaño)
+   *   - Cloudinary aplica optimización adicional automática
    */
   async uploadImagen(file: File): Promise<string> {
-    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const cloudName   = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
     if (!cloudName || !uploadPreset) {
@@ -102,16 +144,15 @@ export const fb = {
       );
     }
 
-    // Comprimir imagen antes de subir si es demasiado grande (> 2 MB)
-    const fileToUpload = file.size > 2 * 1024 * 1024 ? await comprimirImagen(file) : file;
+    // Siempre comprimir antes de subir
+    const fileComprimido = await comprimirImagen(file);
 
     const formData = new FormData();
-    formData.append("file", fileToUpload);
+    formData.append("file", fileComprimido);
     formData.append("upload_preset", uploadPreset);
     formData.append("folder", "vista360/boletas");
-    // Transformaciones en Cloudinary: calidad automática + formato WebP
+    // Cloudinary aplica optimización adicional sobre la imagen ya comprimida
     formData.append("quality", "auto");
-    formData.append("fetch_format", "webp");
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 20_000);
@@ -142,11 +183,39 @@ export const fb = {
       throw err;
     }
   },
+
+  /**
+   * Elimina una imagen de Cloudinary vía el backend (necesita API Secret).
+   * No lanza error si falla — la eliminación es best-effort.
+   */
+  async eliminarImagen(fotoUrl: string): Promise<void> {
+    const publicId = cloudinaryPublicId(fotoUrl);
+    if (!publicId) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
+    if (!apiUrl || !apiKey) return;
+
+    try {
+      await fetch(`${apiUrl}/api/cloudinary/delete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": apiKey },
+        body: JSON.stringify({ publicId }),
+        signal: AbortSignal.timeout(8_000),
+      });
+    } catch (e) {
+      // No bloquear flujo principal si falla la eliminación
+      console.warn("[Cloudinary] No se pudo eliminar imagen:", publicId, e);
+    }
+  },
 };
 
 /**
- * Comprime una imagen usando Canvas antes de subir a Cloudinary.
- * Escala a máx 1600px de ancho y aplica calidad JPEG 85%.
+ * Comprime siempre la imagen antes de subir a Cloudinary.
+ * Objetivo: mínimo peso posible manteniendo legibilidad para OCR.
+ *   - Máx 1200px de ancho
+ *   - JPEG calidad 72%
+ *   - Resultado típico: 80-250 KB para una foto de boleta
  */
 async function comprimirImagen(file: File): Promise<File> {
   return new Promise(resolve => {
@@ -154,31 +223,32 @@ async function comprimirImagen(file: File): Promise<File> {
     const url = URL.createObjectURL(file);
 
     img.onload = () => {
-      const MAX_W = 1600;
+      const MAX_W = 1200;
       const scale = img.width > MAX_W ? MAX_W / img.width : 1;
       const canvas = document.createElement("canvas");
-      canvas.width = Math.round(img.width * scale);
+      canvas.width  = Math.round(img.width  * scale);
       canvas.height = Math.round(img.height * scale);
 
       const ctx = canvas.getContext("2d");
       if (!ctx) {
         URL.revokeObjectURL(url);
-        resolve(file); // fallback: subir original
+        resolve(file);
         return;
       }
 
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
+      ctx.imageSmoothingEnabled  = true;
+      ctx.imageSmoothingQuality  = "high";
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(url);
 
       canvas.toBlob(
         blob => {
           if (!blob) { resolve(file); return; }
-          resolve(new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" }));
+          const nombre = file.name.replace(/\.\w+$/, ".jpg");
+          resolve(new File([blob], nombre, { type: "image/jpeg" }));
         },
         "image/jpeg",
-        0.85,
+        0.72,   // 72% — óptimo para texto de boletas
       );
     };
 

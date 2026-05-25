@@ -14,7 +14,7 @@ import {
 import { getAuth, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from "../../../types";
-import { fb } from "../../../services/firestore";
+import { fb, cloudinaryThumb, cloudinaryDetail, cloudinaryPdf } from "../../../services/firestore";
 import { T, tCol, catCol } from "../../../config/theme";
 import { toast, confirmAsync } from "../../../context/UIContext";
 import { fmt, fmtF, dias, mesHoy, mesLabel, hoy, validate, haptic } from "../../../lib/utils";
@@ -619,17 +619,20 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
       [form.concepto, form.proveedor].filter(Boolean).join(" — ") || "Sin descripción"
     ).substring(0, 255);
 
-    // ── Subir foto WebP a Firebase Storage si hay imagen nueva ──
-    // Si hay una imagen nueva escaneada, subirla a Cloudinary (reemplaza la anterior si había)
+    // ── Foto: Cloudinary almacena el archivo, Firestore guarda solo la URL ──
+    // Subir nueva foto a Cloudinary y eliminar la anterior si fue reemplazada
     let fotoUrl = form.fotoUrl || "";
     const archivoNuevo = ocr._file;
     if (archivoNuevo) {
+      const fotoAnterior = fotoUrl; // guardar URL anterior antes de sobreescribir
       try {
-        // uploadImagen ya maneja timeout de 20s internamente
         fotoUrl = await fb.uploadImagen(archivoNuevo);
+        // Eliminar la foto anterior de Cloudinary (best-effort, no bloquea)
+        if (fotoAnterior && fotoAnterior !== fotoUrl) {
+          fb.eliminarImagen(fotoAnterior);
+        }
       } catch (e) {
         console.warn("Foto no subida a Cloudinary:", (e as Error).message);
-        // No bloquear el guardado si la foto falla — el gasto se guarda igual
       }
     }
 
@@ -675,6 +678,11 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
       }))
     )
       return;
+    // Eliminar foto de Cloudinary antes de borrar el documento (best-effort)
+    const gasto = gastos.find(g => g.id === id);
+    if (gasto?.fotoUrl) {
+      fb.eliminarImagen(gasto.fotoUrl as string);
+    }
     await fb.del("gastos", id, { hardDelete: true });
     setGastos(g => g.filter(x => x.id !== id));
     setVistaDetalle(null);
@@ -2097,7 +2105,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                   >
                     {ocr.previewUrl || vistaDetalle.fotoUrl || vistaDetalle.foto_url ? (
                       <img
-                        src={ocr.previewUrl || vistaDetalle.fotoUrl || vistaDetalle.foto_url}
+                        src={ocr.previewUrl || cloudinaryDetail(vistaDetalle.fotoUrl as string) || vistaDetalle.foto_url}
                         alt="boleta"
                         style={{
                           width: "100%",
@@ -2463,7 +2471,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           const DARK = "#0D1B3E",
                             BLUE = "#1A3066",
                             ACC = "#1E4D9B";
-                          const fotoSrc = g.fotoUrl || ocr.previewUrl || "";
+                          const fotoSrc = cloudinaryPdf(g.fotoUrl as string) || ocr.previewUrl || "";
                           // Si hay foto en Cloudinary (URL externa) la incluimos directo; si es blob local también
                           const fotoHtml = fotoSrc
                             ? `

@@ -7,6 +7,7 @@ import * as authCtrl from '../controllers/auth.js'
 import * as factCtrl from '../controllers/facturas.js'
 import * as cliCtrl  from '../controllers/clientes.js'
 import { analizarImagen } from '../controllers/ocr.js'
+import { eliminarImagen } from '../controllers/cloudinary.js'
 
 const router = Router()
 
@@ -23,6 +24,10 @@ const ocrLimit = rateLimit({
   message: { ok: false, error: 'Límite de escaneos alcanzado. Espera 15 minutos.' },
 })
 router.post('/ocr', ocrLimit, authApiKey, analizarImagen)
+
+// ── CLOUDINARY — Eliminación segura de imágenes ───────────────────
+// El frontend no tiene el API Secret; el backend firma la petición
+router.post('/cloudinary/delete', authApiKey, eliminarImagen)
 
 // ── FACTURAS ──────────────────────────────────────────────────────
 router.get ('/facturas',            auth, factCtrl.listar)
