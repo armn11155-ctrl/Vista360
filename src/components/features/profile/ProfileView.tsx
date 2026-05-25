@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import type { User } from "firebase/auth";
-import type { Contrato, Panel, Cliente, Gasto } from "../../../types";
+import type { Gasto } from "../../../types";
 import { T } from "../../../config/theme";
 import { db } from "../../../config/firebase";
 import { collection, getCountFromServer } from "firebase/firestore";
@@ -8,12 +8,7 @@ import { collection, getCountFromServer } from "firebase/firestore";
 interface Props {
   user: User;
   userName: string;
-  contratos: Contrato[];
-  paneles: Panel[];
-  clientes: Cliente[];
   gastos: Gasto[];
-  loading: boolean;
-  error: string | null;
   confirmLogout: boolean;
   setConfirmLogout: (v: boolean) => void;
   onLogout: () => Promise<void>;
@@ -38,9 +33,6 @@ export function FirebaseStatus(_: FirebaseStatusProps) {
 export function ProfileView({
   user,
   userName,
-  contratos,
-  paneles,
-  clientes,
   gastos,
   confirmLogout,
   setConfirmLogout,
@@ -56,7 +48,7 @@ export function ProfileView({
   });
 
   useEffect(() => {
-    getDocs(collection(db, "paneles"))
+    getCountFromServer(collection(db, "paneles"))
       .then(() => setFbStatus("ok"))
       .catch(() => setFbStatus("error"));
   }, []);

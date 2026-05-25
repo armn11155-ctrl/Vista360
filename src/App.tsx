@@ -478,12 +478,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
             <ProfileView
               user={user}
               userName={userName}
-              contratos={contratos.data}
-              paneles={paneles.data}
-              clientes={clientesActive}
               gastos={gastos.data}
-              loading={loading}
-              error={error}
               confirmLogout={confirmLogout}
               setConfirmLogout={setConfirmLogout}
               onLogout={async () => {
