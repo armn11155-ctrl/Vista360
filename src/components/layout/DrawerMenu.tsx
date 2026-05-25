@@ -242,7 +242,7 @@ function DrawerMenu({
         {/* ── Perfil de usuario ── */}
         <button
           onClick={() => {
-            onTabClick("perfil");
+            onTabClick("/perfil");
             onClose();
           }}
           style={{
