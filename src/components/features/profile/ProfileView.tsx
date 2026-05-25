@@ -3,7 +3,14 @@ import type { User } from "firebase/auth";
 import type { Contrato, Panel, Cliente, Gasto } from "../../../types";
 import { T } from "../../../config/theme";
 import { db } from "../../../config/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  calcularUsoFirestore,
+  estimarBytesCloudinary,
+  fmtBytes,
+  FIRESTORE_LIMIT_BYTES,
+  CLOUDINARY_LIMIT_BYTES,
+  type ColStats,
+} from "../../../lib/firestoreSize";
 
 interface Props {
   user: User;
@@ -33,24 +40,7 @@ export function FirebaseStatus(_: FirebaseStatusProps) {
   return null;
 }
 
-function bytesOf(data: unknown[]): number {
-  try {
-    return new TextEncoder().encode(JSON.stringify(data)).length;
-  } catch {
-    return 0;
-  }
-}
-
-function fmtBytes(b: number): string {
-  if (b === 0) return "0 B";
-  if (b < 1024) return `${b} B`;
-  if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)} KB`;
-  return `${(b / 1024 / 1024).toFixed(2)} MB`;
-}
-
-const FIRESTORE_LIMIT = 1 * 1024 * 1024 * 1024; // 1 GB
-const CLOUDINARY_LIMIT = 25 * 1024 * 1024 * 1024; // 25 GB
-const BYTES_PER_PHOTO = 25 * 1024; // ~25 KB WebP
+// Fórmula real de Firestore importada desde lib/firestoreSize.ts
 
 export function ProfileView({
   user,
@@ -78,22 +68,26 @@ export function ProfileView({
       .catch(() => setFbStatus("error"));
   }, []);
 
-  const colStats = useMemo(
-    () =>
-      [
-        { label: "Paneles", emoji: "🖥️", data: paneles, color: "#3B82F6" },
-        { label: "Contratos", emoji: "📋", data: contratos, color: "#22C55E" },
-        { label: "Clientes", emoji: "👥", data: clientes, color: "#A855F7" },
-        { label: "Gastos", emoji: "🧾", data: gastos, color: T.amber },
-      ].map(c => ({ ...c, bytes: bytesOf(c.data), count: c.data.length })),
-    [paneles, contratos, clientes, gastos],
-  );
+  // Cálculo real con fórmula oficial de Firestore
+  const [fsStats, setFsStats] = useState<{
+    cols: ColStats[];
+    totalData: number;
+    totalConIndices: number;
+  } | null>(null);
+  const [fsLoading, setFsLoading] = useState(true);
 
-  const totalBytes = useMemo(() => colStats.reduce((a, c) => a + c.bytes, 0), [colStats]);
+  useEffect(() => {
+    calcularUsoFirestore(db)
+      .then(stats => { setFsStats(stats); setFsLoading(false); })
+      .catch(() => setFsLoading(false));
+  }, []);
 
-  // Cloudinary: count gastos with foto field
-  const fotosCount = useMemo(() => gastos.filter(g => (g as any).foto).length, [gastos]);
-  const cloudBytes = fotosCount * BYTES_PER_PHOTO;
+  const totalBytes  = fsStats?.totalConIndices ?? 0;   // datos + índices automáticos
+  const cloudBytes  = estimarBytesCloudinary(gastos as unknown as Array<Record<string, unknown>>);
+  const fotosCount  = gastos.filter(g => (g as any).fotoUrl || (g as any).foto_url).length;
+
+  // Para las barras por colección
+  const colStats = fsStats?.cols ?? [];
 
   const DARK = "#0E1835";
   const CARD_BG = "#ffffff";
@@ -279,7 +273,7 @@ export function ProfileView({
           >
             <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Total usado</span>
             <span style={{ fontSize: 13, fontWeight: 700, color: "#22C55E" }}>
-              {fmtBytes(totalBytes)}{" "}
+              {fsLoading ? "Calculando…" : fmtBytes(totalBytes)}{" "}
               <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 400 }}>de 1 GB</span>
             </span>
           </div>
@@ -297,12 +291,12 @@ export function ProfileView({
                 height: "100%",
                 borderRadius: 99,
                 background: "linear-gradient(90deg,#22C55E,#3B82F6)",
-                width: `${Math.max(0.5, (totalBytes / FIRESTORE_LIMIT) * 100)}%`,
+                width: `${Math.max(0.5, (totalBytes / FIRESTORE_LIMIT_BYTES) * 100)}%`,
               }}
             />
           </div>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginBottom: 14 }}>
-            {((totalBytes / FIRESTORE_LIMIT) * 100).toFixed(4)}% del límite gratuito
+            {((totalBytes / FIRESTORE_LIMIT_BYTES) * 100).toFixed(4)}% del límite gratuito
           </div>
 
           {/* Collection cards */}
@@ -311,17 +305,17 @@ export function ProfileView({
           >
             {colStats.map(c => (
               <div
-                key={c.label}
+                key={c.nombre}
                 style={{ background: CARD_BG, borderRadius: 14, padding: "14px 14px" }}
               >
                 <div style={{ fontSize: 13, color: T.muted, marginBottom: 6 }}>
-                  {c.emoji} {c.label}
+                  {c.emoji} {c.nombre}
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 800, color: c.color }}>
-                  {fmtBytes(c.bytes)}
+                  {fmtBytes(c.bytesTotal)}
                 </div>
                 <div style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>
-                  {c.count} {c.count === 1 ? "registro" : "registros"}
+                  {c.documentos} {c.documentos === 1 ? "registro" : "registros"}
                 </div>
                 <div
                   style={{
@@ -338,7 +332,7 @@ export function ProfileView({
                       borderRadius: 99,
                       background: c.color,
                       width:
-                        totalBytes > 0 ? `${Math.max(2, (c.bytes / totalBytes) * 100)}%` : "2%",
+                        totalBytes > 0 ? `${Math.max(2, (c.bytesTotal / totalBytes) * 100)}%` : "2%",
                     }}
                   />
                 </div>
@@ -412,12 +406,12 @@ export function ProfileView({
                 height: "100%",
                 borderRadius: 99,
                 background: "linear-gradient(90deg,#F59E0B,#EF4444)",
-                width: `${Math.max(0.5, (cloudBytes / CLOUDINARY_LIMIT) * 100)}%`,
+                width: `${Math.max(0.5, (cloudBytes / CLOUDINARY_LIMIT_BYTES) * 100)}%`,
               }}
             />
           </div>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginBottom: 14 }}>
-            {((cloudBytes / CLOUDINARY_LIMIT) * 100).toFixed(4)}% usado · {fotosCount} fotos de
+            {((cloudBytes / CLOUDINARY_LIMIT_BYTES) * 100).toFixed(4)}% usado · {fotosCount} fotos de
             boletas
           </div>
 
@@ -443,7 +437,7 @@ export function ProfileView({
                 label: "Espacio usado",
                 emoji: "📦",
                 val: fmtBytes(cloudBytes),
-                sub: "estimado · ~25 KB/foto",
+                sub: "estimado · ~150 KB/foto comprimida",
                 color: T.amber,
               },
               {
@@ -455,11 +449,11 @@ export function ProfileView({
               },
             ].map(c => (
               <div
-                key={c.label}
+                key={c.nombre}
                 style={{ background: CARD_BG, borderRadius: 14, padding: "14px 14px" }}
               >
                 <div style={{ fontSize: 13, color: T.muted, marginBottom: 6 }}>
-                  {c.emoji} {c.label}
+                  {c.emoji} {c.nombre}
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 800, color: c.color }}>{c.val}</div>
                 <div style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>{c.sub}</div>
