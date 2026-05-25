@@ -1,5 +1,5 @@
 // @ts-nocheck — legacy file: migrating to strict TypeScript gradually
-import React from "react";
+import React, { useState } from "react";
 import { T } from "../../config/theme";
 
 // ── SKELETON ──────────────────────────────────────────────────────
