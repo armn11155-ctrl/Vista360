@@ -204,14 +204,14 @@ function DrawerMenu({
           aria-hidden="true"
           onClick={onClose}
           style={{
-            position: "absolute",
+            position: "fixed",
             top: 0,
             right: 0,
             bottom: 0,
             left: 0,
             background: "rgba(15,23,41,0.45)",
-            zIndex: 200,
-
+            zIndex: 2000,
+            backdropFilter: "blur(4px)",
             WebkitBackdropFilter: "blur(4px)",
           }}
         />
@@ -222,13 +222,13 @@ function DrawerMenu({
         aria-modal="true"
         aria-label="Menú de navegación"
         style={{
-          position: "absolute",
+          position: "fixed",
           top: 0,
           left: 0,
           bottom: 0,
           width: 300,
           background: T.white,
-          zIndex: 201,
+          zIndex: 2001,
           transform: open ? "translateX(0)" : "translateX(-100%)",
           transition: "transform 0.3s cubic-bezier(.4,0,.2,1)",
           boxShadow: open ? "4px 0 32px rgba(0,0,0,0.12)" : "none",
