@@ -877,7 +877,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
 
 // ── Visible error boundary for AuthenticatedShell ─────────────────
 class ShellErrorBoundary extends Component<{ children: React.ReactNode }, { error: Error | null }> {
-  state = { error: null };
+  state: { error: Error | null } = { error: null };
   static getDerivedStateFromError(e: Error) {
     return { error: e };
   }
