@@ -61,7 +61,10 @@ service cloud.firestore {
       allow read, write: if isAllowed();
     }
     match /facturas/{id} {
-      allow read, write: if isAllowed();
+      // Lectura: solo usuarios en whitelist (Vista360)
+      // Escritura: cualquier usuario autenticado (incluye facturacion-web con auth anónima)
+      allow read: if isAllowed();
+      allow write: if isSignedIn();
     }
     match /sueldos/{id} {
       allow read, write: if isAllowed();
