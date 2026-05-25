@@ -21,7 +21,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
 }))
 
-// Rate limiting: 100 requests / 15 min por IP
+// Rate limiting general: 100 req / 15 min por IP
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -29,6 +29,8 @@ app.use(rateLimit({
 }))
 
 // ── Parsers ───────────────────────────────────────────────────────
+// OCR necesita base64 de imágenes → hasta 12 MB
+app.use('/api/ocr', express.json({ limit: '12mb' }))
 app.use(express.json({ limit: '2mb' }))
 app.use(express.urlencoded({ extended: true }))
 
@@ -64,7 +66,6 @@ app.use((err, req, res, next) => {
 // ── Iniciar servidor ──────────────────────────────────────────────
 async function start() {
   try {
-    // Verificar conexión a base de datos
     const client = await pool.connect()
     await client.query('SELECT NOW()')
     client.release()

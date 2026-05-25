@@ -316,148 +316,78 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
   } = usePagination(delMes, 12);
 
   // ══════════════════════════════════════════════════════════════
-  // 1. PRE-PROCESAMIENTO AVANZADO DE IMAGEN (Canvas)
-  //    Binarización adaptativa + aumento de contraste + escala de grises
-  //    Optimizado para boletas peruanas con fondo grisáceo y sellos
+  // OCR — Proxy seguro al backend (Google Cloud Vision)
+  //   El frontend nunca toca la API Key de Vision.
+  //   La imagen se convierte a base64 y se envía a /api/ocr.
   // ══════════════════════════════════════════════════════════════
-  const preprocesarImagen = async file => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const originalUrl = URL.createObjectURL(file);
-      img.onload = () => {
-        // ── A. Escalar: Tesseract funciona mejor con imágenes ≥ 1800px de ancho
-        const targetW = Math.max(img.width, 1800);
-        const escala = targetW / img.width;
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(img.width * escala);
-        canvas.height = Math.round(img.height * escala);
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          URL.revokeObjectURL(originalUrl);
-          reject(new Error("Canvas 2D no disponible (navegador restringido)"));
-          return;
-        }
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        // ── B. Leer píxeles y aplicar pipeline de preprocesamiento
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        const W = canvas.width,
-          H = canvas.height;
-        const gray = new Uint8Array(W * H);
+  const API_URL = import.meta.env.VITE_API_URL ?? "";
+  const API_KEY = import.meta.env.VITE_API_KEY ?? "";
 
-        // B.1 Convertir a escala de grises — luminancia perceptual ITU-R BT.601
-        for (let i = 0; i < data.length; i += 4) {
-          gray[i / 4] = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
-        }
+  const ocr_con_vision = async (file: File): Promise<string> => {
+    if (!API_URL) {
+      throw new Error(
+        "VITE_API_URL no configurado. Agrega la URL del backend en Vercel.",
+      );
+    }
 
-        // B.2 Binarización adaptativa (ventana local 41×41, offset 10)
-        //     Elimina gradientes de iluminación desigual — clave en fotos de boletas
-        const R = 20; // radio de la ventana
-        const offset = 10;
-        const binarized = new Uint8Array(W * H);
-        for (let y = 0; y < H; y++) {
-          for (let x = 0; x < W; x++) {
-            const idx = y * W + x;
-            // Calcular media local con integral de imagen simplificada
-            let suma = 0,
-              count = 0;
-            const y0 = Math.max(0, y - R),
-              y1 = Math.min(H - 1, y + R);
-            const x0 = Math.max(0, x - R),
-              x1 = Math.min(W - 1, x + R);
-            for (let yy = y0; yy <= y1; yy += 4) {
-              // submuestreo para velocidad
-              for (let xx = x0; xx <= x1; xx += 4) {
-                suma += gray[yy * W + xx];
-                count++;
-              }
-            }
-            const media = count > 0 ? suma / count : 128;
-            // Píxel oscuro (texto) → negro, fondo claro → blanco
-            binarized[idx] = gray[idx] < media - offset ? 0 : 255;
-          }
-        }
-
-        // B.3 Aumento de contraste global (stretch) sobre la imagen binarizada
-        //     Suavizado final para reducir ruido puntual de sellos y marcas
-        for (let i = 0, j = 0; i < data.length; i += 4, j++) {
-          const v = binarized[j];
-          data[i] = v;
-          data[i + 1] = v;
-          data[i + 2] = v;
-          // Alpha sin cambio
-        }
-        ctx.putImageData(imageData, 0, 0);
-
-        canvas.toBlob(
-          blob => {
-            URL.revokeObjectURL(originalUrl);
-            resolve({ blob, previewUrl: canvas.toDataURL("image/jpeg", 0.7) });
-          },
-          "image/jpeg",
-          0.95,
-        );
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(originalUrl);
-        reject(new Error("No se pudo leer la imagen"));
-      };
-      img.src = originalUrl;
-    });
-  };
-
-  // ══════════════════════════════════════════════════════════════
-  // 2. GOOGLE CLOUD VISION — OCR de alta precisión
-  // ══════════════════════════════════════════════════════════════
-  // Google Vision API Key — se lee de Vercel en producción
-  const VISION_KEY = import.meta.env.VITE_GOOGLE_VISION_KEY || "";
-
-  const ocr_con_vision = async file => {
     // Convertir imagen a base64
-    const base64 = await new Promise(resolve => {
+    const base64 = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result.split(",")[1]);
+      reader.onload = e => {
+        const result = (e.target?.result as string).split(",")[1];
+        resolve(result);
+      };
+      reader.onerror = () => reject(new Error("No se pudo leer la imagen"));
       reader.readAsDataURL(file);
     });
 
-    const response = await fetch(
-      `https://vision.googleapis.com/v1/images:annotate?key=${VISION_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          requests: [
-            {
-              image: { content: base64 },
-              features: [{ type: "DOCUMENT_TEXT_DETECTION", maxResults: 1 }],
-              imageContext: { languageHints: ["es", "es-PE"] },
-            },
-          ],
-        }),
-      },
-    );
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 25_000);
 
-    if (!response.ok) throw new Error(`Google Vision error: ${response.status}`);
-    const data = await response.json();
-    if (data.error) throw new Error(data.error.message);
-    const texto = data.responses?.[0]?.fullTextAnnotation?.text || "";
-    if (!texto.trim()) throw new Error("No se detectó texto en la imagen.");
-    return texto;
+    try {
+      const response = await fetch(`${API_URL}/api/ocr`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": API_KEY,
+        },
+        signal: controller.signal,
+        body: JSON.stringify({ image: base64 }),
+      });
+
+      clearTimeout(timer);
+
+      const data = await response.json();
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error ?? `Error del servidor (${response.status})`);
+      }
+
+      return data.text as string;
+    } catch (err) {
+      clearTimeout(timer);
+      if ((err as Error).name === "AbortError") {
+        throw new Error("Timeout: el escaneo tardó más de 25s. Intenta con mejor conexión.");
+      }
+      throw err;
+    }
   };
 
-  // ══════════════════════════════════════════════════════════════
-  // 3. PIPELINE PRINCIPAL DE ESCANEO
-  // ══════════════════════════════════════════════════════════════
-  const escanear = async file => {
+  // ── Pipeline principal de escaneo ──────────────────────────────
+  const escanear = async (file: File) => {
     if (!file) return;
+
+    if (!API_URL) {
+      toast.error("OCR no configurado. Contacta al administrador.");
+      return;
+    }
+
     const imgUrl = URL.createObjectURL(file);
     setOcr({
       loading: true,
-      progress: 20,
-      fase: "Analizando con Google Cloud Vision...",
+      progress: 15,
+      fase: "Enviando imagen al servidor...",
       text: "",
       imgUrl,
       previewUrl: imgUrl,
@@ -465,29 +395,29 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
     });
 
     try {
-      // Enviar directamente a Google Vision sin preprocesamiento local
+      setOcr(o => ({ ...o, progress: 40, fase: "Analizando con Google Cloud Vision..." }));
       const textoRaw = await ocr_con_vision(file);
-      setOcr(o => ({ ...o, progress: 80, fase: "Texto extraído ✓ — Procesando datos..." }));
 
-      if (!textoRaw || textoRaw.trim().length < 8)
-        throw new Error("No se detectó texto. Verifica iluminación y enfoque.");
+      setOcr(o => ({ ...o, progress: 75, fase: "Texto extraído ✓ — Procesando datos..." }));
 
-      // Extracción inteligente
-      setOcr(o => ({ ...o, progress: 95, fase: "Extrayendo datos estructurados..." }));
+      if (!textoRaw || textoRaw.trim().length < 8) {
+        throw new Error("Texto muy corto. Verifica iluminación y enfoque.");
+      }
+
+      setOcr(o => ({ ...o, progress: 92, fase: "Extrayendo datos estructurados..." }));
       const datosExtraidos = extraerDatosInteligente(textoRaw);
 
       setOcr(o => ({
         ...o,
         loading: false,
         progress: 100,
-        fase: "✓ Completado con Google Vision",
+        fase: "✓ Completado",
         text: textoRaw,
         imgUrl,
         previewUrl: imgUrl,
         _file: file,
       }));
 
-      // ── Fase 4: Rellenar formulario ───────────────────────────
       setForm(f => ({
         ...f,
         proveedor: datosExtraidos.proveedor || f.proveedor,
@@ -499,13 +429,16 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
         subtotal: datosExtraidos.subtotal ? String(datosExtraidos.subtotal) : f.subtotal,
         categoria: datosExtraidos.categoria !== "Otro" ? datosExtraidos.categoria : f.categoria,
         moneda: datosExtraidos.moneda || f.moneda || "PEN",
-        foto_texto: textoRaw,
+        // Guardar solo los primeros 500 chars para no inflar Firestore
+        foto_texto: textoRaw.substring(0, 500),
       }));
     } catch (e) {
       setOcr(o => ({ ...o, loading: false, progress: 0, fase: "" }));
-      toast.error("Error OCR: " + e.message);
+      toast.error("Error OCR: " + (e as Error).message);
     }
   };
+
+
 
   // ══════════════════════════════════════════════════════════════
   // 4. EXTRACCIÓN INTELIGENTE CON REGEX — El núcleo del sistema
@@ -672,7 +605,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
   };
 
   // ══════════════════════════════════════════════════════════════
-  // 5. GUARDAR / ACTUALIZAR EN SUPABASE
+  // GUARDAR / ACTUALIZAR EN FIRESTORE + CLOUDINARY
   // ══════════════════════════════════════════════════════════════
   const guardar = async () => {
     const gastoErr = validate.gasto({
@@ -713,7 +646,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
       igv: Number(String(form.igv || "0").replace(/[^0-9.]/g, "")) || 0,
       subtotal: Number(String(form.subtotal || "0").replace(/[^0-9.]/g, "")) || 0,
       notas: form.notas || "",
-      foto_texto: form.foto_texto || "",
+      foto_texto: (form.foto_texto || "").substring(0, 500),
       fotoUrl,
       moneda: form.moneda || "PEN",
     };

@@ -1,52 +1,53 @@
 import { Router } from 'express'
 import { authJWT, authApiKey, auth, soloAdmin } from '../middleware/auth.js'
+import rateLimit from 'express-rate-limit'
 
 // Controllers
-import * as authCtrl    from '../controllers/auth.js'
-import * as factCtrl    from '../controllers/facturas.js'
-import * as cliCtrl     from '../controllers/clientes.js'
+import * as authCtrl from '../controllers/auth.js'
+import * as factCtrl from '../controllers/facturas.js'
+import * as cliCtrl  from '../controllers/clientes.js'
+import { analizarImagen } from '../controllers/ocr.js'
 
 const router = Router()
 
 // ── AUTH ──────────────────────────────────────────────────────────
-router.post('/auth/login',            authCtrl.login)
-router.get ('/auth/me',               authJWT, authCtrl.me)
-router.post('/auth/api-keys',         authJWT, soloAdmin, authCtrl.generarApiKey)
+router.post('/auth/login',          authCtrl.login)
+router.get ('/auth/me',             authJWT, authCtrl.me)
+router.post('/auth/api-keys',       authJWT, soloAdmin, authCtrl.generarApiKey)
 
-// ── FACTURAS (requiere JWT o API Key) ─────────────────────────────
-router.get ('/facturas',              auth, factCtrl.listar)
-router.get ('/facturas/:id',          auth, factCtrl.obtener)
-router.post('/facturas',              authJWT, factCtrl.crear)
-router.post('/facturas/:id/emitir',   authJWT, factCtrl.emitir)
-router.post('/facturas/:id/cobrar',   authJWT, factCtrl.cobrar)
-router.post('/facturas/:id/anular',   authJWT, factCtrl.anular)
+// ── OCR — Proxy seguro a Google Cloud Vision ──────────────────────
+// Rate limit estricto: 30 req / 15 min por IP (costo real de API)
+const ocrLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { ok: false, error: 'Límite de escaneos alcanzado. Espera 15 minutos.' },
+})
+router.post('/ocr', ocrLimit, authApiKey, analizarImagen)
+
+// ── FACTURAS ──────────────────────────────────────────────────────
+router.get ('/facturas',            auth, factCtrl.listar)
+router.get ('/facturas/:id',        auth, factCtrl.obtener)
+router.post('/facturas',            authJWT, factCtrl.crear)
+router.post('/facturas/:id/emitir', authJWT, factCtrl.emitir)
+router.post('/facturas/:id/cobrar', authJWT, factCtrl.cobrar)
+router.post('/facturas/:id/anular', authJWT, factCtrl.anular)
 
 // ── CLIENTES ──────────────────────────────────────────────────────
-router.get ('/clientes',              auth, cliCtrl.listar)
-router.post('/clientes',              authJWT, cliCtrl.crear)
-router.put ('/clientes/:id',          authJWT, cliCtrl.actualizar)
+router.get ('/clientes',            auth, cliCtrl.listar)
+router.post('/clientes',            authJWT, cliCtrl.crear)
+router.put ('/clientes/:id',        authJWT, cliCtrl.actualizar)
 
-// ── VISTA360 — Endpoints específicos para la app ──────────────────
-// Vista360 solo necesita leer estado de facturas por firebase_id del panel/cliente
-router.get('/vista360/facturas',      authApiKey, async (req, res) => {
+// ── VISTA360 — Facturas por panel/cliente ─────────────────────────
+router.get('/vista360/facturas', authApiKey, async (req, res) => {
   try {
     const { panel_firebase_id, cliente_firebase_id, estado, limit = 20 } = req.query
     const conditions = ['f.deleted = false']
     const params = []
     let i = 1
 
-    if (panel_firebase_id) {
-      conditions.push(`p.firebase_id = $${i++}`)
-      params.push(panel_firebase_id)
-    }
-    if (cliente_firebase_id) {
-      conditions.push(`c.firebase_id = $${i++}`)
-      params.push(cliente_firebase_id)
-    }
-    if (estado) {
-      conditions.push(`f.estado = $${i++}`)
-      params.push(estado)
-    }
+    if (panel_firebase_id) { conditions.push(`p.firebase_id = $${i++}`); params.push(panel_firebase_id) }
+    if (cliente_firebase_id) { conditions.push(`c.firebase_id = $${i++}`); params.push(cliente_firebase_id) }
+    if (estado) { conditions.push(`f.estado = $${i++}`); params.push(estado) }
 
     const { rows } = await query(
       `SELECT f.id, f.numero_fmt, f.tipo_doc, f.estado, f.sunat_estado,
@@ -62,7 +63,6 @@ router.get('/vista360/facturas',      authApiKey, async (req, res) => {
        LIMIT $${i}`,
       [...params, parseInt(limit)]
     )
-
     res.json({ ok: true, data: rows })
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message })
@@ -94,8 +94,7 @@ router.get('/reportes/resumen', auth, async (req, res) => {
 
     const { rows: topClientes } = await query(
       `SELECT
-        cliente_nombre,
-        cliente_doc,
+        cliente_nombre, cliente_doc,
         COUNT(*) AS comprobantes,
         SUM(total) AS total_facturado,
         SUM(total) FILTER (WHERE estado IN ('Cobrada','Pagada')) AS total_cobrado

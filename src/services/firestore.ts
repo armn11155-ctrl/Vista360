@@ -42,14 +42,12 @@ export const fb = {
     }
   },
 
-  /** Crea un documento y devuelve el objeto recién creado con su id. */
   async post<T extends FirebaseDoc>(col: ColName, body: Omit<T, "id" | "createdAt">): Promise<T> {
     const payload = { ...body, createdAt: serverTimestamp() };
     const ref = await addDoc(collection(db, col), payload);
     return { ...body, id: ref.id, createdAt: Timestamp.now() } as unknown as T;
   },
 
-  /** Actualiza campos de un documento y devuelve el objeto parcialmente actualizado. */
   async patch<T extends FirebaseDoc>(
     col: ColName,
     id: string,
@@ -68,7 +66,7 @@ export const fb = {
   },
 
   subscribe<T extends FirebaseDoc>(
-    col: ColName,
+    col: string,
     onData: (items: T[]) => void,
     onErr?: (e: unknown) => void,
   ): () => void {
@@ -84,10 +82,15 @@ export const fb = {
   },
 
   /**
-   * Sube una imagen a Cloudinary y devuelve la URL segura.
-   * Requiere las variables de entorno:
-   *   VITE_CLOUDINARY_CLOUD_NAME   — nombre del cloud (ej: "mi-cloud")
+   * Sube una imagen a Cloudinary y devuelve la URL segura (formato WebP optimizado).
+   *
+   * Variables de entorno requeridas en Vercel / .env.local:
+   *   VITE_CLOUDINARY_CLOUD_NAME    — nombre del cloud (ej: "mi-cloud")
    *   VITE_CLOUDINARY_UPLOAD_PRESET — upload preset sin firmar (ej: "boletas_unsigned")
+   *
+   * El preset debe tener habilitado:
+   *   - Folder: vista360/boletas
+   *   - Incoming transformations: q_auto,f_webp (opcional, mejora velocidad)
    */
   async uploadImagen(file: File): Promise<string> {
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -99,24 +102,91 @@ export const fb = {
       );
     }
 
+    // Comprimir imagen antes de subir si es demasiado grande (> 2 MB)
+    const fileToUpload = file.size > 2 * 1024 * 1024 ? await comprimirImagen(file) : file;
+
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", fileToUpload);
     formData.append("upload_preset", uploadPreset);
     formData.append("folder", "vista360/boletas");
+    // Transformaciones en Cloudinary: calidad automática + formato WebP
+    formData.append("quality", "auto");
+    formData.append("fetch_format", "webp");
 
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-      method: "POST",
-      body: formData,
-    });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20_000);
 
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(
-        `Cloudinary error ${res.status}: ${(err as any).error?.message ?? res.statusText}`,
-      );
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: "POST",
+        body: formData,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timer);
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(
+          `Cloudinary error ${res.status}: ${(err as { error?: { message?: string } }).error?.message ?? res.statusText}`,
+        );
+      }
+
+      const data = (await res.json()) as { secure_url: string };
+      return data.secure_url;
+    } catch (err) {
+      clearTimeout(timer);
+      if ((err as Error).name === "AbortError") {
+        throw new Error("Timeout: la subida de la foto tardó más de 20s. Intenta de nuevo.");
+      }
+      throw err;
     }
-
-    const data = await res.json();
-    return data.secure_url as string;
   },
 };
+
+/**
+ * Comprime una imagen usando Canvas antes de subir a Cloudinary.
+ * Escala a máx 1600px de ancho y aplica calidad JPEG 85%.
+ */
+async function comprimirImagen(file: File): Promise<File> {
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      const MAX_W = 1600;
+      const scale = img.width > MAX_W ? MAX_W / img.width : 1;
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        URL.revokeObjectURL(url);
+        resolve(file); // fallback: subir original
+        return;
+      }
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+
+      canvas.toBlob(
+        blob => {
+          if (!blob) { resolve(file); return; }
+          resolve(new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" }));
+        },
+        "image/jpeg",
+        0.85,
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(file);
+    };
+
+    img.src = url;
+  });
+}
