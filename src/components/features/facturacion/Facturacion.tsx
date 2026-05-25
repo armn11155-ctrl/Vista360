@@ -48,6 +48,21 @@ import {
 } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
 
+// ── Constantes de estados de factura ──
+const EST_FAC = ["Borrador", "Emitida", "Aceptada", "Pendiente", "Cobrada", "Pagada", "Vencida", "Anulada", "Rechazada"];
+
+const EST_FAC_COL: Record<string, string> = {
+  Borrador:   "#94A3B8",
+  Emitida:    "#2563EB",
+  Aceptada:   "#0891B2",
+  Pendiente:  "#F59E0B",
+  Cobrada:    "#10B981",
+  Pagada:     "#10B981",
+  Vencida:    "#EF4444",
+  Anulada:    "#64748B",
+  Rechazada:  "#EF4444",
+};
+
 function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetalleFacturaProps) {
   // Cliente: prefiere campos directos del API, cae a lookup en CRM por ID
   const cli = factura.cliente_nombre
