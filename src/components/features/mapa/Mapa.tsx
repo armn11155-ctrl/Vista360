@@ -302,9 +302,20 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
             Cargando mapa...
           </div>
         )}
+        <style>{`
+          .leaflet-pane, .leaflet-top, .leaflet-bottom, .leaflet-control { z-index: auto !important; }
+          .leaflet-map-pane { z-index: auto !important; }
+        `}</style>
         <div
           ref={mapRef}
-          style={{ height: 560, width: "100%", display: leafletReady ? "block" : "none" }}
+          style={{
+            height: 560,
+            width: "100%",
+            display: leafletReady ? "block" : "none",
+            isolation: "isolate",
+            position: "relative",
+            zIndex: 0,
+          }}
         />
 
         {/* ── Panel de detalle al hacer clic en un pin ── */}
