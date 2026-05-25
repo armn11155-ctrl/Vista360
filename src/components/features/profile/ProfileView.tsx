@@ -429,11 +429,8 @@ export function ProfileView({
             </svg>
           </a>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>
-            {fotosCount} foto{fotosCount !== 1 ? "s" : ""} de boletas · ~150 KB/foto comprimida</div
-                <div style={{ fontSize: 20, fontWeight: 800, color: c.color }}>{c.val}</div>
-                <div style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>{c.sub}</div>
-              </div>
-            ))}
+            {fotosCount} foto{fotosCount !== 1 ? "s" : ""} de boletas · ~150 KB/foto comprimida
+          </div>
           </div>
 
           <div
