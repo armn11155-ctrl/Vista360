@@ -7,10 +7,13 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  query,
+  orderBy,
   serverTimestamp,
   onSnapshot,
   Timestamp,
 } from "firebase/firestore";
+import { db } from "../../../config/firebase";
 import { getAuth, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from "../../../types";
@@ -738,33 +741,14 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
 // ══════════════════════════════════════════════════════════════════
 // 🧾 FACTURACIÓN — VISOR DE SOLO LECTURA
 // ──────────────────────────────────────────────────────────────────
-// Esta vista NO crea ni edita comprobantes. Solo MUESTRA los que tu
-// sistema de facturación externo ya emitió. Lee desde:
-//   • API externa (cuando FACTURACION_API.enabled = true)
-//   • Firebase "facturas" como fallback de prueba
+// Vista360 NO crea ni edita comprobantes.
+// Solo muestra lo que facturacion-web guardó en Firestore.
+// Ambas apps comparten el mismo proyecto Firebase.
 // ──────────────────────────────────────────────────────────────────
-// ── Config desde variables de entorno de Vercel ──
-const FACTURACION_API = {
-  enabled: !!import.meta.env.VITE_FACTURACION_API_URL,
-  endpoint: import.meta.env.VITE_FACTURACION_API_URL || "",
-  token: import.meta.env.VITE_FACTURACION_API_KEY || "",
-  rucEmisor: EMISOR.ruc,
-};
 
-// ── Carga facturas: API externa → Firebase fallback ──
+// ── Lee facturas desde Firestore (compartido con facturacion-web) ──
 async function fetchFacturas(): Promise<Factura[]> {
-  if (FACTURACION_API.enabled && FACTURACION_API.endpoint) {
-    const res = await fetch(`${FACTURACION_API.endpoint}/api/vista360/facturas?limit=100`, {
-      headers: { "x-api-key": FACTURACION_API.token },
-    });
-    if (!res.ok) throw new Error(`API Facturación error ${res.status}`);
-    const json = await res.json();
-    return (json.data ?? []) as Factura[];
-  }
-  // Fallback: leer desde colección Firebase "facturas"
-  const { getDocs: _getDocs, collection: _col } = await import("firebase/firestore");
-  const { db: _db } = await import("../../../config/firebase");
-  const snap = await _getDocs(_col(_db, "facturas"));
+  const snap = await getDocs(query(collection(db, "facturas"), orderBy("fecha_emision", "desc")));
   return snap.docs.map(d => ({ id: d.id, ...d.data() })) as unknown as Factura[];
 }
 
@@ -780,7 +764,7 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
   const [busqueda, setBusqueda] = useState("");
   const [vista, setVista] = useState("lista");
 
-  const conectado = FACTURACION_API.enabled && FACTURACION_API.endpoint;
+  const conectado = true; // siempre conectado via Firebase
 
   // ── Cargar comprobantes desde fuente activa ──
   const cargar = useCallback(async () => {
