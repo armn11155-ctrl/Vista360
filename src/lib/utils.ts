@@ -9,6 +9,7 @@ export const dias = (f: string): number =>
   Math.ceil((new Date(f).getTime() - hoy().getTime()) / 86400000);
 export const fmt = (n: number | null | undefined): string =>
   `S/ ${Number(n || 0).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+export const fmtS2 = fmt; // alias: formato S/ con 2 decimales
 export const fmtF = (s: string | null | undefined): string =>
   s
     ? new Date(s).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
