@@ -458,11 +458,13 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
             overflowX: "hidden",
             overscrollBehavior: "none",
             touchAction: "pan-y",
-            background: ["contratos", "capital"].some(s => location.pathname.includes(s))
-              ? "#0E1A3B"
-              : location.pathname === "/mapa"
-                ? "#070D1C"
-                : T.bg,
+            background: showProfile
+              ? "#ffffff"
+              : ["contratos", "capital"].some(s => location.pathname.includes(s))
+                ? "#0E1A3B"
+                : location.pathname === "/mapa"
+                  ? "#070D1C"
+                  : T.bg,
             position: "relative",
           }}
         >
