@@ -540,7 +540,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             style={{
               fontSize: 11,
               fontWeight: 700,
-              color: "rgba(255,255,255,0.45)",
+              color: "#64748B",
               textTransform: "uppercase",
               letterSpacing: "0.06em",
             }}
@@ -560,9 +560,9 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
               width: 86,
               padding: "5px 10px",
               borderRadius: 10,
-              border: "1.5px solid rgba(79,124,255,0.4)",
-              background: "rgba(30,52,200,0.18)",
-              color: "#93C5FD",
+              border: "1.5px solid rgba(37,99,235,0.35)",
+              background: "rgba(37,99,235,0.08)",
+              color: "#1E40AF",
               fontWeight: 800,
               fontSize: 14,
               textAlign: "center" as const,
@@ -592,7 +592,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             style={{
               fontSize: 11,
               fontWeight: 700,
-              color: "rgba(255,255,255,0.45)",
+              color: "#64748B",
               textTransform: "uppercase",
               letterSpacing: "0.06em",
             }}
@@ -612,15 +612,15 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
               padding: "5px 10px",
               borderRadius: 10,
               border: "1.5px solid rgba(79,124,255,0.3)",
-              background: "rgba(255,255,255,0.07)",
-              color: mesFilter ? "#93C5FD" : "rgba(255,255,255,0.35)",
+              background: "#F1F5F9",
+              color: mesFilter ? "#1E40AF" : "#94A3B8",
               fontSize: 12,
               outline: "none",
               cursor: "pointer",
               fontFamily: "inherit",
             }}
           />
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>o rango</span>
+          <span style={{ fontSize: 11, color: "#94A3B8" }}>o rango</span>
           <input
             type="date"
             value={fechaDesde}
@@ -633,8 +633,8 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
               padding: "5px 10px",
               borderRadius: 10,
               border: "1.5px solid rgba(79,124,255,0.3)",
-              background: "rgba(255,255,255,0.07)",
-              color: fechaDesde ? "#93C5FD" : "rgba(255,255,255,0.35)",
+              background: "#F1F5F9",
+              color: fechaDesde ? "#1E40AF" : "#94A3B8",
               fontSize: 12,
               outline: "none",
               cursor: "pointer",
@@ -653,8 +653,8 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
               padding: "5px 10px",
               borderRadius: 10,
               border: "1.5px solid rgba(79,124,255,0.3)",
-              background: "rgba(255,255,255,0.07)",
-              color: fechaHasta ? "#93C5FD" : "rgba(255,255,255,0.35)",
+              background: "#F1F5F9",
+              color: fechaHasta ? "#1E40AF" : "#94A3B8",
               fontSize: 12,
               outline: "none",
               cursor: "pointer",
@@ -1696,17 +1696,17 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                       ? "linear-gradient(135deg,rgba(16,185,129,0.28),rgba(5,150,105,0.18))"
                       : tieneData
                         ? "rgba(79,124,255,0.1)"
-                        : "rgba(255,255,255,0.03)",
+                        : "rgba(255,255,255,0.08)",
                     border: esHoy
                       ? "1px solid rgba(16,185,129,0.45)"
                       : tieneData
                         ? "1px solid rgba(79,124,255,0.2)"
-                        : "1px solid rgba(255,255,255,0.05)",
+                        : "1px solid rgba(255,255,255,0.14)",
                     transition: "background .08s",
                   }}
                 >
                   <div
-                    style={{ fontSize: 9.5, fontWeight: 800, color: "#FFFFFF", letterSpacing: 0.4 }}
+                    style={{ fontSize: 9.5, fontWeight: 800, color: esHoy ? "#fff" : tieneData ? "#BDD5FF" : "rgba(180,210,255,0.72)", letterSpacing: 0.4 }}
                   >
                     {mShort}
                   </div>
@@ -1813,3 +1813,4 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
 // ══════════════════════════════════════════════════════════════════
 
 export default Reportes;
+
