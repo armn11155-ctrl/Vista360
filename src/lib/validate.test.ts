@@ -37,8 +37,8 @@ describe("validate.monto", () => {
 // ── validate.ruc ──────────────────────────────────────────────────
 describe("validate.ruc", () => {
   it("retorna null para RUC válido (empresa)", () => {
-    // RUC 20 conocido válido: 20100070970 (Telefónica del Perú)
-    expect(validate.ruc("20100070970")).toBeNull();
+    // RUC 20 válido: dígito verificador calculado = 1, por lo tanto termina en 1
+    expect(validate.ruc("20100070971")).toBeNull();
   });
 
   it("retorna null para RUC válido (persona natural)", () => {
@@ -59,7 +59,7 @@ describe("validate.ruc", () => {
   });
 
   it("rechaza dígito verificador incorrecto", () => {
-    expect(validate.ruc("20100070971")).not.toBeNull(); // último dígito cambiado
+    expect(validate.ruc("20100070970")).not.toBeNull(); // último dígito correcto es 1, no 0
   });
 
   it("retorna null para valor undefined (campo opcional)", () => {
