@@ -20,15 +20,21 @@ interface BottomTabBarProps {
  * Barra de navegación inferior de la PWA.
  * Extraído de AuthenticatedShell — reduce ~120 líneas de JSX inline.
  */
-export function BottomTabBar({ tabs, icons, showProfile, onTabClick, onAddClick }: BottomTabBarProps) {
-  const navigate     = useNavigate();
+export function BottomTabBar({
+  tabs,
+  icons,
+  showProfile,
+  onTabClick,
+  onAddClick,
+}: BottomTabBarProps) {
+  const navigate = useNavigate();
   const { pathname } = useLocation();
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, tabId: string) => {
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
       e.preventDefault();
-      const idx  = NAV_TAB_IDS.indexOf(tabId);
+      const idx = NAV_TAB_IDS.indexOf(tabId);
       if (idx === -1) return;
       const next =
         e.key === "ArrowRight"
@@ -88,7 +94,12 @@ export function BottomTabBar({ tabs, icons, showProfile, onTabClick, onAddClick 
                   }}
                 >
                   <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                    <path
+                      d="M12 5V19M5 12H19"
+                      stroke="white"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 </button>
               </div>
@@ -96,7 +107,7 @@ export function BottomTabBar({ tabs, icons, showProfile, onTabClick, onAddClick 
           }
 
           const routePath = t.id === "hoy" ? "/" : `/${t.id}`;
-          const active    = !showProfile && pathname === routePath;
+          const active = !showProfile && pathname === routePath;
 
           return (
             <button
