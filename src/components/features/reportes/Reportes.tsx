@@ -465,13 +465,13 @@ interface ResultadosProps {
 
 function Resultados({ contratos, paneles, clientes, gastos, loading }: ResultadosProps) {
   const [anio, setAnio] = useState(() => new Date().getFullYear());
-  const [mesFilter, setMesFilter] = useState<string>("");
-  const [fechaDesde, setFechaDesde] = useState<string>("");
-  const [fechaHasta, setFechaHasta] = useState<string>("");
-  const tieneFiltroDeFecha = mesFilter || fechaDesde || fechaHasta;
-  const anos = [anio - 1, anio, anio + 1].filter(a => a <= new Date().getFullYear());
+  const [mesFilter, setMesFilter] = useState<string>(""); // "YYYY-MM"
+  const [fechaDesde, setFechaDesde] = useState<string>(""); // "YYYY-MM-DD"
+  const [fechaHasta, setFechaHasta] = useState<string>(""); // "YYYY-MM-DD"
+  const tieneFiltroDeFecha = !!(mesFilter || fechaDesde || fechaHasta);
 
-  const meses = useMemo(() => {
+  // Todos los meses del año seleccionado
+  const todosLosMeses = useMemo(() => {
     return Array.from({ length: 12 }, (_, i) => {
       const m = `${anio}-${String(i + 1).padStart(2, "0")}`;
       const ctrsMes = contratos.filter(
@@ -485,6 +485,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
         .filter(g => (g.fecha || "").startsWith(m))
         .reduce((a, g) => a + Number(g.monto || 0), 0);
       return {
+        mes: m,
         label: new Date(m + "-02").toLocaleDateString("es-PE", { month: "short" }).toUpperCase(),
         ingresos,
         porCobrar,
@@ -493,6 +494,17 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
       };
     });
   }, [contratos, gastos, anio]);
+
+  // Meses filtrados según período seleccionado
+  const meses = useMemo(() => {
+    if (!tieneFiltroDeFecha) return todosLosMeses;
+    return todosLosMeses.filter(m => {
+      if (mesFilter) return m.mes === mesFilter;
+      if (fechaDesde && m.mes < fechaDesde.slice(0, 7)) return false;
+      if (fechaHasta && m.mes > fechaHasta.slice(0, 7)) return false;
+      return true;
+    });
+  }, [todosLosMeses, mesFilter, fechaDesde, fechaHasta, tieneFiltroDeFecha]);
 
   const totales = useMemo(
     () => ({
