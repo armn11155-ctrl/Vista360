@@ -1,22 +1,24 @@
-import type { ReactNode } from "react";
+import type { User } from "firebase/auth";
 import { T } from "../../config/theme";
 import { EMISOR } from "../../config/constants";
-import type { User } from "firebase/auth";
 
 interface AppHeaderProps {
   title: string;
   user: User | null;
   userName: string;
   onProfileClick: () => void;
-  onSearchClick?: () => void;
-  onNotifClick?: () => void;
+  onSearchClick: () => void;
+  onNotifClick: () => void;
+  onDrawerClick: () => void;
   notifCount?: number;
-  rightSlot?: ReactNode;
+  headerColor?: string;
+  headerDark?: boolean;
+  showProfile?: boolean;
 }
 
 /**
  * Barra superior de la app autenticada.
- * Extraído de AuthenticatedShell para reducir su tamaño.
+ * Extraído de AuthenticatedShell — reduce ~150 líneas de JSX inline.
  */
 export function AppHeader({
   title,
@@ -25,183 +27,173 @@ export function AppHeader({
   onProfileClick,
   onSearchClick,
   onNotifClick,
+  onDrawerClick,
   notifCount = 0,
-  rightSlot,
+  headerColor = T.bg,
+  headerDark = false,
+  showProfile = false,
 }: AppHeaderProps) {
-  const initials = userName
+  void user; // photo URL available for future use
+
+  const userInitials = userName
     .split(" ")
-    .map(w => w[0])
+    .map(w => w[0] ?? "")
     .slice(0, 2)
     .join("")
     .toUpperCase();
 
-  const photoURL =
-    user?.photoURL ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=2563EB&color=fff&size=64&bold=true`;
-
   return (
-    <div
+    <nav
+      aria-label="Encabezado principal"
       style={{
+        flexShrink: 0,
+        paddingTop: "env(safe-area-inset-top)",
+        paddingLeft: 16,
+        paddingRight: 16,
+        paddingBottom: 12,
+        background: headerColor,
+        borderBottom: headerDark ? "none" : `1px solid rgba(229,231,235,0.8)`,
         display: "flex",
         alignItems: "center",
-        padding: "12px 16px",
-        background: T.bg,
-        borderBottom: `1px solid ${T.border}`,
-        gap: 12,
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        backdropFilter: "blur(8px)",
+        gap: 10,
       }}
     >
-      {/* Título / logo */}
+      {/* Drawer toggle */}
+      <button
+        onClick={onDrawerClick}
+        aria-label="Abrir menú"
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: 12,
+          background: headerDark ? "rgba(255,255,255,0.10)" : T.text,
+          border: headerDark ? "1px solid rgba(255,255,255,0.14)" : "none",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          boxShadow: headerDark ? "none" : "0 4px 12px rgba(15,23,41,0.18)",
+          cursor: "pointer",
+        }}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="3"  y="3"  width="8" height="8" rx="2" fill="white" />
+          <rect x="13" y="3"  width="8" height="8" rx="2" fill="white" />
+          <rect x="3"  y="13" width="8" height="8" rx="2" fill="white" />
+          <rect x="13" y="13" width="8" height="8" rx="2" fill="white" />
+        </svg>
+      </button>
+
+      {/* Title */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontSize: 16,
-            fontWeight: 800,
-            color: T.text,
-            letterSpacing: "-0.3px",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            fontSize: 15,
+            fontWeight: 700,
+            color: headerDark ? "#fff" : T.text,
+            lineHeight: 1.1,
           }}
         >
           {title}
         </div>
-        <div style={{ fontSize: 10, color: T.muted, marginTop: 1 }}>
-          {EMISOR.ruc} · {EMISOR.ciudad}
-        </div>
       </div>
 
-      {/* Slot personalizable (e.g. botón de acción) */}
-      {rightSlot}
-
-      {/* Búsqueda */}
-      {onSearchClick && (
+      <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+        {/* Search */}
         <button
           onClick={onSearchClick}
           aria-label="Buscar"
           style={{
-            width: 36,
-            height: 36,
-            borderRadius: 12,
-            border: "none",
-            background: "rgba(37,99,235,0.06)",
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            background: headerDark ? "rgba(255,255,255,0.10)" : T.white,
+            border: headerDark ? "1px solid rgba(255,255,255,0.14)" : `1px solid ${T.border}`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
-            flexShrink: 0,
           }}
         >
-          <svg
-            width="17"
-            height="17"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke={T.muted}
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
+            <path
+              d="M21 21L15 15M17 11C17 14.866 13.866 18 10 18C6.134 18 3 14.866 3 11C3 7.134 6.134 4 10 4C13.866 4 17 7.134 17 11Z"
+              stroke={headerDark ? "#fff" : T.text}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
-      )}
 
-      {/* Notificaciones */}
-      {onNotifClick && (
+        {/* Notifications */}
         <button
           onClick={onNotifClick}
-          aria-label={`Notificaciones${notifCount > 0 ? ` (${notifCount})` : ""}`}
+          aria-label="Notificaciones"
           style={{
-            position: "relative",
-            width: 36,
-            height: 36,
-            borderRadius: 12,
-            border: "none",
-            background: "rgba(37,99,235,0.06)",
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            background: headerDark ? "rgba(255,255,255,0.10)" : T.white,
+            border: headerDark ? "1px solid rgba(255,255,255,0.14)" : `1px solid ${T.border}`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            position: "relative",
             cursor: "pointer",
-            flexShrink: 0,
           }}
         >
-          <svg
-            width="17"
-            height="17"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke={T.muted}
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
-            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 01-3.46 0" />
+          <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
+            <path
+              d="M15 17H9M15 17C15 18.657 13.657 20 12 20C10.343 20 9 18.657 9 17M15 17H20L18.784 15.784C18.284 15.284 18 14.612 18 13.914V10C18 7.239 15.761 5 13 5H11C8.239 5 6 7.239 6 10V13.914C6 14.612 5.716 15.284 5.216 15.784L4 17H9"
+              stroke={headerDark ? "#fff" : T.text}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
           {notifCount > 0 && (
-            <span
+            <div
+              aria-label={`${notifCount} notificaciones`}
               style={{
                 position: "absolute",
-                top: 5,
-                right: 5,
+                top: 7,
+                right: 7,
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
                 background: T.red,
-                border: "1.5px solid white",
+                border: `2px solid ${T.white}`,
               }}
             />
           )}
         </button>
-      )}
 
-      {/* Avatar usuario */}
-      <button
-        onClick={onProfileClick}
-        aria-label="Perfil"
-        style={{
-          flexShrink: 0,
-          border: "none",
-          background: "none",
-          padding: 0,
-          cursor: "pointer",
-        }}
-      >
-        {user?.photoURL ? (
-          <img
-            src={photoURL}
-            alt={userName}
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: "50%",
-              border: `2px solid ${T.accent}`,
-              display: "block",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: "50%",
-              background: `linear-gradient(135deg,${T.accent},#1D4ED8)`,
-              border: `2px solid ${T.accent}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 12,
-              fontWeight: 800,
-              color: "#fff",
-            }}
-          >
-            {initials}
-          </div>
-        )}
-      </button>
-    </div>
+        {/* Avatar */}
+        <button
+          onClick={onProfileClick}
+          aria-label="Ver perfil"
+          aria-current={showProfile ? "page" : undefined}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 60%, #2A5BD9 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+            fontWeight: 800,
+            fontSize: 13,
+            border: showProfile ? `2px solid ${T.accent}` : "2px solid transparent",
+            boxShadow: "0 4px 12px rgba(30,58,138,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
+            letterSpacing: "0.5px",
+            cursor: "pointer",
+          }}
+        >
+          {userInitials}
+        </button>
+      </div>
+    </nav>
   );
 }
