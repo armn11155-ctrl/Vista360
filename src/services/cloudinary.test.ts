@@ -5,9 +5,17 @@
 import { describe, it, expect, vi } from "vitest";
 
 vi.mock("firebase/firestore", () => ({
-  collection: vi.fn(), getDocs: vi.fn(), addDoc: vi.fn(), updateDoc: vi.fn(),
-  deleteDoc: vi.fn(), doc: vi.fn(), query: vi.fn(), orderBy: vi.fn(),
-  onSnapshot: vi.fn(), serverTimestamp: vi.fn(), Timestamp: { now: vi.fn() },
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  addDoc: vi.fn(),
+  updateDoc: vi.fn(),
+  deleteDoc: vi.fn(),
+  doc: vi.fn(),
+  query: vi.fn(),
+  orderBy: vi.fn(),
+  onSnapshot: vi.fn(),
+  serverTimestamp: vi.fn(),
+  Timestamp: { now: vi.fn() },
 }));
 vi.mock("../config/firebase", () => ({ db: {} }));
 
