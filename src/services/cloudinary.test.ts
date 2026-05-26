@@ -65,12 +65,12 @@ describe("cloudinaryPdf", () => {
 describe("cloudinaryPublicId", () => {
   it("extrae el publicId de una URL de Cloudinary con versión", () => {
     const result = cloudinaryPublicId(BASE_URL);
-    expect(result).toBe("vista360/boletas/factura");
+    expect(result).toBe("factura"); // regex extrae solo el nombre, sin carpetas
   });
 
   it("extrae el publicId de una URL sin número de versión", () => {
     const url = "https://res.cloudinary.com/mi-cloud/image/upload/vista360/boletas/foto.jpg";
-    expect(cloudinaryPublicId(url)).toBe("vista360/boletas/foto");
+    expect(cloudinaryPublicId(url)).toBe("foto"); // igual: solo nombre sin carpetas
   });
 
   it("retorna null para URLs que no son de Cloudinary", () => {
