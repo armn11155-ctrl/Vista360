@@ -1,61 +1,65 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 
 const { useOnlineStatus } = await import("./useOnlineStatus");
 
 describe("useOnlineStatus", () => {
-  const addEventListener    = vi.spyOn(window, "addEventListener");
-  const removeEventListener = vi.spyOn(window, "removeEventListener");
-
   beforeEach(() => {
-    vi.clearAllMocks();
-    addEventListener.mockImplementation(() => {});
-    removeEventListener.mockImplementation(() => {});
-  });
-
-  afterEach(() => {
     vi.restoreAllMocks();
   });
 
   it("devuelve true cuando navigator.onLine es true", () => {
-    Object.defineProperty(navigator, "onLine", { value: true, configurable: true });
+    Object.defineProperty(navigator, "onLine", { value: true, configurable: true, writable: true });
     const { result } = renderHook(() => useOnlineStatus());
     expect(result.current).toBe(true);
   });
 
   it("devuelve false cuando navigator.onLine es false", () => {
-    Object.defineProperty(navigator, "onLine", { value: false, configurable: true });
+    Object.defineProperty(navigator, "onLine", { value: false, configurable: true, writable: true });
     const { result } = renderHook(() => useOnlineStatus());
     expect(result.current).toBe(false);
   });
 
   it("registra listeners online/offline al montar", () => {
-    Object.defineProperty(navigator, "onLine", { value: true, configurable: true });
+    const addSpy = vi.spyOn(window, "addEventListener");
+    Object.defineProperty(navigator, "onLine", { value: true, configurable: true, writable: true });
     renderHook(() => useOnlineStatus());
-    expect(addEventListener).toHaveBeenCalledWith("online",  expect.any(Function));
-    expect(addEventListener).toHaveBeenCalledWith("offline", expect.any(Function));
+    expect(addSpy).toHaveBeenCalledWith("online",  expect.any(Function));
+    expect(addSpy).toHaveBeenCalledWith("offline", expect.any(Function));
   });
 
   it("elimina listeners al desmontar", () => {
-    Object.defineProperty(navigator, "onLine", { value: true, configurable: true });
+    const removeSpy = vi.spyOn(window, "removeEventListener");
+    Object.defineProperty(navigator, "onLine", { value: true, configurable: true, writable: true });
     const { unmount } = renderHook(() => useOnlineStatus());
     unmount();
-    expect(removeEventListener).toHaveBeenCalledWith("online",  expect.any(Function));
-    expect(removeEventListener).toHaveBeenCalledWith("offline", expect.any(Function));
+    expect(removeSpy).toHaveBeenCalledWith("online",  expect.any(Function));
+    expect(removeSpy).toHaveBeenCalledWith("offline", expect.any(Function));
   });
 
-  it("actualiza estado al disparar evento online", () => {
-    Object.defineProperty(navigator, "onLine", { value: false, configurable: true });
-    let onlineHandler: EventListener | undefined;
-    addEventListener.mockImplementation((event: string, handler: EventListener) => {
-      if (event === "online") onlineHandler = handler;
-    });
+  it("actualiza a true al disparar evento online", () => {
+    Object.defineProperty(navigator, "onLine", { value: false, configurable: true, writable: true });
     const { result } = renderHook(() => useOnlineStatus());
     expect(result.current).toBe(false);
+
     act(() => {
-      Object.defineProperty(navigator, "onLine", { value: true, configurable: true });
-      onlineHandler?.(new Event("online"));
+      Object.defineProperty(navigator, "onLine", { value: true, configurable: true, writable: true });
+      window.dispatchEvent(new Event("online"));
     });
+
     expect(result.current).toBe(true);
+  });
+
+  it("actualiza a false al disparar evento offline", () => {
+    Object.defineProperty(navigator, "onLine", { value: true, configurable: true, writable: true });
+    const { result } = renderHook(() => useOnlineStatus());
+    expect(result.current).toBe(true);
+
+    act(() => {
+      Object.defineProperty(navigator, "onLine", { value: false, configurable: true, writable: true });
+      window.dispatchEvent(new Event("offline"));
+    });
+
+    expect(result.current).toBe(false);
   });
 });
