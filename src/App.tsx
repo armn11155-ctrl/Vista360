@@ -28,6 +28,8 @@ import { useOnlineStatus } from "./hooks/useOnlineStatus";
 import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 import { TabSuspense, SkDarkCard } from "./components/shared/AppSkeletons";
 import { BTM_ICONS } from "./components/layout/BottomTabIcons";
+import { AppHeader } from "./components/layout/AppHeader";
+import { BottomTabBar } from "./components/layout/BottomTabBar";
 import { ProfileView } from "./components/features/profile/ProfileView";
 
 // ── Carga eager (crítica para el primer render) ───────────────────
@@ -355,154 +357,19 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
       {!isOnline && <OfflineBanner />}
       <div className={styles.appRoot} style={{ background: T.bg, color: T.text }}>
         {/* ── TOP NAV ── */}
-        <nav
-          aria-label="Encabezado principal"
-          style={{
-            flexShrink: 0,
-            paddingTop: "env(safe-area-inset-top)",
-            paddingLeft: 16,
-            paddingRight: 16,
-            paddingBottom: 12,
-            background: headerColor,
-            borderBottom: headerDark ? "none" : `1px solid rgba(229,231,235,0.8)`,
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-          }}
-        >
-          <button
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Abrir menú"
-            aria-expanded={drawerOpen}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 12,
-              background: headerDark ? "rgba(255,255,255,0.10)" : T.text,
-              border: headerDark ? "1px solid rgba(255,255,255,0.14)" : "none",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              boxShadow: headerDark ? "none" : "0 4px 12px rgba(15,23,41,0.18)",
-            }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="3" width="8" height="8" rx="2" fill="white" />
-              <rect x="13" y="3" width="8" height="8" rx="2" fill="white" />
-              <rect x="3" y="13" width="8" height="8" rx="2" fill="white" />
-              <rect x="13" y="13" width="8" height="8" rx="2" fill="white" />
-            </svg>
-          </button>
-
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div
-              style={{
-                fontSize: 15,
-                fontWeight: 700,
-                color: headerDark ? "#fff" : T.text,
-                lineHeight: 1.1,
-              }}
-            >
-              {showProfile ? "Perfil" : (TAB_TITLES[location.pathname] ?? "Vista360")}
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-            {/* Search */}
-            <button
-              onClick={() => setGlobalSearch(true)}
-              aria-label="Buscar"
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                background: headerDark ? "rgba(255,255,255,0.10)" : T.white,
-                border: headerDark ? "1px solid rgba(255,255,255,0.14)" : `1px solid ${T.border}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
-                <path
-                  d="M21 21L15 15M17 11C17 14.866 13.866 18 10 18C6.134 18 3 14.866 3 11C3 7.134 6.134 4 10 4C13.866 4 17 7.134 17 11Z"
-                  stroke={headerDark ? "#fff" : T.text}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-
-            {/* Notifications */}
-            <button
-              onClick={() => setNotifOpen(v => !v)}
-              aria-label="Notificaciones"
-              aria-expanded={notifOpen}
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                background: headerDark ? "rgba(255,255,255,0.10)" : T.white,
-                border: headerDark ? "1px solid rgba(255,255,255,0.14)" : `1px solid ${T.border}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                position: "relative",
-              }}
-            >
-              <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
-                <path
-                  d="M15 17H9M15 17C15 18.657 13.657 20 12 20C10.343 20 9 18.657 9 17M15 17H20L18.784 15.784C18.284 15.284 18 14.612 18 13.914V10C18 7.239 15.761 5 13 5H11C8.239 5 6 7.239 6 10V13.914C6 14.612 5.716 15.284 5.216 15.784L4 17H9"
-                  stroke={headerDark ? "#fff" : T.text}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              {notifCount > 0 && (
-                <div
-                  aria-label={`${notifCount} notificaciones`}
-                  style={{
-                    position: "absolute",
-                    top: 7,
-                    right: 7,
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    background: T.red,
-                    border: `2px solid ${T.white}`,
-                  }}
-                />
-              )}
-            </button>
-
-            {/* Avatar */}
-            <button
-              onClick={() => handleTabClick("/perfil")}
-              aria-label="Ver perfil"
-              aria-current={showProfile ? "page" : undefined}
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 60%, #2A5BD9 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#fff",
-                fontWeight: 800,
-                fontSize: 13,
-                border: showProfile ? `2px solid ${T.accent}` : "2px solid transparent",
-                boxShadow: "0 4px 12px rgba(30,58,138,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
-                letterSpacing: "0.5px",
-              }}
-            >
-              {userInitials}
-            </button>
-          </div>
-        </nav>
+        <AppHeader
+          title={showProfile ? "Perfil" : (TAB_TITLES[location.pathname] ?? "Vista360")}
+          user={user}
+          userName={userName}
+          onProfileClick={() => handleTabClick("/perfil")}
+          onSearchClick={() => setGlobalSearch(true)}
+          onNotifClick={() => setNotifOpen(v => !v)}
+          notifCount={notifCount}
+          headerColor={headerColor}
+          headerDark={headerDark}
+          onDrawerClick={() => setDrawerOpen(true)}
+          showProfile={showProfile}
+        />
 
         {/* ── CONTENIDO ── */}
         <main
@@ -757,135 +624,16 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
 
         {/* ── BOTTOM TAB BAR ── */}
         {!anyModalOpen && (
-          <div
-            style={{
-              position: "fixed",
-              bottom: "calc(env(safe-area-inset-bottom) + 4px)",
-              left: 12,
-              right: 12,
-              zIndex: 100,
-              pointerEvents: "none",
-            }}
-          >
-            <div
-              role="tablist"
-              aria-label="Navegación principal"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "6px 6px",
-                maxWidth: 480,
-                margin: "0 auto",
-                pointerEvents: "auto",
-                background: T.white,
-                border: "1px solid rgba(229,231,235,0.9)",
-                borderRadius: 28,
-                boxShadow: "0 8px 28px rgba(15,23,41,0.14), 0 2px 8px rgba(15,23,41,0.06)",
-              }}
-            >
-              {BOTTOM_TABS_LIST.map(t => {
-                if (t.id === "__add__")
-                  return (
-                    <div key="add" style={{ flex: 1, display: "flex", justifyContent: "center" }}>
-                      <button
-                        aria-label="Registrar gasto rápido"
-                        onClick={() => {
-                          setAutoScan(true);
-                          navigate("/gastos");
-                        }}
-                        style={{
-                          width: 54,
-                          height: 54,
-                          borderRadius: "50%",
-                          background: "linear-gradient(180deg, #0E1A3B 0%, #15265A 100%)",
-                          border: "3px solid rgba(255,255,255,0.95)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          boxShadow:
-                            "0 8px 24px rgba(37,99,235,0.42), 0 2px 8px rgba(37,99,235,0.2)",
-                          marginTop: -28,
-                        }}
-                      >
-                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                          <path
-                            d="M12 5V19M5 12H19"
-                            stroke="white"
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  );
-
-                const routePath = t.id === "hoy" ? "/" : `/${t.id}`;
-                const active = !showProfile && location.pathname === routePath;
-
-                return (
-                  <button
-                    key={t.id}
-                    role="tab"
-                    aria-selected={active}
-                    aria-label={t.label}
-                    tabIndex={active ? 0 : -1}
-                    onClick={() => {
-                      setShowProfile(false);
-                      navigate(routePath);
-                    }}
-                    onKeyDown={e => {
-                      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-                      e.preventDefault();
-                      const idx = NAV_TAB_IDS.indexOf(t.id);
-                      if (idx === -1) return;
-                      const next =
-                        e.key === "ArrowRight"
-                          ? NAV_TAB_IDS[(idx + 1) % NAV_TAB_IDS.length]
-                          : NAV_TAB_IDS[(idx - 1 + NAV_TAB_IDS.length) % NAV_TAB_IDS.length];
-                      navigate(next === "hoy" ? "/" : `/${next}`);
-                    }}
-                    style={{
-                      flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 3,
-                      background: active ? "rgba(37,99,235,0.08)" : "none",
-                      border: "none",
-                      color: active ? T.accent : "#9CA3AF",
-                      padding: "6px 4px",
-                      minHeight: 48,
-                      borderRadius: 18,
-                      margin: "0 2px",
-                      transition: "background 0.18s ease, color 0.18s ease",
-                    }}
-                  >
-                    <div
-                      style={{
-                        transition: "transform 0.18s cubic-bezier(.34,1.56,.64,1)",
-                        transform: active ? "scale(1.12)" : "scale(1)",
-                      }}
-                    >
-                      {BTM_ICONS[t.id]}
-                    </div>
-                    <span
-                      style={{
-                        fontSize: 10,
-                        fontWeight: active ? 700 : 500,
-                        letterSpacing: active ? "0.01em" : 0,
-                      }}
-                    >
-                      {t.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <BottomTabBar
+            tabs={BOTTOM_TABS_LIST}
+            icons={BTM_ICONS}
+            showProfile={showProfile}
+            onTabClick={path => handleTabClick(path)}
+            onAddClick={() => { setAutoScan(true); navigate("/gastos"); }}
+          />
         )}
 
-        {/* ── OVERLAYS ── */}
+                {/* ── OVERLAYS ── */}
         <NotifPanel
           open={notifOpen}
           onClose={() => setNotifOpen(false)}
