@@ -17,7 +17,7 @@ import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from
 import { fb } from "../../../services/firestore";
 import { T, tCol, catCol } from "../../../config/theme";
 import { toast, confirmAsync } from "../../../context/UIContext";
-import { fmt, fmtF, dias, mesHoy, mesLabel, hoy, validate, haptic } from "../../../lib/utils";
+import { fmt, fmtS2, fmtF, dias, mesHoy, mesLabel, hoy, validate, haptic } from "../../../lib/utils";
 import { toNumber, toDate } from "../../../lib/converters";
 import {
   CIUDADES,
