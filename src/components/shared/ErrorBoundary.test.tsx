@@ -10,8 +10,12 @@ function Bomb({ shouldThrow = false }: { shouldThrow?: boolean }) {
 
 // Silenciar console.error durante los tests de error boundary
 const originalError = console.error;
-beforeEach(() => { console.error = vi.fn(); });
-afterEach(() => { console.error = originalError; });
+beforeEach(() => {
+  console.error = vi.fn();
+});
+afterEach(() => {
+  console.error = originalError;
+});
 
 describe("ErrorBoundary", () => {
   it("renderiza children cuando no hay error", () => {
