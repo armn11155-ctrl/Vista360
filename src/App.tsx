@@ -629,11 +629,14 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
             icons={BTM_ICONS}
             showProfile={showProfile}
             onTabClick={path => handleTabClick(path)}
-            onAddClick={() => { setAutoScan(true); navigate("/gastos"); }}
+            onAddClick={() => {
+              setAutoScan(true);
+              navigate("/gastos");
+            }}
           />
         )}
 
-                {/* ── OVERLAYS ── */}
+        {/* ── OVERLAYS ── */}
         <NotifPanel
           open={notifOpen}
           onClose={() => setNotifOpen(false)}
