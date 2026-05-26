@@ -3,6 +3,8 @@ import React, { useState, useMemo, useEffect, useCallback, useRef } from "react"
 import {
   collection,
   getDocs,
+  getDoc,
+  setDoc,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -11,7 +13,7 @@ import {
   onSnapshot,
   Timestamp,
 } from "firebase/firestore";
-import { getAuth, signOut } from "firebase/auth";
+import { db } from "../../../config/firebase";
 import type { User } from "firebase/auth";
 import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from "../../../types";
 import { fb } from "../../../services/firestore";
@@ -25,7 +27,6 @@ import {
   dias,
   mesHoy,
   mesLabel,
-  hoy,
   validate,
   haptic,
 } from "../../../lib/utils";
@@ -495,7 +496,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
     });
   if (ingMes > gastosMes * 1.5)
     insights.push({
-      icon: "ok",
+      icon: "◆",
       text: "Flujo positivo: ingresas más del doble de lo que gastas",
       color: "#60A5FA",
     });
@@ -771,7 +772,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
               color: "#93C5FD",
               bg: "rgba(59,130,246,0.08)",
               border: "rgba(59,130,246,0.15)",
-              icon: "pend",
+              icon: "◇",
             },
             {
               label: "Neto libre",
@@ -779,7 +780,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
               color: "#fff",
               bg: "rgba(255,255,255,0.05)",
               border: "rgba(255,255,255,0.09)",
-              icon: "ok",
+              icon: "◆",
             },
           ].map(({ label, value, color, bg, border, icon }) => (
             <div
