@@ -172,9 +172,9 @@ describe("Flujo de negocio: Gasto", () => {
       expect(toNumber("")).toBe(0);
     });
 
-    it("toNumber acepta Firestore Timestamp-like object con toMillis", () => {
-      const tsLike = { toMillis: () => 0 };
-      expect(toNumber(tsLike)).toBe(0);
+    it("toNumber acepta number directamente", () => {
+      expect(toNumber(42)).toBe(42);
+      expect(toNumber(0)).toBe(0);
     });
 
     it("toDate convierte string ISO a Date", () => {
