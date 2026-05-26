@@ -14,7 +14,7 @@ import type { User } from "firebase/auth";
 
 import { auth } from "./config/firebase";
 import { T } from "./config/theme";
-import { ALLOWED_EMAILS, BOTTOM_TABS_LIST, NAV_TAB_IDS } from "./config/constants";
+import { ALLOWED_EMAILS, BOTTOM_TABS_LIST } from "./config/constants";
 import { ToastProvider } from "./context/UIContext";
 import { AppProvider } from "./context/AppContext";
 import type { AppDerivedData } from "./context/AppContext";
