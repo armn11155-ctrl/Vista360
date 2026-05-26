@@ -465,6 +465,10 @@ interface ResultadosProps {
 
 function Resultados({ contratos, paneles, clientes, gastos, loading }: ResultadosProps) {
   const [anio, setAnio] = useState(() => new Date().getFullYear());
+  const [mesFilter, setMesFilter] = useState<string>("");
+  const [fechaDesde, setFechaDesde] = useState<string>("");
+  const [fechaHasta, setFechaHasta] = useState<string>("");
+  const tieneFiltroDeFecha = mesFilter || fechaDesde || fechaHasta;
   const anos = [anio - 1, anio, anio + 1].filter(a => a <= new Date().getFullYear());
 
   const meses = useMemo(() => {
@@ -781,10 +785,6 @@ function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: Repo
   const [seccion, setSeccion] = useState(initialSeccion || "resumen");
   const [anio, setAnio] = useState(() => new Date().getFullYear());
   const [modalFactura, setModalFactura] = useState<Factura | null>(null);
-  const [mesFilter, setMesFilter] = useState<string>(""); // "YYYY-MM" o ""
-  const [fechaDesde, setFechaDesde] = useState<string>(""); // "YYYY-MM-DD"
-  const [fechaHasta, setFechaHasta] = useState<string>(""); // "YYYY-MM-DD"
-  const tieneFiltroDeFecha = mesFilter || fechaDesde || fechaHasta;
 
   // ── Datos por año ─────────────────────────────────────────────
   const mesesAnio = useMemo(() => {
@@ -812,47 +812,15 @@ function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: Repo
     });
   }, [contratos, gastos, anio]);
 
-  // Meses filtrados según selección de fecha
-  const mesesFiltrados = useMemo(() => {
-    if (!tieneFiltroDeFecha) return mesesAnio;
-    return mesesAnio.filter(m => {
-      if (mesFilter && m.mes !== mesFilter) return false;
-      if (fechaDesde && m.mes < fechaDesde.slice(0, 7)) return false;
-      if (fechaHasta && m.mes > fechaHasta.slice(0, 7)) return false;
-      return true;
-    });
-  }, [mesesAnio, mesFilter, fechaDesde, fechaHasta, tieneFiltroDeFecha]);
-
-  // Contratos y gastos filtrados por rango de fecha
-  const contratosFiltrados = useMemo(() => {
-    if (!tieneFiltroDeFecha) return contratos;
-    return contratos.filter(c => {
-      if (mesFilter) return c.inicio?.slice(0, 7) <= mesFilter && c.fin?.slice(0, 7) >= mesFilter;
-      if (fechaDesde && c.fin && c.fin < fechaDesde) return false;
-      if (fechaHasta && c.inicio && c.inicio > fechaHasta) return false;
-      return true;
-    });
-  }, [contratos, mesFilter, fechaDesde, fechaHasta, tieneFiltroDeFecha]);
-
-  const gastosFiltrados = useMemo(() => {
-    if (!tieneFiltroDeFecha) return gastos;
-    return gastos.filter(g => {
-      if (mesFilter) return g.fecha?.startsWith(mesFilter);
-      if (fechaDesde && g.fecha && g.fecha < fechaDesde) return false;
-      if (fechaHasta && g.fecha && g.fecha > fechaHasta) return false;
-      return true;
-    });
-  }, [gastos, mesFilter, fechaDesde, fechaHasta, tieneFiltroDeFecha]);
-
   const maxIngreso = Math.max(...mesesAnio.map(m => m.ingTotal), 1);
 
   const kpis = useMemo(() => {
-    const totalIngPagado = mesesFiltrados.reduce((a, m) => a + m.ingPagado, 0);
-    const totalIngTotal = mesesFiltrados.reduce((a, m) => a + m.ingTotal, 0);
-    const totalGastos = mesesFiltrados.reduce((a, m) => a + m.gastosMes, 0);
+    const totalIngPagado = mesesAnio.reduce((a, m) => a + m.ingPagado, 0);
+    const totalIngTotal = mesesAnio.reduce((a, m) => a + m.ingTotal, 0);
+    const totalGastos = mesesAnio.reduce((a, m) => a + m.gastosMes, 0);
     const totalUtilidad = totalIngPagado - totalGastos;
     const pendiente = totalIngTotal - totalIngPagado;
-    const mesTop = [...mesesFiltrados].sort((a, b) => b.ingPagado - a.ingPagado)[0];
+    const mesTop = [...mesesAnio].sort((a, b) => b.ingPagado - a.ingPagado)[0];
     return { totalIngPagado, totalIngTotal, totalGastos, totalUtilidad, pendiente, mesTop };
   }, [mesesAnio]);
 
