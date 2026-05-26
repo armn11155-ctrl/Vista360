@@ -15,9 +15,6 @@ interface Props {
 }
 
 interface FirebaseStatusProps {
-  contratos: Contrato[];
-  paneles: Panel[];
-  clientes: Cliente[];
   gastos: Gasto[];
   fbConnected: boolean;
   fbLoading: boolean;
