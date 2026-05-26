@@ -15,21 +15,27 @@ interface BottomTabBarProps {
   onAddClick: () => void;
 }
 
-const NAV_TAB_IDS = ["hoy","paneles","contratos","gastos","capital","reportes","mapa"];
+const NAV_TAB_IDS = ["hoy", "paneles", "contratos", "gastos", "capital", "reportes", "mapa"];
 
 /**
  * Barra de navegación inferior de la PWA.
  * Extraído de AuthenticatedShell para reducir su tamaño.
  */
-export function BottomTabBar({ tabs, icons, showProfile, onTabClick, onAddClick }: BottomTabBarProps) {
-  const navigate    = useNavigate();
+export function BottomTabBar({
+  tabs,
+  icons,
+  showProfile,
+  onTabClick,
+  onAddClick,
+}: BottomTabBarProps) {
+  const navigate = useNavigate();
   const { pathname } = useLocation();
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, tabId: string) => {
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
       e.preventDefault();
-      const idx  = NAV_TAB_IDS.indexOf(tabId);
+      const idx = NAV_TAB_IDS.indexOf(tabId);
       if (idx === -1) return;
       const next =
         e.key === "ArrowRight"
@@ -67,7 +73,7 @@ export function BottomTabBar({ tabs, icons, showProfile, onTabClick, onAddClick 
           boxShadow: "0 8px 28px rgba(15,23,41,0.14), 0 2px 8px rgba(15,23,41,0.06)",
         }}
       >
-        {tabs.map((t) => {
+        {tabs.map(t => {
           if (t.id === "__add__") {
             return (
               <div key="add" style={{ flex: 1, display: "flex", justifyContent: "center" }}>
@@ -89,7 +95,12 @@ export function BottomTabBar({ tabs, icons, showProfile, onTabClick, onAddClick 
                   }}
                 >
                   <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                    <path
+                      d="M12 5V19M5 12H19"
+                      stroke="white"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 </button>
               </div>
@@ -97,7 +108,7 @@ export function BottomTabBar({ tabs, icons, showProfile, onTabClick, onAddClick 
           }
 
           const routePath = t.id === "hoy" ? "/" : `/${t.id}`;
-          const active    = !showProfile && pathname === routePath;
+          const active = !showProfile && pathname === routePath;
 
           return (
             <button
@@ -107,7 +118,7 @@ export function BottomTabBar({ tabs, icons, showProfile, onTabClick, onAddClick 
               aria-label={t.label}
               tabIndex={active ? 0 : -1}
               onClick={() => onTabClick(routePath)}
-              onKeyDown={(e) => handleKeyDown(e, t.id)}
+              onKeyDown={e => handleKeyDown(e, t.id)}
               style={{
                 flex: 1,
                 display: "flex",
