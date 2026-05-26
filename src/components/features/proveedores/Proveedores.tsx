@@ -1,4 +1,3 @@
-// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import React, {
   useState,
   useMemo,
@@ -28,7 +27,6 @@ import {
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
-import type { User } from "firebase/auth";
 
 // ── Tipos e interfaces ────────────────────────────────────────────
 import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from "../../../types";
@@ -37,36 +35,27 @@ import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from
 import { fb } from "../../../services/firestore";
 import { T, tCol, catCol } from "../../../config/theme";
 import { toast, confirmAsync } from "../../../context/UIContext";
-import { fmt, fmtF, dias, mesHoy, mesLabel, hoy, validate, haptic } from "../../../lib/utils";
+import { fmt, validate } from "../../../lib/utils";
 import { toNumber, toDate } from "../../../lib/converters";
-import {
-  CIUDADES,
-  CAT_GASTOS,
-  CAT_PROVE,
-  SECTORES,
-  ESTADOS_CLI,
-  ESTADOS_PRO,
-  EMOJIS,
-  EMISOR,
-} from "../../../config/constants";
+import { CIUDADES, CAT_PROVE } from "../../../config/constants";
 
 // ── Componentes UI ────────────────────────────────────────────────
-import {
-  Modal,
-  FieldGroup,
-  Badge,
-  Tag,
-  Card,
-  SecTit,
-  PgTit,
-  Pagination,
-  Spinner,
-  SwipeRow,
-  SkCard,
-  SkPulse,
-} from "../../ui";
+import { Pagination, SwipeRow } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
 import { useVirtualList } from "../../../hooks/useVirtualList";
+
+
+// ── Tipos locales ──────────────────────────────────────────────────
+interface ProveedorForm {
+  empresa: string;
+  categoria: string;
+  contacto: string;
+  celular: string;
+  email: string;
+  ruc: string;
+  ciudad: string;
+  notas: string;
+}
 
 function Proveedores({ proveedores, setProveedores, loading, onModalChange }: ProveedoresProps) {
   const [modal, setModal] = useState<Partial<Proveedor> | null>(null);
