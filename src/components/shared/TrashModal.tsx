@@ -237,9 +237,7 @@ function TrashModal({
               color: "#6B7280",
               fontSize: 16,
             }}
-          >
-            ✕
-          </button>
+          ></button>
         </div>
 
         {/* Sub-tabs */}
@@ -472,8 +470,7 @@ function TrashModal({
         {/* Footer info */}
         <div style={{ padding: "10px 16px 8px", borderTop: "1px solid #F1F3F8", flexShrink: 0 }}>
           <div style={{ fontSize: 11, color: "#9CA3AF", textAlign: "center", lineHeight: 1.5 }}>
-            🔄 Restaurar devuelve el elemento a su sección · 🗑️ Eliminar es permanente e
-            irreversible
+            Restaurar devuelve el elemento a su sección · ️ Eliminar es permanente e irreversible
           </div>
         </div>
       </div>
@@ -640,7 +637,7 @@ const DRAWER_ICONS = {
 };
 
 // ══════════════════════════════════════════════════════════════════
-// 🔍 BÚSQUEDA GLOBAL
+// BÚSQUEDA GLOBAL
 // ══════════════════════════════════════════════════════════════════
 
 export default TrashModal;

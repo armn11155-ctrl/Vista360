@@ -112,7 +112,7 @@ function BusquedaGlobal({
     return g;
   }, [resultados]);
 
-  const iconoPor = { panel: "📡", cliente: "🏢", contrato: "📄" };
+  const iconoPor = { panel: "Panel", cliente: "Cliente", contrato: "Contrato" };
   const labelPor = { panel: "Paneles", cliente: "Clientes", contrato: "Contratos" };
 
   if (!open) return null;

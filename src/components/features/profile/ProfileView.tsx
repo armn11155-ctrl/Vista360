@@ -52,13 +52,13 @@ export function ProfileView({
 
   // ── Conteo REAL de documentos por colección (exacto, via SDK) ──
   const COLS_VISTA360 = [
-    { nombre: "paneles", emoji: "🖥️", color: "#3B82F6" },
-    { nombre: "contratos", emoji: "📋", color: "#22C55E" },
-    { nombre: "clientes", emoji: "👥", color: "#A855F7" },
-    { nombre: "gastos", emoji: "🧾", color: T.amber },
-    { nombre: "proveedores", emoji: "🏢", color: "#EC4899" },
-    { nombre: "facturas", emoji: "📄", color: "#06B6D4" },
-    { nombre: "sueldos", emoji: "💰", color: "#10B981" },
+    { nombre: "paneles", emoji: "", color: "#3B82F6" },
+    { nombre: "contratos", emoji: "", color: "#22C55E" },
+    { nombre: "clientes", emoji: "", color: "#A855F7" },
+    { nombre: "gastos", emoji: "", color: T.amber },
+    { nombre: "proveedores", emoji: "", color: "#EC4899" },
+    { nombre: "facturas", emoji: "", color: "#06B6D4" },
+    { nombre: "sueldos", emoji: "", color: "#10B981" },
   ] as const;
 
   const [docCounts, setDocCounts] = useState<Record<string, number>>({});
@@ -185,9 +185,7 @@ export function ProfileView({
               justifyContent: "center",
               fontSize: 22,
             }}
-          >
-            🔥
-          </div>
+          ></div>
           <div>
             <div style={{ fontSize: 17, fontWeight: 800, color: "#fff" }}>Firebase & Alertas</div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>
@@ -228,10 +226,10 @@ export function ProfileView({
               }}
             >
               {fbStatus === "ok"
-                ? "✅ Firebase conectado"
+                ? " Firebase conectado"
                 : fbStatus === "error"
-                  ? "❌ Error de conexión"
-                  : "⏳ Verificando…"}
+                  ? " Error de conexión"
+                  : " Verificando…"}
             </span>
           </div>
           {fbStatus === "ok" && (
@@ -253,7 +251,7 @@ export function ProfileView({
               marginBottom: 14,
             }}
           >
-            🔥 Uso de base de datos — Firebase Firestore
+            Uso de base de datos — Firebase Firestore
           </div>
 
           {/* Total bar */}
@@ -391,7 +389,7 @@ export function ProfileView({
               marginBottom: 14,
             }}
           >
-            📸 Cloudinary — fotos de boletas
+            Cloudinary — fotos de boletas
           </div>
 
           <div
@@ -491,7 +489,7 @@ export function ProfileView({
               textAlign: "center",
             }}
           >
-            <div style={{ fontSize: 40, marginBottom: 12 }}>👋</div>
+            <div style={{ fontSize: 40, marginBottom: 12 }}></div>
             <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8, color: T.text }}>
               ¿Cerrar sesión?
             </div>

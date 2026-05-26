@@ -162,7 +162,7 @@ interface ModalProps {
   saveLabel?: string;
   children: React.ReactNode;
 }
-export function Modal({ title, onClose, onSave, saveLabel = "Guardar ✓", children }: ModalProps) {
+export function Modal({ title, onClose, onSave, saveLabel = "Guardar", children }: ModalProps) {
   return (
     <div
       role="dialog"
@@ -210,9 +210,7 @@ export function Modal({ title, onClose, onSave, saveLabel = "Guardar ✓", child
               padding: 4,
               touchAction: "manipulation",
             }}
-          >
-            ✕
-          </button>
+          ></button>
         </div>
         {children}
         {onSave && (
@@ -453,7 +451,7 @@ export function OfflineBanner() {
         zIndex: 9000,
       }}
     >
-      📡 Sin conexión — mostrando datos guardados
+      Sin conexión — mostrando datos guardados
     </div>
   );
 }

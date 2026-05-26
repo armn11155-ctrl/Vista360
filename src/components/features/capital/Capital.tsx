@@ -484,7 +484,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
     });
   if (ingMes > gastosMes * 1.5)
     insights.push({
-      icon: "✓",
+      icon: "ok",
       text: "Flujo positivo: ingresas más del doble de lo que gastas",
       color: "#60A5FA",
     });
@@ -760,7 +760,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
               color: "#93C5FD",
               bg: "rgba(59,130,246,0.08)",
               border: "rgba(59,130,246,0.15)",
-              icon: "⏳",
+              icon: "pend",
             },
             {
               label: "Neto libre",
@@ -768,7 +768,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
               color: "#fff",
               bg: "rgba(255,255,255,0.05)",
               border: "rgba(255,255,255,0.09)",
-              icon: "✓",
+              icon: "ok",
             },
           ].map(({ label, value, color, bg, border, icon }) => (
             <div
@@ -900,7 +900,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             marginBottom: 16,
           }}
         >
-          {liquidezNeta >= 0 ? "✓" : "⚠"} {fmtS2(Math.abs(liquidezNeta))}{" "}
+          {liquidezNeta >= 0 ? "" : ""} {fmtS2(Math.abs(liquidezNeta))}{" "}
           {liquidezNeta >= 0 ? "libre tras gastos del mes" : "déficit este mes"}
         </div>
         {/* Caja vs bancos */}
@@ -1654,7 +1654,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                     </div>
                     {done && (
                       <div style={{ fontSize: 10, color: "#60A5FA", fontWeight: 700 }}>
-                        ✓ Completado
+                        Completado
                       </div>
                     )}
                   </div>
@@ -2221,7 +2221,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// 🗑️ TRASH MODAL — archivos eliminados (papelera global)
+// ️ TRASH MODAL — archivos eliminados (papelera global)
 // ══════════════════════════════════════════════════════════════════
 
 export default Capital;

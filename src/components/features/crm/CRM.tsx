@@ -146,8 +146,8 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
   const wa = r => {
     const msg =
       r.tipo === "Cliente"
-        ? `Hola ${r.contacto}, le contactamos desde Vista 360 para coordinar la renovación de su contrato. 🙌`
-        : `Hola ${r.contacto}, somos Vista 360, paneles publicitarios en ${r.ciudad}. ¿Le interesaría conocer nuestras opciones? 📍`;
+        ? `Hola ${r.contacto}, le contactamos desde Vista 360 para coordinar la renovación de su contrato. `
+        : `Hola ${r.contacto}, somos Vista 360, paneles publicitarios en ${r.ciudad}. ¿Le interesaría conocer nuestras opciones? `;
     window.open(
       `https://wa.me/${r.celular?.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`,
       "_blank",
@@ -1091,7 +1091,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
             onModalChange?.(false);
           }}
           onSave={guardar}
-          saveLabel={saving ? "Guardando..." : "Guardar ✓"}
+          saveLabel={saving ? "Guardando..." : "Guardar"}
         >
           <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
             {["Cliente", "Prospecto"].map(t => (
@@ -1287,7 +1287,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
                       <button
                         onClick={e => {
                           e.stopPropagation();
-                          const msg = `Hola ${p.contacto}, somos Vista 360, paneles publicitarios en ${p.ciudad}. ¿Le interesaría conocer nuestras opciones? 📍`;
+                          const msg = `Hola ${p.contacto}, somos Vista 360, paneles publicitarios en ${p.ciudad}. ¿Le interesaría conocer nuestras opciones? `;
                           window.open(
                             `https://wa.me/${p.celular.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`,
                             "_blank",

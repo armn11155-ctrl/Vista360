@@ -362,7 +362,7 @@ function Contratos({
               }}
             >
               <span style={{ fontSize: 17, fontWeight: 800, color: T.text }}>
-                {modal === "nuevo" ? "➕ Nuevo Contrato" : "Editar Contrato"}
+                {modal === "nuevo" ? "Nuevo Contrato" : "Editar Contrato"}
               </span>
               <button
                 onClick={() => {
@@ -383,9 +383,7 @@ function Contratos({
                   alignItems: "center",
                   justifyContent: "center",
                 }}
-              >
-                ✕
-              </button>
+              ></button>
             </div>
 
             <F label="Panel *">
@@ -483,7 +481,7 @@ function Contratos({
                   }}
                 >
                   <div style={{ fontSize: 11, color: T.muted, marginBottom: 10 }}>
-                    💡 Toca cada mes para marcarlo como{" "}
+                    Toca cada mes para marcarlo como{" "}
                     <strong style={{ color: T.green }}>Pagado</strong> o{" "}
                     <strong style={{ color: T.red }}>Pendiente</strong>
                   </div>
@@ -535,7 +533,7 @@ function Contratos({
                               padding: "3px 6px",
                             }}
                           >
-                            {pagado ? "✓ Pagado" : "○ Pendiente"}
+                            {pagado ? "Pagado" : "○ Pendiente"}
                           </div>
                           {form.monto && (
                             <div style={{ fontSize: 10, color: T.muted, marginTop: 3 }}>
@@ -581,7 +579,7 @@ function Contratos({
                   marginBottom: 16,
                 }}
               >
-                📅 Selecciona las fechas para ver los meses de pago
+                Selecciona las fechas para ver los meses de pago
               </div>
             ) : null}
 
@@ -876,7 +874,7 @@ function Contratos({
                 <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
               <span style={{ fontSize: 13, color: "#FCA5A5", fontWeight: 600, flex: 1 }}>
-                La 🗑️ papelera es permanente — usa el botón rojo para eliminar definitivamente o
+                La ️ papelera es permanente — usa el botón rojo para eliminar definitivamente o
                 restaura el contrato.
               </span>
             </div>
@@ -885,7 +883,7 @@ function Contratos({
             const msg =
               filtro !== "Eliminados"
                 ? encodeURIComponent(
-                    `Hola ${c.cliente?.contacto}, le recordamos que su contrato para *${c.panel?.nombre}* vence el *${fmtF(c.fin)}*. ¿Le interesa renovar? 🙌`,
+                    `Hola ${c.cliente?.contacto}, le recordamos que su contrato para *${c.panel?.nombre}* vence el *${fmtF(c.fin)}*. ¿Le interesa renovar? `,
                   )
                 : "";
             const meses = generarMeses(c.inicio, c.fin);
@@ -969,7 +967,7 @@ function Contratos({
                         boxShadow: `0 6px 20px rgba(0,0,0,0.4), 0 0 0 4px ${accentCard}10`,
                       }}
                     >
-                      {c.panel?.foto || "🏙️"}
+                      {c.panel?.foto || ""}
                     </div>
 
                     {/* Info */}

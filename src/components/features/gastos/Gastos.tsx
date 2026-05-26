@@ -296,13 +296,13 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
     Otro: T.muted,
   };
   const catIcon = {
-    Mantenimiento: "🔧",
-    Personal: "👤",
-    Transporte: "🚗",
-    Administrativo: "📁",
-    Servicios: "⚡",
-    Marketing: "📢",
-    Otro: "📦",
+    Mantenimiento: "",
+    Personal: "",
+    Transporte: "",
+    Administrativo: "",
+    Servicios: "",
+    Marketing: "",
+    Otro: "",
   };
 
   // Paginación de gastos del mes — 12 por página
@@ -396,7 +396,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
       setOcr(o => ({ ...o, progress: 40, fase: "Analizando con Google Cloud Vision..." }));
       const textoRaw = await ocr_con_vision(file);
 
-      setOcr(o => ({ ...o, progress: 75, fase: "Texto extraído ✓ — Procesando datos..." }));
+      setOcr(o => ({ ...o, progress: 75, fase: "Texto extraído — Procesando datos..." }));
 
       if (!textoRaw || textoRaw.trim().length < 8) {
         throw new Error("Texto muy corto. Verifica iluminación y enfoque.");
@@ -409,7 +409,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
         ...o,
         loading: false,
         progress: 100,
-        fase: "✓ Completado",
+        fase: "Completado",
         text: textoRaw,
         imgUrl,
         previewUrl: imgUrl,
@@ -1774,7 +1774,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                                 whiteSpace: "nowrap",
                               }}
                             >
-                              {catIcon[g.categoria] || "📦"} {g.categoria || "Otro"}
+                              {catIcon[g.categoria] || ""} {g.categoria || "Otro"}
                             </span>
                           </div>
                           {g.ruc && (
@@ -2076,9 +2076,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         alignItems: "center",
                         justifyContent: "center",
                       }}
-                    >
-                      ✕
-                    </button>
+                    ></button>
                   </div>
                 </div>
 
@@ -2283,7 +2281,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                                 fontWeight: 700,
                               }}
                             >
-                              {catIcon[vistaDetalle.categoria] || "📦"}{" "}
+                              {catIcon[vistaDetalle.categoria] || ""}{" "}
                               {vistaDetalle.categoria || "Otro"}
                             </span>
                           </div>
@@ -2477,7 +2475,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           const fotoHtml = fotoSrc
                             ? `
                     <div style="margin-bottom:22px">
-                      <div style="font-size:9.5px;font-weight:700;color:${ACC};text-transform:uppercase;letter-spacing:1.8px;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid ${ACC};-webkit-print-color-adjust:exact;print-color-adjust:exact">📷 Comprobante / Boleta Escaneada</div>
+ <div style="font-size:9.5px;font-weight:700;color:${ACC};text-transform:uppercase;letter-spacing:1.8px;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid ${ACC};-webkit-print-color-adjust:exact;print-color-adjust:exact"> Comprobante / Boleta Escaneada</div>
                       <div style="text-align:center;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:12px">
                         <img src="${fotoSrc}" style="max-width:100%;max-height:480px;border-radius:8px;object-fit:contain;display:block;margin:0 auto" alt="Boleta" crossorigin="anonymous"/>
                       </div>
@@ -2724,7 +2722,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                   }}
                 >
                   <div style={{ fontSize: 16, fontWeight: 800, color: T.white }}>
-                    {modal === "nuevo" ? "➕ Nuevo Gasto" : "Editar Gasto"}
+                    {modal === "nuevo" ? " Nuevo Gasto" : "Editar Gasto"}
                   </div>
                   <button
                     onClick={() => {
@@ -2745,9 +2743,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                       alignItems: "center",
                       justifyContent: "center",
                     }}
-                  >
-                    ✕
-                  </button>
+                  ></button>
                 </div>
 
                 <div style={{ padding: "0 22px" }}>
@@ -2843,7 +2839,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                               color: "#fff",
                             }}
                           >
-                            ✓ Extraído
+                            Extraído
                           </div>
                         )}
                       </div>
@@ -2918,7 +2914,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         alignItems: "center",
                       }}
                     >
-                      <span>✅</span>
+                      <span></span>
                       <span style={{ fontSize: 11, color: "#6EE7B7", fontWeight: 600 }}>
                         Datos extraídos — revisa y corrige si es necesario
                       </span>
@@ -3132,8 +3128,8 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                       {saving
                         ? "Guardando..."
                         : modal === "nuevo"
-                          ? "Guardar Gasto ✓"
-                          : "Actualizar Gasto ✓"}
+                          ? "Guardar Gasto "
+                          : "Actualizar Gasto "}
                     </button>
                   </div>
                 </div>
@@ -3148,7 +3144,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
 
 // ── SVG Icons para sidebar (sin emojis) ──
 // ══════════════════════════════════════════════════════════════════
-// 📚 HISTÓRICO — Registro de paneles alquilados y contratos
+// HISTÓRICO — Registro de paneles alquilados y contratos
 // ══════════════════════════════════════════════════════════════════
 
 export default Gastos;

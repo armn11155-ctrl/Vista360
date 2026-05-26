@@ -213,7 +213,7 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               textAlign: "center",
             }}
           >
-            ⚠️ {error}
+            {error}
           </div>
         )}
 

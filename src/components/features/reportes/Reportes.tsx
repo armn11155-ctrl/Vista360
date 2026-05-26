@@ -506,25 +506,166 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
   return (
     <div style={{ padding: "0 0 32px" }}>
       {/* Selector de año */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        {[anio - 1, anio].map(a => (
-          <button
-            key={a}
-            onClick={() => setAnio(a)}
+      {/* Filtros de fecha */}
+      <div style={{ marginBottom: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            alignItems: "center",
+            marginBottom: 8,
+            flexWrap: "wrap",
+          }}
+        >
+          <span
             style={{
-              padding: "6px 16px",
-              borderRadius: 20,
-              border: "none",
-              background: a === anio ? T.accent : "rgba(255,255,255,0.08)",
-              color: a === anio ? "#fff" : "rgba(255,255,255,0.6)",
+              fontSize: 11,
               fontWeight: 700,
-              fontSize: 13,
-              cursor: "pointer",
+              color: "rgba(255,255,255,0.45)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
             }}
           >
-            {a}
-          </button>
-        ))}
+            Año
+          </span>
+          <input
+            type="number"
+            value={anio}
+            min={2000}
+            max={2100}
+            onChange={e => {
+              const v = parseInt(e.target.value);
+              if (!isNaN(v) && v >= 2000 && v <= 2100) setAnio(v);
+            }}
+            style={{
+              width: 86,
+              padding: "5px 10px",
+              borderRadius: 10,
+              border: "1.5px solid rgba(79,124,255,0.4)",
+              background: "rgba(30,52,200,0.18)",
+              color: "#93C5FD",
+              fontWeight: 800,
+              fontSize: 14,
+              textAlign: "center" as const,
+              outline: "none",
+              fontFamily: "inherit",
+            }}
+          />
+          {[new Date().getFullYear() - 1, new Date().getFullYear()].map(a => (
+            <button
+              key={a}
+              onClick={() => setAnio(a)}
+              style={{
+                padding: "5px 14px",
+                borderRadius: 20,
+                border: "none",
+                background: a === anio ? T.accent : "rgba(255,255,255,0.08)",
+                color: a === anio ? "#fff" : "rgba(255,255,255,0.55)",
+                fontWeight: 700,
+                fontSize: 12,
+                cursor: "pointer",
+              }}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              color: "rgba(255,255,255,0.45)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+            }}
+          >
+            Período
+          </span>
+          <input
+            type="month"
+            value={mesFilter}
+            onChange={e => {
+              setMesFilter(e.target.value);
+              setFechaDesde("");
+              setFechaHasta("");
+            }}
+            title="Mes específico"
+            style={{
+              padding: "5px 10px",
+              borderRadius: 10,
+              border: "1.5px solid rgba(79,124,255,0.3)",
+              background: "rgba(255,255,255,0.07)",
+              color: mesFilter ? "#93C5FD" : "rgba(255,255,255,0.35)",
+              fontSize: 12,
+              outline: "none",
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          />
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>o rango</span>
+          <input
+            type="date"
+            value={fechaDesde}
+            onChange={e => {
+              setFechaDesde(e.target.value);
+              setMesFilter("");
+            }}
+            title="Desde"
+            style={{
+              padding: "5px 10px",
+              borderRadius: 10,
+              border: "1.5px solid rgba(79,124,255,0.3)",
+              background: "rgba(255,255,255,0.07)",
+              color: fechaDesde ? "#93C5FD" : "rgba(255,255,255,0.35)",
+              fontSize: 12,
+              outline: "none",
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          />
+          <input
+            type="date"
+            value={fechaHasta}
+            onChange={e => {
+              setFechaHasta(e.target.value);
+              setMesFilter("");
+            }}
+            title="Hasta"
+            style={{
+              padding: "5px 10px",
+              borderRadius: 10,
+              border: "1.5px solid rgba(79,124,255,0.3)",
+              background: "rgba(255,255,255,0.07)",
+              color: fechaHasta ? "#93C5FD" : "rgba(255,255,255,0.35)",
+              fontSize: 12,
+              outline: "none",
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          />
+          {tieneFiltroDeFecha && (
+            <button
+              onClick={() => {
+                setMesFilter("");
+                setFechaDesde("");
+                setFechaHasta("");
+              }}
+              style={{
+                padding: "5px 14px",
+                borderRadius: 20,
+                border: "1px solid rgba(239,68,68,0.4)",
+                background: "rgba(239,68,68,0.12)",
+                color: "#FCA5A5",
+                fontWeight: 700,
+                fontSize: 11,
+                cursor: "pointer",
+              }}
+            >
+              Limpiar ×
+            </button>
+          )}
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -639,6 +780,10 @@ function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: Repo
   const [seccion, setSeccion] = useState(initialSeccion || "resumen");
   const [anio, setAnio] = useState(() => new Date().getFullYear());
   const [modalFactura, setModalFactura] = useState<Factura | null>(null);
+  const [mesFilter, setMesFilter] = useState<string>(""); // "YYYY-MM" o ""
+  const [fechaDesde, setFechaDesde] = useState<string>(""); // "YYYY-MM-DD"
+  const [fechaHasta, setFechaHasta] = useState<string>(""); // "YYYY-MM-DD"
+  const tieneFiltroDeFecha = mesFilter || fechaDesde || fechaHasta;
 
   // ── Datos por año ─────────────────────────────────────────────
   const mesesAnio = useMemo(() => {
@@ -666,15 +811,47 @@ function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: Repo
     });
   }, [contratos, gastos, anio]);
 
+  // Meses filtrados según selección de fecha
+  const mesesFiltrados = useMemo(() => {
+    if (!tieneFiltroDeFecha) return mesesAnio;
+    return mesesAnio.filter(m => {
+      if (mesFilter && m.mes !== mesFilter) return false;
+      if (fechaDesde && m.mes < fechaDesde.slice(0, 7)) return false;
+      if (fechaHasta && m.mes > fechaHasta.slice(0, 7)) return false;
+      return true;
+    });
+  }, [mesesAnio, mesFilter, fechaDesde, fechaHasta, tieneFiltroDeFecha]);
+
+  // Contratos y gastos filtrados por rango de fecha
+  const contratosFiltrados = useMemo(() => {
+    if (!tieneFiltroDeFecha) return contratos;
+    return contratos.filter(c => {
+      if (mesFilter) return c.inicio?.slice(0, 7) <= mesFilter && c.fin?.slice(0, 7) >= mesFilter;
+      if (fechaDesde && c.fin && c.fin < fechaDesde) return false;
+      if (fechaHasta && c.inicio && c.inicio > fechaHasta) return false;
+      return true;
+    });
+  }, [contratos, mesFilter, fechaDesde, fechaHasta, tieneFiltroDeFecha]);
+
+  const gastosFiltrados = useMemo(() => {
+    if (!tieneFiltroDeFecha) return gastos;
+    return gastos.filter(g => {
+      if (mesFilter) return g.fecha?.startsWith(mesFilter);
+      if (fechaDesde && g.fecha && g.fecha < fechaDesde) return false;
+      if (fechaHasta && g.fecha && g.fecha > fechaHasta) return false;
+      return true;
+    });
+  }, [gastos, mesFilter, fechaDesde, fechaHasta, tieneFiltroDeFecha]);
+
   const maxIngreso = Math.max(...mesesAnio.map(m => m.ingTotal), 1);
 
   const kpis = useMemo(() => {
-    const totalIngPagado = mesesAnio.reduce((a, m) => a + m.ingPagado, 0);
-    const totalIngTotal = mesesAnio.reduce((a, m) => a + m.ingTotal, 0);
-    const totalGastos = mesesAnio.reduce((a, m) => a + m.gastosMes, 0);
+    const totalIngPagado = mesesFiltrados.reduce((a, m) => a + m.ingPagado, 0);
+    const totalIngTotal = mesesFiltrados.reduce((a, m) => a + m.ingTotal, 0);
+    const totalGastos = mesesFiltrados.reduce((a, m) => a + m.gastosMes, 0);
     const totalUtilidad = totalIngPagado - totalGastos;
     const pendiente = totalIngTotal - totalIngPagado;
-    const mesTop = [...mesesAnio].sort((a, b) => b.ingPagado - a.ingPagado)[0];
+    const mesTop = [...mesesFiltrados].sort((a, b) => b.ingPagado - a.ingPagado)[0];
     return { totalIngPagado, totalIngTotal, totalGastos, totalUtilidad, pendiente, mesTop };
   }, [mesesAnio]);
 
@@ -918,7 +1095,7 @@ tbody td{padding:9px 11px;font-size:11px;color:#1e293b;border-bottom:1px solid #
               <td>${c.panel?.nombre || "—"}</td>
               <td>${fmtF(c.inicio)} → ${fmtF(c.fin)}</td>
               <td class="num">${fmt(c.monto)}</td>
-              <td class="num ${c.pagado ? "pag" : "pend"}">${c.pagado ? "✓ Pagado" : "Pendiente"}</td>
+              <td class="num ${c.pagado ? "pag" : "pend"}">${c.pagado ? "Pagado" : "Pendiente"}</td>
             </tr>`,
                 )
                 .join("")

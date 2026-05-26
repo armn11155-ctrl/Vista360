@@ -529,7 +529,7 @@ const BOTTOM_TABS_LIST = [
 const NAV_TAB_IDS = BOTTOM_TABS_LIST.filter(t => t.id !== "__add__").map(t => t.id);
 
 // ══════════════════════════════════════════════════════════════════
-// 🔐 LOGIN — Pantalla de inicio de sesión con Google
+// LOGIN — Pantalla de inicio de sesión con Google
 // ══════════════════════════════════════════════════════════════════
 // ── WHITELIST de emails autorizados ─────────────────────────────
 // En producción define la variable de entorno VITE_ALLOWED_EMAILS

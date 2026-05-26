@@ -308,9 +308,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                   alignItems: "center",
                   justifyContent: "center",
                 }}
-              >
-                ✕
-              </button>
+              ></button>
             </div>
             <F label="Panel *">
               <select
@@ -1169,7 +1167,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
 }
 
 // ══════════════════════════════════════════════════════════════════
-// 🧾 FACTURACIÓN — Vista360
+// FACTURACIÓN — Vista360
 // Gestión completa de facturas, boletas y cobros
 // ══════════════════════════════════════════════════════════════════
 
@@ -1231,7 +1229,7 @@ const EST_FAC_COL = {
 };
 
 // ══════════════════════════════════════════════════════════════════
-// 🔌 INTEGRACIÓN CON SISTEMA DE FACTURACIÓN EXTERNO  (SOLO LECTURA)
+// INTEGRACIÓN CON SISTEMA DE FACTURACIÓN EXTERNO (SOLO LECTURA)
 // ──────────────────────────────────────────────────────────────────
 // La app Vista360 NO emite ni envía facturas. Solo MUESTRA los
 // comprobantes que tu sistema de facturación externo ya emitió
@@ -1248,7 +1246,7 @@ const EST_FAC_COL = {
 // para que puedas probar la UI con datos de ejemplo.
 // ──────────────────────────────────────────────────────────────────
 //
-// 📋 ESTRUCTURA ESPERADA POR LA APP (cada comprobante)
+// ESTRUCTURA ESPERADA POR LA APP (cada comprobante)
 // El sistema externo debe devolver un array de objetos con esta forma:
 //
 //   {
@@ -1289,7 +1287,7 @@ const EST_FAC_COL = {
 //     estado:            "Aceptada"|"Cobrada"|"Pendiente"|"Vencida"|"Rechazada"|"Anulada",
 //
 //     // Archivos generados por el sistema externo
-//     pdf_url:           "https://.../factura.pdf",  // ⭐ MÁS IMPORTANTE
+// pdf_url: "https://.../factura.pdf", // MÁS IMPORTANTE
 //     xml_url:           "https://.../factura.xml",  // opcional
 //     cdr_url:           "https://.../cdr.zip",      // opcional (CDR SUNAT)
 //

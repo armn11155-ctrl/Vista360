@@ -306,9 +306,7 @@ function NotifPanel({ open, onClose, contratos, clientes, paneles, gastos }: Not
                 touchAction: "manipulation",
                 fontSize: 14,
               }}
-            >
-              ✕
-            </button>
+            ></button>
           </div>
         </div>
 
@@ -438,7 +436,7 @@ function NotifPanel({ open, onClose, contratos, clientes, paneles, gastos }: Not
 }
 
 // ══════════════════════════════════════════════════════════════════
-// 🛡️ ERROR BOUNDARY — captura errores de cualquier tab hijo
+// ️ ERROR BOUNDARY — captura errores de cualquier tab hijo
 // Si un componente explota (datos corruptos, edge-case no previsto),
 // el resto de la app sigue funcionando. El usuario ve un fallback
 // amigable en lugar de una pantalla en blanco.
@@ -477,7 +475,7 @@ class ErrorBoundary extends React.Component<
           textAlign: "center",
         }}
       >
-        <div style={{ fontSize: 32, marginBottom: 10 }}>⚠️</div>
+        <div style={{ fontSize: 32, marginBottom: 10 }}></div>
         <div style={{ fontSize: 15, fontWeight: 700, color: T.text, marginBottom: 6 }}>
           Algo salió mal{this.props.label ? ` en ${this.props.label}` : ""}
         </div>

@@ -228,7 +228,7 @@ function MiniMapaPanel({ lat, lng, nombre, foto, onMove }: MiniMapaPanelProps) {
             fontWeight: 600,
           }}
         >
-          📍 Obteniendo dirección…
+          Obteniendo dirección…
         </div>
       )}
       <div ref={containerRef} style={{ height: "100%", width: "100%" }} />
@@ -245,7 +245,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
     tipo: "LED",
     precio: 0,
     estado: "Libre",
-    foto: "📡",
+    foto: "",
     ciudad: "Lima",
     direccion: "",
     lat: "",
@@ -281,7 +281,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
       tipo: form.tipo,
       precio: Number(form.precio) || 0,
       estado: form.estado,
-      foto: form.foto || "📡",
+      foto: form.foto || "",
       ciudad: form.ciudad,
       direccion: form.direccion || "",
       lat: form.lat ? String(form.lat) : null,
@@ -308,7 +308,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
         setSaving(false);
         setModal(null);
         onModalChange?.(false);
-        toast.success("✓ Panel guardado correctamente");
+        toast.success("Panel guardado correctamente");
         if (payload.estado === "Ocupado" && setTab) setTab("historico");
       } else {
         const r = await fb.patch("paneles", modal.id, payload);
@@ -322,7 +322,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
         setSaving(false);
         setModal(null);
         onModalChange?.(false);
-        toast.success("✓ Panel actualizado correctamente");
+        toast.success("Panel actualizado correctamente");
         if (payload.estado === "Ocupado" && setTab) setTab("historico");
       }
     } catch (e) {
@@ -455,15 +455,15 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
 
   const elegirSugerencia = (s: GeoSugerencia) => {
     setForm(f => ({ ...f, direccion: s.label, lat: s.lat.toFixed(6), lng: s.lng.toFixed(6) }));
-    setGeocodeMsg(`✅ Ubicado: ${s.label}`);
+    setGeocodeMsg(`Ubicado: ${s.label}`);
     setSugerencias([]);
     setShowSug(false);
   };
 
   const geocodificar = async () => {
-    if (!form.direccion.trim()) return setGeocodeMsg("⚠️ Escribe una dirección primero");
+    if (!form.direccion.trim()) return setGeocodeMsg(" Escribe una dirección primero");
     setGeocoding(true);
-    setGeocodeMsg("🔍 Buscando...");
+    setGeocodeMsg("Buscando...");
     setSugerencias([]);
     setShowSug(false);
     const enc = encodeURIComponent(`${form.direccion}, ${form.ciudad || ""}, Peru`);
@@ -479,7 +479,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
         const [lng, lat] = d.features[0].geometry.coordinates;
         const p = d.features[0].properties;
         setForm(f => ({ ...f, lat: lat.toFixed(6), lng: lng.toFixed(6) }));
-        setGeocodeMsg(`✅ ${[p.name, p.street, p.city].filter(Boolean).join(", ")}`);
+        setGeocodeMsg(` ${[p.name, p.street, p.city].filter(Boolean).join(", ")}`);
         setGeocoding(false);
         return;
       }
@@ -502,7 +502,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
           lat: Number(d[0].lat).toFixed(6),
           lng: Number(d[0].lon).toFixed(6),
         }));
-        setGeocodeMsg(`✅ ${d[0].display_name.split(",").slice(0, 2).join(", ")}`);
+        setGeocodeMsg(` ${d[0].display_name.split(",").slice(0, 2).join(", ")}`);
         setGeocoding(false);
         return;
       }
@@ -512,9 +512,9 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
     }
     if (coords) {
       setForm(f => ({ ...f, lat: coords[0].toFixed(6), lng: coords[1].toFixed(6) }));
-      setGeocodeMsg(`⚠️ Ubicado aprox. en ${form.ciudad}. Ajusta lat/lng si necesitas precisión.`);
+      setGeocodeMsg(` Ubicado aprox. en ${form.ciudad}. Ajusta lat/lng si necesitas precisión.`);
     } else {
-      setGeocodeMsg("❌ No encontrado. Prueba con la dirección más completa.");
+      setGeocodeMsg(" No encontrado. Prueba con la dirección más completa.");
     }
     setGeocoding(false);
   };
@@ -706,7 +706,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
                         fontSize: 28,
                       }}
                     >
-                      {p.foto || "🏙️"}
+                      {p.foto || ""}
                     </div>
                     <div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
                       <div
@@ -754,7 +754,6 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
                         color: "rgba(220,228,250,0.7)",
                       }}
                     >
-                      <span style={{ fontSize: 14 }}>📍</span>
                       <span
                         style={{
                           overflow: "hidden",
@@ -953,14 +952,14 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
 
       {modal && (
         <Modal
-          title={modal === "nuevo" ? "➕ Nuevo Panel" : "Editar Panel"}
+          title={modal === "nuevo" ? " Nuevo Panel" : "Editar Panel"}
           onClose={() => {
             setModal(null);
             setGeocodeMsg("");
             onModalChange?.(false);
           }}
           onSave={guardar}
-          saveLabel={saving ? "Guardando..." : "Guardar Panel ✓"}
+          saveLabel={saving ? "Guardando..." : "Guardar Panel "}
         >
           {/* Emoji selector */}
           <div style={{ marginBottom: 16 }}>
@@ -1081,7 +1080,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
                 marginBottom: 10,
               }}
             >
-              💰 Capital (depreciación)
+              Capital (depreciación)
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               {inp("Costo de instalación (S/)", "costoInstalacion", form, setForm, {
@@ -1160,7 +1159,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
                     flexShrink: 0,
                   }}
                 >
-                  {geocoding ? "⏳" : "📍 Ubicar"}
+                  {geocoding ? "" : " Ubicar"}
                 </button>
               </div>
               {/* Dropdown sugerencias */}
@@ -1199,7 +1198,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
                       onMouseEnter={e => (e.currentTarget.style.background = T.surface)}
                       onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                     >
-                      <span style={{ color: T.accent, flexShrink: 0 }}>📍</span>
+                      <span style={{ color: T.accent, flexShrink: 0 }}></span>
                       <span style={{ lineHeight: 1.3 }}>{s.label}</span>
                     </div>
                   ))}
@@ -1211,16 +1210,16 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
                 style={{
                   marginTop: 7,
                   fontSize: 12,
-                  color: geocodeMsg.startsWith("✅")
+                  color: geocodeMsg.startsWith("")
                     ? T.green
-                    : geocodeMsg.startsWith("⚠️")
+                    : geocodeMsg.startsWith("")
                       ? T.amber
                       : T.red,
                   padding: "6px 10px",
                   background:
-                    (geocodeMsg.startsWith("✅")
+                    (geocodeMsg.startsWith("")
                       ? T.green
-                      : geocodeMsg.startsWith("⚠️")
+                      : geocodeMsg.startsWith("")
                         ? T.amber
                         : T.red) + "12",
                   borderRadius: 8,
@@ -1231,7 +1230,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
             )}
             {!geocodeMsg && form.direccion && form.direccion.length >= 3 && !showSug && (
               <div style={{ marginTop: 6, fontSize: 11, color: T.muted }}>
-                💡 Escribe para ver sugerencias automáticas o presiona 📍 para ubicar
+                Escribe para ver sugerencias automáticas o presiona para ubicar
               </div>
             )}
           </div>
@@ -1255,7 +1254,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
                     letterSpacing: 1,
                   }}
                 >
-                  📌 Ajusta el pin en el mapa
+                  Ajusta el pin en el mapa
                 </span>
                 <button
                   onClick={() => setForm(f => ({ ...f, lat: "", lng: "", direccion: "" }))}
@@ -1268,14 +1267,14 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
                     fontSize: 11,
                   }}
                 >
-                  ✕ Limpiar
+                  Limpiar
                 </button>
               </div>
               <MiniMapaPanel
                 lat={Number(form.lat)}
                 lng={Number(form.lng)}
                 nombre={form.nombre || "Panel"}
-                foto={form.foto || "📡"}
+                foto={form.foto || ""}
                 onMove={(lat, lng, dir) =>
                   setForm(f => ({
                     ...f,
@@ -1296,7 +1295,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
                   color: T.green,
                 }}
               >
-                📍 {form.direccion || `${form.lat}, ${form.lng}`}
+                {form.direccion || `${form.lat}, ${form.lng}`}
               </div>
               <div style={{ marginTop: 4, fontSize: 11, color: T.muted, textAlign: "center" }}>
                 Arrastra el marcador para ajustar — la dirección se actualiza automáticamente
@@ -1314,9 +1313,8 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
                 color: T.muted,
               }}
             >
-              💡 Escribe la dirección y presiona{" "}
-              <strong style={{ color: T.accent }}>📍 Ubicar</strong> — luego ajusta el pin en el
-              mapa si necesitas precisión.
+              Escribe la dirección y presiona <strong style={{ color: T.accent }}> Ubicar</strong> —
+              luego ajusta el pin en el mapa si necesitas precisión.
             </div>
           )}
         </Modal>

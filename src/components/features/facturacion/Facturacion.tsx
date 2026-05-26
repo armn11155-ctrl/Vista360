@@ -118,10 +118,10 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
 
   const tipoLabel =
     {
-      FACTURA: "🧾 Factura electrónica",
-      BOLETA: "📄 Boleta de venta",
+      FACTURA: "Factura electrónica",
+      BOLETA: "Boleta de venta",
       NOTA_CREDITO: "↩️ Nota de crédito",
-      NOTA_DEBITO: "➕ Nota de débito",
+      NOTA_DEBITO: "Nota de débito",
     }[factura.tipo] ||
     factura.tipo ||
     "Comprobante";
@@ -274,9 +274,7 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
               fontSize: 15,
               flexShrink: 0,
             }}
-          >
-            ✕
-          </button>
+          ></button>
         </div>
 
         {/* CLIENTE */}
@@ -313,7 +311,7 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
           )}
           {(cli?.email || factura.cliente_email) && (
             <div style={{ fontSize: 12, color: T.muted, marginTop: 2 }}>
-              ✉️ {cli?.email || factura.cliente_email}
+              {cli?.email || factura.cliente_email}
             </div>
           )}
         </div>
@@ -491,7 +489,7 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
                 marginBottom: 6,
               }}
             >
-              ✅ Pago registrado
+              Pago registrado
             </div>
             {factura.metodo_pago && (
               <div style={{ fontSize: 12, color: T.text, marginBottom: 2 }}>
@@ -570,7 +568,6 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 14 }}>📄</span>
                 <span
                   style={{ fontSize: 12, fontWeight: 700, color: T.white, fontFamily: "monospace" }}
                 >
@@ -588,9 +585,7 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
                   fontSize: 16,
                   lineHeight: 1,
                 }}
-              >
-                ✕
-              </button>
+              ></button>
             </div>
 
             {/* Spinner mientras carga el iframe */}
@@ -674,7 +669,7 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
               gap: 8,
             }}
           >
-            {factura.pdf_url ? (mostrarPDF ? "🔼 Ocultar PDF" : "👁️ Ver PDF") : "PDF no disponible"}
+            {factura.pdf_url ? (mostrarPDF ? " Ocultar PDF" : "️ Ver PDF") : "PDF no disponible"}
           </button>
 
           {/* Botón Descargar PDF */}
@@ -741,7 +736,7 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
                 gap: 8,
               }}
             >
-              📑 Descargar XML firmado
+              Descargar XML firmado
             </button>
           )}
 
@@ -775,8 +770,8 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
           }}
         >
           <div style={{ fontSize: 10.5, color: T.muted, lineHeight: 1.5 }}>
-            🔒 Comprobante emitido por tu sistema de facturación externo. La app solo muestra los
-            datos en modo lectura.
+            Comprobante emitido por tu sistema de facturación externo. La app solo muestra los datos
+            en modo lectura.
           </div>
         </div>
       </div>
@@ -785,7 +780,7 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
 }
 
 // ══════════════════════════════════════════════════════════════════
-// 🧾 FACTURACIÓN — VISOR DE SOLO LECTURA
+// FACTURACIÓN — VISOR DE SOLO LECTURA
 // ──────────────────────────────────────────────────────────────────
 // Vista360 NO crea ni edita comprobantes.
 // Solo muestra lo que facturacion-web guardó en Firestore.
@@ -1019,7 +1014,7 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
             color: T.red,
           }}
         >
-          ⚠️ {error}
+          {error}
         </div>
       )}
 
@@ -1623,7 +1618,7 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
             <Spinner />
           ) : facsFiltradas.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px 20px", color: T.muted }}>
-              <div style={{ fontSize: 48, marginBottom: 12 }}>🧾</div>
+              <div style={{ fontSize: 48, marginBottom: 12 }}></div>
               <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6, color: T.text }}>
                 {facturas.length === 0 ? "No hay comprobantes aún" : "Sin resultados"}
               </div>
@@ -2248,11 +2243,11 @@ const ICONS = {
 // ── Sidebar icon button ──
 
 // ══════════════════════════════════════════════════════════════════
-// 🌅 HOY — Acciones recomendadas del día
+// HOY — Acciones recomendadas del día
 // ══════════════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════════════════
-// 🧾 GENERADOR DE COMPROBANTE PDF — Vista360 Perú
+// GENERADOR DE COMPROBANTE PDF — Vista360 Perú
 // ══════════════════════════════════════════════════════════════════
 function ModalPreFactura({ contrato, panel, cliente, onClose }: ModalPreFacturaProps) {
   const [tipo, setTipo] = useState("FACTURA");
@@ -2325,7 +2320,7 @@ function ModalPreFactura({ contrato, panel, cliente, onClose }: ModalPreFacturaP
         ${EMISOR.razonSocial}<br/>
         ${EMISOR.direccion}<br/>
         Actividad: ${EMISOR.actividad}
-        ${exonerado ? `<br/><span style="display:inline-block;margin-top:6px;background:#D1FAE5;color:#065F46;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact">🌿 EXONERADO IGV — LEY AMAZONÍA N° 27037</span>` : ""}
+ ${exonerado ? `<br/><span style="display:inline-block;margin-top:6px;background:#D1FAE5;color:#065F46;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact"> EXONERADO IGV — LEY AMAZONÍA N° 27037</span>` : ""}
       </div>
     </div>
     <div class="tipo-doc">
@@ -2337,7 +2332,7 @@ function ModalPreFactura({ contrato, panel, cliente, onClose }: ModalPreFacturaP
 
   <div class="body">
     <div class="section">
-      <div class="section-title">📤 Datos del ${tipo === "FACTURA" ? "Adquirente" : "Receptor"}</div>
+ <div class="section-title"> Datos del ${tipo === "FACTURA" ? "Adquirente" : "Receptor"}</div>
       <div class="grid2">
         <div class="field">
           <label>${tipo === "FACTURA" ? "Razón Social" : "Apellidos y Nombres"}</label>
@@ -2354,7 +2349,7 @@ function ModalPreFactura({ contrato, panel, cliente, onClose }: ModalPreFacturaP
     </div>
 
     <div class="section">
-      <div class="section-title">📋 Detalle del Servicio</div>
+ <div class="section-title"> Detalle del Servicio</div>
       <table>
         <thead><tr><th style="width:40px">Cant.</th><th>Descripción</th><th style="width:110px">Período</th><th style="text-align:right;width:110px">V. Unit. S/IGV</th><th style="text-align:right;width:110px">Total S/IGV</th></tr></thead>
         <tbody>
@@ -2363,7 +2358,7 @@ function ModalPreFactura({ contrato, panel, cliente, onClose }: ModalPreFacturaP
             <td>
               <strong>Arrendamiento de Panel Publicitario</strong><br/>
               <span style="font-size:11px;color:#6B7280">${panel.nombre}${panel.tipo ? " · " + panel.tipo : ""}${panel.ciudad ? " · " + panel.ciudad : ""}</span>
-              ${panel.direccion ? `<br/><span style="font-size:10px;color:#9CA3AF">📍 ${panel.direccion}</span>` : ""}
+ ${panel.direccion ? `<br/><span style="font-size:10px;color:#9CA3AF"> ${panel.direccion}</span>` : ""}
             </td>
             <td style="font-size:11px;color:#6B7280;white-space:nowrap">${fmtF(contrato.inicio)}<br/>al ${fmtF(contrato.fin)}</td>
             <td style="text-align:right;font-family:monospace;font-weight:600">S/ ${subtotal.toLocaleString("es-PE", { minimumFractionDigits: 2 })}</td>
@@ -2462,7 +2457,7 @@ function ModalPreFactura({ contrato, panel, cliente, onClose }: ModalPreFacturaP
         >
           <div>
             <div style={{ fontSize: 17, fontWeight: 800, color: T.white }}>
-              🧾 Generar Comprobante PDF
+              Generar Comprobante PDF
             </div>
             <div style={{ fontSize: 12, color: T.muted, marginTop: 2 }}>
               RUC {EMISOR.ruc} · 8 Millas · Huánuco
@@ -2484,9 +2479,7 @@ function ModalPreFactura({ contrato, panel, cliente, onClose }: ModalPreFacturaP
               alignItems: "center",
               justifyContent: "center",
             }}
-          >
-            ✕
-          </button>
+          ></button>
         </div>
 
         <div style={{ padding: "0 22px", display: "flex", flexDirection: "column", gap: 16 }}>
@@ -2525,7 +2518,7 @@ function ModalPreFactura({ contrato, panel, cliente, onClose }: ModalPreFacturaP
                     transition: "background .08s",
                   }}
                 >
-                  {t === "FACTURA" ? "🧾 Factura" : "📄 Boleta"}
+                  {t === "FACTURA" ? " Factura" : " Boleta"}
                   <div style={{ fontSize: 10, fontWeight: 400, marginTop: 2, opacity: 0.7 }}>
                     {t === "FACTURA" ? "Con RUC del cliente" : "Con DNI / Consumidor final"}
                   </div>
@@ -2610,7 +2603,7 @@ function ModalPreFactura({ contrato, panel, cliente, onClose }: ModalPreFacturaP
                   border: `1px solid ${T.green}44`,
                 }}
               >
-                <span style={{ fontSize: 13 }}>🌿</span>
+                <span style={{ fontSize: 13 }}></span>
                 <span style={{ fontSize: 11, fontWeight: 700, color: T.green }}>
                   Exonerado de IGV — Ley Amazonía N° 27037 (Huánuco)
                 </span>
@@ -2730,7 +2723,7 @@ function ModalPreFactura({ contrato, panel, cliente, onClose }: ModalPreFacturaP
 }
 
 // ══════════════════════════════════════════════════════════════════
-// 📊 MÓDULO PRINCIPAL — REPORTES
+// MÓDULO PRINCIPAL — REPORTES
 
 // ── Sparkline wave decorativa en cards ───────────────────────
 const CardWave = ({ color = "#4F7CFF" }: { color?: string }) => (
@@ -3123,7 +3116,7 @@ function MesCard({
                           marginTop: 1,
                         }}
                       >
-                        {c.pagado ? "✓ Cobrado" : "⏳ Pendiente"}
+                        {c.pagado ? "Cobrado" : "Pendiente"}
                       </div>
                     </div>
                   </div>

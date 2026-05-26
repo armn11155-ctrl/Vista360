@@ -246,8 +246,8 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
         if (!panel || !cliente) return;
         const titulo =
           d <= 5
-            ? `🚨 Vence en ${d} día${d === 1 ? "" : "s"} — ${panel.nombre}`
-            : `⚠️ Vence en ${d} días — ${panel.nombre}`;
+            ? ` Vence en ${d} día${d === 1 ? "" : "s"} — ${panel.nombre}`
+            : ` Vence en ${d} días — ${panel.nombre}`;
         const cuerpo = `Cliente: ${cliente.empresa} · ${c.monto}/mes`;
         try {
           if (swRef.current?.showNotification) {
@@ -524,7 +524,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                     <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
                       {error && (
                         <div className={styles.firebaseError}>
-                          <span style={{ fontSize: 22 }}>⚠️</span>
+                          <span style={{ fontSize: 22 }}></span>
                           <div>
                             <div style={{ fontWeight: 700, color: T.amber, fontSize: 14 }}>
                               Sin conexión a Firebase
@@ -923,7 +923,7 @@ class ShellErrorBoundary extends Component<{ children: React.ReactNode }, { erro
             zIndex: 9999,
           }}
         >
-          <div style={{ fontSize: 32, marginBottom: 16 }}>⚠️</div>
+          <div style={{ fontSize: 32, marginBottom: 16 }}></div>
           <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#FF6B6B" }}>
             Error al cargar la app
           </div>

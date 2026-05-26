@@ -153,7 +153,7 @@ function Proveedores({ proveedores, setProveedores, loading, onModalChange }: Pr
 
   const wa = p => {
     if (!p.celular) return toast.warn("Este proveedor no tiene celular registrado");
-    const msg = `Hola ${p.contacto || ""}, le escribo desde 8 Millas. 🙌`;
+    const msg = `Hola ${p.contacto || ""}, le escribo desde 8 Millas. `;
     window.open(
       `https://wa.me/${p.celular.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`,
       "_blank",
@@ -255,7 +255,7 @@ function Proveedores({ proveedores, setProveedores, loading, onModalChange }: Pr
               }}
             >
               <span style={{ fontSize: 17, fontWeight: 800, color: T.text }}>
-                {modal === "nuevo" ? "➕ Nuevo Proveedor" : "Editar Proveedor"}
+                {modal === "nuevo" ? "Nuevo Proveedor" : "Editar Proveedor"}
               </span>
               <button
                 onClick={() => {
@@ -276,9 +276,7 @@ function Proveedores({ proveedores, setProveedores, loading, onModalChange }: Pr
                   alignItems: "center",
                   justifyContent: "center",
                 }}
-              >
-                ✕
-              </button>
+              ></button>
             </div>
 
             {(() => {

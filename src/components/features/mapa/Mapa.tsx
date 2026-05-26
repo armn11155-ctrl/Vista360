@@ -161,7 +161,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
         html: `<div style="position:relative;width:${ringSize}px;height:${ringSize}px;display:flex;align-items:center;justify-content:center;">
           <div style="position:absolute;width:${ringSize}px;height:${ringSize}px;border-radius:50%;background:${color}22;animation:markerPulse 2s ease-in-out infinite;"></div>
           ${isSelected ? `<div style="position:absolute;width:${ringSize - 8}px;height:${ringSize - 8}px;border-radius:50%;border:2px solid ${color};opacity:0.5;"></div>` : ""}
-          <div style="width:${innerSize}px;height:${innerSize}px;border-radius:50%;background:white;border:${borderW}px solid ${color};display:flex;align-items:center;justify-content:center;font-size:${isSelected ? 20 : 18}px;box-shadow:0 0 ${isSelected ? 22 : 16}px ${shadow};position:relative;z-index:1;">${p.foto || "🏙️"}</div>
+          <div style="width:${innerSize}px;height:${innerSize}px;border-radius:50%;background:white;border:${borderW}px solid ${color};display:flex;align-items:center;justify-content:center;font-size:${isSelected ? 20 : 18}px;box-shadow:0 0 ${isSelected ? 22 : 16}px ${shadow};position:relative;z-index:1;">${p.foto || ""}</div>
         </div>`,
         iconSize: [ringSize, ringSize],
         iconAnchor: [ringSize / 2, ringSize / 2],
@@ -376,7 +376,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                       boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
                     }}
                   >
-                    {p.foto || "🏙️"}
+                    {p.foto || ""}
                   </div>
                   <div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
                     <div
@@ -405,7 +405,6 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                           fontWeight: 500,
                         }}
                       >
-                        <span style={{ fontSize: 14 }}>📍</span>
                         <span
                           style={{
                             whiteSpace: "nowrap",
@@ -587,7 +586,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                             color: contrato.pagado ? T.green : T.white,
                           }}
                         >
-                          {contrato.pagado ? "✓ Cobrado" : "⏳ Pendiente"}
+                          {contrato.pagado ? "Cobrado" : "Pendiente"}
                         </div>
                       </div>
                     </div>
