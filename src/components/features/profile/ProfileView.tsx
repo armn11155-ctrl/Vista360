@@ -185,11 +185,17 @@ export function ProfileView({
               justifyContent: "center",
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="26" height="26" aria-label="Firebase">
-              <path fill="#FFA000" d="M1.5 26.5L8 4.2l7.2 14.4z"/>
-              <path fill="#F57F17" d="M19.2 11.5L15.2 19 1.5 26.5z"/>
-              <path fill="#FFCA28" d="M19.2 11.5L31 26.5H1.5L15.2 19z"/>
-              <path fill="#FFA000" d="M19.2 11.5L24.5 1 31 26.5z"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 32 32"
+              width="26"
+              height="26"
+              aria-label="Firebase"
+            >
+              <path fill="#FFA000" d="M1.5 26.5L8 4.2l7.2 14.4z" />
+              <path fill="#F57F17" d="M19.2 11.5L15.2 19 1.5 26.5z" />
+              <path fill="#FFCA28" d="M19.2 11.5L31 26.5H1.5L15.2 19z" />
+              <path fill="#FFA000" d="M19.2 11.5L24.5 1 31 26.5z" />
             </svg>
           </div>
           <div>
@@ -542,4 +548,3 @@ export function ProfileView({
     </div>
   );
 }
-
