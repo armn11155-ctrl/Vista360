@@ -438,7 +438,7 @@ export function OfflineBanner() {
   return (
     <div
       style={{
-        background: T.amber,
+        background: T.white,
         color: "#fff",
         textAlign: "center",
         padding: "8px 16px",

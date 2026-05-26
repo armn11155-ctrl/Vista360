@@ -1221,7 +1221,7 @@ const EST_FAC_COL = {
   Aceptada: "#4F7CFF", // azul — aceptada por SUNAT
   Cobrada: "#0FBA7D", // verde — pagada / cobrada
   Pagada: "#0FBA7D", // alias de Cobrada
-  Pendiente: T.amber, // ámbar — pendiente de cobro
+  Pendiente: T.white, // ámbar — pendiente de cobro
   Vencida: "#F04747", // rojo — pasó fecha de vencimiento sin cobrar
   Rechazada: "#F04747", // rojo — rechazada por SUNAT
   Anulada: "#9B6FFF", // morado — anulada

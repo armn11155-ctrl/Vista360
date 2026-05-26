@@ -1079,7 +1079,7 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
             valueColor: T.white,
             labelColor: "#5B7FCC",
             sub: `${facturas.filter(f => ["Emitida", "Aceptada", "Pendiente"].includes(f.estado)).length} emitida${facturas.filter(f => ["Emitida", "Aceptada", "Pendiente"].includes(f.estado)).length !== 1 ? "s" : ""}`,
-            accent: T.amber,
+            accent: T.white,
             icon: (
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <path
@@ -2616,7 +2616,7 @@ function ModalPreFactura({ contrato, panel, cliente, onClose }: ModalPreFacturaP
                 {
                   l: tipo === "FACTURA" ? "RUC" : "DNI",
                   v: cliente.ruc || cliente.dni || "Sin documento",
-                  c: cliente.ruc || cliente.dni ? T.text : T.amber,
+                  c: cliente.ruc || cliente.dni ? T.text : T.muted,
                 },
                 { l: "Panel", v: `${panel.nombre} · ${panel.ciudad || ""}`, c: T.text },
                 { l: "Período", v: `${fmtF(contrato.inicio)} → ${fmtF(contrato.fin)}`, c: T.muted },
@@ -2868,7 +2868,7 @@ function MesCard({
                 <span
                   style={{
                     background: margen >= 50 ? "rgba(16,185,129,0.18)" : "rgba(245,158,11,0.18)",
-                    color: margen >= 50 ? T.green : T.amber,
+                    color: margen >= 50 ? T.green : T.white,
                     border: `1px solid ${margen >= 50 ? "rgba(16,185,129,0.4)" : "rgba(245,158,11,0.4)"}`,
                     borderRadius: 8,
                     padding: "2px 9px",
@@ -2935,7 +2935,7 @@ function MesCard({
                 {
                   l: "PENDIENTE",
                   v: fmt(pendiente),
-                  c: pendiente > 0 ? T.amber : "rgba(160,180,220,0.4)",
+                  c: pendiente > 0 ? T.white : "rgba(160,180,220,0.4)",
                 },
                 { l: "GASTOS", v: fmt(m.gastosMes), c: T.red },
                 { l: "UTILIDAD", v: fmt(m.utilidad), c: m.utilidad >= 0 ? T.green : T.red },
@@ -3002,7 +3002,7 @@ function MesCard({
                   >
                     GASTOS / COBRADO
                   </span>
-                  <span style={{ fontSize: 9.5, color: T.amber, fontWeight: 700 }}>
+                  <span style={{ fontSize: 9.5, color: T.white, fontWeight: 700 }}>
                     {Math.min(100, Math.round((m.gastosMes / m.ingPagado) * 100))}%
                   </span>
                 </div>
@@ -3019,7 +3019,7 @@ function MesCard({
                       height: "100%",
                       borderRadius: 3,
                       width: `${Math.min(100, Math.round((m.gastosMes / m.ingPagado) * 100))}%`,
-                      background: T.amber,
+                      background: T.white,
                     }}
                   />
                 </div>
@@ -3102,7 +3102,7 @@ function MesCard({
                         style={{
                           fontSize: 12,
                           fontWeight: 800,
-                          color: c.pagado ? T.green : T.amber,
+                          color: c.pagado ? T.green : T.white,
                           fontFamily: "monospace",
                         }}
                       >
@@ -3112,7 +3112,7 @@ function MesCard({
                         style={{
                           fontSize: 9.5,
                           fontWeight: 700,
-                          color: c.pagado ? T.green : T.amber,
+                          color: c.pagado ? T.green : T.white,
                           marginTop: 1,
                         }}
                       >

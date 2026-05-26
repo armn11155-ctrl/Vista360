@@ -55,7 +55,7 @@ export function ProfileView({
     { nombre: "paneles", emoji: "", color: "#3B82F6" },
     { nombre: "contratos", emoji: "", color: "#22C55E" },
     { nombre: "clientes", emoji: "", color: "#A855F7" },
-    { nombre: "gastos", emoji: "", color: T.amber },
+    { nombre: "gastos", emoji: "", color: T.white },
     { nombre: "proveedores", emoji: "", color: "#EC4899" },
     { nombre: "facturas", emoji: "", color: "#06B6D4" },
     { nombre: "sueldos", emoji: "", color: "#10B981" },
@@ -215,14 +215,14 @@ export function ProfileView({
                 width: 10,
                 height: 10,
                 borderRadius: "50%",
-                background: fbStatus === "ok" ? "#22C55E" : fbStatus === "error" ? T.red : T.amber,
+                background: fbStatus === "ok" ? "#22C55E" : fbStatus === "error" ? T.red : T.white,
               }}
             />
             <span
               style={{
                 fontSize: 14,
                 fontWeight: 800,
-                color: fbStatus === "ok" ? "#16A34A" : fbStatus === "error" ? T.red : T.amber,
+                color: fbStatus === "ok" ? "#16A34A" : fbStatus === "error" ? T.red : T.white,
               }}
             >
               {fbStatus === "ok"

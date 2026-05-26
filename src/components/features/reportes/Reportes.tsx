@@ -187,7 +187,7 @@ function MesCard({
                 <span
                   style={{
                     background: margen >= 50 ? "rgba(16,185,129,0.18)" : "rgba(245,158,11,0.18)",
-                    color: margen >= 50 ? T.green : T.amber,
+                    color: margen >= 50 ? T.green : T.white,
                     border: `1px solid ${margen >= 50 ? "rgba(16,185,129,0.4)" : "rgba(245,158,11,0.4)"}`,
                     borderRadius: 8,
                     padding: "2px 9px",
@@ -254,7 +254,7 @@ function MesCard({
                 {
                   l: "PENDIENTE",
                   v: fmt(pendiente),
-                  c: pendiente > 0 ? T.amber : "rgba(160,180,220,0.4)",
+                  c: pendiente > 0 ? T.white : "rgba(160,180,220,0.4)",
                 },
                 { l: "GASTOS", v: fmt(m.gastosMes), c: T.red },
                 { l: "UTILIDAD", v: fmt(m.utilidad), c: m.utilidad >= 0 ? T.green : T.red },
@@ -321,7 +321,7 @@ function MesCard({
                   >
                     GASTOS / COBRADO
                   </span>
-                  <span style={{ fontSize: 9.5, color: T.amber, fontWeight: 700 }}>
+                  <span style={{ fontSize: 9.5, color: T.white, fontWeight: 700 }}>
                     {Math.min(100, Math.round((m.gastosMes / m.ingPagado) * 100))}%
                   </span>
                 </div>
@@ -338,7 +338,7 @@ function MesCard({
                       height: "100%",
                       borderRadius: 3,
                       width: `${Math.min(100, Math.round((m.gastosMes / m.ingPagado) * 100))}%`,
-                      background: T.amber,
+                      background: T.white,
                     }}
                   />
                 </div>
@@ -421,7 +421,7 @@ function MesCard({
                         style={{
                           fontSize: 12,
                           fontWeight: 800,
-                          color: c.pagado ? T.green : T.amber,
+                          color: c.pagado ? T.green : T.white,
                           fontFamily: "monospace",
                         }}
                       >
@@ -431,7 +431,7 @@ function MesCard({
                         style={{
                           fontSize: 9.5,
                           fontWeight: 700,
-                          color: c.pagado ? T.green : T.amber,
+                          color: c.pagado ? T.green : T.white,
                           marginTop: 1,
                         }}
                       >
@@ -551,24 +551,22 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
               fontFamily: "inherit",
             }}
           />
-          {[new Date().getFullYear() - 1, new Date().getFullYear()].map(a => (
-            <button
-              key={a}
-              onClick={() => setAnio(a)}
-              style={{
-                padding: "5px 14px",
-                borderRadius: 20,
-                border: "none",
-                background: a === anio ? T.accent : "rgba(255,255,255,0.08)",
-                color: a === anio ? "#fff" : "rgba(255,255,255,0.55)",
-                fontWeight: 700,
-                fontSize: 12,
-                cursor: "pointer",
-              }}
-            >
-              {a}
-            </button>
-          ))}
+          <button
+            onClick={() => setAnio(new Date().getFullYear())}
+            style={{
+              padding: "6px 18px",
+              borderRadius: 50,
+              border: "none",
+              background: "linear-gradient(135deg,#1E35C8 0%,#3854EE 100%)",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 12,
+              cursor: "pointer",
+              boxShadow: "0 4px 14px rgba(30,53,200,0.4), inset 0 1px 0 rgba(255,255,255,0.2)",
+            }}
+          >
+            Mes actual
+          </button>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <span
@@ -672,7 +670,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
         {[
           { label: "Ingresos cobrados", val: totales.ingresos, color: T.green },
-          { label: "Por cobrar", val: totales.porCobrar, color: T.amber },
+          { label: "Por cobrar", val: totales.porCobrar, color: T.white },
           { label: "Egresos", val: totales.egresos, color: T.red },
           { label: "Utilidad neta", val: totales.utilidad, color: col(totales.utilidad) },
         ].map(({ label, val, color }) => (
@@ -744,7 +742,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             <span style={{ textAlign: "right", color: T.green, fontWeight: 600 }}>
               {fmt(m.ingresos)}
             </span>
-            <span style={{ textAlign: "right", color: T.amber }}>{fmt(m.porCobrar)}</span>
+            <span style={{ textAlign: "right", color: T.white }}>{fmt(m.porCobrar)}</span>
             <span style={{ textAlign: "right", color: T.red }}>{fmt(m.egresos)}</span>
             <span style={{ textAlign: "right", color: col(m.utilidad), fontWeight: 700 }}>
               {fmt(m.utilidad)}
@@ -765,7 +763,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
         >
           <span style={{ color: "#fff" }}>TOTAL</span>
           <span style={{ textAlign: "right", color: T.green }}>{fmt(totales.ingresos)}</span>
-          <span style={{ textAlign: "right", color: T.amber }}>{fmt(totales.porCobrar)}</span>
+          <span style={{ textAlign: "right", color: T.white }}>{fmt(totales.porCobrar)}</span>
           <span style={{ textAlign: "right", color: T.red }}>{fmt(totales.egresos)}</span>
           <span style={{ textAlign: "right", color: col(totales.utilidad) }}>
             {fmt(totales.utilidad)}
@@ -907,7 +905,7 @@ function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: Repo
     text: T.white,
     muted: "#8892A4",
     green: T.green,
-    amber: T.amber,
+    amber: T.white,
     red: T.red,
     accent: "#4F7CFF",
     surface: "rgba(255,255,255,0.05)",
@@ -980,7 +978,7 @@ tbody td{padding:9px 11px;font-size:11px;color:#1e293b;border-bottom:1px solid #
 <div class="body">
   <div class="kpis">
     <div class="kpi"><div class="lb">Ingresos Cobrados</div><div class="vl" style="color:#065F46">${fmt(kpis.totalIngPagado)}</div><div class="sl">Contratos pagados</div></div>
-    <div class="kpi"><div class="lb">Por Cobrar</div><div class="vl" style="color:#92400E">${fmt(kpis.pendiente)}</div><div class="sl">Pendientes</div></div>
+    <div class="kpi"><div class="lb">Por Cobrar</div><div class="vl" style="color:#1E3A8A">${fmt(kpis.pendiente)}</div><div class="sl">Pendientes</div></div>
     <div class="kpi"><div class="lb">Gastos Totales</div><div class="vl" style="color:#991B1B">${fmt(kpis.totalGastos)}</div><div class="sl">Todos los gastos</div></div>
     <div class="kpi"><div class="lb">Utilidad Neta</div><div class="vl" style="color:${kpis.totalUtilidad >= 0 ? "#065F46" : "#991B1B"}">${fmt(kpis.totalUtilidad)}</div><div class="sl">Cobrado − Gastos</div></div>
   </div>
@@ -1074,7 +1072,7 @@ tbody td{padding:9px 11px;font-size:11px;color:#1e293b;border-bottom:1px solid #
         <td><strong>${mesLabel(m.mes)}</strong></td>
         <td style="text-align:center">${m.contrActivos}</td>
         <td class="num pos">${fmt(m.ingPagado)}</td>
-        <td class="num" style="color:#92400E">${fmt(m.ingTotal - m.ingPagado)}</td>
+        <td class="num" style="color:#1E3A8A">${fmt(m.ingTotal - m.ingPagado)}</td>
         <td class="num neg">${fmt(m.gastosMes)}</td>
         <td class="num ${m.utilidad >= 0 ? "pos" : "neg"}">${fmt(m.utilidad)}</td>
         <td class="num">${pct}%</td>
@@ -1173,7 +1171,7 @@ thead th{background:${DARK};color:#fff;padding:8px 10px;font-size:8.5px;font-wei
 tbody tr:nth-child(even){background:#F8FAFC}
 tbody td{padding:7px 10px;color:#1e293b;border-bottom:1px solid #E2E8F0}
 .num{text-align:right;font-family:'Courier New',monospace}
-.pos{color:#065F46;font-weight:700} .neg{color:#991B1B;font-weight:700} .pag{color:#065F46;font-weight:700} .pend{color:#92400E}
+.pos{color:#065F46;font-weight:700} .neg{color:#991B1B;font-weight:700} .pag{color:#065F46;font-weight:700} .pend{color:#1E3A8A}
 /* Bloque best mes */
 .best{background:linear-gradient(135deg,${DARK},${ACC});color:#fff;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:14px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .best .ic{font-size:28px}
@@ -1216,7 +1214,7 @@ tbody td{padding:7px 10px;color:#1e293b;border-bottom:1px solid #E2E8F0}
   <div class="section-title">Resumen del año ${anio}</div>
   <div class="kpis-wrap">
     <div class="kpi"><div class="lb">Total Cobrado</div><div class="vl" style="color:#065F46">${fmt(totalIng)}</div><div class="sl">Contratos pagados</div></div>
-    <div class="kpi"><div class="lb">Por Cobrar</div><div class="vl" style="color:#92400E">${fmt(kpis.pendiente)}</div><div class="sl">Pendientes</div></div>
+    <div class="kpi"><div class="lb">Por Cobrar</div><div class="vl" style="color:#1E3A8A">${fmt(kpis.pendiente)}</div><div class="sl">Pendientes</div></div>
     <div class="kpi"><div class="lb">Total Gastos</div><div class="vl" style="color:#991B1B">${fmt(totalGast)}</div><div class="sl">Todos los gastos</div></div>
     <div class="kpi"><div class="lb">Utilidad Neta</div><div class="vl" style="color:${totalUtil >= 0 ? "#065F46" : "#991B1B"}">${fmt(totalUtil)}</div><div class="sl">Cobrado − Gastos</div></div>
   </div>
@@ -1245,7 +1243,7 @@ tbody td{padding:7px 10px;color:#1e293b;border-bottom:1px solid #E2E8F0}
         <td><strong>TOTAL ${anio}</strong></td>
         <td style="text-align:center"></td>
         <td class="num pos"><strong>${fmt(totalIng)}</strong></td>
-        <td class="num" style="color:#92400E"><strong>${fmt(kpis.pendiente)}</strong></td>
+        <td class="num" style="color:#1E3A8A"><strong>${fmt(kpis.pendiente)}</strong></td>
         <td class="num neg"><strong>${fmt(totalGast)}</strong></td>
         <td class="num ${totalUtil >= 0 ? "pos" : "neg"}"><strong>${fmt(totalUtil)}</strong></td>
         <td class="num"></td>
@@ -1315,7 +1313,7 @@ thead th{background:${DARK};color:#fff;padding:8px 10px;font-size:9px;font-weigh
 tbody tr:nth-child(even){background:#F8FAFC}
 tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #E2E8F0}
 .num{text-align:right;font-family:'Courier New',monospace}
-.pag{color:#065F46;font-weight:700} .pend{color:#92400E} .neg{color:#991B1B}
+.pag{color:#065F46;font-weight:700} .pend{color:#1E3A8A} .neg{color:#991B1B}
 .bar-wrap{background:#E5E7EB;border-radius:4px;height:8px;overflow:hidden;margin-top:4px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .bar-fill{height:100%;border-radius:4px;background:${DARK};-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .footer{border-top:2px solid ${DARK};padding:10px 28px;display:flex;justify-content:space-between;font-size:9px;color:#64748B;margin-top:14px}

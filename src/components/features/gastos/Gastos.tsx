@@ -287,7 +287,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
     porCat[c] = (porCat[c] || 0) + Number(g.monto || 0);
   });
   const catColor = {
-    Mantenimiento: T.amber,
+    Mantenimiento: T.white,
     Personal: T.accent,
     Transporte: T.cyan,
     Administrativo: T.purple,

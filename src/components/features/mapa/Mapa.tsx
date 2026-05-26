@@ -206,13 +206,13 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
       {sinCoords.length > 0 && (
         <div
           style={{
-            background: T.amber + "12",
-            border: `1px solid ${T.amber}33`,
+            background: T.accent + "12",
+            border: "1px solid rgba(37,99,235,0.25)",
             borderRadius: 12,
             padding: "10px 16px",
             marginBottom: 14,
             fontSize: 13,
-            color: T.amber,
+            color: T.white,
             display: "flex",
             gap: 10,
             alignItems: "center",

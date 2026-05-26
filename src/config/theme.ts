@@ -22,7 +22,7 @@ export const T = {
 
 export const tCol = (t: string) => (t === "Cliente" ? T.green : T.purple);
 export const catCol: Record<string, string> = {
-  Mantenimiento: T.amber,
+  Mantenimiento: T.white,
   Personal: T.accent,
   Transporte: T.cyan,
   Administrativo: T.purple,
