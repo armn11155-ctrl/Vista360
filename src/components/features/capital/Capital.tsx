@@ -501,6 +501,15 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
       color: "#60A5FA",
     });
 
+  // ── Colores por sección ──
+  const CAP_COLORS = {
+    liquidez: "#3B82F6", // blue
+    activos: "#10B981", // green
+    deudas: "#EF4444", // red
+    fondos: "#8B5CF6", // purple
+    objetivos: "#06B6D4", // cyan
+  };
+
   // ── UI helpers ──
   const TABS = [
     {

@@ -1590,7 +1590,7 @@ const KPIDark = ({ label, value, valueColor = T.white, sub, accent = T.accent, i
             width: 38,
             height: 38,
             borderRadius: 10,
-            border: `1px solid ${accent === T.green ? "rgba(16,185,129,0.4)" : accent === T.amber ? "rgba(245,158,11,0.4)" : accent === T.red ? "rgba(239,68,68,0.4)" : "rgba(255,255,255,0.18)"}`,
+            border: `1px solid ${accent === T.green ? "rgba(16,185,129,0.4)" : accent === T.white ? "rgba(245,158,11,0.4)" : accent === T.red ? "rgba(239,68,68,0.4)" : "rgba(255,255,255,0.18)"}`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -1653,7 +1653,7 @@ const ICN = {
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
       <polygon
         points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
-        stroke={T.amber}
+        stroke={T.white}
         strokeWidth="1.6"
         strokeLinejoin="round"
         fill="none"
@@ -1745,10 +1745,10 @@ const ICN = {
   ),
   clock: (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke={T.amber} strokeWidth="1.6" />
+      <circle cx="12" cy="12" r="9" stroke={T.white} strokeWidth="1.6" />
       <polyline
         points="12 7 12 12 15 14"
-        stroke={T.amber}
+        stroke={T.white}
         strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"

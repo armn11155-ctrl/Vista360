@@ -937,7 +937,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                   >
                     {items.map(c => {
                       const activo = c.d > 0;
-                      const statusColor = activo ? (c.d <= 30 ? T.amber : T.green) : "#94A3B8";
+                      const statusColor = activo ? (c.d <= 30 ? T.white : T.green) : "#94A3B8";
                       const statusLabel = activo
                         ? c.d <= 30
                           ? `Vence en ${c.d}d`
@@ -958,7 +958,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                           <div
                             style={{
                               height: 3,
-                              background: activo ? (c.d <= 30 ? T.amber : T.accent) : T.border,
+                              background: activo ? (c.d <= 30 ? T.accent : T.accent) : T.border,
                             }}
                           />
                           <div style={{ padding: "14px 16px" }}>

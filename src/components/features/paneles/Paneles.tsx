@@ -1213,14 +1213,14 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
                   color: geocodeMsg.startsWith("")
                     ? T.green
                     : geocodeMsg.startsWith("")
-                      ? T.amber
+                      ? T.white
                       : T.red,
                   padding: "6px 10px",
                   background:
                     (geocodeMsg.startsWith("")
                       ? T.green
                       : geocodeMsg.startsWith("")
-                        ? T.amber
+                        ? T.white
                         : T.red) + "12",
                   borderRadius: 8,
                 }}
