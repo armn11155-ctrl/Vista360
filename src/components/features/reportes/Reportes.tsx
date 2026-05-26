@@ -1,4 +1,3 @@
-// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import {
   collection,
