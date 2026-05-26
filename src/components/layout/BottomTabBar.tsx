@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { T } from "../../config/theme";
+import { NAV_TAB_IDS } from "../../config/constants";
 
 interface Tab {
   id: string;
@@ -15,27 +16,19 @@ interface BottomTabBarProps {
   onAddClick: () => void;
 }
 
-const NAV_TAB_IDS = ["hoy", "paneles", "contratos", "gastos", "capital", "reportes", "mapa"];
-
 /**
  * Barra de navegación inferior de la PWA.
- * Extraído de AuthenticatedShell para reducir su tamaño.
+ * Extraído de AuthenticatedShell — reduce ~120 líneas de JSX inline.
  */
-export function BottomTabBar({
-  tabs,
-  icons,
-  showProfile,
-  onTabClick,
-  onAddClick,
-}: BottomTabBarProps) {
-  const navigate = useNavigate();
+export function BottomTabBar({ tabs, icons, showProfile, onTabClick, onAddClick }: BottomTabBarProps) {
+  const navigate     = useNavigate();
   const { pathname } = useLocation();
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, tabId: string) => {
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
       e.preventDefault();
-      const idx = NAV_TAB_IDS.indexOf(tabId);
+      const idx  = NAV_TAB_IDS.indexOf(tabId);
       if (idx === -1) return;
       const next =
         e.key === "ArrowRight"
@@ -84,7 +77,7 @@ export function BottomTabBar({
                     width: 54,
                     height: 54,
                     borderRadius: "50%",
-                    background: "linear-gradient(180deg,#0E1A3B 0%,#15265A 100%)",
+                    background: "linear-gradient(180deg, #0E1A3B 0%, #15265A 100%)",
                     border: "3px solid rgba(255,255,255,0.95)",
                     display: "flex",
                     alignItems: "center",
@@ -95,12 +88,7 @@ export function BottomTabBar({
                   }}
                 >
                   <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path
-                      d="M12 5V19M5 12H19"
-                      stroke="white"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
+                    <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
                   </svg>
                 </button>
               </div>
@@ -108,7 +96,7 @@ export function BottomTabBar({
           }
 
           const routePath = t.id === "hoy" ? "/" : `/${t.id}`;
-          const active = !showProfile && pathname === routePath;
+          const active    = !showProfile && pathname === routePath;
 
           return (
             <button
@@ -135,7 +123,6 @@ export function BottomTabBar({
                 margin: "0 2px",
                 transition: "background 0.18s ease, color 0.18s ease",
                 cursor: "pointer",
-                fontFamily: "inherit",
               }}
             >
               <div
