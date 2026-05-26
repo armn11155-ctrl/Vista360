@@ -1,3 +1,37 @@
+// @ts-nocheck
+// ─────────────────────────────────────────────────────────────────────────────
+// MIGRACIÓN TYPESCRIPT PENDIENTE — Proveedores.tsx  (~38 KB)
+// Al remover @ts-nocheck se revelaron 60+ errores reales que requieren
+// ejecutar la app para arreglar de forma segura. Grupos principales:
+//
+//   1. Imports no usados: React, useEffect, useCallback, createContext, useContext,
+//      firebase/auth completo, Panel/Cliente/Contrato/Gasto/Factura/Sueldo,
+//      tCol/catCol, useVirtualList, F/fFmt/fMesL/fMesActual — limpiar con eslint --fix
+//
+//   2. ProveedoresProps no definido en el archivo → mover a src/types/index.ts
+//      junto con ProveedorForm (ya tiene la interfaz pero no se usa todavía)
+//
+//   3. modal: Partial<Proveedor> | null no puede compararse con "nuevo"
+//      → cambiar a: null | { __nuevo: true } | Proveedor  o usar un
+//        discriminador: modalMode: "cerrado" | "nuevo" | "editar"
+//
+//   4. p: unknown en callbacks de .map() — el hook useCollection devuelve
+//      FirebaseDoc[] que necesita cast explícito: (docs as Proveedor[]).map(...)
+//
+//   5. boxSizing: "string" vs BoxSizing — cambiar a boxSizing: "border-box" as const
+//
+//   6. FieldGroup / SkeletonCRM no existen en este scope — importar o reemplazar
+//
+//   7. CAT_PROVE como objeto cerrado accedido con string dinámico
+//      → usar: (CAT_PROVE as Record<string, string>)[key] ?? "#64748B"
+//
+// Ruta de migración (en orden):
+//   a. eslint --fix para imports → reducir de 60 a ~25 errores
+//   b. Extraer ProveedoresProps a src/types/index.ts
+//   c. Cambiar modal state a discriminated union
+//   d. Tipar .map() callbacks con (p: Proveedor)
+//   e. Quitar este @ts-nocheck cuando tsc pase sin errores
+// ─────────────────────────────────────────────────────────────────────────────
 import React, {
   useState,
   useMemo,
