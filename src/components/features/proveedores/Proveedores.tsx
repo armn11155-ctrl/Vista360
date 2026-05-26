@@ -78,7 +78,6 @@ import { Pagination, SwipeRow } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
 import { useVirtualList } from "../../../hooks/useVirtualList";
 
-
 // ── Tipos locales ──────────────────────────────────────────────────
 interface ProveedorForm {
   empresa: string;
