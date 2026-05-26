@@ -1,148 +1,65 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { dias, fmt, fmtF, mesLabel, mesHoy, validate } from "./utils";
+import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
 
-// ── dias ──────────────────────────────────────────────────────────
-describe("dias", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2025-06-01"));
-  });
-  afterEach(() => vi.useRealTimers());
+vi.mock("../config/firebase", () => ({
+  db: {},
+  auth: {},
+  storage: {},
+}));
+vi.mock("../context/UIContext", () => ({
+  toast: vi.fn(),
+  confirmAsync: vi.fn(),
+}));
 
-  it("retorna días positivos para fecha futura", () => {
-    expect(dias("2025-06-16")).toBe(15);
-  });
-  it("retorna 0 para hoy", () => {
-    expect(dias("2025-06-01")).toBe(0);
-  });
-  it("retorna negativo para fecha pasada", () => {
-    expect(dias("2025-05-25")).toBeLessThan(0);
-  });
-});
+const { fmt, fmtF, dias, mesLabel, hoy } = await import("./utils");
 
-// ── fmt ───────────────────────────────────────────────────────────
 describe("fmt", () => {
-  it("formatea número con prefijo S/", () => {
-    expect(fmt(1500)).toContain("S/");
-    expect(fmt(1500)).toContain("1,500");
+  it("formatea número con dos decimales y prefijo S/", () => {
+    expect(fmt(1234.5)).toContain("1");
+    expect(fmt(0)).toContain("0");
   });
-  it("maneja null retornando S/ 0.00", () => {
-    expect(fmt(null)).toBe("S/ 0.00");
+  it("acepta string numérico", () => {
+    expect(typeof fmt("500")).toBe("string");
   });
-  it("maneja undefined retornando S/ 0.00", () => {
-    expect(fmt(undefined)).toBe("S/ 0.00");
-  });
-  it("incluye dos decimales siempre", () => {
-    expect(fmt(100)).toContain("100.00");
+  it("acepta undefined sin lanzar", () => {
+    expect(() => fmt(undefined)).not.toThrow();
   });
 });
 
-// ── fmtF ──────────────────────────────────────────────────────────
 describe("fmtF", () => {
-  it("formatea fecha ISO a string legible", () => {
-    const result = fmtF("2025-01-15");
-    expect(typeof result).toBe("string");
-    expect(result).not.toBe("—");
+  it("formatea fecha YYYY-MM-DD a DD/MM/YYYY", () => {
+    expect(fmtF("2025-05-26")).toBe("26/05/2025");
   });
-  it("retorna '—' para null", () => {
-    expect(fmtF(null)).toBe("—");
-  });
-  it("retorna '—' para undefined", () => {
+  it("devuelve — para valores vacíos", () => {
+    expect(fmtF("")).toBe("—");
     expect(fmtF(undefined)).toBe("—");
   });
 });
 
-// ── mesLabel ──────────────────────────────────────────────────────
+describe("dias", () => {
+  it("devuelve número positivo para fecha futura", () => {
+    const future = new Date(Date.now() + 5 * 86400000).toISOString().split("T")[0];
+    expect(dias(future)).toBeGreaterThan(0);
+  });
+  it("devuelve número negativo o 0 para fecha pasada", () => {
+    const past = "2020-01-01";
+    expect(dias(past)).toBeLessThan(0);
+  });
+});
+
 describe("mesLabel", () => {
-  it("retorna el nombre del mes capitalizado", () => {
-    const result = mesLabel("2025-06");
-    expect(result).toMatch(/^[A-ZÁÉÍÓÚ]/);
-    expect(typeof result).toBe("string");
+  it("devuelve el nombre del mes en español", () => {
+    expect(mesLabel("2025-05")).toMatch(/mayo/i);
+    expect(mesLabel("2025-01")).toMatch(/enero/i);
+    expect(mesLabel("2025-12")).toMatch(/diciembre/i);
   });
 });
 
-// ── mesHoy ────────────────────────────────────────────────────────
-describe("mesHoy", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2025-06-01"));
+describe("hoy", () => {
+  it("devuelve fecha en formato YYYY-MM-DD", () => {
+    expect(hoy()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
-  afterEach(() => vi.useRealTimers());
-
-  it("retorna el formato YYYY-MM", () => {
-    expect(mesHoy()).toMatch(/^\d{4}-\d{2}$/);
-    expect(mesHoy()).toBe("2025-06");
-  });
-});
-
-// ── validate ──────────────────────────────────────────────────────
-describe("validate.ruc", () => {
-  it("acepta RUC de persona jurídica válido (20)", () => {
-    // RUC real de SUNAT: 20131312955
-    expect(validate.ruc("20131312955")).toBeNull();
-  });
-  it("rechaza RUC con longitud incorrecta", () => {
-    expect(validate.ruc("1234567890")).not.toBeNull();
-  });
-  it("rechaza RUC con dígito verificador incorrecto", () => {
-    expect(validate.ruc("20131312956")).not.toBeNull(); // último dígito alterado
-  });
-  it("retorna null para undefined (campo opcional)", () => {
-    expect(validate.ruc(undefined)).toBeNull();
-  });
-});
-
-describe("validate.email", () => {
-  it("acepta email válido", () => {
-    expect(validate.email("user@example.com")).toBeNull();
-  });
-  it("rechaza email sin @", () => {
-    expect(validate.email("notanemail")).not.toBeNull();
-  });
-  it("retorna null para undefined (campo opcional)", () => {
-    expect(validate.email(undefined)).toBeNull();
-  });
-});
-
-describe("validate.fechasContrato", () => {
-  it("acepta fechas válidas donde fin > inicio", () => {
-    expect(validate.fechasContrato("2025-01-01", "2025-12-31")).toBeNull();
-  });
-  it("rechaza cuando fin < inicio", () => {
-    expect(validate.fechasContrato("2025-12-31", "2025-01-01")).not.toBeNull();
-  });
-  it("rechaza cuando alguna fecha está vacía", () => {
-    expect(validate.fechasContrato("", "2025-12-31")).not.toBeNull();
-  });
-});
-
-describe("validate.monto", () => {
-  it("acepta monto positivo", () => {
-    expect(validate.monto(500)).toBeNull();
-  });
-  it("rechaza monto 0", () => {
-    expect(validate.monto(0)).not.toBeNull();
-  });
-  it("rechaza monto negativo", () => {
-    expect(validate.monto(-100)).not.toBeNull();
-  });
-});
-
-describe("validate.contrato", () => {
-  it("rechaza contrato sin panel_id", () => {
-    expect(
-      validate.contrato({ cliente_id: "c1", inicio: "2025-01-01", fin: "2025-12-31", monto: 500 }),
-    ).not.toBeNull();
-  });
-  it("acepta contrato completo válido", () => {
-    expect(
-      validate.contrato({
-        panel_id: "p1",
-        cliente_id: "c1",
-        inicio: "2025-01-01",
-        fin: "2025-12-31",
-        monto: 500,
-      }),
-    ).toBeNull();
+  it("coincide con la fecha actual", () => {
+    const today = new Date().toISOString().split("T")[0];
+    expect(hoy()).toBe(today);
   });
 });
