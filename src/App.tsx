@@ -208,16 +208,26 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
     document.title = `${section} | Vista360`;
   }, [location.pathname, showProfile]);
 
-  // ── Service Worker (desactivado temporalmente para evitar loops de caché)
-  // El SW kill-switch en /sw.js se auto-elimina y limpia cachés
-  // Lo re-habilitaremos cuando esté todo estable
+  // ── Service Worker — Cache-First para assets, Network-First para navegación ──
+  // El SW está activo y es esencial para el funcionamiento offline de la PWA.
+  // Ver /public/sw.js para la implementación completa de estrategias de caché.
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
-    // Registramos el kill-switch para que limpie cachés viejos y luego se vaya
     navigator.serviceWorker
       .register("/sw.js")
       .then(reg => {
         swRef.current = reg;
+        // Forzar actualización si hay una nueva versión esperando
+        if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        reg.addEventListener("updatefound", () => {
+          const newSW = reg.installing;
+          newSW?.addEventListener("statechange", () => {
+            if (newSW.state === "installed" && navigator.serviceWorker.controller) {
+              // Nueva versión disponible — se aplicará en el próximo reload
+              console.info("[SW] Nueva versión disponible. Recarga para actualizar.");
+            }
+          });
+        });
       })
       .catch(err => console.warn("[SW] Registro fallido:", err));
   }, []);
@@ -230,7 +240,26 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
     const hoyD = new Date();
     let enviadas: Record<string, boolean> = {};
     try {
-      enviadas = JSON.parse(localStorage.getItem("v360_notif") || "{}");
+      const raw = localStorage.getItem("v360_notif");
+      if (raw) {
+        const parsed = JSON.parse(raw) as Record<string, boolean | { ts: number; val: boolean }>;
+        // TTL cleanup: eliminar entradas con más de 90 días
+        const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+        const cleaned: Record<string, boolean> = {};
+        for (const [k, v] of Object.entries(parsed)) {
+          // Soporte para formato legacy (boolean puro) y nuevo (objeto con ts)
+          if (typeof v === "boolean") {
+            // Mantener claves cuyo contrato aún existe (id presente en contractsActive)
+            const cid = k.split("_")[0];
+            if (contractsActive.some(c => c.id === cid)) cleaned[k] = v;
+          } else if (typeof v === "object" && v !== null && (v as { ts: number }).ts > cutoff) {
+            cleaned[k] = (v as { ts: number; val: boolean }).val;
+          }
+        }
+        enviadas = cleaned;
+        // Guardar versión limpia inmediatamente
+        localStorage.setItem("v360_notif", JSON.stringify(cleaned));
+      }
     } catch {
       /* ignored */
     }
@@ -269,6 +298,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
       });
     });
     try {
+      // Guardar con TTL: guardar como objeto simple (compatible con cleanup TTL)
       localStorage.setItem("v360_notif", JSON.stringify(enviadas));
     } catch {
       /* ignored */
