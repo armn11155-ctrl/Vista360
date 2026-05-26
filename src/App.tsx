@@ -79,11 +79,6 @@ function prefetchAllTabs() {
     import("./components/features/capital/Capital");
     import("./components/features/mapa/Mapa");
   });
-}/proveedores/Proveedores"));
-const Facturacion = lazy(() => import("./components/features/facturacion/Facturacion"));
-const Reportes = lazy(() => import("./components/features/reportes/Reportes"));
-const Capital = lazy(() => import("./components/features/capital/Capital"));
-const Mapa = lazy(() => import("./components/features/mapa/Mapa"));
 
 // ── Color del header según ruta ───────────────────────────────────
 const HEADER_COLORS: Record<string, string> = {
