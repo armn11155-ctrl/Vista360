@@ -15,7 +15,11 @@ describe("useOnlineStatus", () => {
   });
 
   it("devuelve false cuando navigator.onLine es false", () => {
-    Object.defineProperty(navigator, "onLine", { value: false, configurable: true, writable: true });
+    Object.defineProperty(navigator, "onLine", {
+      value: false,
+      configurable: true,
+      writable: true,
+    });
     const { result } = renderHook(() => useOnlineStatus());
     expect(result.current).toBe(false);
   });
@@ -24,7 +28,7 @@ describe("useOnlineStatus", () => {
     const addSpy = vi.spyOn(window, "addEventListener");
     Object.defineProperty(navigator, "onLine", { value: true, configurable: true, writable: true });
     renderHook(() => useOnlineStatus());
-    expect(addSpy).toHaveBeenCalledWith("online",  expect.any(Function));
+    expect(addSpy).toHaveBeenCalledWith("online", expect.any(Function));
     expect(addSpy).toHaveBeenCalledWith("offline", expect.any(Function));
   });
 
@@ -33,17 +37,25 @@ describe("useOnlineStatus", () => {
     Object.defineProperty(navigator, "onLine", { value: true, configurable: true, writable: true });
     const { unmount } = renderHook(() => useOnlineStatus());
     unmount();
-    expect(removeSpy).toHaveBeenCalledWith("online",  expect.any(Function));
+    expect(removeSpy).toHaveBeenCalledWith("online", expect.any(Function));
     expect(removeSpy).toHaveBeenCalledWith("offline", expect.any(Function));
   });
 
   it("actualiza a true al disparar evento online", () => {
-    Object.defineProperty(navigator, "onLine", { value: false, configurable: true, writable: true });
+    Object.defineProperty(navigator, "onLine", {
+      value: false,
+      configurable: true,
+      writable: true,
+    });
     const { result } = renderHook(() => useOnlineStatus());
     expect(result.current).toBe(false);
 
     act(() => {
-      Object.defineProperty(navigator, "onLine", { value: true, configurable: true, writable: true });
+      Object.defineProperty(navigator, "onLine", {
+        value: true,
+        configurable: true,
+        writable: true,
+      });
       window.dispatchEvent(new Event("online"));
     });
 
@@ -56,7 +68,11 @@ describe("useOnlineStatus", () => {
     expect(result.current).toBe(true);
 
     act(() => {
-      Object.defineProperty(navigator, "onLine", { value: false, configurable: true, writable: true });
+      Object.defineProperty(navigator, "onLine", {
+        value: false,
+        configurable: true,
+        writable: true,
+      });
       window.dispatchEvent(new Event("offline"));
     });
 
