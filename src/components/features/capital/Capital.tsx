@@ -20,6 +20,7 @@ import { toast, confirmAsync } from "../../../context/UIContext";
 import {
   fmt,
   fmtS2,
+  fmtK,
   fmtF,
   dias,
   mesHoy,
