@@ -113,7 +113,12 @@ describe("validate.fechasContrato", () => {
 
 // ── validate.gasto ────────────────────────────────────────────────
 describe("validate.gasto", () => {
-  const gastoBase = { descripcion: "Pintura", monto: 450, categoria: "Mantenimiento", fecha: "2025-05-15" };
+  const gastoBase = {
+    descripcion: "Pintura",
+    monto: 450,
+    categoria: "Mantenimiento",
+    fecha: "2025-05-15",
+  };
 
   it("acepta gasto con todos los campos", () => {
     expect(validate.gasto(gastoBase)).toBeNull();
@@ -137,11 +142,11 @@ describe("validate.gasto", () => {
 // ── validate.contrato ─────────────────────────────────────────────
 describe("validate.contrato", () => {
   const contratoBase = {
-    panel_id:   "panel-1",
+    panel_id: "panel-1",
     cliente_id: "cliente-1",
-    inicio:     "2025-01-01",
-    fin:        "2025-12-31",
-    monto:      1200,
+    inicio: "2025-01-01",
+    fin: "2025-12-31",
+    monto: 1200,
   };
 
   it("acepta contrato válido", () => {
