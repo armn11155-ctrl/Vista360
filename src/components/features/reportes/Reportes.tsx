@@ -1706,7 +1706,12 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                   }}
                 >
                   <div
-                    style={{ fontSize: 9.5, fontWeight: 800, color: esHoy ? "#fff" : tieneData ? "#BDD5FF" : "rgba(180,210,255,0.72)", letterSpacing: 0.4 }}
+                    style={{
+                      fontSize: 9.5,
+                      fontWeight: 800,
+                      color: esHoy ? "#fff" : tieneData ? "#BDD5FF" : "rgba(180,210,255,0.72)",
+                      letterSpacing: 0.4,
+                    }}
                   >
                     {mShort}
                   </div>
@@ -1813,4 +1818,3 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
 // ══════════════════════════════════════════════════════════════════
 
 export default Reportes;
-
