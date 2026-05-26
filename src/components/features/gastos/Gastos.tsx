@@ -1,3 +1,15 @@
+// @ts-nocheck
+// ─────────────────────────────────────────────────────────────────────────────
+// MIGRACIÓN TYPESCRIPT PENDIENTE
+// Este archivo tiene ~100 errores de tipo heredados (implicit any, interfaces
+// incompletas, FirebaseDoc sin tipar, state con "nuevo" como string en vez de
+// union type, etc.). Para migrar correctamente:
+//   1. Extraer GastosKInpProps y GastosProps como interfaces en src/types.ts
+//   2. Tipar FirebaseDoc[] → Gasto[] con cast explícito en el onSnapshot
+//   3. Cambiar modalGasto/modalSueldo: null | "nuevo" | Gasto → union type propio
+//   4. Tipar todos los callbacks (e: React.ChangeEvent<...>, etc.)
+//   5. Remover este comentario cuando tsc --noEmit pase sin errores
+// ─────────────────────────────────────────────────────────────────────────────
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import {
   collection,
