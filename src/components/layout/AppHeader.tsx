@@ -1,6 +1,5 @@
 import type { User } from "firebase/auth";
 import { T } from "../../config/theme";
-import { EMISOR } from "../../config/constants";
 
 interface AppHeaderProps {
   title: string;
