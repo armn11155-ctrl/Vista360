@@ -12,46 +12,46 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ── Mocks Firebase ─────────────────────────────────────────────────
-const mockAddDoc    = vi.fn();
+const mockAddDoc = vi.fn();
 const mockUpdateDoc = vi.fn();
 const mockDeleteDoc = vi.fn();
-const mockGetDocs   = vi.fn();
+const mockGetDocs = vi.fn();
 const mockOnSnapshot = vi.fn();
 const MockTimestamp = { now: vi.fn(() => ({ seconds: 1_700_000_000, nanoseconds: 0 })) };
 
 vi.mock("firebase/firestore", () => ({
-  collection:      vi.fn(),
-  addDoc:          mockAddDoc,
-  updateDoc:       mockUpdateDoc,
-  deleteDoc:       mockDeleteDoc,
-  getDocs:         mockGetDocs,
-  doc:             vi.fn(),
-  query:           vi.fn((...a: unknown[]) => a),
-  orderBy:         vi.fn(),
-  onSnapshot:      mockOnSnapshot,
+  collection: vi.fn(),
+  addDoc: mockAddDoc,
+  updateDoc: mockUpdateDoc,
+  deleteDoc: mockDeleteDoc,
+  getDocs: mockGetDocs,
+  doc: vi.fn(),
+  query: vi.fn((...a: unknown[]) => a),
+  orderBy: vi.fn(),
+  onSnapshot: mockOnSnapshot,
   serverTimestamp: vi.fn(() => ({ _type: "serverTimestamp" })),
-  Timestamp:       MockTimestamp,
+  Timestamp: MockTimestamp,
 }));
 vi.mock("../config/firebase", () => ({ db: {} }));
 
-const { fb }               = await import("./firestore");
-const { validate }         = await import("../lib/utils");
+const { fb } = await import("./firestore");
+const { validate } = await import("../lib/utils");
 const { toNumber, toDate } = await import("../lib/converters");
 
 // ── Helpers ────────────────────────────────────────────────────────
 const gastoValido = {
   descripcion: "Compra de pintura",
-  monto:       450,
-  categoria:   "Mantenimiento",
-  fecha:       "2025-05-15",
-  proveedor:   "Ferretería Lima",
+  monto: 450,
+  categoria: "Mantenimiento",
+  fecha: "2025-05-15",
+  proveedor: "Ferretería Lima",
 };
 
 const gastoInvalido = {
-  descripcion: "",    // obligatorio
-  monto:       -10,   // debe ser > 0
-  categoria:   "Mantenimiento",
-  fecha:       "2025-05-15",
+  descripcion: "", // obligatorio
+  monto: -10, // debe ser > 0
+  categoria: "Mantenimiento",
+  fecha: "2025-05-15",
 };
 
 // ── Tests ──────────────────────────────────────────────────────────
@@ -189,7 +189,13 @@ describe("Flujo de negocio: Gasto", () => {
 
     it("un gasto de Firestore con monto:string se convierte correctamente", () => {
       // Firestore puede devolver strings si el doc fue creado manualmente
-      const gastoFs = { id: "g1", descripcion: "Test", monto: "320.50", categoria: "Otro", fecha: "2025-01-10" };
+      const gastoFs = {
+        id: "g1",
+        descripcion: "Test",
+        monto: "320.50",
+        categoria: "Otro",
+        fecha: "2025-01-10",
+      };
       const monto = toNumber(gastoFs.monto);
       expect(monto).toBe(320.5);
       expect(typeof monto).toBe("number");
@@ -202,12 +208,21 @@ describe("Flujo de negocio: Gasto", () => {
       const fakeSnap = {
         docs: [
           { id: "g1", data: () => ({ ...gastoValido }) },
-          { id: "g2", data: () => ({ descripcion: "Otro", monto: 100, categoria: "Otro", fecha: "2025-06-01" }) },
+          {
+            id: "g2",
+            data: () => ({
+              descripcion: "Otro",
+              monto: 100,
+              categoria: "Otro",
+              fecha: "2025-06-01",
+            }),
+          },
         ],
       };
-      mockOnSnapshot.mockImplementation(
-        (_q: unknown, cb: (s: typeof fakeSnap) => void) => { cb(fakeSnap); return () => {}; },
-      );
+      mockOnSnapshot.mockImplementation((_q: unknown, cb: (s: typeof fakeSnap) => void) => {
+        cb(fakeSnap);
+        return () => {};
+      });
 
       const onData = vi.fn();
       fb.subscribe("gastos", onData);
@@ -219,12 +234,10 @@ describe("Flujo de negocio: Gasto", () => {
     });
 
     it("llama onErr cuando Firestore falla", () => {
-      mockOnSnapshot.mockImplementation(
-        (_q: unknown, _cb: unknown, errCb: (e: Error) => void) => {
-          errCb(new Error("Firestore offline"));
-          return () => {};
-        },
-      );
+      mockOnSnapshot.mockImplementation((_q: unknown, _cb: unknown, errCb: (e: Error) => void) => {
+        errCb(new Error("Firestore offline"));
+        return () => {};
+      });
       const onErr = vi.fn();
       fb.subscribe("gastos", vi.fn(), onErr);
       expect(onErr).toHaveBeenCalledOnce();
