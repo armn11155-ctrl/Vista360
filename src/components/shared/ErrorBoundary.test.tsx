@@ -33,9 +33,12 @@ describe("ErrorBoundary", () => {
         <Bomb shouldThrow={true} />
       </ErrorBoundary>,
     );
-    expect(screen.getByRole("alert")).toBeTruthy();
+    const alert = screen.getByRole("alert");
+    expect(alert).toBeTruthy();
     expect(screen.getByText(/Error en Gastos/i)).toBeTruthy();
-    expect(screen.getByText(/Explosión controlada de prueba/i)).toBeTruthy();
+    // El mensaje de error aparece en el div de mensaje (no usar getByText que matchea también el stack trace)
+    const msgBox = alert.querySelector("div[style*='font-family: monospace']");
+    expect(msgBox?.textContent).toContain("Explosión controlada de prueba");
   });
 
   it("muestra el botón Reintentar", () => {
@@ -56,25 +59,30 @@ describe("ErrorBoundary", () => {
     expect(screen.getByText("Recargar app")).toBeTruthy();
   });
 
-  it("el botón Reintentar recupera el renderizado normal si el error se resolvió", () => {
-    // Renderiza con error
+  it("el botón Reintentar limpia el estado de error del boundary", () => {
+    // Nota: el retry remonta los children — si el hijo sigue lanzando,
+    // el boundary vuelve a capturar el error (comportamiento correcto).
+    // Este test verifica que el ESTADO interno se resetea al pulsar Reintentar.
+    let shouldThrow = true;
+
     const { rerender } = render(
       <ErrorBoundary label="Módulo">
-        <Bomb shouldThrow={true} />
+        <Bomb shouldThrow={shouldThrow} />
       </ErrorBoundary>,
     );
     expect(screen.getByRole("alert")).toBeTruthy();
 
-    // El usuario corrige la condición y pulsa Reintentar
-    // (simulamos el retry que desmonta/remonta los children)
-    fireEvent.click(screen.getByText("Reintentar"));
-
-    // Después del retry, rerender con prop fixed
+    // Cambiar la condición ANTES de hacer click en Reintentar
+    // para que el hijo no lance al remontar
+    shouldThrow = false;
     rerender(
       <ErrorBoundary label="Módulo">
-        <Bomb shouldThrow={false} />
+        <Bomb shouldThrow={shouldThrow} />
       </ErrorBoundary>,
     );
+    fireEvent.click(screen.getByText("Reintentar"));
+
+    // Ahora el hijo no lanza — debería renderizar normalmente
     expect(screen.getByText("Contenido normal")).toBeTruthy();
     expect(screen.queryByRole("alert")).toBeNull();
   });
