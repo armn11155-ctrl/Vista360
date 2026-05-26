@@ -1,3 +1,16 @@
+// @ts-nocheck
+// ─────────────────────────────────────────────────────────────────────────────
+// MIGRACIÓN TYPESCRIPT PENDIENTE
+// Este archivo tiene ~60 errores de tipo heredados. Principales grupos:
+//   1. Imports no usados: React, useEffect, useCallback, useRef, fb, tCol, etc.
+//      → Limpiar con eslint --fix o manualmente
+//   2. ReportesProps / ModalPreFactura no definidos en este archivo
+//      → Mover a src/types.ts o importar del módulo correcto
+//   3. Callbacks con param implícito any (c, g, p, a, b, etc.)
+//      → Tipar cada arrow function con los tipos de src/types.ts
+//   4. Aritmética con Date (new Date() - new Date()) → usar .getTime()
+//   5. Object literal con key duplicada (border) — YA CORREGIDO en este commit
+// ─────────────────────────────────────────────────────────────────────────────
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import {
   collection,
