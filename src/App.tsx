@@ -79,6 +79,7 @@ function prefetchAllTabs() {
     import("./components/features/capital/Capital");
     import("./components/features/mapa/Mapa");
   });
+}
 
 // ── Color del header según ruta ───────────────────────────────────
 const HEADER_COLORS: Record<string, string> = {
