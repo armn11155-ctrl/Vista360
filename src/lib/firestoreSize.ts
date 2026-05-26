@@ -18,20 +18,18 @@
 // ── Tamaño de valores según tipo de Firestore ─────────────────────
 function bytesValor(v: unknown): number {
   if (v === null || v === undefined) return 1;
-  if (typeof v === "boolean")        return 1;
-  if (typeof v === "number")         return 8;
-  if (typeof v === "string")         return new TextEncoder().encode(v).length;
+  if (typeof v === "boolean") return 1;
+  if (typeof v === "number") return 8;
+  if (typeof v === "string") return new TextEncoder().encode(v).length;
 
   // Timestamp de Firestore: { seconds, nanoseconds }
   if (v && typeof v === "object" && "seconds" in v && "nanoseconds" in v) return 8;
 
-  if (Array.isArray(v))
-    return v.reduce((s, item) => s + bytesValor(item), 0);
+  if (Array.isArray(v)) return v.reduce((s, item) => s + bytesValor(item), 0);
 
   if (typeof v === "object") {
     return Object.entries(v as Record<string, unknown>).reduce(
-      (s, [key, val]) =>
-        s + new TextEncoder().encode(key).length + bytesValor(val),
+      (s, [key, val]) => s + new TextEncoder().encode(key).length + bytesValor(val),
       0,
     );
   }
@@ -45,8 +43,7 @@ const DOC_OVERHEAD = 32 + 88;
 
 function bytesDocumento(doc: Record<string, unknown>): number {
   const campoBytes = Object.entries(doc).reduce(
-    (s, [key, val]) =>
-      s + new TextEncoder().encode(key).length + bytesValor(val),
+    (s, [key, val]) => s + new TextEncoder().encode(key).length + bytesValor(val),
     0,
   );
   return DOC_OVERHEAD + campoBytes;
@@ -66,8 +63,8 @@ export const COLECCIONES_VISTA360 = [
 export interface ColStats {
   nombre: string;
   documentos: number;
-  bytesData: number;   // datos puros
-  bytesTotal: number;  // datos + índices automáticos (~×2)
+  bytesData: number; // datos puros
+  bytesTotal: number; // datos + índices automáticos (~×2)
 }
 
 /**
@@ -105,7 +102,7 @@ export async function calcularUsoFirestore(
     }),
   );
 
-  const totalData       = cols.reduce((s, c) => s + c.bytesData, 0);
+  const totalData = cols.reduce((s, c) => s + c.bytesData, 0);
   const totalConIndices = cols.reduce((s, c) => s + c.bytesTotal, 0);
 
   return { cols, totalData, totalConIndices };
@@ -113,14 +110,14 @@ export async function calcularUsoFirestore(
 
 // ── Helpers de formato ────────────────────────────────────────────
 export function fmtBytes(b: number): string {
-  if (b === 0)                   return "0 B";
-  if (b < 1024)                  return `${b} B`;
-  if (b < 1024 * 1024)           return `${(b / 1024).toFixed(1)} KB`;
-  if (b < 1024 * 1024 * 1024)   return `${(b / 1024 / 1024).toFixed(2)} MB`;
+  if (b === 0) return "0 B";
+  if (b < 1024) return `${b} B`;
+  if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)} KB`;
+  if (b < 1024 * 1024 * 1024) return `${(b / 1024 / 1024).toFixed(2)} MB`;
   return `${(b / 1024 / 1024 / 1024).toFixed(3)} GB`;
 }
 
-export const FIRESTORE_LIMIT_BYTES  = 1  * 1024 * 1024 * 1024; // 1 GB (plan gratuito)
+export const FIRESTORE_LIMIT_BYTES = 1 * 1024 * 1024 * 1024; // 1 GB (plan gratuito)
 export const CLOUDINARY_LIMIT_BYTES = 25 * 1024 * 1024 * 1024; // 25 GB (plan gratuito)
 
 /**
@@ -135,17 +132,17 @@ export function estimarBytesCloudinary(gastos: Array<Record<string, unknown>>): 
 // ── Consulta al backend el uso REAL de Firestore ─────────────────
 
 export interface FirebaseRealUsage {
-  ok:            boolean
-  projectId?:    string
-  documentCount?: number | null
-  storageDocs?:  number | null
-  storageIndex?: number | null
-  storageTotal?: number | null
-  updatedAt?:    string
-  limits?:       { storage: number }
-  error?:        string
-  hint?:         string
-  cached?:       boolean
+  ok: boolean;
+  projectId?: string;
+  documentCount?: number | null;
+  storageDocs?: number | null;
+  storageIndex?: number | null;
+  storageTotal?: number | null;
+  updatedAt?: string;
+  limits?: { storage: number };
+  error?: string;
+  hint?: string;
+  cached?: boolean;
 }
 
 /**
@@ -157,15 +154,15 @@ export async function fetchFirebaseRealUsage(
   apiUrl: string,
   apiKey: string,
 ): Promise<FirebaseRealUsage | null> {
-  if (!apiUrl || !apiKey) return null
+  if (!apiUrl || !apiKey) return null;
   try {
     const res = await fetch(`${apiUrl}/api/firebase/usage`, {
-      headers: { 'x-api-key': apiKey },
+      headers: { "x-api-key": apiKey },
       signal: AbortSignal.timeout(12_000),
-    })
-    const data = await res.json() as FirebaseRealUsage
-    return data
+    });
+    const data = (await res.json()) as FirebaseRealUsage;
+    return data;
   } catch {
-    return null
+    return null;
   }
 }

@@ -44,16 +44,16 @@ import styles from "./App.module.css";
 
 // ── Carga lazy (code splitting por ruta) ─────────────────────────
 const ResumenNuevo = lazy(() => import("./components/features/dashboard/ResumenNuevo"));
-const Paneles      = lazy(() => import("./components/features/paneles/Paneles"));
-const Contratos    = lazy(() => import("./components/features/contratos/Contratos"));
-const Historico    = lazy(() => import("./components/features/historico/Historico"));
-const CRM          = lazy(() => import("./components/features/crm/CRM"));
-const Gastos       = lazy(() => import("./components/features/gastos/Gastos"));
-const Proveedores  = lazy(() => import("./components/features/proveedores/Proveedores"));
-const Facturacion  = lazy(() => import("./components/features/facturacion/Facturacion"));
-const Reportes     = lazy(() => import("./components/features/reportes/Reportes"));
-const Capital      = lazy(() => import("./components/features/capital/Capital"));
-const Mapa         = lazy(() => import("./components/features/mapa/Mapa"));
+const Paneles = lazy(() => import("./components/features/paneles/Paneles"));
+const Contratos = lazy(() => import("./components/features/contratos/Contratos"));
+const Historico = lazy(() => import("./components/features/historico/Historico"));
+const CRM = lazy(() => import("./components/features/crm/CRM"));
+const Gastos = lazy(() => import("./components/features/gastos/Gastos"));
+const Proveedores = lazy(() => import("./components/features/proveedores/Proveedores"));
+const Facturacion = lazy(() => import("./components/features/facturacion/Facturacion"));
+const Reportes = lazy(() => import("./components/features/reportes/Reportes"));
+const Capital = lazy(() => import("./components/features/capital/Capital"));
+const Mapa = lazy(() => import("./components/features/mapa/Mapa"));
 
 /**
  * Prefetch de todos los chunks de pestañas en segundo plano.
@@ -63,9 +63,10 @@ const Mapa         = lazy(() => import("./components/features/mapa/Mapa"));
  */
 function prefetchAllTabs() {
   // requestIdleCallback asegura que no compite con el primer render
-  const schedule = typeof requestIdleCallback !== "undefined"
-    ? requestIdleCallback
-    : (cb: () => void) => setTimeout(cb, 200);
+  const schedule =
+    typeof requestIdleCallback !== "undefined"
+      ? requestIdleCallback
+      : (cb: () => void) => setTimeout(cb, 200);
 
   schedule(() => {
     import("./components/features/paneles/Paneles");

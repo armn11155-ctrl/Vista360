@@ -326,9 +326,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
 
   const ocr_con_vision = async (file: File): Promise<string> => {
     if (!API_URL) {
-      throw new Error(
-        "VITE_API_URL no configurado. Agrega la URL del backend en Vercel.",
-      );
+      throw new Error("VITE_API_URL no configurado. Agrega la URL del backend en Vercel.");
     }
 
     // Convertir imagen a base64
@@ -437,8 +435,6 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
       toast.error("Error OCR: " + (e as Error).message);
     }
   };
-
-
 
   // ══════════════════════════════════════════════════════════════
   // 4. EXTRACCIÓN INTELIGENTE CON REGEX — El núcleo del sistema
@@ -2105,7 +2101,11 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                   >
                     {ocr.previewUrl || vistaDetalle.fotoUrl || vistaDetalle.foto_url ? (
                       <img
-                        src={ocr.previewUrl || cloudinaryDetail(vistaDetalle.fotoUrl as string) || vistaDetalle.foto_url}
+                        src={
+                          ocr.previewUrl ||
+                          cloudinaryDetail(vistaDetalle.fotoUrl as string) ||
+                          vistaDetalle.foto_url
+                        }
                         alt="boleta"
                         style={{
                           width: "100%",
@@ -2471,7 +2471,8 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           const DARK = "#0D1B3E",
                             BLUE = "#1A3066",
                             ACC = "#1E4D9B";
-                          const fotoSrc = cloudinaryPdf(g.fotoUrl as string) || ocr.previewUrl || "";
+                          const fotoSrc =
+                            cloudinaryPdf(g.fotoUrl as string) || ocr.previewUrl || "";
                           // Si hay foto en Cloudinary (URL externa) la incluimos directo; si es blob local también
                           const fotoHtml = fotoSrc
                             ? `

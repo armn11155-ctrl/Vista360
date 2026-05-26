@@ -52,13 +52,13 @@ export function ProfileView({
 
   // ── Conteo REAL de documentos por colección (exacto, via SDK) ──
   const COLS_VISTA360 = [
-    { nombre: "paneles",     emoji: "🖥️",  color: "#3B82F6" },
-    { nombre: "contratos",   emoji: "📋",  color: "#22C55E" },
-    { nombre: "clientes",    emoji: "👥",  color: "#A855F7" },
-    { nombre: "gastos",      emoji: "🧾",  color: T.amber   },
-    { nombre: "proveedores", emoji: "🏢",  color: "#EC4899" },
-    { nombre: "facturas",    emoji: "📄",  color: "#06B6D4" },
-    { nombre: "sueldos",     emoji: "💰",  color: "#10B981" },
+    { nombre: "paneles", emoji: "🖥️", color: "#3B82F6" },
+    { nombre: "contratos", emoji: "📋", color: "#22C55E" },
+    { nombre: "clientes", emoji: "👥", color: "#A855F7" },
+    { nombre: "gastos", emoji: "🧾", color: T.amber },
+    { nombre: "proveedores", emoji: "🏢", color: "#EC4899" },
+    { nombre: "facturas", emoji: "📄", color: "#06B6D4" },
+    { nombre: "sueldos", emoji: "💰", color: "#10B981" },
   ] as const;
 
   const [docCounts, setDocCounts] = useState<Record<string, number>>({});
@@ -73,15 +73,15 @@ export function ProfileView({
         } catch {
           return [c.nombre, 0] as const;
         }
-      })
+      }),
     ).then(results => {
       setDocCounts(Object.fromEntries(results));
       setFsLoading(false);
     });
   }, []);
 
-  const totalDocs   = Object.values(docCounts).reduce((a, b) => a + b, 0);
-  const fotosCount  = gastos.filter(g => (g as any).fotoUrl || (g as any).foto_url).length;
+  const totalDocs = Object.values(docCounts).reduce((a, b) => a + b, 0);
+  const fotosCount = gastos.filter(g => (g as any).fotoUrl || (g as any).foto_url).length;
 
   const DARK = "#0E1835";
   const CARD_BG = "#ffffff";
@@ -299,16 +299,25 @@ export function ProfileView({
                 Firebase Console → Firestore → Uso
               </div>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round">
-              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-              <polyline points="15 3 21 3 21 9"/>
-              <line x1="10" y1="14" x2="21" y2="3"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="rgba(255,255,255,0.5)"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
             </svg>
           </a>
 
-                    {/* Conteo real por colección */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+          {/* Conteo real por colección */}
+          <div
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}
+          >
             {COLS_VISTA360.map(c => (
               <div
                 key={c.nombre}
@@ -323,16 +332,27 @@ export function ProfileView({
                 <div style={{ fontSize: 10, color: T.muted, marginTop: 2 }}>
                   {(docCounts[c.nombre] ?? 0) === 1 ? "documento" : "documentos"}
                 </div>
-                <div style={{ height: 3, borderRadius: 99, background: "#E5E7EB", marginTop: 8, overflow: "hidden" }}>
-                  <div style={{
-                    height: "100%",
+                <div
+                  style={{
+                    height: 3,
                     borderRadius: 99,
-                    background: c.color,
-                    width: totalDocs > 0
-                      ? `${Math.max(2, ((docCounts[c.nombre] ?? 0) / totalDocs) * 100)}%`
-                      : "2%",
-                    transition: "width 0.6s ease",
-                  }} />
+                    background: "#E5E7EB",
+                    marginTop: 8,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      borderRadius: 99,
+                      background: c.color,
+                      width:
+                        totalDocs > 0
+                          ? `${Math.max(2, ((docCounts[c.nombre] ?? 0) / totalDocs) * 100)}%`
+                          : "2%",
+                      transition: "width 0.6s ease",
+                    }}
+                  />
                 </div>
               </div>
             ))}
@@ -385,9 +405,7 @@ export function ProfileView({
             <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
               Fotos en Cloudinary
             </span>
-            <span style={{ fontSize: 18, fontWeight: 900, color: "#22C55E" }}>
-              {fotosCount}
-            </span>
+            <span style={{ fontSize: 18, fontWeight: 900, color: "#22C55E" }}>{fotosCount}</span>
           </div>
           <a
             href="https://console.cloudinary.com"
@@ -407,14 +425,25 @@ export function ProfileView({
             }}
           >
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>Ver almacenamiento real</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>Cloudinary Console → Media Library</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>
+                Ver almacenamiento real
+              </div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+                Cloudinary Console → Media Library
+              </div>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round">
-              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-              <polyline points="15 3 21 3 21 9"/>
-              <line x1="10" y1="14" x2="21" y2="3"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="rgba(255,255,255,0.5)"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
             </svg>
           </a>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>

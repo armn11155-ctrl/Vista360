@@ -135,7 +135,7 @@ export const fb = {
    *   - Cloudinary aplica optimización adicional automática
    */
   async uploadImagen(file: File): Promise<string> {
-    const cloudName   = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
     if (!cloudName || !uploadPreset) {
@@ -226,7 +226,7 @@ async function comprimirImagen(file: File): Promise<File> {
       const MAX_W = 1200;
       const scale = img.width > MAX_W ? MAX_W / img.width : 1;
       const canvas = document.createElement("canvas");
-      canvas.width  = Math.round(img.width  * scale);
+      canvas.width = Math.round(img.width * scale);
       canvas.height = Math.round(img.height * scale);
 
       const ctx = canvas.getContext("2d");
@@ -236,19 +236,22 @@ async function comprimirImagen(file: File): Promise<File> {
         return;
       }
 
-      ctx.imageSmoothingEnabled  = true;
-      ctx.imageSmoothingQuality  = "high";
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(url);
 
       canvas.toBlob(
         blob => {
-          if (!blob) { resolve(file); return; }
+          if (!blob) {
+            resolve(file);
+            return;
+          }
           const nombre = file.name.replace(/\.\w+$/, ".jpg");
           resolve(new File([blob], nombre, { type: "image/jpeg" }));
         },
         "image/jpeg",
-        0.72,   // 72% — óptimo para texto de boletas
+        0.72, // 72% — óptimo para texto de boletas
       );
     };
 
