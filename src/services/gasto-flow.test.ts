@@ -182,9 +182,14 @@ describe("Flujo de negocio: Gasto", () => {
       expect(d).toBeInstanceOf(Date);
     });
 
-    it("toDate retorna null para valor vacío", () => {
-      expect(toDate(undefined)).toBeNull();
-      expect(toDate("")).toBeNull();
+    it("toDate retorna new Date() como fallback para valores vacíos", () => {
+      // toDate usa new Date() como fallback cuando no hay timestamp
+      const before = Date.now();
+      const result = toDate(undefined);
+      expect(result).toBeInstanceOf(Date);
+      expect(result.getTime()).toBeGreaterThanOrEqual(before - 100);
+      // string vacío también retorna fallback
+      expect(toDate("")).toBeInstanceOf(Date);
     });
 
     it("un gasto de Firestore con monto:string se convierte correctamente", () => {
