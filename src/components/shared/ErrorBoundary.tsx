@@ -61,11 +61,7 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (!this.state.hasError) {
       // key={retryCount} fuerza un remount completo del árbol al reintentar
-      return (
-        <React.Fragment key={this.state.retryCount}>
-          {this.props.children}
-        </React.Fragment>
-      );
+      return <React.Fragment key={this.state.retryCount}>{this.props.children}</React.Fragment>;
     }
 
     return (
@@ -93,11 +89,18 @@ export class ErrorBoundary extends Component<Props, State> {
               flexShrink: 0,
             }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-              stroke={T.red} strokeWidth="2.2" strokeLinecap="round">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={T.red}
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
           </div>
           <div>
@@ -146,10 +149,17 @@ export class ErrorBoundary extends Component<Props, State> {
               fontFamily: "inherit",
             }}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <polyline points="1 4 1 10 7 10"/>
-              <path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            >
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 102.13-9.36L1 10" />
             </svg>
             Reintentar
           </button>
