@@ -39,10 +39,9 @@ export default defineConfig({
       name: "chromium-mobile",
       use: { ...devices["Pixel 7"] },
     },
-    {
-      name: "webkit-ios",
-      use: { ...devices["iPhone 14"] },
-    },
+    // webkit-ios omitido: CI solo instala Chromium.
+    // Para añadir webkit, actualizar el workflow con:
+    //   npx playwright install --with-deps webkit
   ],
 
   /** Levanta `npm run dev` si no hay servidor corriendo */

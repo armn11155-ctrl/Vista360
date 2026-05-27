@@ -38,14 +38,15 @@ test.describe("Flujo de contratos", () => {
     expect(errors.filter(e => e.includes("TypeError") || e.includes("ReferenceError"))).toHaveLength(0);
   });
 
-  test("muestra el splash/loading inicial", async ({ page }) => {
-    // La app debe mostrar algún indicador de carga antes del login
-    // (puede ser el logo, un spinner, o la pantalla de login directamente)
+  test("muestra el splash/loading o la pantalla de login al iniciar", async ({ page }) => {
+    // La app muestra un Splash (~3.8s) y luego el login o el dashboard.
+    // Esperamos a que aparezca cualquier contenido de la app.
     const hasContent = await Promise.race([
-      page.locator("text=Bienvenido").waitFor({ timeout: 5_000 }).then(() => "login"),
-      page.locator("text=Resumen").waitFor({ timeout: 5_000 }).then(() => "app"),
+      page.locator("text=Bienvenido").waitFor({ timeout: 10_000 }).then(() => "login"),
+      page.locator("text=Resumen").waitFor({ timeout: 10_000 }).then(() => "app"),
     ]).catch(() => "timeout");
 
+    // Acepta login o app; solo falla si no apareció nada en 10s
     expect(["login", "app"]).toContain(hasContent);
   });
 });
@@ -57,7 +58,10 @@ test.describe("Creación de contrato (requiere sesión)", () => {
     await page.goto("/");
 
     // Si no estamos autenticados, este test pasa a revisión manual
-    const isLoggedIn = await page.locator("text=Resumen").isVisible({ timeout: 5_000 }).catch(() => false);
+    const isLoggedIn = await page
+      .locator("text=Resumen")
+      .isVisible({ timeout: 5_000 })
+      .catch(() => false);
     if (!isLoggedIn) {
       test.skip();
       return;
@@ -75,8 +79,14 @@ test.describe("Creación de contrato (requiere sesión)", () => {
 
   test("el modal de contrato tiene los campos requeridos", async ({ page }) => {
     await page.goto("/");
-    const isLoggedIn = await page.locator("text=Resumen").isVisible({ timeout: 5_000 }).catch(() => false);
-    if (!isLoggedIn) { test.skip(); return; }
+    const isLoggedIn = await page
+      .locator("text=Resumen")
+      .isVisible({ timeout: 5_000 })
+      .catch(() => false);
+    if (!isLoggedIn) {
+      test.skip();
+      return;
+    }
 
     await irAContratos(page);
     const nuevoBtn = page.locator("button:has-text('Nuevo')").first();
@@ -85,15 +95,25 @@ test.describe("Creación de contrato (requiere sesión)", () => {
     await expect(page.locator("text=Nuevo Contrato")).toBeVisible({ timeout: 3_000 });
 
     // Verificar campos clave del formulario
-    await expect(page.locator("select, [aria-label*='Panel'], [placeholder*='panel' i]").first()).toBeVisible();
+    await expect(
+      page.locator("select, [aria-label*='Panel'], [placeholder*='panel' i]").first(),
+    ).toBeVisible();
     await expect(page.locator("input[type='date']").first()).toBeVisible();
-    await expect(page.locator("[placeholder*='1500'], input[inputmode='decimal']").first()).toBeVisible();
+    await expect(
+      page.locator("[placeholder*='1500'], input[inputmode='decimal']").first(),
+    ).toBeVisible();
   });
 
   test("validación impide crear contrato sin panel seleccionado", async ({ page }) => {
     await page.goto("/");
-    const isLoggedIn = await page.locator("text=Resumen").isVisible({ timeout: 5_000 }).catch(() => false);
-    if (!isLoggedIn) { test.skip(); return; }
+    const isLoggedIn = await page
+      .locator("text=Resumen")
+      .isVisible({ timeout: 5_000 })
+      .catch(() => false);
+    if (!isLoggedIn) {
+      test.skip();
+      return;
+    }
 
     await irAContratos(page);
     const nuevoBtn = page.locator("button:has-text('Nuevo')").first();
@@ -102,12 +122,14 @@ test.describe("Creación de contrato (requiere sesión)", () => {
     await expect(page.locator("text=Nuevo Contrato")).toBeVisible({ timeout: 3_000 });
 
     // Intentar guardar sin completar el formulario
-    const guardarBtn = page.locator("button:has-text('Crear Contrato'), button:has-text('Guardar')").last();
+    const guardarBtn = page
+      .locator("button:has-text('Crear Contrato'), button:has-text('Guardar')")
+      .last();
     await guardarBtn.click();
 
     // Debe aparecer un mensaje de error o toast de validación
     await expect(
-      page.locator("text=/selecciona un panel/i, text=/panel.*requerido/i, text=/completa/i").first()
+      page.locator("text=/selecciona un panel/i, text=/panel.*requerido/i, text=/completa/i").first(),
     ).toBeVisible({ timeout: 3_000 });
   });
 });

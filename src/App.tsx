@@ -192,7 +192,7 @@ function AppShell() {
     const fallback = setTimeout(() => {
       setAuthReady(true);
       setFbDown(true);
-    }, 5000);
+    }, 3000);
     let unsub: (() => void) | undefined;
     try {
       unsub = onAuthStateChanged(
