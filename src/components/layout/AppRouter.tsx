@@ -79,7 +79,6 @@ export function AppRouter({
   setAutoScan,
   onModalChange,
   paneles,
-  clientes,
   contratos,
   gastos,
   contractsActive,
