@@ -233,7 +233,7 @@ describe("Flujo de negocio: Gasto", () => {
       fb.subscribe("gastos", onData);
 
       expect(onData).toHaveBeenCalledOnce();
-      const emitted = onData.mock.calls[0][0] as unknown[];
+      const emitted = (onData.mock.calls[0]?.[0] ?? []) as unknown[];
       expect(emitted).toHaveLength(2);
       expect(emitted[0]).toMatchObject({ id: "g1", descripcion: "Compra de pintura" });
     });
