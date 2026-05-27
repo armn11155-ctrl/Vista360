@@ -58,7 +58,7 @@ export interface AppShellState {
   setAnyModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
   // Refs
-  scrollRef: React.RefObject<HTMLDivElement | null>;
+  scrollRef: React.RefObject<HTMLDivElement>;
 
   // Derived UI
   isOnline: boolean;
@@ -98,7 +98,7 @@ export function useAppShell(user: User, onLogout: () => void): AppShellState {
   const location = useLocation();
   const isOnline = useOnlineStatus();
   const swRef = useServiceWorker();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   // ── UI state ───────────────────────────────────────────────────────
   const [showProfile, setShowProfile] = useState(false);
@@ -143,15 +143,15 @@ export function useAppShell(user: User, onLogout: () => void): AppShellState {
   // ── Datos del usuario ──────────────────────────────────────────────
   const userName = useMemo(() => {
     if (user.displayName) return user.displayName;
-    const local = (user.email ?? "").split("@")[0];
+    const local = (user.email ?? "").split("@")[0] ?? "";
     return local.charAt(0).toUpperCase() + local.slice(1);
   }, [user]);
 
   const userInitials = useMemo(() => {
     if (!userName) return "?";
     const parts = userName.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    if (parts.length === 1) return (parts[0] ?? "").slice(0, 2).toUpperCase();
+    return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toUpperCase();
   }, [userName]);
 
   // ── Header color ───────────────────────────────────────────────────
