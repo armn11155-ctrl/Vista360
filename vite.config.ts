@@ -4,6 +4,9 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
 
+  // base explícito evita rutas rotas si algún día se despliega en subdirectorio
+  base: "/",
+
   build: {
     rollupOptions: {
       output: {

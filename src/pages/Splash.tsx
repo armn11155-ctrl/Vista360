@@ -1,5 +1,4 @@
-// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
 

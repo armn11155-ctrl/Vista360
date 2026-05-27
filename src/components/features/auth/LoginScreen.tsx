@@ -1,11 +1,14 @@
-// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
-import React, { useState } from "react";
+import { useState } from "react";
 import { signInWithPopup, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth, googleProvider } from "../../../config/firebase";
 import { T } from "../../../config/theme";
 import { ALLOWED_EMAILS } from "../../../config/constants";
 import { Logo360 } from "../../layout/Logo360";
+
+interface LoginScreenProps {
+  onLoginSuccess: (user: User) => void;
+}
 
 function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [loading, setLoading] = useState(false);

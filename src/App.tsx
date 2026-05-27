@@ -65,17 +65,21 @@ const Mapa = lazy(() => import("./components/features/mapa/Mapa"));
  * ve la primera pestaña — al cambiar de pestaña ya está en memoria.
  */
 function prefetchAllTabs() {
-  // requestIdleCallback asegura que no compite con el primer render
   const schedule =
     typeof requestIdleCallback !== "undefined"
       ? requestIdleCallback
       : (cb: () => void) => setTimeout(cb, 200);
 
+  // Primera tanda: pestañas más usadas (alta prioridad)
   schedule(() => {
-    import("./components/features/paneles/Paneles");
     import("./components/features/contratos/Contratos");
+    import("./components/features/paneles/Paneles");
     import("./components/features/crm/CRM");
     import("./components/features/gastos/Gastos");
+  });
+
+  // Segunda tanda: pestañas secundarias (baja prioridad, 2s después)
+  schedule(() => {
     import("./components/features/proveedores/Proveedores");
     import("./components/features/facturacion/Facturacion");
     import("./components/features/reportes/Reportes");
@@ -144,12 +148,9 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
   const gastos = useCollection<Gasto>("gastos");
   const proveedores = useCollection<Proveedor>("proveedores");
 
-  const loading =
-    paneles.loading ||
-    clientes.loading ||
-    contratos.loading ||
-    gastos.loading ||
-    proveedores.loading;
+  // Solo bloquea la UI con las colecciones críticas para el primer render.
+  // Clientes, gastos y proveedores cargan en segundo plano sin bloquear.
+  const loading = paneles.loading || contratos.loading;
   const error =
     paneles.error ?? clientes.error ?? contratos.error ?? gastos.error ?? proveedores.error;
 

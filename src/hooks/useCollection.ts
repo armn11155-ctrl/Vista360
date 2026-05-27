@@ -13,17 +13,19 @@ interface UseCollectionResult<T> {
 /**
  * Hook genérico para suscribirse a una colección Firestore en tiempo real.
  *
- * Expone `setData` para mutaciones optimistas desde los componentes feature,
- * de forma que el estado local se actualiza inmediatamente mientras Firestore
- * confirma el cambio en background.
+ * Expone `setData` para mutaciones optimistas desde los componentes feature.
  *
- * Uso:
- *   const { data, setData, loading, error } = useCollection<Panel>("paneles");
+ * Mejoras:
+ * - Timeout de 8s: si Firestore no responde (sin red, reglas bloqueando),
+ *   pone loading=false con error en lugar de quedarse colgado para siempre.
+ * - Cada colección falla de forma independiente; las demás siguen funcionando.
  */
+const COLLECTION_TIMEOUT_MS = 8_000;
+
 export function useCollection<T extends FirebaseDoc>(col: ColName): UseCollectionResult<T> {
-  const [data, setData] = useState<T[]>([]);
+  const [data, setData]       = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]     = useState<string | null>(null);
 
   const refetch = useCallback(async () => {
     setLoading(true);
@@ -40,19 +42,32 @@ export function useCollection<T extends FirebaseDoc>(col: ColName): UseCollectio
 
   useEffect(() => {
     setLoading(true);
+
+    // Timeout de seguridad: si el snapshot no llega en 8s, liberamos la UI
+    const timer = setTimeout(() => {
+      setLoading(false);
+      setError(`Tiempo de espera agotado para "${col}". Verifica tu conexión.`);
+    }, COLLECTION_TIMEOUT_MS);
+
     const unsub = fb.subscribe<T>(
       col,
       items => {
+        clearTimeout(timer);
         setData(items);
         setLoading(false);
         setError(null);
       },
       err => {
+        clearTimeout(timer);
         setError(String(err));
         setLoading(false);
       },
     );
-    return unsub;
+
+    return () => {
+      clearTimeout(timer);
+      unsub();
+    };
   }, [col]);
 
   return { data, setData, loading, error, refetch };
