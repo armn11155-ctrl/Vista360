@@ -12,10 +12,16 @@
 function required(key: string): string {
   const val = (import.meta.env as Record<string, string | undefined>)[key];
   if (!val || val.trim() === "") {
-    throw new Error(
-      `[Vista360] Variable de entorno requerida faltante: "${key}"\n` +
+    // Warn instead of throw so the app renders the login screen gracefully
+    // when Firebase secrets aren't configured (e.g. E2E tests in CI without
+    // secrets, forks, or local dev without .env.local).
+    // firebase.ts uses placeholder fallbacks so getAuth() doesn't crash;
+    // fbEnabled-style checks prevent any real Firebase calls in that case.
+    console.warn(
+      `[Vista360] Variable de entorno faltante: "${key}"\n` +
         `  → Agrégala en tu .env.local (desarrollo) o en las variables de entorno de Cloudflare Pages (producción).`,
     );
+    return "";
   }
   return val;
 }
