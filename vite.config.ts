@@ -53,7 +53,15 @@ export default defineConfig({
       // Thresholds actuales: ~20% lines, ~30% functions con los tests existentes.
       // Subir gradualmente a medida que se agregan tests a los componentes grandes.
       // lines ~4% por App.tsx (900 líneas sin tests) — subir al agregar tests de páginas
-      thresholds: { lines: 3, functions: 25 },
+      thresholds: {
+        // Ruta hacia 50% en 3 meses — subir ~10 puntos por sprint
+        // Sprint 1 (hoy):      lines 20%, functions 40%
+        // Sprint 2 (4 sem):    lines 30%, functions 50%
+        // Sprint 3 (8 sem):    lines 40%, functions 60%
+        // Sprint 4 (12 sem):   lines 50%, functions 70%
+        lines: 20,
+        functions: 40,
+      },
     },
   },
 });
