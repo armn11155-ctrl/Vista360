@@ -33,10 +33,14 @@ export default defineConfig({
     environment: "jsdom",
     globals:     true,
     setupFiles:  ["./src/test/setup.ts"],
+    // Excluir e2e/ — esos tests son de Playwright, no de vitest
+    include:     ["src/**/*.test.{ts,tsx}"],
+    exclude:     ["e2e/**", "node_modules/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov", "html"],
-      exclude:  ["src/test/**", "src/assets/**", "src/config/firebase.ts"],
+      exclude:  ["src/test/**", "src/assets/**", "src/config/firebase.ts", "e2e/**"],
+      thresholds: { lines: 70, functions: 70 },
     },
   },
 });
