@@ -60,12 +60,19 @@ service cloud.firestore {
     match /proveedores/{id} {
       allow read, write: if isAllowed();
     }
+
+    // ── Facturas ──────────────────────────────────────────────────
+    // CORREGIDO: tanto lectura como escritura requieren isAllowed().
+    // Antes: allow write: if isSignedIn() — cualquier usuario autenticado
+    //         podía escribir facturas, incluso sin estar en la whitelist.
+    // Ahora: solo usuarios autorizados pueden leer y escribir facturas.
+    //
+    // Si necesitas permitir escritura anónima desde facturacion-api,
+    // usa Admin SDK en el backend (no requiere regla de Firestore).
     match /facturas/{id} {
-      // Lectura: solo usuarios en whitelist (Vista360)
-      // Escritura: cualquier usuario autenticado (incluye facturacion-web con auth anónima)
-      allow read: if isAllowed();
-      allow write: if isSignedIn();
+      allow read, write: if isAllowed();
     }
+
     match /sueldos/{id} {
       allow read, write: if isAllowed();
     }
