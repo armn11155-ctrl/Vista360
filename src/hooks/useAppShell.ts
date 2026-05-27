@@ -11,7 +11,6 @@ import type { User } from "firebase/auth";
 
 import { auth } from "../config/firebase";
 import { T } from "../config/theme";
-import { BOTTOM_TABS_LIST } from "../config/constants";
 import { useCollection } from "./useCollection";
 import { useOnlineStatus } from "./useOnlineStatus";
 import { useServiceWorker } from "./useServiceWorker";
@@ -176,7 +175,7 @@ export function useAppShell(user: User, onLogout: () => void): AppShellState {
 
   // ── theme-color meta tag ───────────────────────────────────────────
   useEffect(() => {
-    let meta = document.querySelector<HTMLMetaElement>(\'meta[name="theme-color"]\');
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!meta) {
       meta = document.createElement("meta");
       meta.setAttribute("name", "theme-color");
