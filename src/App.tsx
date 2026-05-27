@@ -394,13 +394,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
             position: "relative",
           }}
         >
-          {loading ? (
-            <div style={{ padding: "20px 16px", display: "flex", flexDirection: "column", gap: 0 }}>
-              {[1, 2, 3, 4].map(i => (
-                <SkDarkCard key={i} />
-              ))}
-            </div>
-          ) : showProfile ? (
+          {showProfile ? (
             <ProfileView
               user={user}
               userName={userName}
@@ -421,10 +415,16 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                   path="/"
                   element={
                     <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
-                      {error && (
-                        <div className={styles.firebaseError}>
-                          <span style={{ fontSize: 22 }}></span>
-                          <div>
+                      {loading ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                          {[1, 2, 3, 4].map(i => <SkDarkCard key={i} />)}
+                        </div>
+                      ) : (
+                        <>
+                          {error && (
+                            <div className={styles.firebaseError}>
+                              <span style={{ fontSize: 22 }}></span>
+                              <div>
                             <div style={{ fontWeight: 700, color: T.amber, fontSize: 14 }}>
                               Sin conexión a Firebase
                             </div>
@@ -444,6 +444,8 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                           userName={userName}
                         />
                       </ErrorBoundary>
+                        </>
+                      )}
                     </div>
                   }
                 />
@@ -743,6 +745,7 @@ function AppShell() {
   const [splash, setSplash] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const [firebaseDown, setFirebaseDown] = useState(false);
 
   // ── iOS Safari: fijar scroll del documento ──────────────────────
   useEffect(() => {
@@ -767,13 +770,18 @@ function AppShell() {
 
   // ── Firebase Auth ────────────────────────────────────────────────
   useEffect(() => {
-    const fallback = setTimeout(() => setAuthReady(true), 5000);
+    // Si Firebase no responde en 5s, lo consideramos caído
+    const fallback = setTimeout(() => {
+      setAuthReady(true);
+      setFirebaseDown(true);
+    }, 5000);
     let unsub: (() => void) | undefined;
     try {
       unsub = onAuthStateChanged(
         auth,
         u => {
           clearTimeout(fallback);
+          setFirebaseDown(false);
           if (u && ALLOWED_EMAILS.length > 0 && !ALLOWED_EMAILS.includes(u.email ?? "")) {
             signOut(auth);
             setUser(null);
@@ -790,12 +798,14 @@ function AppShell() {
         err => {
           console.error("[Auth] error:", err);
           clearTimeout(fallback);
+          setFirebaseDown(true);
           setAuthReady(true);
         },
       );
     } catch (err) {
       console.error("[Auth] Firebase init error:", err);
       clearTimeout(fallback);
+      setFirebaseDown(true);
       setAuthReady(true);
     }
     return () => {
@@ -845,7 +855,21 @@ function AppShell() {
         </div>
       )}
 
-      {!splash && authReady && !user && <LoginScreen onLoginSuccess={(u: User) => setUser(u)} />}
+      {!splash && authReady && !user && (
+        <>
+          {firebaseDown && (
+            <div style={{
+              position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999,
+              background: "#7f1d1d", color: "#fecaca",
+              padding: "10px 20px", fontSize: 13, textAlign: "center",
+              fontWeight: 600,
+            }}>
+              ⚠️ Sin conexión a Firebase — verifica tu red o intenta más tarde
+            </div>
+          )}
+          <LoginScreen onLoginSuccess={(u: User) => setUser(u)} />
+        </>
+      )}
       {!splash && !!user && (
         <ShellErrorBoundary>
           <AuthenticatedShell user={user} onLogout={() => setUser(null)} />
