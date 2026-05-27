@@ -64,7 +64,7 @@ export function cloudinaryPdf(url: string | undefined | null): string {
 export function cloudinaryPublicId(url: string | undefined | null): string | null {
   if (!url || !url.includes("cloudinary.com")) return null;
   const match = url.match(/\/upload\/(?:[^/]+\/)*(?:v\d+\/)?(.+?)(?:\.\w+)?$/);
-  return match ? match[1] : null;
+  return match ? (match[1] ?? null) : null;
 }
 
 export const fb = {
