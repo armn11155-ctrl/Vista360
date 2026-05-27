@@ -43,9 +43,12 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
     <AppProvider data={shell.appData} setters={shell.appSetters} derived={shell.appDerived}>
       {!shell.isOnline && <OfflineBanner />}
       <div className={styles.appRoot} style={{ background: T.bg, color: T.text }}>
-
         <AppHeader
-          title={shell.showProfile ? "Perfil" : (shell.appDerived as unknown as Record<string, string>)["tabTitle"] ?? "Vista360"}
+          title={
+            shell.showProfile
+              ? "Perfil"
+              : ((shell.appDerived as unknown as Record<string, string>)["tabTitle"] ?? "Vista360")
+          }
           user={user}
           userName={shell.userName}
           onProfileClick={() => shell.handleTabClick("/perfil")}
@@ -162,10 +165,10 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
 function AppShell() {
   useViewportSetup();
 
-  const [splash, setSplash]         = useState(true);
-  const [user, setUser]             = useState<User | null>(null);
-  const [authReady, setAuthReady]   = useState(false);
-  const [firebaseDown, setFbDown]   = useState(false);
+  const [splash, setSplash] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [firebaseDown, setFbDown] = useState(false);
 
   useEffect(() => {
     const lockScroll = () => {
@@ -224,7 +227,10 @@ function AppShell() {
       setFbDown(true);
       setAuthReady(true);
     }
-    return () => { clearTimeout(fallback); unsub?.(); };
+    return () => {
+      clearTimeout(fallback);
+      unsub?.();
+    };
   }, []);
 
   return (
@@ -255,8 +261,17 @@ function AppShell() {
       {splash && <Splash done={() => setSplash(false)} />}
 
       {!splash && !authReady && (
-        <div style={{ position: "fixed", inset: 0, background: T.dark,
-          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 998 }}>
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: T.dark,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 998,
+          }}
+        >
           <Logo360 width={120} />
         </div>
       )}
@@ -264,9 +279,21 @@ function AppShell() {
       {!splash && authReady && !user && (
         <>
           {firebaseDown && (
-            <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999,
-              background: "#7f1d1d", color: "#fecaca", padding: "10px 20px",
-              fontSize: 13, textAlign: "center", fontWeight: 600 }}>
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 9999,
+                background: "#7f1d1d",
+                color: "#fecaca",
+                padding: "10px 20px",
+                fontSize: 13,
+                textAlign: "center",
+                fontWeight: 600,
+              }}
+            >
               ⚠️ Sin conexión a Firebase — verifica tu red o intenta más tarde
             </div>
           )}

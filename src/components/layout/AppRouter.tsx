@@ -7,17 +7,17 @@ import { TabSuspense, SkDarkCard } from "../shared/AppSkeletons";
 import type { Panel, Cliente, Contrato, Gasto, Proveedor } from "../../types";
 
 // ── Carga lazy por ruta (code-splitting) ────────────────────────
-const ResumenNuevo  = lazy(() => import("../features/dashboard/ResumenNuevo"));
-const Paneles       = lazy(() => import("../features/paneles/Paneles"));
-const Contratos     = lazy(() => import("../features/contratos/Contratos"));
-const Historico     = lazy(() => import("../features/historico/Historico"));
-const CRM           = lazy(() => import("../features/crm/CRM"));
-const Gastos        = lazy(() => import("../features/gastos/Gastos"));
-const Proveedores   = lazy(() => import("../features/proveedores/Proveedores"));
-const Facturacion   = lazy(() => import("../features/facturacion/Facturacion"));
-const Reportes      = lazy(() => import("../features/reportes/Reportes"));
-const Capital       = lazy(() => import("../features/capital/Capital"));
-const Mapa          = lazy(() => import("../features/mapa/Mapa"));
+const ResumenNuevo = lazy(() => import("../features/dashboard/ResumenNuevo"));
+const Paneles = lazy(() => import("../features/paneles/Paneles"));
+const Contratos = lazy(() => import("../features/contratos/Contratos"));
+const Historico = lazy(() => import("../features/historico/Historico"));
+const CRM = lazy(() => import("../features/crm/CRM"));
+const Gastos = lazy(() => import("../features/gastos/Gastos"));
+const Proveedores = lazy(() => import("../features/proveedores/Proveedores"));
+const Facturacion = lazy(() => import("../features/facturacion/Facturacion"));
+const Reportes = lazy(() => import("../features/reportes/Reportes"));
+const Capital = lazy(() => import("../features/capital/Capital"));
+const Mapa = lazy(() => import("../features/mapa/Mapa"));
 
 /**
  * Prefetch de todos los chunks en segundo plano una vez que el usuario está
@@ -96,13 +96,23 @@ export function AppRouter({
             <div className="tabPanel tabPadded">
               {loading ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                  {[1, 2, 3, 4].map(i => <SkDarkCard key={i} />)}
+                  {[1, 2, 3, 4].map(i => (
+                    <SkDarkCard key={i} />
+                  ))}
                 </div>
               ) : (
                 <>
                   {error && (
-                    <div style={{ display: "flex", gap: 8, padding: "12px 16px",
-                      background: "rgba(255,107,107,.1)", borderRadius: 8, margin: "8px 0" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 8,
+                        padding: "12px 16px",
+                        background: "rgba(255,107,107,.1)",
+                        borderRadius: 8,
+                        margin: "8px 0",
+                      }}
+                    >
                       <span style={{ fontSize: 20 }}>⚠️</span>
                       <div style={{ fontSize: 13 }}>Sin conexión a Firebase</div>
                     </div>
@@ -285,11 +295,7 @@ export function AppRouter({
           element={
             <div className="tabPanel tabFlush">
               <ErrorBoundary label="Mapa">
-                <Mapa
-                  paneles={paneles}
-                  clientes={clientesActive}
-                  contratos={contractsActive}
-                />
+                <Mapa paneles={paneles} clientes={clientesActive} contratos={contractsActive} />
               </ErrorBoundary>
             </div>
           }
