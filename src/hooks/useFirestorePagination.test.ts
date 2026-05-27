@@ -17,7 +17,7 @@ vi.mock("firebase/firestore", () => ({
 }));
 
 /** Genera snapshots de Firestore simulados */
-function makeSnap(ids: string[], hasMore = false) {
+function makeSnap(ids: string[]) {
   const docs = ids.map((id) => ({
     id,
     data: () => ({ nombre: `Item ${id}`, createdAt: null }),

@@ -65,7 +65,7 @@ describe("PanelCard", () => {
   });
 
   it("no muestra la dirección cuando no está definida", () => {
-    const panelSinDireccion: Panel = { ...mockPanel, direccion: undefined };
+    const { direccion: _d, ...panelSinDireccion } = mockPanel;
     render(<PanelCard panel={panelSinDireccion} ocupado={false} onEdit={vi.fn()} onDelete={vi.fn()} />);
     expect(screen.queryByText("Av. Javier Prado Este 123")).toBeNull();
   });
