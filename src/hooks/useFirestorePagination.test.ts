@@ -43,7 +43,7 @@ describe("useFirestorePagination", () => {
     });
 
     expect(result.current.items).toHaveLength(3);
-    expect(result.current.items[0].id).toBe("a");
+    expect(result.current.items[0]?.id).toBe("a");
     expect(result.current.page).toBe(1);
   });
 
