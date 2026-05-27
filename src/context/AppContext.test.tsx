@@ -17,6 +17,8 @@ const emptyData = {
   contratos: [],
   gastos: [],
   proveedores: [],
+  loading: false,
+  error: null,
 };
 const emptySetters = {
   setPaneles: vi.fn(),

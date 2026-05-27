@@ -1,7 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
-import React from "react";
+import { render, fireEvent } from "@testing-library/react";
 
 vi.mock("firebase/firestore", () => ({
   collection: vi.fn(), getDocs: vi.fn().mockResolvedValue({ docs: [] }),
@@ -56,7 +55,6 @@ describe("Gastos", () => {
   });
 });
 
-import { fireEvent } from "@testing-library/react";
 
 describe("Gastos — interacciones UI básicas", () => {
   it("responde a clicks en botones e inputs sin lanzar error", () => {

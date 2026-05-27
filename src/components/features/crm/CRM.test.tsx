@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render } from "@testing-library/react";
-import React from "react";
 
 vi.mock("firebase/firestore", () => ({
   collection:vi.fn(), getDocs:vi.fn().mockResolvedValue({docs:[]}),

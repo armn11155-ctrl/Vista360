@@ -8,7 +8,6 @@
  */
 
 import { vi } from "vitest";
-import type React from "react";
 
 // ── Datos de prueba vacíos ────────────────────────────────────────
 export const emptyPanel = () => ({

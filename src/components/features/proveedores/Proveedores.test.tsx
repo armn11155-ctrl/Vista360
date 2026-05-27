@@ -1,6 +1,6 @@
+import { fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render } from "@testing-library/react";
-import React from "react";
 
 vi.mock("firebase/firestore", () => ({
   collection:vi.fn(), getDocs:vi.fn().mockResolvedValue({docs:[]}),
@@ -47,7 +47,6 @@ describe("Proveedores", () => {
   });
 });
 
-import { fireEvent } from "@testing-library/react";
 
 describe("Proveedores — interacciones UI básicas", () => {
   it("responde a clicks e inputs sin lanzar error", () => {
@@ -62,7 +61,6 @@ describe("Proveedores — interacciones UI básicas", () => {
   });
 });
 
-import { fireEvent } from "@testing-library/react";
 
 describe("Proveedores — con datos", () => {
   const proveedores = [

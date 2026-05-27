@@ -1,29 +1,15 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import React from "react";
+import { render, screen, act } from "@testing-library/react";
 
 vi.mock("../config/theme", () => ({
   T: {
-    bg: "#fff",
-    card: "#fff",
-    surface: "#f9fafb",
-    border: "#e5e7eb",
-    text: "#111827",
-    muted: "#6b7280",
-    accent: "#2563eb",
-    red: "#ef4444",
-    green: "#10b981",
-    white: "#fff",
-    dark: "#1f2937",
-    yellow: "#f59e0b",
+    bg: "#fff", card: "#fff", surface: "#f9fafb", border: "#e5e7eb",
+    text: "#111827", muted: "#6b7280", accent: "#2563eb", red: "#ef4444",
+    green: "#10b981", white: "#fff", dark: "#1f2937", yellow: "#f59e0b",
   },
 }));
 
 import { ToastProvider, toast, confirmAsync, useUI } from "./UIContext";
-
-function TestApp({ children }: { children: React.ReactNode }) {
-  return <ToastProvider>{children}</ToastProvider>;
-}
 
 describe("ToastProvider", () => {
   it("renderiza hijos sin error", () => {
@@ -58,12 +44,10 @@ describe("toast — funciones imperativas", () => {
   });
 
   it("muestra el mensaje de toast en pantalla después de llamar a success", async () => {
-    render(<ToastProvider><div data-testid="root" /></ToastProvider>);
-    // Llamar a toast después de que el provider registra el ref interno
+    render(<ToastProvider><div /></ToastProvider>);
     await new Promise(r => setTimeout(r, 10));
     act(() => { toast.success("Operación exitosa"); });
     await new Promise(r => setTimeout(r, 10));
-    // El toast puede aparecer o no dependiendo del timing — solo verificamos que no lanza
     expect(document.body).toBeTruthy();
   });
 });
@@ -73,25 +57,21 @@ describe("confirmAsync", () => {
     render(<ToastProvider><div /></ToastProvider>);
     const result = confirmAsync("¿Continuar?");
     expect(result).toBeInstanceOf(Promise);
-    // Limpiar la promise pendiente
-    result.catch(() => {});
+    void result.catch(() => {});
   });
 
   it("muestra el diálogo de confirmación", async () => {
     render(<ToastProvider><div /></ToastProvider>);
     await new Promise(r => setTimeout(r, 10));
-    let p: Promise<boolean> | null = null;
-    act(() => { p = confirmAsync("¿Eliminar registro?"); });
+    act(() => { void confirmAsync("¿Eliminar registro?").catch(() => {}); });
     await new Promise(r => setTimeout(r, 10));
     expect(document.body).toBeTruthy();
-    p?.catch(() => {}); // limpiar promise pendiente
   });
 
   it("resuelve false al cancelar", async () => {
     render(<ToastProvider><div /></ToastProvider>);
     await new Promise(r => setTimeout(r, 10));
-    // Solo verificamos que confirmAsync devuelve una Promise resolvible
-    act(() => { confirmAsync("¿Continuar?").catch(() => {}); });
+    act(() => { void confirmAsync("¿Continuar?").catch(() => {}); });
     expect(true).toBe(true);
   });
 });
