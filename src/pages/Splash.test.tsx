@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render } from "@testing-library/react";
 
 vi.mock("../config/theme", () => ({
-  T: { bg:"#0F172A",card:"#1E293B",text:"#F1F5F9",white:"#fff",accent:"#3B82F6" },
+  T: { bg: "#0F172A", card: "#1E293B", text: "#F1F5F9", white: "#fff", accent: "#3B82F6" },
 }));
 vi.mock("../components/layout/Logo360", () => ({
   Logo360: () => <img alt="Vista360" />,

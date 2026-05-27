@@ -3,14 +3,29 @@ import { render, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("../../config/theme", () => ({
-  T: { bg:"#fff",card:"#fff",surface:"#f9fafb",border:"#e5e7eb",text:"#111",
-       muted:"#6b7280",accent:"#2563eb",white:"#fff" },
+  T: {
+    bg: "#fff",
+    card: "#fff",
+    surface: "#f9fafb",
+    border: "#e5e7eb",
+    text: "#111",
+    muted: "#6b7280",
+    accent: "#2563eb",
+    white: "#fff",
+  },
 }));
 vi.mock("../../config/constants", () => ({
-  NAV_TAB_IDS: ["paneles","contratos","gastos"],
+  NAV_TAB_IDS: ["paneles", "contratos", "gastos"],
   BOTTOM_TABS_LIST: [],
-  CIUDADES:[], CAT_GASTOS:[], CAT_PROVE:[], SECTORES:[],
-  ESTADOS_CLI:[], ESTADOS_PRO:[], EMOJIS:[], EMISOR:{}, ALLOWED_EMAILS:[],
+  CIUDADES: [],
+  CAT_GASTOS: [],
+  CAT_PROVE: [],
+  SECTORES: [],
+  ESTADOS_CLI: [],
+  ESTADOS_PRO: [],
+  EMOJIS: [],
+  EMISOR: {},
+  ALLOWED_EMAILS: [],
 }));
 
 import { BottomTabBar } from "./BottomTabBar";
@@ -25,12 +40,20 @@ const props = { tabs, icons, showProfile: false, onTabClick: vi.fn(), onAddClick
 describe("BottomTabBar", () => {
   it("renderiza sin errores", () => {
     expect(() =>
-      render(<MemoryRouter><BottomTabBar {...props} /></MemoryRouter>)
+      render(
+        <MemoryRouter>
+          <BottomTabBar {...props} />
+        </MemoryRouter>,
+      ),
     ).not.toThrow();
   });
 
   it("muestra las pestañas", () => {
-    const { getByText } = render(<MemoryRouter><BottomTabBar {...props} /></MemoryRouter>);
+    const { getByText } = render(
+      <MemoryRouter>
+        <BottomTabBar {...props} />
+      </MemoryRouter>,
+    );
     expect(getByText("Paneles")).toBeTruthy();
     expect(getByText("Contratos")).toBeTruthy();
   });
@@ -38,7 +61,9 @@ describe("BottomTabBar", () => {
   it("llama a onTabClick al hacer click en una pestaña", () => {
     const onTabClick = vi.fn();
     const { getByText } = render(
-      <MemoryRouter><BottomTabBar {...props} onTabClick={onTabClick} /></MemoryRouter>
+      <MemoryRouter>
+        <BottomTabBar {...props} onTabClick={onTabClick} />
+      </MemoryRouter>,
     );
     fireEvent.click(getByText("Paneles"));
     expect(onTabClick).toHaveBeenCalled();
