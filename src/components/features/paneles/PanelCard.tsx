@@ -32,7 +32,14 @@ export function PanelCard({ panel: p, ocupado, onEdit, onDelete }: PanelCardProp
       <svg
         viewBox="0 0 400 400"
         preserveAspectRatio="xMidYMid slice"
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.5, pointerEvents: "none" }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          opacity: 0.5,
+          pointerEvents: "none",
+        }}
         aria-hidden="true"
       >
         <defs>
@@ -45,8 +52,10 @@ export function PanelCard({ panel: p, ocupado, onEdit, onDelete }: PanelCardProp
         {Array.from({ length: 14 }).map((_, i) => (
           <line
             key={i}
-            x1={-100 + i * 70} y1="-50"
-            x2={250 + i * 70} y2="450"
+            x1={-100 + i * 70}
+            y1="-50"
+            x2={250 + i * 70}
+            y2="450"
             stroke={`url(#pl-${p.id})`}
             strokeWidth={i % 3 === 0 ? 1.2 : 0.6}
             opacity={0.18 + (i % 3) * 0.12}
@@ -57,36 +66,130 @@ export function PanelCard({ panel: p, ocupado, onEdit, onDelete }: PanelCardProp
       <div style={{ position: "relative" }}>
         {/* Fila superior: ícono + nombre + badge estado */}
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 14 }}>
-          <div style={{ width: 54, height: 54, borderRadius: 14, flexShrink: 0, background: "linear-gradient(135deg,#5B8DEF,#243F8C)", display: "flex", alignItems: "center", justifyContent: "center", border: "1.5px solid rgba(255,255,255,0.18)", boxShadow: "0 6px 18px rgba(0,0,0,0.4)", fontSize: 28 }}>
+          <div
+            style={{
+              width: 54,
+              height: 54,
+              borderRadius: 14,
+              flexShrink: 0,
+              background: "linear-gradient(135deg,#5B8DEF,#243F8C)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1.5px solid rgba(255,255,255,0.18)",
+              boxShadow: "0 6px 18px rgba(0,0,0,0.4)",
+              fontSize: 28,
+            }}
+          >
             {p.foto || ""}
           </div>
           <div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: "-0.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 800,
+                color: "#fff",
+                letterSpacing: "-0.01em",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
               {p.nombre}
             </div>
-            <div style={{ fontSize: 13, color: "rgba(220,228,250,0.55)", marginTop: 3 }}>{p.ciudad}</div>
+            <div style={{ fontSize: 13, color: "rgba(220,228,250,0.55)", marginTop: 3 }}>
+              {p.ciudad}
+            </div>
           </div>
-          <div style={{ padding: "6px 14px", borderRadius: 999, border: "1.5px solid #3B82F6", color: ocupado ? "#fff" : "#3B82F6", fontSize: 13, fontWeight: 700, background: ocupado ? "#3B82F6" : "transparent", flexShrink: 0 }}>
+          <div
+            style={{
+              padding: "6px 14px",
+              borderRadius: 999,
+              border: "1.5px solid #3B82F6",
+              color: ocupado ? "#fff" : "#3B82F6",
+              fontSize: 13,
+              fontWeight: 700,
+              background: ocupado ? "#3B82F6" : "transparent",
+              flexShrink: 0,
+            }}
+          >
             {ocupado ? "Ocupado" : "Libre"}
           </div>
         </div>
 
         {/* Dirección */}
         {p.direccion && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18, fontSize: 13, color: "rgba(220,228,250,0.7)" }}>
-            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.direccion}</span>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 18,
+              fontSize: 13,
+              color: "rgba(220,228,250,0.7)",
+            }}
+          >
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {p.direccion}
+            </span>
           </div>
         )}
 
         {/* Tipo + Precio */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 14, alignItems: "stretch", marginBottom: 18 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1.4fr",
+            gap: 14,
+            alignItems: "stretch",
+            marginBottom: 18,
+          }}
+        >
           <div style={{ padding: "4px 4px" }}>
-            <div style={{ fontSize: 11, color: "rgba(220,228,250,0.5)", fontWeight: 700, letterSpacing: 1.2, textTransform: "uppercase" }}>Tipo</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", marginTop: 6 }}>{p.tipo}</div>
+            <div
+              style={{
+                fontSize: 11,
+                color: "rgba(220,228,250,0.5)",
+                fontWeight: 700,
+                letterSpacing: 1.2,
+                textTransform: "uppercase",
+              }}
+            >
+              Tipo
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", marginTop: 6 }}>
+              {p.tipo}
+            </div>
           </div>
-          <div style={{ borderRadius: 14, border: "1px solid rgba(16,185,129,0.35)", background: "rgba(16,185,129,0.06)", padding: "10px 14px" }}>
-            <div style={{ fontSize: 11, color: T.green, fontWeight: 700, letterSpacing: 1.2, textTransform: "uppercase" }}>Precio/mes</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: T.green, marginTop: 4, letterSpacing: "-0.02em", lineHeight: 1 }}>
+          <div
+            style={{
+              borderRadius: 14,
+              border: "1px solid rgba(16,185,129,0.35)",
+              background: "rgba(16,185,129,0.06)",
+              padding: "10px 14px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                color: T.green,
+                fontWeight: 700,
+                letterSpacing: 1.2,
+                textTransform: "uppercase",
+              }}
+            >
+              Precio/mes
+            </div>
+            <div
+              style={{
+                fontSize: 22,
+                fontWeight: 800,
+                color: T.green,
+                marginTop: 4,
+                letterSpacing: "-0.02em",
+                lineHeight: 1,
+              }}
+            >
               {fmt(p.precio)}
             </div>
           </div>
@@ -96,9 +199,36 @@ export function PanelCard({ panel: p, ocupado, onEdit, onDelete }: PanelCardProp
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button
             onClick={() => onEdit(p)}
-            style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 20px", borderRadius: 999, background: "#fff", border: "none", cursor: "pointer", touchAction: "manipulation", color: T.accent, fontWeight: 800, fontSize: 15, fontFamily: "inherit", boxShadow: "0 4px 14px rgba(0,0,0,0.18)" }}
+            style={{
+              flex: 1,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              padding: "14px 20px",
+              borderRadius: 999,
+              background: "#fff",
+              border: "none",
+              cursor: "pointer",
+              touchAction: "manipulation",
+              color: T.accent,
+              fontWeight: 800,
+              fontSize: 15,
+              fontFamily: "inherit",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
+            }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
             </svg>
             Editar
@@ -106,9 +236,32 @@ export function PanelCard({ panel: p, ocupado, onEdit, onDelete }: PanelCardProp
           <button
             onClick={() => onDelete(p.id)}
             aria-label={`Eliminar ${p.nombre}`}
-            style={{ width: 50, height: 50, borderRadius: "50%", flexShrink: 0, background: "rgba(239,68,68,0.14)", border: "1px solid rgba(239,68,68,0.28)", cursor: "pointer", touchAction: "manipulation", display: "inline-flex", alignItems: "center", justifyContent: "center", color: T.red }}
+            style={{
+              width: 50,
+              height: 50,
+              borderRadius: "50%",
+              flexShrink: 0,
+              background: "rgba(239,68,68,0.14)",
+              border: "1px solid rgba(239,68,68,0.28)",
+              cursor: "pointer",
+              touchAction: "manipulation",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: T.red,
+            }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <polyline points="3 6 5 6 21 6" />
               <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
               <path d="M10 11v6M14 11v6" />

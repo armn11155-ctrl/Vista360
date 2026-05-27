@@ -80,7 +80,7 @@ export function useFirestorePagination<T extends FirebaseDoc>(
     lastDocRef.current = null;
     try {
       const snap = await getDocs(buildQuery(null));
-      const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
+      const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }) as T);
       const hasNext = docs.length > pageSize;
       setItems(hasNext ? docs.slice(0, pageSize) : docs);
       setHasMore(hasNext);
@@ -99,12 +99,12 @@ export function useFirestorePagination<T extends FirebaseDoc>(
     setLoading(true);
     try {
       const snap = await getDocs(buildQuery(lastDocRef.current));
-      const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
+      const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }) as T);
       const hasNext = docs.length > pageSize;
-      setItems((prev) => [...prev, ...(hasNext ? docs.slice(0, pageSize) : docs)]);
+      setItems(prev => [...prev, ...(hasNext ? docs.slice(0, pageSize) : docs)]);
       setHasMore(hasNext);
       lastDocRef.current = hasNext ? snap.docs[pageSize - 1] : null;
-      setPage((p) => p + 1);
+      setPage(p => p + 1);
     } catch (e) {
       setError(String(e));
     } finally {

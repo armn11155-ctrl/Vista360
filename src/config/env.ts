@@ -55,7 +55,7 @@ export const env = {
   /** Emails autorizados (separados por coma). Vacío = sin whitelist local. */
   allowedEmails: (optional("VITE_ALLOWED_EMAILS") ?? "")
     .split(",")
-    .map((e) => e.trim())
+    .map(e => e.trim())
     .filter(Boolean),
 } as const;
 

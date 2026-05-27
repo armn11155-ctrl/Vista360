@@ -18,7 +18,7 @@ vi.mock("firebase/firestore", () => ({
 
 /** Genera snapshots de Firestore simulados */
 function makeSnap(ids: string[]) {
-  const docs = ids.map((id) => ({
+  const docs = ids.map(id => ({
     id,
     data: () => ({ nombre: `Item ${id}`, createdAt: null }),
   }));
@@ -33,9 +33,7 @@ describe("useFirestorePagination", () => {
   it("carga la primera página correctamente", async () => {
     mockGetDocs.mockResolvedValueOnce(makeSnap(["a", "b", "c"]));
 
-    const { result } = renderHook(() =>
-      useFirestorePagination("paneles", 10),
-    );
+    const { result } = renderHook(() => useFirestorePagination("paneles", 10));
 
     expect(result.current.loading).toBe(false);
     expect(result.current.items).toHaveLength(0);
@@ -53,9 +51,7 @@ describe("useFirestorePagination", () => {
     // pageSize=2, devuelve 3 docs → hay siguiente página
     mockGetDocs.mockResolvedValueOnce(makeSnap(["a", "b", "c"]));
 
-    const { result } = renderHook(() =>
-      useFirestorePagination("paneles", 2),
-    );
+    const { result } = renderHook(() => useFirestorePagination("paneles", 2));
 
     await act(async () => {
       await result.current.loadFirst();
@@ -68,9 +64,7 @@ describe("useFirestorePagination", () => {
   it("marca hasMore=false cuando no hay más páginas", async () => {
     mockGetDocs.mockResolvedValueOnce(makeSnap(["a", "b"]));
 
-    const { result } = renderHook(() =>
-      useFirestorePagination("paneles", 10),
-    );
+    const { result } = renderHook(() => useFirestorePagination("paneles", 10));
 
     await act(async () => {
       await result.current.loadFirst();
@@ -82,9 +76,7 @@ describe("useFirestorePagination", () => {
   it("captura errores correctamente", async () => {
     mockGetDocs.mockRejectedValueOnce(new Error("Firestore error"));
 
-    const { result } = renderHook(() =>
-      useFirestorePagination("paneles", 10),
-    );
+    const { result } = renderHook(() => useFirestorePagination("paneles", 10));
 
     await act(async () => {
       await result.current.loadFirst();
@@ -101,9 +93,7 @@ describe("useFirestorePagination", () => {
       // Página 2: 2 items (hasMore=false)
       .mockResolvedValueOnce(makeSnap(["d", "e"]));
 
-    const { result } = renderHook(() =>
-      useFirestorePagination("paneles", 2),
-    );
+    const { result } = renderHook(() => useFirestorePagination("paneles", 2));
 
     await act(async () => {
       await result.current.loadFirst();
@@ -122,9 +112,7 @@ describe("useFirestorePagination", () => {
   it("no carga más cuando hasMore=false", async () => {
     mockGetDocs.mockResolvedValueOnce(makeSnap(["a"]));
 
-    const { result } = renderHook(() =>
-      useFirestorePagination("paneles", 10),
-    );
+    const { result } = renderHook(() => useFirestorePagination("paneles", 10));
 
     await act(async () => {
       await result.current.loadFirst();

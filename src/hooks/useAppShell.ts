@@ -1,10 +1,4 @@
-import {
-  useState,
-  useMemo,
-  useEffect,
-  useCallback,
-  useRef,
-} from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
@@ -128,22 +122,13 @@ export function useAppShell(user: User, onLogout: () => void): AppShellState {
     paneles.error ?? clientes.error ?? contratos.error ?? gastos.error ?? proveedores.error;
 
   // ── Datos derivados ────────────────────────────────────────────────
-  const contractsActive = useMemo(
-    () => contratos.data.filter(x => !x.deleted),
-    [contratos.data],
-  );
-  const clientesActive = useMemo(
-    () => clientes.data.filter(x => !x.deleted),
-    [clientes.data],
-  );
+  const contractsActive = useMemo(() => contratos.data.filter(x => !x.deleted), [contratos.data]);
+  const clientesActive = useMemo(() => clientes.data.filter(x => !x.deleted), [clientes.data]);
   const proveedoresActive = useMemo(
     () => proveedores.data.filter(x => !x.deleted),
     [proveedores.data],
   );
-  const trashCount = useMemo(
-    () => contratos.data.filter(x => x.deleted).length,
-    [contratos.data],
-  );
+  const trashCount = useMemo(() => contratos.data.filter(x => x.deleted).length, [contratos.data]);
   const notifCount = useMemo(() => {
     if (!contractsActive.length) return 0;
     const hoy = new Date();
@@ -254,14 +239,22 @@ export function useAppShell(user: User, onLogout: () => void): AppShellState {
   );
 
   return {
-    showProfile, setShowProfile,
-    drawerOpen, setDrawerOpen,
-    trashOpen, setTrashOpen,
-    autoScan, setAutoScan,
-    globalSearch, setGlobalSearch,
-    notifOpen, setNotifOpen,
-    confirmLogout, setConfirmLogout,
-    anyModalOpen, setAnyModalOpen,
+    showProfile,
+    setShowProfile,
+    drawerOpen,
+    setDrawerOpen,
+    trashOpen,
+    setTrashOpen,
+    autoScan,
+    setAutoScan,
+    globalSearch,
+    setGlobalSearch,
+    notifOpen,
+    setNotifOpen,
+    confirmLogout,
+    setConfirmLogout,
+    anyModalOpen,
+    setAnyModalOpen,
     scrollRef,
     isOnline,
     headerColor,

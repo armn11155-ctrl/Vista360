@@ -28,7 +28,10 @@ export function MiniMapaPanel({ lat, lng, nombre, foto, onMove }: MiniMapaPanelP
 
   /** Carga Leaflet CSS + JS si aún no están presentes */
   useEffect(() => {
-    if (window.L) { setReady(true); return; }
+    if (window.L) {
+      setReady(true);
+      return;
+    }
     const css = document.createElement("link");
     css.rel = "stylesheet";
     css.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";
@@ -102,7 +105,11 @@ export function MiniMapaPanel({ lat, lng, nombre, foto, onMove }: MiniMapaPanelP
     });
     markerRef.current = marker;
     mapRef.current = map;
-    return () => { map.remove(); mapRef.current = null; markerRef.current = null; };
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markerRef.current = null;
+    };
   }, [ready]);
 
   /** Sincroniza el marcador cuando lat/lng cambian externamente */
@@ -113,14 +120,48 @@ export function MiniMapaPanel({ lat, lng, nombre, foto, onMove }: MiniMapaPanelP
   }, [latN, lngN]);
 
   return (
-    <div style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${T.border}`, height: 230, position: "relative" }}>
+    <div
+      style={{
+        borderRadius: 14,
+        overflow: "hidden",
+        border: `1px solid ${T.border}`,
+        height: 230,
+        position: "relative",
+      }}
+    >
       {!ready && (
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: T.surface, color: T.muted, fontSize: 13, zIndex: 10 }}>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: T.surface,
+            color: T.muted,
+            fontSize: 13,
+            zIndex: 10,
+          }}
+        >
           Cargando mapa…
         </div>
       )}
       {geocodingReverse && (
-        <div style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", background: T.surface + "EE", borderRadius: 8, padding: "5px 12px", fontSize: 12, color: T.accent, zIndex: 1000, fontWeight: 600 }}>
+        <div
+          style={{
+            position: "absolute",
+            top: 8,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: T.surface + "EE",
+            borderRadius: 8,
+            padding: "5px 12px",
+            fontSize: 12,
+            color: T.accent,
+            zIndex: 1000,
+            fontWeight: 600,
+          }}
+        >
           Obteniendo dirección…
         </div>
       )}

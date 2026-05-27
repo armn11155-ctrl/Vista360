@@ -76,8 +76,14 @@ describe("LoginScreen", () => {
     // Reimportar con whitelist activa
     vi.doMock("../../../config/constants", () => ({
       ALLOWED_EMAILS: ["autorizado@empresa.com"],
-      CIUDADES: [], CAT_GASTOS: [], CAT_PROVE: [], SECTORES: [],
-      ESTADOS_CLI: [], ESTADOS_PRO: [], EMOJIS: [], EMISOR: {},
+      CIUDADES: [],
+      CAT_GASTOS: [],
+      CAT_PROVE: [],
+      SECTORES: [],
+      ESTADOS_CLI: [],
+      ESTADOS_PRO: [],
+      EMOJIS: [],
+      EMISOR: {},
     }));
 
     const mockUser = { email: "noautorizado@otro.com" };

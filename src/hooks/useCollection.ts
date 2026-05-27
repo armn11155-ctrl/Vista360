@@ -23,9 +23,9 @@ interface UseCollectionResult<T> {
 const COLLECTION_TIMEOUT_MS = 8_000;
 
 export function useCollection<T extends FirebaseDoc>(col: ColName): UseCollectionResult<T> {
-  const [data, setData]       = useState<T[]>([]);
+  const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const refetch = useCallback(async () => {
     setLoading(true);

@@ -30,15 +30,45 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
       {/* Brillo superior decorativo */}
       <div
         aria-hidden="true"
-        style={{ position: "absolute", top: 0, left: 0, right: 0, height: "50%", background: "linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 100%)", borderRadius: "18px 18px 0 0", pointerEvents: "none" }}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "50%",
+          background: "linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 100%)",
+          borderRadius: "18px 18px 0 0",
+          pointerEvents: "none",
+        }}
       />
 
       {/* Ícono de pantalla */}
       <div
-        style={{ width: 42, height: 42, borderRadius: 12, flexShrink: 0, position: "relative", zIndex: 1, background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}
+        style={{
+          width: 42,
+          height: 42,
+          borderRadius: 12,
+          flexShrink: 0,
+          position: "relative",
+          zIndex: 1,
+          background: "rgba(255,255,255,0.14)",
+          border: "1px solid rgba(255,255,255,0.22)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#fff",
+        }}
         aria-hidden="true"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
           <rect x="2" y="3" width="20" height="14" rx="2" />
           <line x1="8" y1="21" x2="16" y2="21" />
           <line x1="12" y1="17" x2="12" y2="21" />
@@ -47,10 +77,20 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
 
       {/* Títulos y contadores */}
       <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
-        <div style={{ fontSize: 17, fontWeight: 800, color: "#fff", letterSpacing: "-0.3px", lineHeight: 1.2 }}>
+        <div
+          style={{
+            fontSize: 17,
+            fontWeight: 800,
+            color: "#fff",
+            letterSpacing: "-0.3px",
+            lineHeight: 1.2,
+          }}
+        >
           Paneles
         </div>
-        <div style={{ fontSize: 12, color: "rgba(180,200,255,0.7)", marginTop: 3, fontWeight: 500 }}>
+        <div
+          style={{ fontSize: 12, color: "rgba(180,200,255,0.7)", marginTop: 3, fontWeight: 500 }}
+        >
           {total} paneles · {libres} libres · {ocupados} ocupados
         </div>
       </div>
@@ -58,9 +98,35 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
       {/* Botón nuevo */}
       <button
         onClick={onNew}
-        style={{ display: "inline-flex", alignItems: "center", gap: 7, position: "relative", zIndex: 1, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 12, padding: "10px 16px", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", touchAction: "manipulation", backdropFilter: "blur(4px)", flexShrink: 0 }}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 7,
+          position: "relative",
+          zIndex: 1,
+          background: "rgba(255,255,255,0.15)",
+          border: "1px solid rgba(255,255,255,0.3)",
+          borderRadius: 12,
+          padding: "10px 16px",
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: 13,
+          cursor: "pointer",
+          touchAction: "manipulation",
+          backdropFilter: "blur(4px)",
+          flexShrink: 0,
+        }}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          aria-hidden="true"
+        >
           <path d="M12 5v14M5 12h14" />
         </svg>
         Nuevo

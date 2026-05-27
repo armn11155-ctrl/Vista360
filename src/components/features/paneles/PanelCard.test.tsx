@@ -4,7 +4,18 @@ import { PanelCard } from "./PanelCard";
 import type { Panel } from "../../../types";
 
 vi.mock("../../../config/theme", () => ({
-  T: { green: "#10B981", red: "#EF4444", accent: "#2563EB", muted: "#6B7280", white: "#fff", text: "#111827", border: "#E5E7EB", surface: "#F9FAFB", card: "#fff", bg: "#fff" },
+  T: {
+    green: "#10B981",
+    red: "#EF4444",
+    accent: "#2563EB",
+    muted: "#6B7280",
+    white: "#fff",
+    text: "#111827",
+    border: "#E5E7EB",
+    surface: "#F9FAFB",
+    card: "#fff",
+    bg: "#fff",
+  },
 }));
 
 const mockPanel: Panel = {
@@ -66,7 +77,9 @@ describe("PanelCard", () => {
 
   it("no muestra la dirección cuando no está definida", () => {
     const { direccion: _d, ...panelSinDireccion } = mockPanel;
-    render(<PanelCard panel={panelSinDireccion} ocupado={false} onEdit={vi.fn()} onDelete={vi.fn()} />);
+    render(
+      <PanelCard panel={panelSinDireccion} ocupado={false} onEdit={vi.fn()} onDelete={vi.fn()} />,
+    );
     expect(screen.queryByText("Av. Javier Prado Este 123")).toBeNull();
   });
 });

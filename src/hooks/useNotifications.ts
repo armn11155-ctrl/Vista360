@@ -49,13 +49,13 @@ export function useNotifications({ contractsActive, paneles, clientesActive, swR
         enviadas = cleaned;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
       }
-    } catch { /* ignorar errores de localStorage */ }
+    } catch {
+      /* ignorar errores de localStorage */
+    }
 
     // ── Disparar notificaciones pendientes ──
     contractsActive.forEach(c => {
-      const diasRestantes = Math.ceil(
-        (new Date(c.fin).getTime() - hoy.getTime()) / 86_400_000,
-      );
+      const diasRestantes = Math.ceil((new Date(c.fin).getTime() - hoy.getTime()) / 86_400_000);
 
       UMBRALES_DIAS.forEach(umbral => {
         if (diasRestantes <= 0 || diasRestantes > umbral) return;
@@ -87,12 +87,16 @@ export function useNotifications({ contractsActive, paneles, clientesActive, swR
             new Notification(titulo, { body: cuerpo, tag: key });
           }
           enviadas[key] = true;
-        } catch { /* ignorar errores de Notification API */ }
+        } catch {
+          /* ignorar errores de Notification API */
+        }
       });
     });
 
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(enviadas));
-    } catch { /* ignorar errores de localStorage */ }
+    } catch {
+      /* ignorar errores de localStorage */
+    }
   }, [contractsActive, paneles, clientesActive, swRef]);
 }

@@ -417,7 +417,9 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                     <div className={`${styles.tabPanel} ${styles.tabPadded}`}>
                       {loading ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                          {[1, 2, 3, 4].map(i => <SkDarkCard key={i} />)}
+                          {[1, 2, 3, 4].map(i => (
+                            <SkDarkCard key={i} />
+                          ))}
                         </div>
                       ) : (
                         <>
@@ -425,25 +427,25 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                             <div className={styles.firebaseError}>
                               <span style={{ fontSize: 22 }}></span>
                               <div>
-                            <div style={{ fontWeight: 700, color: T.amber, fontSize: 14 }}>
-                              Sin conexión a Firebase
+                                <div style={{ fontWeight: 700, color: T.amber, fontSize: 14 }}>
+                                  Sin conexión a Firebase
+                                </div>
+                                <div style={{ fontSize: 12, color: T.muted }}>
+                                  Despliega en Cloudflare para conectar.
+                                </div>
+                              </div>
                             </div>
-                            <div style={{ fontSize: 12, color: T.muted }}>
-                              Despliega en Cloudflare para conectar.
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      <ErrorBoundary label="Inicio">
-                        <ResumenNuevo
-                          clientes={clientesActive}
-                          contratos={contratos.data}
-                          paneles={paneles.data}
-                          gastos={gastos.data}
-                          setTab={(id: string) => navigate(`/${id === "hoy" ? "" : id}`)}
-                          userName={userName}
-                        />
-                      </ErrorBoundary>
+                          )}
+                          <ErrorBoundary label="Inicio">
+                            <ResumenNuevo
+                              clientes={clientesActive}
+                              contratos={contratos.data}
+                              paneles={paneles.data}
+                              gastos={gastos.data}
+                              setTab={(id: string) => navigate(`/${id === "hoy" ? "" : id}`)}
+                              userName={userName}
+                            />
+                          </ErrorBoundary>
                         </>
                       )}
                     </div>
@@ -858,12 +860,21 @@ function AppShell() {
       {!splash && authReady && !user && (
         <>
           {firebaseDown && (
-            <div style={{
-              position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999,
-              background: "#7f1d1d", color: "#fecaca",
-              padding: "10px 20px", fontSize: 13, textAlign: "center",
-              fontWeight: 600,
-            }}>
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 9999,
+                background: "#7f1d1d",
+                color: "#fecaca",
+                padding: "10px 20px",
+                fontSize: 13,
+                textAlign: "center",
+                fontWeight: 600,
+              }}
+            >
               ⚠️ Sin conexión a Firebase — verifica tu red o intenta más tarde
             </div>
           )}
