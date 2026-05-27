@@ -29,6 +29,7 @@ import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 import { TabSuspense, SkDarkCard } from "./components/shared/AppSkeletons";
 import { BTM_ICONS } from "./components/layout/BottomTabIcons";
 import { AppHeader } from "./components/layout/AppHeader";
+import { Logo360 } from "./components/layout/Logo360";
 import { BottomTabBar } from "./components/layout/BottomTabBar";
 import { ProfileView } from "./components/features/profile/ProfileView";
 
@@ -825,6 +826,24 @@ function AppShell() {
       `}</style>
 
       {splash && <Splash done={() => setSplash(false)} />}
+
+      {/* ── Puente anti-pantalla-blanca: Firebase aún no respondió ── */}
+      {!splash && !authReady && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: T.dark,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 998,
+          }}
+        >
+          <Logo360 width={120} />
+        </div>
+      )}
+
       {!splash && authReady && !user && <LoginScreen onLoginSuccess={(u: User) => setUser(u)} />}
       {!splash && !!user && (
         <ShellErrorBoundary>
