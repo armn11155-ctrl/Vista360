@@ -4,14 +4,11 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
 
-  // base explícito evita rutas rotas si algún día se despliega en subdirectorio
   base: "/",
 
   build: {
     rollupOptions: {
       output: {
-        // Separar vendor (React, Firebase) del código de la app
-        // Así el browser cachea React/Firebase por separado y no re-descarga en cada deploy
         manualChunks(id) {
           if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
             return "vendor-react";
@@ -25,7 +22,6 @@ export default defineConfig({
         },
       },
     },
-    // Avisar si algún chunk supera 500 KB
     chunkSizeWarningLimit: 500,
   },
 
@@ -33,13 +29,11 @@ export default defineConfig({
     environment: "jsdom",
     globals:     true,
     setupFiles:  ["./src/test/setup.ts"],
-    // Excluir e2e/ — esos tests son de Playwright, no de vitest
     include:     ["src/**/*.test.{ts,tsx}"],
     exclude:     ["e2e/**", "node_modules/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov", "html"],
-      // Solo medir src/ — excluir backend, configs, SW, scripts y archivos de tipos
       include: ["src/**/*.{ts,tsx}"],
       exclude: [
         "src/test/**",
@@ -50,17 +44,14 @@ export default defineConfig({
         "src/types/**",
         "src/vite-env.d.ts",
       ],
-      // Thresholds actuales: ~20% lines, ~30% functions con los tests existentes.
-      // Subir gradualmente a medida que se agregan tests a los componentes grandes.
-      // lines ~4% por App.tsx (900 líneas sin tests) — subir al agregar tests de páginas
       thresholds: {
-        // Ruta hacia 50% en 3 meses — subir ~10 puntos por sprint
-        // Sprint 1 (hoy):      lines 20%, functions 40%
-        // Sprint 2 (4 sem):    lines 30%, functions 50%
-        // Sprint 3 (8 sem):    lines 40%, functions 60%
-        // Sprint 4 (12 sem):   lines 50%, functions 70%
-        lines: 20,
-        functions: 40,
+        // Ruta hacia 70% en 4 meses — subir ~10-15 puntos por sprint
+        // Sprint 1 (base):     lines 20%, functions 40%
+        // Sprint 2 (hoy):      lines 30%, functions 50%
+        // Sprint 3 (4 sem):    lines 45%, functions 65%
+        // Sprint 4 (8 sem):    lines 70%, functions 80%
+        lines: 30,
+        functions: 50,
       },
     },
   },
