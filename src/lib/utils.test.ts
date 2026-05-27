@@ -72,7 +72,7 @@ describe("fmtF", () => {
 
 describe("dias", () => {
   it("devuelve número positivo para fecha futura", () => {
-    const future = new Date(Date.now() + 5 * 86_400_000).toISOString().split("T")[0];
+    const future = new Date(Date.now() + 5 * 86_400_000).toISOString().split("T")[0] ?? "";
     expect(dias(future)).toBeGreaterThan(0);
   });
 
@@ -96,7 +96,8 @@ describe("mesLabel", () => {
 
   it("comienza con mayúscula", () => {
     const result = mesLabel("2025-03");
-    expect(result[0]).toBe(result[0].toUpperCase());
+    const first = result[0] ?? "";
+    expect(first).toBe(first.toUpperCase());
   });
 });
 
