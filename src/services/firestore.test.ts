@@ -52,10 +52,9 @@ describe("fb.get", () => {
     expect(result).toEqual([{ id: "p1", nombre: "Panel Centro" }]);
   });
 
-  it("retorna array vacío si Firestore lanza error", async () => {
+  it("propaga el error si Firestore falla (no es error de índice)", async () => {
     mockGetDocs.mockRejectedValue(new Error("Firestore error"));
-    const result = await fb.get("paneles");
-    expect(result).toEqual([]);
+    await expect(fb.get("paneles")).rejects.toThrow("Firestore error");
   });
 });
 
