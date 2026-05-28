@@ -13,10 +13,8 @@ import { test, expect, type Page } from "@playwright/test";
 
 /** Navega a la pestaña de Contratos y espera que cargue */
 async function irAContratos(page: Page) {
-  // Busca el BottomTabBar y navega a Contratos
   const contratoTab = page.locator('[aria-label="Contratos"], button:has-text("Contratos")').first();
   await contratoTab.click();
-  // Espera el header de la sección
   await expect(page.locator("text=Contratos").first()).toBeVisible({ timeout: 8_000 });
 }
 
@@ -32,22 +30,24 @@ test.describe("Flujo de contratos", () => {
         errors.push(msg.text());
       }
     });
-    // Espera 3 segundos para que la app se inicialice
     await page.waitForTimeout(3_000);
-    // Solo falla si hay errores críticos no relacionados con Firebase
     expect(errors.filter(e => e.includes("TypeError") || e.includes("ReferenceError"))).toHaveLength(0);
   });
 
   test("muestra el splash/loading o la pantalla de login al iniciar", async ({ page }) => {
     // La app muestra un Splash (~3.8s) y luego el login o el dashboard.
-    // Esperamos a que aparezca cualquier contenido de la app.
     const hasContent = await Promise.race([
-      page.locator("text=Bienvenido").waitFor({ timeout: 10_000 }).then(() => "login"),
-      page.locator("text=Resumen").waitFor({ timeout: 10_000 }).then(() => "app"),
+      page.locator("text=Bienvenido").waitFor({ timeout: 12_000 }).then(() => "login"),
+      page.locator("text=Resumen").waitFor({ timeout: 12_000 }).then(() => "app"),
     ]).catch(() => "timeout");
 
-    // Acepta login o app; solo falla si no apareció nada en 10s
-    expect(["login", "app"]).toContain(hasContent);
+    // Aserción clara: hasContent debe ser "login" o "app", no "timeout".
+    // Si falla aquí, la app no cargó ningún contenido en 12s — revisar
+    // el webServer y los secrets de Firebase en CI.
+    expect(
+      hasContent,
+      `La app no cargó en 12s. ¿El build tiene las variables VITE_FIREBASE_* bakeadas? hasContent="${hasContent}"`,
+    ).toMatch(/^(login|app)$/);
   });
 });
 
@@ -57,7 +57,6 @@ test.describe("Creación de contrato (requiere sesión)", () => {
   test("botón Nuevo Contrato abre el modal", async ({ page }) => {
     await page.goto("/");
 
-    // Si no estamos autenticados, este test pasa a revisión manual
     const isLoggedIn = await page
       .locator("text=Resumen")
       .isVisible({ timeout: 5_000 })
@@ -73,7 +72,6 @@ test.describe("Creación de contrato (requiere sesión)", () => {
     await expect(nuevoBtn).toBeVisible();
     await nuevoBtn.click();
 
-    // El modal de Nuevo Contrato debe aparecer
     await expect(page.locator("text=Nuevo Contrato")).toBeVisible({ timeout: 3_000 });
   });
 
@@ -94,7 +92,6 @@ test.describe("Creación de contrato (requiere sesión)", () => {
 
     await expect(page.locator("text=Nuevo Contrato")).toBeVisible({ timeout: 3_000 });
 
-    // Verificar campos clave del formulario
     await expect(
       page.locator("select, [aria-label*='Panel'], [placeholder*='panel' i]").first(),
     ).toBeVisible();
@@ -121,13 +118,11 @@ test.describe("Creación de contrato (requiere sesión)", () => {
 
     await expect(page.locator("text=Nuevo Contrato")).toBeVisible({ timeout: 3_000 });
 
-    // Intentar guardar sin completar el formulario
     const guardarBtn = page
       .locator("button:has-text('Crear Contrato'), button:has-text('Guardar')")
       .last();
     await guardarBtn.click();
 
-    // Debe aparecer un mensaje de error o toast de validación
     await expect(
       page.locator("text=/selecciona un panel/i, text=/panel.*requerido/i, text=/completa/i").first(),
     ).toBeVisible({ timeout: 3_000 });
