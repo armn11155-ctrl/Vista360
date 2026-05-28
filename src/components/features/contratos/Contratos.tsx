@@ -668,7 +668,9 @@ function Contratos({
           </svg>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#0F1729", letterSpacing: "-0.02em" }}>
+          <div
+            style={{ fontSize: 20, fontWeight: 800, color: "#0F1729", letterSpacing: "-0.02em" }}
+          >
             Contratos
           </div>
           <div style={{ fontSize: 12, color: "#64748B", marginTop: 1 }}>
