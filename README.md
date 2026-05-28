@@ -1,6 +1,7 @@
 # Vista360
 
 [![CI](https://github.com/armn11155-ctrl/Vista360/actions/workflows/ci.yml/badge.svg)](https://github.com/armn11155-ctrl/Vista360/actions/workflows/ci.yml)
+[![Deploy](https://github.com/armn11155-ctrl/Vista360/actions/workflows/deploy.yml/badge.svg)](https://github.com/armn11155-ctrl/Vista360/actions/workflows/deploy.yml)
 
 PWA mobile-first para gestión integral de paneles publicitarios OOH — React 18 + Firebase + TypeScript strict.
 
