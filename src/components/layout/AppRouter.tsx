@@ -65,8 +65,7 @@ export function AppRouter({ userName, autoScan, setAutoScan, onModalChange }: Ap
   const navigate = useNavigate();
 
   // ── Datos desde contexto (sin prop drilling) ──────────────────────
-  const { paneles, contratos, gastos, loading, error, refetch } =
-    useAppData();
+  const { paneles, contratos, gastos, loading, error, refetch } = useAppData();
   const { contractsActive, clientesActive, proveedoresActive } = useAppDerived();
   const { setPaneles, setContratos, setClientes, setGastos, setProveedores } = useAppSetters();
 

@@ -1,4 +1,3 @@
-
 import type { User } from "firebase/auth";
 
 import { useOnlineStatus } from "./useOnlineStatus";

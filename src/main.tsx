@@ -19,10 +19,7 @@ if (missing.length > 0) {
 }
 
 // ── Validación opcional: Cloudinary (solo warn, no bloquea el boot) ─
-const CLOUDINARY_VARS = [
-  "VITE_CLOUDINARY_CLOUD_NAME",
-  "VITE_CLOUDINARY_UPLOAD_PRESET",
-] as const;
+const CLOUDINARY_VARS = ["VITE_CLOUDINARY_CLOUD_NAME", "VITE_CLOUDINARY_UPLOAD_PRESET"] as const;
 const missingCloudinary = CLOUDINARY_VARS.filter(k => !import.meta.env[k]);
 if (missingCloudinary.length > 0) {
   console.warn(

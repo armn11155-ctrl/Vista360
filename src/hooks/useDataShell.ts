@@ -61,7 +61,16 @@ export function useDataShell() {
       error,
       refetch,
     }),
-    [paneles.data, clientes.data, contratos.data, gastos.data, proveedores.data, loading, error, refetch],
+    [
+      paneles.data,
+      clientes.data,
+      contratos.data,
+      gastos.data,
+      proveedores.data,
+      loading,
+      error,
+      refetch,
+    ],
   );
 
   const appSetters: AppSetters = useMemo(
