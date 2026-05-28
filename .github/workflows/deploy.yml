@@ -63,16 +63,24 @@ jobs:
           echo "     CLOUDFLARE_API_TOKEN  →  https://dash.cloudflare.com/profile/api-tokens"
           echo "     CLOUDFLARE_ACCOUNT_ID →  https://dash.cloudflare.com (sidebar derecho)"
 
-      # Espera a que Cloudflare termine el deploy (Git integration tarda ~30s)
-      - name: Wait for Cloudflare Pages deploy
-        run: sleep 45
-
-      - name: Smoke test
+      # Polling con reintentos (fix: reemplaza sleep 45 hardcodeado)
+      # Intenta hasta 10 veces con 15s de espera entre intentos (máx 2.5 min)
+      - name: Smoke test con reintentos
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://vista360.pages.dev)
-          echo "HTTP status: $STATUS"
-          if [ "$STATUS" != "200" ]; then
-            echo "::error::Smoke test falló — $STATUS recibido de https://vista360.pages.dev"
-            exit 1
-          fi
-          echo "✅ Smoke test OK"
+          MAX=10
+          WAIT=15
+          URL="https://vista360.pages.dev"
+          for i in $(seq 1 $MAX); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+            echo "Intento $i/$MAX — HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Smoke test OK"
+              exit 0
+            fi
+            if [ $i -lt $MAX ]; then
+              echo "   Esperando ${WAIT}s..."
+              sleep $WAIT
+            fi
+          done
+          echo "::error::Smoke test falló después de $MAX intentos — último status: $STATUS"
+          exit 1
