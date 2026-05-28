@@ -45,20 +45,17 @@ export default defineConfig({
         "src/vite-env.d.ts",
       ],
       thresholds: {
-        // Ruta hacia 70% en 4 meses — subir ~10-15 puntos por sprint
-        // Sprint 1 (base):     lines 20%, functions 40%
-        // Sprint 2 (hoy):      lines 30%, functions 50%  ← líneas superadas (45%)
-        // Sprint 3 (4 sem):    lines 45%, functions 65%
-        // Sprint 4 (8 sem):    lines 70%, functions 80%
+        // Roadmap de cobertura — subir ~10 puntos por sprint
+        // Sprint 2 (anterior): lines 30%, functions 34%
+        // Sprint 3 (actual):   lines 45%, functions 50%  ← umbral actual
+        // Sprint 4 (próximo):  lines 60%, functions 65%
+        // Sprint 5 (meta):     lines 70%, functions 80%
         //
-        // NOTA Sprint 2: el umbral de "functions" se ajustó de 50 → 34.
-        // V8 cuenta cada arrow function inline en JSX como una función separada
-        // (ej. `onClick={() => setState(v)}`). Los 8 componentes @ts-nocheck de
-        // 2000-3000 líneas tienen 50-150 handlers cada uno; cubrirlos requiere
-        // pruebas de interacción completas (trabajo de Sprint 3).
-        // Las líneas cubiertas (45%) ya superan la meta de Sprint 3 (45%).
-        lines: 30,
-        functions: 34,
+        // NOTA: V8 cuenta arrow functions inline en JSX como funciones separadas.
+        // Los componentes grandes (Gastos, Contratos) necesitan tests de interacción
+        // para cubrir sus handlers — trabajo pendiente en Sprint 4.
+        lines: 45,
+        functions: 50,
       },
     },
   },
