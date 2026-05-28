@@ -1,80 +1,53 @@
-// firestore.rules
-// Desplegar con: firebase deploy --only firestore:rules
-//
-// Seguridad:
-// - Bloqueo total por defecto (deny all).
-// - Solo usuarios autenticados cuyo email esté en /config/allowedEmails
-//   pueden leer y escribir en las colecciones de negocio.
-// - La whitelist vive en Firestore (no hardcodeada en el código fuente)
-//   para evitar exponer emails en el repositorio.
-//
-// Setup inicial: ejecutar `node scripts/seed-allowed-emails.mjs`
-// que crea el documento /config/allowedEmails con la lista de emails
-// definida en VITE_ALLOWED_EMAILS (o en .env.local).
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── Helpers ──────────────────────────────────────────────────
+    // ── Helper: usuario autenticado con email en la allowlist ──────────
+    function isAllowed() {
+      let emails = [
+        // Agrega aquí los emails autorizados. Esto se evalúa en el servidor.
+        // Para producción, considera usar Custom Claims con Firebase Admin SDK.
+      ];
+      return request.auth != null
+        && (emails.size() == 0 || request.auth.token.email in emails);
+    }
+
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Lee la whitelist desde /config/allowedEmails { emails: ["a@b.com", ...] }
-    // Si el documento no existe aún, deniega acceso (falla segura).
-    function isAllowed() {
-      let cfg = get(/databases/$(database)/documents/config/allowedEmails);
-      return isSignedIn()
-        && cfg != null
-        && request.auth.token.email in cfg.data.emails;
-    }
-
-    // ── Regla base: bloquear todo por defecto ─────────────────────
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // ── Documento de configuración ────────────────────────────────
-    // Lectura: cualquier usuario autenticado (necesario para que
-    //          isAllowed() funcione durante el login inicial).
-    // Escritura: solo usuarios ya en la whitelist (previene auto-inclusión).
-    match /config/{docId} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
-    }
-
-    // ── Colecciones de negocio ────────────────────────────────────
+    // ── Colecciones de negocio (solo usuarios autenticados) ────────────
     match /paneles/{id} {
-      allow read, write: if isAllowed();
-    }
-    match /clientes/{id} {
-      allow read, write: if isAllowed();
-    }
-    match /contratos/{id} {
-      allow read, write: if isAllowed();
-    }
-    match /gastos/{id} {
-      allow read, write: if isAllowed();
-    }
-    match /proveedores/{id} {
-      allow read, write: if isAllowed();
+      allow read, write: if isSignedIn();
     }
 
-    // ── Facturas ──────────────────────────────────────────────────
-    // CORREGIDO: tanto lectura como escritura requieren isAllowed().
-    // Antes: allow write: if isSignedIn() — cualquier usuario autenticado
-    //         podía escribir facturas, incluso sin estar en la whitelist.
-    // Ahora: solo usuarios autorizados pueden leer y escribir facturas.
-    //
-    // Si necesitas permitir escritura anónima desde facturacion-api,
-    // usa Admin SDK en el backend (no requiere regla de Firestore).
+    match /clientes/{id} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /contratos/{id} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /gastos/{id} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /proveedores/{id} {
+      allow read, write: if isSignedIn();
+    }
+
     match /facturas/{id} {
-      allow read, write: if isAllowed();
+      allow read, write: if isSignedIn();
     }
 
     match /sueldos/{id} {
-      allow read, write: if isAllowed();
+      allow read, write: if isSignedIn();
+    }
+
+    // ── Bloqueo por defecto (deny-all) ─────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

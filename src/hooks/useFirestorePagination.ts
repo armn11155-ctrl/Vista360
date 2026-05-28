@@ -9,7 +9,7 @@ import {
   type QueryConstraint,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
-import type { ColName, FirebaseDoc } from "../types";
+import type { ColName, FirestoreBase } from "../types";
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -46,7 +46,7 @@ export interface UseFirestorePaginationResult<T> {
  * useEffect(() => { loadFirst(); }, [loadFirst]);
  * ```
  */
-export function useFirestorePagination<T extends FirebaseDoc>(
+export function useFirestorePagination<T extends FirestoreBase>(
   col: ColName,
   pageSize: number = DEFAULT_PAGE_SIZE,
   /** Constraints adicionales (where, orderBy). NO incluir limit(). */
