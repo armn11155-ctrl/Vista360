@@ -668,10 +668,10 @@ function Contratos({
           </svg>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#0F1729", letterSpacing: "-0.02em" }}>
             Contratos
           </div>
-          <div style={{ fontSize: 12, color: "rgba(148,175,255,0.5)", marginTop: 1 }}>
+          <div style={{ fontSize: 12, color: "#64748B", marginTop: 1 }}>
             {contratos.filter(c => !c.deleted).length} contratos · {activos} activos
           </div>
         </div>
