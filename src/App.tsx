@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 
@@ -223,28 +223,7 @@ function AppShell() {
 
   return (
     <ToastProvider>
-      <style>{`
-        *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
-        html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;background:#F2F4F8;-webkit-text-size-adjust:100%}
-        body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-        #root{position:fixed;top:0;left:0;right:0;bottom:0;overflow:hidden;background:transparent}
-        button,a,select,[role='button'],[role='tab'],[role='menuitem'],[role='option']{touch-action:manipulation;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:inherit}
-        button:active{opacity:0.78;transform:scale(0.96)}
-        input,select,textarea{-webkit-appearance:none;appearance:none;font-size:16px!important;scroll-margin-bottom:180px;touch-action:manipulation}
-        input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
-        ::-webkit-scrollbar{display:none}
-        [data-scroll]{overscroll-behavior:none}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        @keyframes skPulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
-        @keyframes pulse{from{opacity:.2}to{opacity:.6}}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-        @keyframes slideDown{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
-        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
-        .tabPanel{display:flex;flex-direction:column;min-height:100%}
-        .tabPadded{padding:0 16px 80px}
-        .tabFlush{padding-bottom:80px}
-      `}</style>
+      {/* CSS global movido a src/index.css — ver refactor(styles) */}
 
       {splash && <Splash done={() => setSplash(false)} />}
 
@@ -299,10 +278,13 @@ function AppShell() {
 }
 
 // ── Root ─────────────────────────────────────────────────────────
+// BrowserRouter (fix: reemplaza HashRouter)
+// Requiere public/_redirects con "/* /index.html 200" para Cloudflare Pages SPA.
+// Las URLs pasan de /#/gastos → /gastos — más limpias y compatibles con PWA.
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <AppShell />
-    </HashRouter>
+    </BrowserRouter>
   );
 }
