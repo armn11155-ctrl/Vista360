@@ -1704,12 +1704,8 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                     textDecoration: "none",
                     cursor: "pointer",
                     touchAction: "manipulation",
-                    background: esHoy
-                      ? "linear-gradient(135deg,#0F1729,#1E3A8A)"
-                      : "#fff",
-                    border: esHoy
-                      ? "none"
-                      : "1.5px solid #CBD5E1",
+                    background: esHoy ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#fff",
+                    border: esHoy ? "none" : "1.5px solid #CBD5E1",
                     transition: "background .08s",
                   }}
                 >
