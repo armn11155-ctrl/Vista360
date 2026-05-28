@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction, RefObject } from "react";
 import type { User } from "firebase/auth";
 
 import { useOnlineStatus } from "./useOnlineStatus";
@@ -12,24 +13,24 @@ import type { AppDerivedData } from "../context/AppContext";
 export interface AppShellState {
   // UI toggles
   showProfile: boolean;
-  setShowProfile: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowProfile: Dispatch<SetStateAction<boolean>>;
   drawerOpen: boolean;
-  setDrawerOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setDrawerOpen: Dispatch<SetStateAction<boolean>>;
   trashOpen: boolean;
-  setTrashOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setTrashOpen: Dispatch<SetStateAction<boolean>>;
   autoScan: boolean;
-  setAutoScan: React.Dispatch<React.SetStateAction<boolean>>;
+  setAutoScan: Dispatch<SetStateAction<boolean>>;
   globalSearch: boolean;
-  setGlobalSearch: React.Dispatch<React.SetStateAction<boolean>>;
+  setGlobalSearch: Dispatch<SetStateAction<boolean>>;
   notifOpen: boolean;
-  setNotifOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setNotifOpen: Dispatch<SetStateAction<boolean>>;
   confirmLogout: boolean;
-  setConfirmLogout: React.Dispatch<React.SetStateAction<boolean>>;
+  setConfirmLogout: Dispatch<SetStateAction<boolean>>;
   anyModalOpen: boolean;
-  setAnyModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setAnyModalOpen: Dispatch<SetStateAction<boolean>>;
 
   // Refs
-  scrollRef: React.RefObject<HTMLDivElement>;
+  scrollRef: RefObject<HTMLDivElement>;
 
   // Derived UI
   isOnline: boolean;
