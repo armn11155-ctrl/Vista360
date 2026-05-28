@@ -1,4 +1,4 @@
-/* Reset global — anteriormente incrustado como <style> en AppShell */
+/* ── Reset + Base ────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -20,14 +20,8 @@ body {
 }
 
 body {
-  font-family:
-    "DM Sans",
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Display",
-    "SF Pro Text",
-    "Helvetica Neue",
-    sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+    'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -42,13 +36,14 @@ body {
   background: transparent;
 }
 
+/* ── Interactivos ─────────────────────────────────────────────────── */
 button,
 a,
 select,
-[role="button"],
-[role="tab"],
-[role="menuitem"],
-[role="option"] {
+[role='button'],
+[role='tab'],
+[role='menuitem'],
+[role='option'] {
   touch-action: manipulation;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -60,12 +55,13 @@ button:active {
   transform: scale(0.96);
 }
 
+/* ── Inputs ───────────────────────────────────────────────────────── */
 input,
 select,
 textarea {
   -webkit-appearance: none;
   appearance: none;
-  font-size: 16px !important;
+  font-size: 16px !important; /* previene zoom en iOS */
   scroll-margin-bottom: 180px;
   touch-action: manipulation;
 }
@@ -77,6 +73,7 @@ textarea {
   -webkit-touch-callout: default;
 }
 
+/* ── Scrollbar ────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   display: none;
 }
@@ -85,61 +82,37 @@ textarea {
   overscroll-behavior: none;
 }
 
+/* ── Animaciones ──────────────────────────────────────────────────── */
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes skPulse {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes pulse {
-  from {
-    opacity: 0.2;
-  }
-  to {
-    opacity: 0.6;
-  }
+  from { opacity: 0.2; }
+  to   { opacity: 0.6; }
 }
 
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Accesibilidad: reduce motion ─────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -149,4 +122,19 @@ textarea {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ── Layout helpers ───────────────────────────────────────────────── */
+.tabPanel {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.tabPadded {
+  padding: 0 16px 80px;
+}
+
+.tabFlush {
+  padding-bottom: 80px;
 }
