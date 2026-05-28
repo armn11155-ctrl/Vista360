@@ -78,6 +78,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Buildea con secrets reales para que vite preview sirva la app
+      # con credenciales de Firebase bakeadas en el bundle.
+      # Esto garantiza que los tests E2E ven la misma pantalla que producción.
+      - name: Build (bake Firebase secrets for E2E preview server)
+        run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY:              ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN:          ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID:           ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET:       ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID:  ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID:               ${{ secrets.VITE_FIREBASE_APP_ID }}
+
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         id: playwright-cache
@@ -94,16 +107,10 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
+      # playwright.config.ts levanta `vite preview` automáticamente
+      # como webServer en CI — sirve el dist/ generado en el paso anterior.
       - name: Run E2E tests
         run: npm run test:e2e
-        env:
-          VITE_FIREBASE_API_KEY:              ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN:          ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID:           ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET:       ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID:  ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID:               ${{ secrets.VITE_FIREBASE_APP_ID }}
-          PLAYWRIGHT_BASE_URL:                ${{ secrets.PLAYWRIGHT_BASE_URL || 'http://localhost:5173' }}
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v7
