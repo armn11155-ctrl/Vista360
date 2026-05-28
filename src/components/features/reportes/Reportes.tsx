@@ -1518,7 +1518,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                 gap: 8,
                 padding: "14px 10px",
                 borderRadius: 16,
-                border: "none",
+                border: active ? "none" : "1.5px solid #CBD5E1",
                 cursor: "pointer",
                 touchAction: "manipulation",
                 background: active ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#fff",
@@ -1528,7 +1528,6 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                 boxShadow: active
                   ? "0 6px 20px rgba(15,23,41,0.35)"
                   : "0 1px 6px rgba(15,23,41,0.12)",
-                border: active ? "none" : "1.5px solid #CBD5E1",
                 fontFamily: "inherit",
                 transition: "all .15s",
               }}
