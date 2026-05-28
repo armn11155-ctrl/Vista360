@@ -780,9 +780,12 @@ function Contratos({
         ].map(f => {
           const isActive = filtro === f.label;
           const isTrash = f.label === "Eliminados";
-          const activeColor = isTrash ? T.red : "#3B82F6";
-          const activeBg = isTrash ? "rgba(239,68,68,0.80)" : "rgba(59,130,246,0.80)";
-          const activeBorder = isTrash ? "rgba(239,68,68,0.45)" : "rgba(59,130,246,0.45)";
+          const activeGradient = isTrash
+            ? "linear-gradient(135deg,#7F1D1D,#991B1B)"
+            : "linear-gradient(135deg,#0F1729,#1E3A8A)";
+          const inactiveIconBg = isTrash ? "rgba(239,68,68,0.10)" : "#EFF4FF";
+          const inactiveIconColor = isTrash ? "#EF4444" : "#2563EB";
+          const inactiveTextColor = isTrash ? "#EF4444" : "#2563EB";
           return (
             <button
               key={f.label}
@@ -795,15 +798,16 @@ function Contratos({
                 gap: 4,
                 padding: "12px 6px",
                 borderRadius: 16,
-                background: isActive ? activeBg : "rgba(255,255,255,0.07)",
-                border: `1px solid ${isActive ? activeBorder : "rgba(59,130,246,0.20)"}`,
-                color: isActive ? "#fff" : "#93C5FD",
-                fontWeight: isActive ? 700 : 500,
+                background: isActive ? activeGradient : "#FFFFFF",
+                border: `1px solid ${isActive ? "transparent" : "#E5E7EB"}`,
+                color: isActive ? "#fff" : inactiveTextColor,
+                fontWeight: isActive ? 700 : 600,
                 fontSize: 12,
                 cursor: "pointer",
                 touchAction: "manipulation",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
+                boxShadow: isActive
+                  ? "0 4px 16px rgba(15,23,41,0.35)"
+                  : "0 1px 4px rgba(15,23,41,0.06)",
               }}
             >
               <span
@@ -811,8 +815,8 @@ function Contratos({
                   width: 28,
                   height: 28,
                   borderRadius: 8,
-                  background: isActive ? "rgba(255,255,255,0.18)" : "rgba(59,130,246,0.10)",
-                  color: isActive ? "#fff" : "#93C5FD",
+                  background: isActive ? "rgba(255,255,255,0.18)" : inactiveIconBg,
+                  color: isActive ? "#fff" : inactiveIconColor,
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -827,8 +831,8 @@ function Contratos({
                     minWidth: 20,
                     padding: "1px 7px",
                     borderRadius: 999,
-                    background: isActive ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.08)",
-                    color: isActive ? "#fff" : "rgba(255,255,255,0.5)",
+                    background: isActive ? "rgba(255,255,255,0.22)" : inactiveIconBg,
+                    color: isActive ? "#fff" : inactiveIconColor,
                     fontSize: 11,
                     fontWeight: 700,
                     textAlign: "center",
