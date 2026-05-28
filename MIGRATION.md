@@ -84,3 +84,71 @@ npm run typecheck && npm run build
 - [ ] E2E pasan en Chromium
 - [ ] `npm audit` sin vulnerabilidades moderate+
 - [ ] CHANGELOG.md actualizado con la versión resultante
+
+---
+
+## Migración de seguridad — Custom Claims (firestore.rules)
+
+### Contexto
+
+Las reglas de Firestore anteriores usaban una función `isAllowed()` con una
+lista de emails hardcodeada vacía. Cuando la lista está vacía, la condición
+`emails.size() == 0` era `true`, lo que daba acceso de escritura a **cualquier
+cuenta de Google autenticada**.
+
+Las nuevas reglas usan **Firebase Custom Claims**: `request.auth.token.role == 'admin'`.
+
+### Pasos para activar
+
+#### 1. Instalar Firebase Admin SDK (solo en backend / script local)
+
+```bash
+npm install firebase-admin
+```
+
+#### 2. Crear script `scripts/set-admin-role.mjs`
+
+```js
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+
+// Descarga tu serviceAccountKey.json desde:
+// Firebase Console → Configuración del proyecto → Cuentas de servicio
+import serviceAccount from '../serviceAccountKey.json' assert { type: 'json' };
+
+initializeApp({ credential: cert(serviceAccount) });
+
+const EMAIL = 'tu-email@empresa.com'; // ← cambiar
+
+const user = await getAuth().getUserByEmail(EMAIL);
+await getAuth().setCustomUserClaims(user.uid, { role: 'admin' });
+console.log(`✅ Custom claim role=admin asignado a ${EMAIL}`);
+process.exit(0);
+```
+
+#### 3. Ejecutar
+
+```bash
+node scripts/set-admin-role.mjs
+```
+
+#### 4. Forzar refresh del token en el cliente
+
+Los Custom Claims se propagan en el siguiente refresh de token (~1 hora).
+Para forzarlo inmediatamente después de asignar el claim:
+
+```ts
+// En cualquier parte del frontend tras el login:
+await firebase.auth().currentUser?.getIdToken(true);
+```
+
+#### 5. Verificar en la consola de Firebase
+
+Firebase Console → Authentication → Users → seleccionar usuario → Custom claims
+Debe mostrar: `{"role":"admin"}`
+
+### Notas
+
+- `serviceAccountKey.json` **nunca** debe subirse al repositorio (ya está en `.gitignore`).
+- Cada usuario admin debe ejecutar el script una vez. No hay límite de admins.
+- Para revocar: `setCustomUserClaims(uid, { role: null })`.
