@@ -91,7 +91,9 @@ export const fb = {
 
       try {
         const snap = await getDocs(collection(db, col));
-        console.warn(`[Firebase] get(${col}): sin índice, resultado sin orden. Crea el índice en la consola.`);
+        console.warn(
+          `[Firebase] get(${col}): sin índice, resultado sin orden. Crea el índice en la consola.`,
+        );
         return snap.docs.map(d => ({ id: d.id, ...d.data() }) as T);
       } catch (e2) {
         console.error(`[Firebase] get(${col}) falló:`, e2);
