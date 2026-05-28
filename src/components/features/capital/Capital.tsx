@@ -2170,14 +2170,14 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           style={{
             fontSize: 22,
             fontWeight: 900,
-            color: "#fff",
+            color: "#0F1729",
             letterSpacing: "-0.03em",
             marginBottom: 2,
           }}
         >
           Capital e Inversiones
         </div>
-        <div style={{ fontSize: 12, color: "rgba(148,175,255,0.45)", marginBottom: 16 }}>
+        <div style={{ fontSize: 12, color: "#64748B", marginBottom: 16 }}>
           Sistema financiero del negocio
         </div>
 
