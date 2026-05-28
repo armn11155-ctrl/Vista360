@@ -14,8 +14,19 @@ export type ClienteEstado =
 export type ClienteTipo = "Cliente" | "Prospecto";
 export type Moneda = "PEN" | "USD";
 export type FacturaTipo = "FACTURA" | "BOLETA" | "NOTA_CREDITO" | "NOTA_DEBITO";
-export type Coord = number | string;
-export type FsTimestamp = Timestamp | string;
+
+/**
+ * Coordenada geográfica. Siempre número (lat/lng en decimal degrees).
+ * Si llega como string desde un formulario, parsear con Number() antes de guardar.
+ */
+export type Coord = number;
+
+/**
+ * Timestamp de Firestore. Todos los campos de fecha se almacenan como
+ * Timestamp; no usar strings ISO en Firestore para fechas de auditoría.
+ * Excepción: fechas de negocio tipo "2024-03" se guardan como string (mes).
+ */
+export type FsTimestamp = Timestamp;
 
 // ── Base types para Firestore ─────────────────────────────────────
 /**
@@ -42,7 +53,8 @@ export interface Panel {
   lat?: Coord;
   lng?: Coord;
   direccion?: string;
-  emoji?: string;
+  /** Identificador visual del tipo de panel (ej: "🏙️", "🛣️"). Máx 2 chars. */
+  icono?: string;
   foto?: string;
   deleted?: boolean;
   deletedAt?: FsTimestamp;
