@@ -1705,15 +1705,11 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                     cursor: "pointer",
                     touchAction: "manipulation",
                     background: esHoy
-                      ? "linear-gradient(135deg,rgba(16,185,129,0.28),rgba(5,150,105,0.18))"
-                      : tieneData
-                        ? "rgba(79,124,255,0.1)"
-                        : "rgba(255,255,255,0.08)",
+                      ? "linear-gradient(135deg,#0F1729,#1E3A8A)"
+                      : "#fff",
                     border: esHoy
-                      ? "1px solid rgba(16,185,129,0.45)"
-                      : tieneData
-                        ? "1px solid rgba(79,124,255,0.2)"
-                        : "1px solid rgba(255,255,255,0.14)",
+                      ? "none"
+                      : "1.5px solid #CBD5E1",
                     transition: "background .08s",
                   }}
                 >
@@ -1721,7 +1717,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                     style={{
                       fontSize: 9.5,
                       fontWeight: 800,
-                      color: esHoy ? "#fff" : tieneData ? "#BDD5FF" : "rgba(180,210,255,0.72)",
+                      color: esHoy ? "#fff" : "#0F172A",
                       letterSpacing: 0.4,
                     }}
                   >
