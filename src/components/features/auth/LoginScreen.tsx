@@ -47,10 +47,7 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         setError(
           "Google Sign-In no está habilitado en Firebase. Activa el método en Firebase Console → Authentication.",
         );
-      } else if (
-        e.code === "auth/api-key-not-valid" ||
-        e.code?.includes("api-key-not-valid")
-      ) {
+      } else if (e.code === "auth/api-key-not-valid" || e.code?.includes("api-key-not-valid")) {
         setError(
           "⚙️ Error de configuración: la API key de Firebase no es válida. " +
             "Verifica las Variables de Entorno en Cloudflare Pages y haz un nuevo deploy.",
