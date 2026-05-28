@@ -23,9 +23,9 @@ const SUNAT = {
   // Producción
   TOKEN_URL: 'https://api-seguridad.sunat.gob.pe/v1/clientessol',
   CPE_URL:   'https://api-cpe.sunat.gob.pe/v1/contribuyente/gem',
-  // Beta (pruebas — exactamente igual pero sin datos reales)
-  TOKEN_URL_BETA: 'https://gw- appetit.sunat.gob.pe/v1/clientessol',
-  CPE_URL_BETA:   'https://gw- appetit.sunat.gob.pe/v1/contribuyente/gem',
+  // Beta / pruebas (fix: URLs corregidas sin espacio)
+  TOKEN_URL_BETA: 'https://gw-efact.sunat.gob.pe/v1/clientessol',
+  CPE_URL_BETA:   'https://gw-efact.sunat.gob.pe/v1/contribuyente/gem',
 }
 
 const IS_BETA = process.env.SUNAT_BETA === 'true'
@@ -34,6 +34,19 @@ const CPE_BASE   = IS_BETA ? SUNAT.CPE_URL_BETA   : SUNAT.CPE_URL
 
 // Cache del token OAuth2 (expira en 1h)
 let tokenCache = { token: null, expira: 0 }
+
+// ── Caché del certificado digital (fix: se carga una sola vez) ────
+// El certificado no cambia entre requests — cargarlo en cada firma
+// genera I/O innecesario y ralentiza cada emisión de comprobante.
+let _certBuffer = null
+
+function getCertBuffer() {
+  if (_certBuffer) return _certBuffer
+  const certPath = process.env.SUNAT_CERT_PATH
+  if (!certPath) throw new Error('SUNAT_CERT_PATH no configurado')
+  _certBuffer = readFileSync(certPath)
+  return _certBuffer
+}
 
 // ── PASO 1: Obtener token OAuth2 de SUNAT ────────────────────────
 export const getTokenSunat = async () => {
@@ -73,12 +86,10 @@ export const getTokenSunat = async () => {
 
 // ── PASO 2: Firmar XML con certificado digital ───────────────────
 export const firmarXml = (xmlString) => {
-  const certPath = process.env.SUNAT_CERT_PATH  // ruta al .p12
   const certPass = process.env.SUNAT_CERT_PASS  // contraseña del certificado
 
-  // Cargar certificado .p12
-  // Si no tienes el .p12 aún, SUNAT lo entrega gratis desde tu panel SOL
-  const certBuffer = readFileSync(certPath)
+  // Certificado cacheado a nivel de módulo (fix: se carga solo una vez)
+  const certBuffer = getCertBuffer()
 
   const sig = new SignedXml({
     privateKey: certBuffer,
@@ -106,9 +117,6 @@ export const firmarXml = (xmlString) => {
 export const zipToBase64 = async (xmlFirmado, nombreArchivo) => {
   // Nombre del archivo: RUC-TIPODOC-SERIE-NUMERO.xml
   // ej: 20601234567-01-F001-00000001.xml
-  const { createGzip } = await import('zlib')
-  const { promisify } = await import('util')
-  const gzip = promisify(createGzip)
 
   // SUNAT acepta el XML directamente en Base64 en la API REST
   // No necesita ZIP como en el antiguo web service SOAP
@@ -150,7 +158,7 @@ export const enviarASunat = async (facturaId, factura, items) => {
         archivo: {
           nomArchivo: `${nombreArchivo}.xml`,
           arcGreZip:  xmlBase64,
-          hashZip:    '',  // SUNAT lo valida internamente
+          hashZip:    '',  // SUNAT lo valida internamente en la API REST
         },
       },
       {
