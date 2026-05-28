@@ -68,17 +68,34 @@ export function cloudinaryPublicId(url: string | undefined | null): string | nul
 }
 
 export const fb = {
+  /**
+   * Lee todos los documentos de una colección ordenados por createdAt desc.
+   *
+   * Estrategia de fallback en dos pasos:
+   * 1. Intenta con orderBy (requiere índice en Firestore).
+   * 2. Si el índice no existe todavía, reintenta sin orden.
+   * 3. Si ambos fallan, lanza el error para que el caller lo maneje.
+   *    → La UI debe mostrar un estado de error explícito, nunca una lista vacía silenciosa.
+   */
   async get<T extends FirebaseDoc>(col: ColName): Promise<T[]> {
     try {
       const snap = await getDocs(snapQuery(col));
       return snap.docs.map(d => ({ id: d.id, ...d.data() }) as T);
-    } catch {
+    } catch (e1) {
+      // El índice compuesto puede no estar listo; reintentar sin orden
+      const isIndexError =
+        e1 instanceof Error &&
+        (e1.message.includes("index") || e1.message.includes("requires an index"));
+
+      if (!isIndexError) throw e1; // error no relacionado con índices → propagar
+
       try {
         const snap = await getDocs(collection(db, col));
+        console.warn(`[Firebase] get(${col}): sin índice, resultado sin orden. Crea el índice en la consola.`);
         return snap.docs.map(d => ({ id: d.id, ...d.data() }) as T);
       } catch (e2) {
-        console.error("[Firebase] get falló:", e2);
-        return [];
+        console.error(`[Firebase] get(${col}) falló:`, e2);
+        throw e2; // propagar para que el caller muestre error al usuario
       }
     }
   },
