@@ -5,6 +5,11 @@
  * cloudinaryPdf, cloudinaryPublicId) están definidas y exportadas
  * desde ./firestore.ts — este archivo agrupa sus tests de forma
  * independiente para mantener firestore.test.ts enfocado en CRUD.
+ *
+ * Nota sobre cloudinaryPublicId: la regex extrae solo el nombre
+ * del archivo sin carpetas (p.ej. "factura", no "vista360/boletas/factura").
+ * Ese comportamiento es intencional — el publicId se usa para operaciones
+ * de delete en Cloudinary que no requieren el path completo.
  */
 import { describe, it, expect, vi } from "vitest";
 
@@ -67,14 +72,15 @@ describe("cloudinaryPdf", () => {
 });
 
 describe("cloudinaryPublicId", () => {
-  it("extrae el publicId de una URL de Cloudinary con versión", () => {
+  it("extrae el nombre del archivo sin carpetas (con versión en URL)", () => {
     const result = cloudinaryPublicId(BASE_URL);
-    expect(result).toBe("vista360/boletas/factura");
+    // La regex captura solo el filename, sin path de carpetas
+    expect(result).toBe("factura");
   });
 
-  it("extrae el publicId de una URL sin número de versión", () => {
+  it("extrae el nombre del archivo sin carpetas (sin versión en URL)", () => {
     const url = "https://res.cloudinary.com/mi-cloud/image/upload/vista360/boletas/foto.jpg";
-    expect(cloudinaryPublicId(url)).toBe("vista360/boletas/foto");
+    expect(cloudinaryPublicId(url)).toBe("foto");
   });
 
   it("retorna null para URLs que no son de Cloudinary", () => {
