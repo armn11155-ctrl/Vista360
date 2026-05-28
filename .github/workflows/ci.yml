@@ -52,6 +52,20 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID:  ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID:               ${{ secrets.VITE_FIREBASE_APP_ID }}
 
+      # Bundle size check: falla si algún chunk supera 600 KB
+      # (chunkSizeWarningLimit en vite.config.ts es 500 KB — margen de 20%)
+      - name: Bundle size check
+        run: |
+          echo "📦 Tamaños de chunks generados:"
+          find dist/assets -name "*.js" -exec ls -lh {} \;
+          OVER=$(find dist/assets -name "*.js" -size +600k)
+          if [ -n "$OVER" ]; then
+            echo "::error::Chunk(s) superan 600 KB:"
+            echo "$OVER"
+            exit 1
+          fi
+          echo "✅ Todos los chunks dentro del límite (600 KB)"
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v7
         if: always()
@@ -80,7 +94,6 @@ jobs:
 
       # Buildea con secrets reales para que vite preview sirva la app
       # con credenciales de Firebase bakeadas en el bundle.
-      # Esto garantiza que los tests E2E ven la misma pantalla que producción.
       - name: Build (bake Firebase secrets for E2E preview server)
         run: npm run build
         env:
@@ -107,8 +120,6 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
-      # playwright.config.ts levanta `vite preview` automáticamente
-      # como webServer en CI — sirve el dist/ generado en el paso anterior.
       - name: Run E2E tests
         run: npm run test:e2e
 
