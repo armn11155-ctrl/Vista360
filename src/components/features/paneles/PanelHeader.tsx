@@ -81,7 +81,7 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
           style={{
             fontSize: 17,
             fontWeight: 800,
-            color: "#fff",
+            color: "#93C5FD",
             letterSpacing: "-0.3px",
             lineHeight: 1.2,
           }}
@@ -89,7 +89,7 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
           Paneles
         </div>
         <div
-          style={{ fontSize: 12, color: "rgba(180,200,255,0.7)", marginTop: 3, fontWeight: 500 }}
+          style={{ fontSize: 12, color: "rgba(147,197,253,0.85)", marginTop: 3, fontWeight: 500 }}
         >
           {total} paneles · {libres} libres · {ocupados} ocupados
         </div>

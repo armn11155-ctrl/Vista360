@@ -4,6 +4,7 @@ import type { Dispatch, SetStateAction } from "react";
 
 import { ErrorBoundary } from "../shared/ErrorBoundary";
 import { TabSuspense, SkDarkCard } from "../shared/AppSkeletons";
+import { useAppSetters } from "../../context/AppContext";
 import type { Panel, Cliente, Contrato, Gasto, Proveedor } from "../../types";
 
 // ── Carga lazy por ruta (code-splitting) ────────────────────────
@@ -86,6 +87,7 @@ export function AppRouter({
   proveedoresActive,
 }: AppRouterProps) {
   const navigate = useNavigate();
+  const { setPaneles, setContratos, setClientes, setGastos, setProveedores } = useAppSetters();
 
   return (
     <Suspense fallback={<TabSuspense />}>
@@ -139,7 +141,7 @@ export function AppRouter({
               <ErrorBoundary label="Paneles">
                 <Paneles
                   paneles={paneles}
-                  setPaneles={() => undefined}
+                  setPaneles={setPaneles}
                   contratos={contratos}
                   loading={loading}
                   setTab={(id: string) => navigate(`/${id}`)}
@@ -156,7 +158,7 @@ export function AppRouter({
               <ErrorBoundary label="Contratos">
                 <Contratos
                   contratos={contratos}
-                  setContratos={() => undefined}
+                  setContratos={setContratos}
                   paneles={paneles}
                   clientes={clientesActive}
                   loading={loading}
@@ -174,7 +176,7 @@ export function AppRouter({
               <ErrorBoundary label="Histórico">
                 <Historico
                   contratos={contractsActive}
-                  setContratos={() => undefined}
+                  setContratos={setContratos}
                   paneles={paneles}
                   clientes={clientesActive}
                   onModalChange={onModalChange}
@@ -190,7 +192,7 @@ export function AppRouter({
               <ErrorBoundary label="CRM">
                 <CRM
                   clientes={clientesActive}
-                  setClientes={() => undefined}
+                  setClientes={setClientes}
                   contratos={contractsActive}
                   loading={loading}
                   onModalChange={onModalChange}
@@ -206,7 +208,7 @@ export function AppRouter({
               <ErrorBoundary label="Gastos">
                 <Gastos
                   gastos={gastos}
-                  setGastos={() => undefined}
+                  setGastos={setGastos}
                   autoScan={autoScan}
                   setAutoScan={setAutoScan}
                   onModalChange={onModalChange}
@@ -222,7 +224,7 @@ export function AppRouter({
               <ErrorBoundary label="Proveedores">
                 <Proveedores
                   proveedores={proveedoresActive}
-                  setProveedores={() => undefined}
+                  setProveedores={setProveedores}
                   loading={loading}
                   onModalChange={onModalChange}
                 />

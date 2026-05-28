@@ -223,8 +223,8 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
     if (!sueldo) return;
     const yaPagado = !!(sueldo.pagos || {})[mes];
     const pagos = { ...(sueldo.pagos || {}), [mes]: !yaPagado };
-    const [r] = await fb.patch("sueldos", id, { pagos });
-    if (r) setSueldos(p => p.map(s => (s.id === id ? { ...s, pagos } : s)));
+    await fb.patch("sueldos", id, { pagos });
+    setSueldos(p => p.map(s => (s.id === id ? { ...s, pagos } : s)));
 
     if (!yaPagado) {
       // Marcar como pagado → crear gasto automático
@@ -241,7 +241,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
         notas: "Generado automáticamente desde Sueldos",
         sueldo_id: id,
       };
-      const [g] = await fb.post("gastos", payload);
+      const g = await fb.post("gastos", payload);
       if (g) setGastos(prev => [g, ...prev]);
     } else {
       // Desmarcar → eliminar el gasto automático de ese mes si existe
@@ -665,10 +665,10 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
     try {
       if (modal === "nuevo") {
         const r = await fb.post("gastos", payload);
-        setGastos(g => [r[0] ?? { ...payload, id: Date.now() }, ...g]);
+        setGastos(g => [r ?? { ...payload, id: Date.now() }, ...g]);
       } else {
         const r = await fb.patch("gastos", modal.id, payload);
-        setGastos(g => g.map(x => (x.id === modal.id ? (r[0] ?? { ...modal, ...payload }) : x)));
+        setGastos(g => g.map(x => (x.id === modal.id ? (r ?? { ...modal, ...payload }) : x)));
       }
       setSaving(false);
       setModal(null);
