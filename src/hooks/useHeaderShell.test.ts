@@ -8,10 +8,12 @@ import type { User } from "firebase/auth";
 const mockUser = (email: string, displayName?: string) =>
   ({ email, displayName: displayName ?? null, uid: "u1" }) as User;
 
-const wrapper =
-  (path = "/") =>
-  ({ children }: { children: React.ReactNode }) =>
-    React.createElement(MemoryRouter, { initialEntries: [path] }, children);
+const wrapper = (path = "/") => {
+  function Wrapper({ children }: { children: React.ReactNode }) {
+    return React.createElement(MemoryRouter, { initialEntries: [path] }, children);
+  }
+  return Wrapper;
+};
 
 describe("HEADER_COLORS", () => {
   it("define colores para rutas conocidas", () => {

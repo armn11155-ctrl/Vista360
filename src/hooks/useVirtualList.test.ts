@@ -57,8 +57,7 @@ describe("useVirtualList", () => {
     // Simulate scroll by setting scrollTop on the ref
     const div = document.createElement("div");
     Object.defineProperty(div, "scrollTop", { value: 600, writable: true });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (result.current.containerProps.ref as any).current = div;
+    (result.current.containerProps.ref as React.MutableRefObject<HTMLDivElement>).current = div;
 
     act(() => {
       result.current.containerProps.onScroll();
