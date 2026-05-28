@@ -7,13 +7,10 @@ import { toast, confirmAsync } from "../../context/UIContext";
 import { fmt, fmtF, dias, haptic } from "../../lib/utils";
 import { Modal, FieldGroup, Badge, Card, Spinner } from "../ui";
 
-// ── Menú drawer: todos los destinos de navegación ────────────────
+// ── Menú drawer: solo los destinos que NO están en el bottom bar ──
+// El bottom bar ya tiene: Inicio, Contratos, Clientes, Paneles
 const MENU_DRAWER = [
-  { id: "hoy", label: "Inicio" },
-  { id: "paneles", label: "Paneles" },
-  { id: "contratos", label: "Contratos" },
   { id: "historico", label: "Histórico" },
-  { id: "crm", label: "Clientes" },
   { id: "gastos", label: "Gastos" },
   { id: "proveedores", label: "Proveedores" },
   { id: "facturacion", label: "Facturación" },
