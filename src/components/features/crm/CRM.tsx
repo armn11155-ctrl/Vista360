@@ -68,6 +68,65 @@ import {
 import { usePagination } from "../../../hooks/usePagination";
 import { useVirtualList } from "../../../hooks/useVirtualList";
 
+// ── Helper de campo de formulario (igual que en Paneles.tsx) ──────
+function inp(label: string, key: string, form: any, setForm: any, opts: any = {}) {
+  const { type = "text", options = [], ph = "" } = opts;
+  const s: any = {
+    width: "100%",
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    borderRadius: 10,
+    padding: "10px 13px",
+    color: T.text,
+    fontSize: 14,
+    outline: "none",
+    fontFamily: "inherit",
+    boxSizing: "border-box",
+  };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+      <label
+        style={{
+          fontSize: 11,
+          fontWeight: 700,
+          color: T.muted,
+          textTransform: "uppercase",
+          letterSpacing: 1,
+        }}
+      >
+        {label}
+      </label>
+      {type === "select" ? (
+        <select
+          value={form[key] || ""}
+          onChange={e => setForm((f: any) => ({ ...f, [key]: e.target.value }))}
+          style={{ ...s, cursor: "pointer" }}
+        >
+          {options.map((o: string) => (
+            <option key={o}>{o}</option>
+          ))}
+        </select>
+      ) : type === "textarea" ? (
+        <textarea
+          value={form[key] || ""}
+          onChange={e => setForm((f: any) => ({ ...f, [key]: e.target.value }))}
+          placeholder={ph}
+          rows={3}
+          style={{ ...s, resize: "vertical" }}
+        />
+      ) : (
+        <input
+          type={type}
+          value={form[key] || ""}
+          onChange={e => setForm((f: any) => ({ ...f, [key]: e.target.value }))}
+          placeholder={ph}
+          style={s}
+        />
+      )}
+    </div>
+  );
+}
+
 function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMProps) {
   const [modal, setModal] = useState<Partial<Cliente> | null>(null);
   const [buscar, setBuscar] = useState("");

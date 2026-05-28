@@ -582,22 +582,6 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
               fontFamily: "inherit",
             }}
           />
-          <button
-            onClick={() => setAnio(new Date().getFullYear())}
-            style={{
-              padding: "6px 18px",
-              borderRadius: 50,
-              border: "none",
-              background: "linear-gradient(135deg,#1E35C8 0%,#3854EE 100%)",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: 12,
-              cursor: "pointer",
-              boxShadow: "0 4px 14px rgba(30,53,200,0.4), inset 0 1px 0 rgba(255,255,255,0.2)",
-            }}
-          >
-            Mes actual
-          </button>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <span
@@ -809,6 +793,8 @@ function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: Repo
   const [seccion, setSeccion] = useState(initialSeccion || "resumen");
   const [anio, setAnio] = useState(() => new Date().getFullYear());
   const [modalFactura, setModalFactura] = useState<Factura | null>(null);
+  // Mes seleccionado en el grid (null = todos los meses)
+  const [selectedMes, setSelectedMes] = useState<string | null>(null);
 
   // ── Datos por año ─────────────────────────────────────────────
   const mesesAnio = useMemo(() => {
@@ -1689,10 +1675,12 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                 .replace(".", "");
               const hoyM = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
               const esHoy = m.mes === hoyM;
+              const esSelected = selectedMes === m.mes;
+              const activo = esSelected || (!selectedMes && esHoy);
               return (
-                <a
+                <button
                   key={m.mes}
-                  href={`#mes-${m.mes}`}
+                  onClick={() => setSelectedMes(prev => (prev === m.mes ? null : m.mes))}
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -1700,19 +1688,19 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                     justifyContent: "center",
                     padding: "7px 4px",
                     borderRadius: 10,
-                    textDecoration: "none",
+                    border: activo ? "none" : "1.5px solid #CBD5E1",
                     cursor: "pointer",
                     touchAction: "manipulation",
-                    background: esHoy ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#fff",
-                    border: esHoy ? "none" : "1.5px solid #CBD5E1",
+                    background: activo ? "#0F172A" : "#fff",
                     transition: "background .08s",
+                    fontFamily: "inherit",
                   }}
                 >
                   <div
                     style={{
                       fontSize: 9.5,
                       fontWeight: 800,
-                      color: esHoy ? "#fff" : "#0F172A",
+                      color: activo ? "#fff" : "#0F172A",
                       letterSpacing: 0.4,
                     }}
                   >
@@ -1729,7 +1717,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                       }}
                     />
                   )}
-                </a>
+                </button>
               );
             })}
           </div>
@@ -1779,17 +1767,19 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
 
           {/* ── Cards mensuales estilo factura ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {mesesAnio.map(m => (
-              <MesCard
-                key={m.mes}
-                m={m}
-                anio={anio}
-                contratos={contratos}
-                paneles={paneles}
-                clientes={clientes}
-                exportMesPDF={exportMesPDF}
-              />
-            ))}
+            {mesesAnio
+              .filter(m => !selectedMes || m.mes === selectedMes)
+              .map(m => (
+                <MesCard
+                  key={m.mes}
+                  m={m}
+                  anio={anio}
+                  contratos={contratos}
+                  paneles={paneles}
+                  clientes={clientes}
+                  exportMesPDF={exportMesPDF}
+                />
+              ))}
           </div>
         </div>
       )}

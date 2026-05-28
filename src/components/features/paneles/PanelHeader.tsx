@@ -18,30 +18,16 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
         display: "flex",
         alignItems: "center",
         gap: 14,
-        background: "linear-gradient(135deg,#0F1729 0%,#1E3A8A 100%)",
+        background: "#FFFFFF",
         borderRadius: 18,
         padding: "16px 20px",
         marginBottom: 18,
-        boxShadow: "0 6px 24px rgba(15,23,41,0.32)",
+        boxShadow: "0 2px 12px rgba(15,23,41,0.08)",
+        border: "1px solid #E5E7EB",
         position: "relative",
         overflow: "hidden",
       }}
     >
-      {/* Brillo superior decorativo */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "50%",
-          background: "linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 100%)",
-          borderRadius: "18px 18px 0 0",
-          pointerEvents: "none",
-        }}
-      />
-
       {/* Ícono de pantalla */}
       <div
         style={{
@@ -51,12 +37,12 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
           flexShrink: 0,
           position: "relative",
           zIndex: 1,
-          background: "rgba(255,255,255,0.14)",
-          border: "1px solid rgba(255,255,255,0.22)",
+          background: "#EFF4FF",
+          border: "1px solid #BFDBFE",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "#fff",
+          color: "#1E40AF",
         }}
         aria-hidden="true"
       >
@@ -81,16 +67,14 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
           style={{
             fontSize: 17,
             fontWeight: 800,
-            color: "#93C5FD",
+            color: "#1E40AF",
             letterSpacing: "-0.3px",
             lineHeight: 1.2,
           }}
         >
           Paneles
         </div>
-        <div
-          style={{ fontSize: 12, color: "rgba(147,197,253,0.85)", marginTop: 3, fontWeight: 500 }}
-        >
+        <div style={{ fontSize: 12, color: "#64748B", marginTop: 3, fontWeight: 500 }}>
           {total} paneles · {libres} libres · {ocupados} ocupados
         </div>
       </div>
