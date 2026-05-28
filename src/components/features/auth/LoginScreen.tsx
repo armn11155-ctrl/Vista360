@@ -6,6 +6,12 @@ import { T } from "../../../config/theme";
 import { ALLOWED_EMAILS } from "../../../config/constants";
 import { Logo360 } from "../../layout/Logo360";
 
+// Detectar si el build está usando la API key placeholder (env vars no cargadas)
+const API_KEY_OK = !!(
+  import.meta.env.VITE_FIREBASE_API_KEY &&
+  !import.meta.env.VITE_FIREBASE_API_KEY.startsWith("placeholder")
+);
+
 interface LoginScreenProps {
   onLoginSuccess: (user: User) => void;
 }
@@ -40,6 +46,14 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       } else if (e.code === "auth/operation-not-allowed") {
         setError(
           "Google Sign-In no está habilitado en Firebase. Activa el método en Firebase Console → Authentication.",
+        );
+      } else if (
+        e.code === "auth/api-key-not-valid" ||
+        e.code?.includes("api-key-not-valid")
+      ) {
+        setError(
+          "⚙️ Error de configuración: la API key de Firebase no es válida. " +
+            "Verifica las Variables de Entorno en Cloudflare Pages y haz un nuevo deploy.",
         );
       } else {
         setError("Error: " + (e.message || "no se pudo iniciar sesión"));
@@ -156,6 +170,27 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         >
           Inicia sesión con tu cuenta de Google para acceder a Vista360
         </div>
+
+        {/* Banner config error — solo visible si el build no cargó las env vars */}
+        {!API_KEY_OK && (
+          <div
+            style={{
+              marginBottom: 16,
+              padding: "10px 14px",
+              background: "rgba(245,158,11,0.15)",
+              border: "1px solid rgba(245,158,11,0.4)",
+              borderRadius: 10,
+              color: "#FCD34D",
+              fontSize: 12,
+              lineHeight: 1.5,
+              textAlign: "center",
+            }}
+          >
+            ⚠️ <strong>Build sin variables de entorno.</strong>
+            <br />
+            Configura las variables VITE_FIREBASE_* en Cloudflare Pages y haz un nuevo deploy.
+          </div>
+        )}
 
         {/* Botón Google */}
         <button
