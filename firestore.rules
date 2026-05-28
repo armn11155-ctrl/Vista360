@@ -2,50 +2,60 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── Helper: usuario autenticado con email en la allowlist ──────────
+    // ── FIX SEGURIDAD: usar Custom Claims en lugar de allowlist hardcodeada ──
+    //
+    // Para autorizar un usuario desde Firebase Admin SDK:
+    //   await admin.auth().setCustomUserClaims(uid, { role: 'admin' });
+    //
+    // El claim se propaga en el siguiente token refresh (~1h) o forzando:
+    //   await firebase.auth().currentUser.getIdToken(true);
+    //
     function isAllowed() {
-      let emails = [
-        // Agrega aquí los emails autorizados. Esto se evalúa en el servidor.
-        // Para producción, considera usar Custom Claims con Firebase Admin SDK.
-      ];
       return request.auth != null
-        && (emails.size() == 0 || request.auth.token.email in emails);
+        && request.auth.token.role == 'admin';
     }
 
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // ── Colecciones de negocio (solo usuarios autenticados) ────────────
+    // ── Colecciones de negocio (requieren rol admin) ───────────────────────
     match /paneles/{id} {
-      allow read, write: if isSignedIn();
+      allow read: if isSignedIn();
+      allow write: if isAllowed();
     }
 
     match /clientes/{id} {
-      allow read, write: if isSignedIn();
+      allow read: if isSignedIn();
+      allow write: if isAllowed();
     }
 
     match /contratos/{id} {
-      allow read, write: if isSignedIn();
+      allow read: if isSignedIn();
+      allow write: if isAllowed();
     }
 
     match /gastos/{id} {
-      allow read, write: if isSignedIn();
+      allow read: if isSignedIn();
+      allow write: if isAllowed();
     }
 
     match /proveedores/{id} {
-      allow read, write: if isSignedIn();
+      allow read: if isSignedIn();
+      allow write: if isAllowed();
     }
 
     match /facturas/{id} {
-      allow read, write: if isSignedIn();
+      allow read: if isSignedIn();
+      allow write: if isAllowed();
     }
 
     match /sueldos/{id} {
-      allow read, write: if isSignedIn();
+      allow read: if isAllowed();
+      allow write: if isAllowed();
     }
 
-    // ── Bloqueo por defecto (deny-all) ─────────────────────────────────
+    // ── Bloqueo por defecto (deny-all) ─────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
     }
