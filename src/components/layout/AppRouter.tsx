@@ -4,8 +4,7 @@ import type { Dispatch, SetStateAction } from "react";
 
 import { ErrorBoundary } from "../shared/ErrorBoundary";
 import { TabSuspense, SkDarkCard } from "../shared/AppSkeletons";
-import { useAppSetters } from "../../context/AppContext";
-import type { Panel, Cliente, Contrato, Gasto, Proveedor } from "../../types";
+import { useAppData, useAppSetters, useAppDerived } from "../../context/AppContext";
 
 // ── Carga lazy por ruta (code-splitting) ────────────────────────
 const ResumenNuevo = lazy(() => import("../features/dashboard/ResumenNuevo"));
@@ -48,46 +47,62 @@ export function prefetchAllTabs() {
   });
 }
 
+// Props mínimas: solo estado de UI que no vive en AppContext
 export interface AppRouterProps {
-  loading: boolean;
-  error: string | null;
   userName: string;
   autoScan: boolean;
   setAutoScan: Dispatch<SetStateAction<boolean>>;
   onModalChange: Dispatch<SetStateAction<boolean>>;
-  paneles: Panel[];
-  clientes: Cliente[];
-  contratos: Contrato[];
-  gastos: Gasto[];
-  proveedores: Proveedor[];
-  contractsActive: Contrato[];
-  clientesActive: Cliente[];
-  proveedoresActive: Proveedor[];
 }
 
 /**
  * AppRouter — árbol de rutas de la aplicación autenticada.
  *
- * Responsabilidad única: mapear paths a componentes de feature,
- * pasar sus datos y manejar estados de carga/error por ruta.
- * No contiene lógica de autenticación ni estado global.
+ * Lee datos directamente de AppContext (useAppData, useAppDerived, useAppSetters)
+ * eliminando el prop drilling de colecciones desde App → AppRouter → features.
  */
-export function AppRouter({
-  loading,
-  error,
-  userName,
-  autoScan,
-  setAutoScan,
-  onModalChange,
-  paneles,
-  contratos,
-  gastos,
-  contractsActive,
-  clientesActive,
-  proveedoresActive,
-}: AppRouterProps) {
+export function AppRouter({ userName, autoScan, setAutoScan, onModalChange }: AppRouterProps) {
   const navigate = useNavigate();
+
+  // ── Datos desde contexto (sin prop drilling) ──────────────────────
+  const { paneles, contratos, gastos, loading, error, refetch } =
+    useAppData();
+  const { contractsActive, clientesActive, proveedoresActive } = useAppDerived();
   const { setPaneles, setContratos, setClientes, setGastos, setProveedores } = useAppSetters();
+
+  // ── Banner de error con retry ─────────────────────────────────────
+  const ErrorBanner = error ? (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "12px 16px",
+        background: "rgba(255,107,107,.1)",
+        borderRadius: 8,
+        margin: "8px 0",
+      }}
+    >
+      <span style={{ fontSize: 20 }}>⚠️</span>
+      <div style={{ fontSize: 13, flex: 1 }}>Sin conexión a Firebase</div>
+      <button
+        onClick={refetch}
+        style={{
+          padding: "6px 12px",
+          borderRadius: 8,
+          border: "1px solid rgba(255,107,107,.4)",
+          background: "transparent",
+          color: "inherit",
+          fontSize: 12,
+          fontWeight: 600,
+          cursor: "pointer",
+          fontFamily: "inherit",
+        }}
+      >
+        Reintentar
+      </button>
+    </div>
+  ) : null;
 
   return (
     <Suspense fallback={<TabSuspense />}>
@@ -104,21 +119,7 @@ export function AppRouter({
                 </div>
               ) : (
                 <>
-                  {error && (
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 8,
-                        padding: "12px 16px",
-                        background: "rgba(255,107,107,.1)",
-                        borderRadius: 8,
-                        margin: "8px 0",
-                      }}
-                    >
-                      <span style={{ fontSize: 20 }}>⚠️</span>
-                      <div style={{ fontSize: 13 }}>Sin conexión a Firebase</div>
-                    </div>
-                  )}
+                  {ErrorBanner}
                   <ErrorBoundary label="Inicio">
                     <ResumenNuevo
                       clientes={clientesActive}

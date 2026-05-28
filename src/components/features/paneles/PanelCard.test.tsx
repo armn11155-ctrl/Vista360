@@ -25,7 +25,6 @@ const mockPanel: Panel = {
   ciudad: "Lima",
   estado: "Libre",
   foto: "🖥",
-  precio: 1500,
   direccion: "Av. Javier Prado Este 123",
 };
 

@@ -19,6 +19,7 @@ const emptyData = {
   proveedores: [],
   loading: false,
   error: null,
+  refetch: () => {},
 };
 const emptySetters = {
   setPaneles: vi.fn(),
@@ -59,6 +60,11 @@ describe("useAppData", () => {
     const { result } = renderHook(() => useAppData(), { wrapper: Wrapper });
     expect(result.current.paneles).toEqual([]);
     expect(result.current.clientes).toEqual([]);
+  });
+
+  it("expone refetch como función", () => {
+    const { result } = renderHook(() => useAppData(), { wrapper: Wrapper });
+    expect(typeof result.current.refetch).toBe("function");
   });
 
   it("lanza error fuera del proveedor", () => {

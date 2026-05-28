@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, Dispatch, SetStateAction } from "react";
 import { fb } from "../services/firestore";
-import type { FirebaseDoc, ColName } from "../types";
+import type { FirestoreBase, ColName } from "../types";
 
 interface UseCollectionResult<T> {
   data: T[];
@@ -22,7 +22,7 @@ interface UseCollectionResult<T> {
  */
 const COLLECTION_TIMEOUT_MS = 8_000;
 
-export function useCollection<T extends FirebaseDoc>(col: ColName): UseCollectionResult<T> {
+export function useCollection<T extends FirestoreBase>(col: ColName): UseCollectionResult<T> {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -1,3 +1,4 @@
+import type React from "react";
 import { Timestamp } from "firebase/firestore";
 
 // ── Enums / Unions ────────────────────────────────────────────────
@@ -16,10 +17,21 @@ export type FacturaTipo = "FACTURA" | "BOLETA" | "NOTA_CREDITO" | "NOTA_DEBITO";
 export type Coord = number | string;
 export type FsTimestamp = Timestamp | string;
 
-// ── Domain models ─────────────────────────────────────────────────
-// Note: `[key: string]: unknown` is intentional — Firestore documents may contain
-// server-generated fields not declared here. Accessed values must be narrowed via
-// converters (toNumber, toDate) before use.
+// ── Base types para Firestore ─────────────────────────────────────
+/**
+ * Restricción mínima para documentos Firestore: solo requiere `id`.
+ * Usada como generic constraint en useCollection / useFirestorePagination.
+ */
+export type FirestoreBase = { id: string };
+
+/**
+ * Tipo legacy con index signature; solo se usa en las funciones del
+ * servicio firestore.ts que necesitan acceder a campos desconocidos.
+ * No extiendas los modelos de dominio de este tipo.
+ */
+export type FirebaseDoc = { id: string; [key: string]: unknown };
+
+// ── Domain models (tipado estricto, sin index signature) ──────────
 
 export interface Panel {
   id: string;
@@ -35,7 +47,6 @@ export interface Panel {
   deleted?: boolean;
   deletedAt?: FsTimestamp;
   createdAt?: Timestamp | null;
-  [key: string]: unknown;
 }
 
 export interface Cliente {
@@ -51,7 +62,6 @@ export interface Cliente {
   tipo?: ClienteTipo;
   deleted?: boolean;
   createdAt?: Timestamp | null;
-  [key: string]: unknown;
 }
 
 export interface Contrato {
@@ -66,7 +76,6 @@ export interface Contrato {
   deleted?: boolean;
   deletedAt?: FsTimestamp;
   createdAt?: Timestamp | null;
-  [key: string]: unknown;
 }
 
 export interface Gasto {
@@ -82,7 +91,6 @@ export interface Gasto {
   foto_texto?: string;
   deleted?: boolean;
   createdAt?: Timestamp | null;
-  [key: string]: unknown;
 }
 
 export interface Proveedor {
@@ -95,7 +103,6 @@ export interface Proveedor {
   ruc?: string;
   deleted?: boolean;
   createdAt?: Timestamp | null;
-  [key: string]: unknown;
 }
 
 export interface Factura {
@@ -118,7 +125,6 @@ export interface Factura {
   xml_url?: string;
   fecha_emision?: string;
   createdAt?: Timestamp | null;
-  [key: string]: unknown;
 }
 
 export interface Sueldo {
@@ -129,11 +135,9 @@ export interface Sueldo {
   mes: string;
   pagado?: boolean;
   createdAt?: Timestamp | null;
-  [key: string]: unknown;
 }
 
 // ── Utility types ─────────────────────────────────────────────────
-export type FirebaseDoc = { id: string; [key: string]: unknown };
 export type ColName =
   | "paneles"
   | "clientes"
@@ -152,6 +156,7 @@ export interface AppData {
   proveedores: Proveedor[];
   loading: boolean;
   error: string | null;
+  refetch: () => void;
 }
 
 export interface AppSetters {

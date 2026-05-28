@@ -44,11 +44,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
       {!shell.isOnline && <OfflineBanner />}
       <div className={styles.appRoot} style={{ background: T.bg, color: T.text }}>
         <AppHeader
-          title={
-            shell.showProfile
-              ? "Perfil"
-              : ((shell.appDerived as unknown as Record<string, string>)["tabTitle"] ?? "Vista360")
-          }
+          title={shell.showProfile ? "Perfil" : "Vista360"}
           user={user}
           userName={shell.userName}
           onProfileClick={() => shell.handleTabClick("/perfil")}
@@ -84,21 +80,12 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
               onLogout={shell.handleLogout}
             />
           ) : (
+            // AppRouter ya no recibe colecciones — las lee del contexto
             <AppRouter
-              loading={shell.appData.loading}
-              error={shell.appData.error}
               userName={shell.userName}
               autoScan={shell.autoScan}
               setAutoScan={shell.setAutoScan}
               onModalChange={shell.setAnyModalOpen}
-              paneles={shell.appData.paneles}
-              clientes={shell.appData.clientes}
-              contratos={shell.appData.contratos}
-              gastos={shell.appData.gastos}
-              proveedores={shell.appData.proveedores}
-              contractsActive={shell.appDerived.contractsActive}
-              clientesActive={shell.appDerived.clientesActive}
-              proveedoresActive={shell.appDerived.proveedoresActive}
             />
           )}
         </main>
@@ -201,6 +188,7 @@ function AppShell() {
           clearTimeout(fallback);
           setFbDown(false);
           if (u && ALLOWED_EMAILS.length > 0 && !ALLOWED_EMAILS.includes(u.email ?? "")) {
+            // La whitelist del cliente es solo UX — las Firestore Rules son la barrera real
             signOut(auth);
             setUser(null);
           } else {
