@@ -9,7 +9,7 @@ export interface PanelHeaderProps {
 
 /**
  * Cabecera de la sección de paneles.
- * Muestra contadores y el botón de crear nuevo panel.
+ * Fondo azul marino (#1E3A8A) con texto blanco.
  */
 export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps) {
   return (
@@ -18,16 +18,29 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
         display: "flex",
         alignItems: "center",
         gap: 14,
-        background: "#FFFFFF",
+        background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 60%, #2563EB 100%)",
         borderRadius: 18,
         padding: "16px 20px",
         marginBottom: 18,
-        boxShadow: "0 2px 12px rgba(15,23,41,0.08)",
-        border: "1px solid #E5E7EB",
+        boxShadow: "0 4px 18px rgba(30,58,138,0.45)",
         position: "relative",
         overflow: "hidden",
       }}
     >
+      {/* Destello decorativo superior-derecha */}
+      <div
+        style={{
+          position: "absolute",
+          top: -30,
+          right: -30,
+          width: 100,
+          height: 100,
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.07)",
+          pointerEvents: "none",
+        }}
+      />
+
       {/* Ícono de pantalla */}
       <div
         style={{
@@ -37,12 +50,12 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
           flexShrink: 0,
           position: "relative",
           zIndex: 1,
-          background: "#EFF4FF",
-          border: "1px solid #BFDBFE",
+          background: "rgba(255,255,255,0.15)",
+          border: "1px solid rgba(255,255,255,0.25)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "#1E40AF",
+          color: "#FFFFFF",
         }}
         aria-hidden="true"
       >
@@ -67,14 +80,14 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
           style={{
             fontSize: 17,
             fontWeight: 800,
-            color: "#1E40AF",
+            color: "#FFFFFF",
             letterSpacing: "-0.3px",
             lineHeight: 1.2,
           }}
         >
           Paneles
         </div>
-        <div style={{ fontSize: 12, color: "#64748B", marginTop: 3, fontWeight: 500 }}>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.70)", marginTop: 3, fontWeight: 500 }}>
           {total} paneles · {libres} libres · {ocupados} ocupados
         </div>
       </div>
@@ -88,8 +101,8 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
           gap: 7,
           position: "relative",
           zIndex: 1,
-          background: "rgba(255,255,255,0.15)",
-          border: "1px solid rgba(255,255,255,0.3)",
+          background: "rgba(255,255,255,0.18)",
+          border: "1px solid rgba(255,255,255,0.35)",
           borderRadius: 12,
           padding: "10px 16px",
           color: "#fff",
@@ -118,3 +131,4 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
     </div>
   );
 }
+
