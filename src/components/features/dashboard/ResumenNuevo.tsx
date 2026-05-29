@@ -137,7 +137,7 @@ function HeroCard({
       style={{
         position: "relative",
         margin: "-20px -16px 22px",
-        padding: "4px 22px 26px",
+        padding: "12px 20px 24px",
         borderBottomLeftRadius: 28,
         borderBottomRightRadius: 28,
         overflow: "hidden",
@@ -182,35 +182,35 @@ function HeroCard({
       </div>
 
       {/* header */}
-      <div style={{ position: "relative", marginTop: 4 }}>
+      <div style={{ position: "relative", marginTop: 0 }}>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 14, color: "rgba(200,212,240,0.75)", fontWeight: 500 }}>
+          <div style={{ fontSize: 12, color: "rgba(200,212,240,0.72)", fontWeight: 500 }}>
             {saludo}
             {userName ? ", " + userName.split(" ")[0] : ""}
           </div>
           <div
             style={{
-              fontSize: 32,
+              fontSize: 28,
               fontWeight: 800,
               color: "#fff",
               letterSpacing: "-0.03em",
-              lineHeight: 1.02,
+              lineHeight: 1.05,
               marginTop: 2,
             }}
           >
             Resumen
           </div>
-          <div style={{ fontSize: 12, color: "rgba(200,212,240,0.55)", marginTop: 5 }}>
+          <div style={{ fontSize: 11, color: "rgba(200,212,240,0.5)", marginTop: 3 }}>
             {fechaCap}
           </div>
         </div>
       </div>
 
-      {/* hero card — más redondeado y con mejor sombra */}
+      {/* hero card */}
       <div
         style={{
           position: "relative",
-          marginTop: 20,
+          marginTop: 14,
           background: "linear-gradient(160deg, rgba(28,44,90,0.95) 0%, rgba(14,24,58,0.98) 100%)",
           border: "1px solid rgba(255,255,255,0.10)",
           borderRadius: 28,
