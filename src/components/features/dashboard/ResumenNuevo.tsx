@@ -137,7 +137,7 @@ function HeroCard({
       style={{
         position: "relative",
         margin: "0 -16px 22px",
-        padding: "10px 22px 28px",
+        padding: "10px 28px 28px",
         borderBottomLeftRadius: 32,
         borderBottomRightRadius: 32,
         overflow: "hidden",
@@ -210,7 +210,7 @@ function HeroCard({
       <div
         style={{
           position: "relative",
-          marginTop: 14,
+          marginTop: 20,
           background: "linear-gradient(160deg, rgba(28,44,90,0.95) 0%, rgba(14,24,58,0.98) 100%)",
           border: "1px solid rgba(255,255,255,0.10)",
           borderRadius: 28,
@@ -254,10 +254,10 @@ function HeroCard({
           <div
             style={{
               display: "flex",
-              alignItems: "center",
-              gap: 8,
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: 5,
               marginTop: 8,
-              flexWrap: "wrap",
             }}
           >
             <span
