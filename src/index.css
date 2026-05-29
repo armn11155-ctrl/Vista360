@@ -15,7 +15,7 @@ body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
-  background: #f2f4f8;
+  background: #0D1629; /* splash color — useHeaderShell cambia esto en runtime */
   -webkit-text-size-adjust: 100%;
 }
 
