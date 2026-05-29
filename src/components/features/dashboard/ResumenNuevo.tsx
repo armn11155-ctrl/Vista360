@@ -137,7 +137,7 @@ function HeroCard({
       style={{
         position: "relative",
         margin: "0 -16px 22px",
-        padding: "10px 28px 28px",
+        padding: "10px 36px 32px",
         borderBottomLeftRadius: 32,
         borderBottomRightRadius: 32,
         overflow: "hidden",
@@ -145,6 +145,7 @@ function HeroCard({
         color: "#fff",
       }}
     >
+      {/* Decorative glow — bottom corners + center, like Image 1 */}
       <div
         aria-hidden
         style={{
@@ -152,31 +153,48 @@ function HeroCard({
           inset: 0,
           pointerEvents: "none",
           overflow: "hidden",
-          borderBottomLeftRadius: 28,
-          borderBottomRightRadius: 28,
+          borderBottomLeftRadius: 32,
+          borderBottomRightRadius: 32,
         }}
       >
+        {/* Glow azul bottom-right */}
         <div
           style={{
             position: "absolute",
-            bottom: -120,
-            right: -100,
-            width: 380,
-            height: 380,
+            bottom: -60,
+            right: -50,
+            width: 260,
+            height: 260,
             borderRadius: "50%",
-            background: "radial-gradient(closest-side, rgba(60,130,255,0.28), rgba(60,130,255,0))",
-            filter: "blur(6px)",
+            background: "radial-gradient(closest-side, rgba(50,120,255,0.45), transparent)",
+            filter: "blur(30px)",
           }}
         />
+        {/* Glow azul bottom-left */}
         <div
           style={{
             position: "absolute",
-            bottom: -80,
-            left: -120,
-            width: 280,
-            height: 280,
+            bottom: -60,
+            left: -50,
+            width: 220,
+            height: 220,
             borderRadius: "50%",
-            background: "radial-gradient(closest-side, rgba(80,140,255,0.16), rgba(0,0,0,0))",
+            background: "radial-gradient(closest-side, rgba(30,100,220,0.35), transparent)",
+            filter: "blur(25px)",
+          }}
+        />
+        {/* Glow centro-bottom — difumina el borde inferior */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: -40,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 300,
+            height: 150,
+            borderRadius: "50%",
+            background: "radial-gradient(closest-side, rgba(60,130,255,0.20), transparent)",
+            filter: "blur(20px)",
           }}
         />
       </div>
