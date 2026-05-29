@@ -184,41 +184,42 @@ function HeroCard({
       {/* header */}
       <div style={{ position: "relative", marginTop: 4 }}>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 12, color: "rgba(200,212,240,0.62)", fontWeight: 500 }}>
+          <div style={{ fontSize: 14, color: "rgba(200,212,240,0.75)", fontWeight: 500 }}>
             {saludo}
             {userName ? ", " + userName.split(" ")[0] : ""}
           </div>
           <div
             style={{
-              fontSize: 30,
+              fontSize: 32,
               fontWeight: 800,
               color: "#fff",
               letterSpacing: "-0.03em",
               lineHeight: 1.02,
-              marginTop: 4,
+              marginTop: 2,
             }}
           >
             Resumen
           </div>
-          <div style={{ fontSize: 11.5, color: "rgba(200,212,240,0.55)", marginTop: 6 }}>
+          <div style={{ fontSize: 12, color: "rgba(200,212,240,0.55)", marginTop: 5 }}>
             {fechaCap}
           </div>
         </div>
       </div>
 
-      {/* hero card */}
+      {/* hero card — más redondeado y con mejor sombra */}
       <div
         style={{
           position: "relative",
           marginTop: 20,
-          background: "linear-gradient(180deg, rgba(20,32,68,0.92) 0%, rgba(14,24,56,0.92) 100%)",
-          border: "1px solid rgba(255,255,255,0.07)",
-          borderRadius: 20,
-          padding: "16px 16px 18px",
+          background: "linear-gradient(160deg, rgba(28,44,90,0.95) 0%, rgba(14,24,58,0.98) 100%)",
+          border: "1px solid rgba(255,255,255,0.10)",
+          borderRadius: 28,
+          padding: "18px 18px 20px",
           display: "flex",
           alignItems: "stretch",
           gap: 14,
-          boxShadow: "0 12px 28px -18px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)",
+          boxShadow:
+            "0 20px 40px -12px rgba(0,0,0,0.7), 0 2px 0 rgba(255,255,255,0.06) inset, 0 -1px 0 rgba(0,0,0,0.3) inset",
         }}
       >
         <div style={{ flex: "1 1 56%", minWidth: 0, display: "flex", flexDirection: "column" }}>

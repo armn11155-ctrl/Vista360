@@ -73,5 +73,11 @@ export function useHeaderShell(user: User, showProfile: boolean) {
     return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toUpperCase();
   }, [userName]);
 
-  return { headerColor, headerDark, userName, userInitials };
+  return {
+    headerColor,
+    headerDark,
+    userName,
+    userInitials,
+    pageTitle: TAB_TITLES[location.pathname] ?? "Inicio",
+  };
 }
