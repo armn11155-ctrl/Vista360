@@ -373,7 +373,13 @@ interface SwipeRowProps {
   /** Color de fondo del contenedor (debe coincidir con la card hija para evitar el flash blanco) */
   bg?: string;
 }
-export function SwipeRow({ children, onDelete, onEdit, deleteLabel = "Eliminar", bg = "#0A1120" }: SwipeRowProps) {
+export function SwipeRow({
+  children,
+  onDelete,
+  onEdit,
+  deleteLabel = "Eliminar",
+  bg = "#0A1120",
+}: SwipeRowProps) {
   const [open, setOpen] = React.useState(false);
   return (
     <div
@@ -419,7 +425,16 @@ export function SwipeRow({ children, onDelete, onEdit, deleteLabel = "Eliminar",
               minWidth: 64,
             }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
             </svg>
             Editar
@@ -444,7 +459,16 @@ export function SwipeRow({ children, onDelete, onEdit, deleteLabel = "Eliminar",
             minWidth: 76,
           }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="3 6 5 6 21 6" />
             <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
             <path d="M10 11v6M14 11v6" />
