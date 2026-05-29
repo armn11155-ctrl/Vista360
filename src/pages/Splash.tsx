@@ -41,8 +41,8 @@ function Splash({ done }: SplashProps) {
 
   useEffect(() => {
     const ts = [
-      setTimeout(() => setF(1), 150),  // outer ring + glow appears
-      setTimeout(() => setF(2), 650),  // inner ring + arc highlight sweeps
+      setTimeout(() => setF(1), 150), // outer ring + glow appears
+      setTimeout(() => setF(2), 650), // inner ring + arc highlight sweeps
       setTimeout(() => setF(3), 1300), // logo fade-in + scale
       setTimeout(() => setF(6), 3200), // begin fade out
       setTimeout(done, 3800),
