@@ -2,16 +2,47 @@ import { useEffect, useState } from "react";
 import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
 
+/** Color del splash — debe coincidir con T.dark */
+const SPLASH_BG = "#0D1629";
+
 interface SplashProps {
   done: () => void;
 }
 
 function Splash({ done }: SplashProps) {
   const [f, setF] = useState(0);
+
+  // ── Clava el theme-color al color del splash mientras está visible,
+  //    y lo restaura al terminar para que useHeaderShell tome el control.
+  useEffect(() => {
+    const setTheme = (color: string) => {
+      let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.setAttribute("name", "theme-color");
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute("content", color);
+      document.documentElement.style.background = color;
+      document.body.style.background = color;
+    };
+
+    // Al montar: color del splash
+    setTheme(SPLASH_BG);
+
+    return () => {
+      // Al desmontar: devuelve el color de la app (useHeaderShell lo
+      // sobreescribirá enseguida con el color de la ruta activa)
+      setTheme(T.bg);
+      document.documentElement.style.background = "";
+      document.body.style.background = "";
+    };
+  }, []);
+
   useEffect(() => {
     const ts = [
-      setTimeout(() => setF(1), 150), // outer ring + glow appears
-      setTimeout(() => setF(2), 650), // inner ring + arc highlight sweeps
+      setTimeout(() => setF(1), 150),  // outer ring + glow appears
+      setTimeout(() => setF(2), 650),  // inner ring + arc highlight sweeps
       setTimeout(() => setF(3), 1300), // logo fade-in + scale
       setTimeout(() => setF(6), 3200), // begin fade out
       setTimeout(done, 3800),
