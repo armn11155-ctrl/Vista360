@@ -70,17 +70,23 @@ function fmtMes(ym: string): string {
 }
 
 // ── Constantes de estados de factura ──
+// Estados reales del flujo SUNAT — el usuario solo puede crear Borradores.
+// SUNAT asigna: Emitida/Aceptada/Rechazada. El usuario cobra: Cobrada.
+// Anulada también va por API. Nunca se edita el estado manualmente.
 const EST_FAC = [
   "Borrador",
   "Emitida",
   "Aceptada",
-  "Pendiente",
+  "Pendiente de cobro",
   "Cobrada",
   "Pagada",
   "Vencida",
   "Anulada",
   "Rechazada",
 ];
+
+// Solo estos estados son asignados por el usuario (el resto los pone SUNAT o el sistema)
+const EST_USUARIO = ["Borrador", "Cobrada", "Anulada"];
 
 const EST_FAC_COL: Record<string, string> = {
   Borrador: "#94A3B8",
@@ -231,6 +237,7 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
               {factura.serie}-{numeroFmt}
             </div>
             <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+              {/* Estado interno — solo Borrador/Emitida/Cobrada/Anulada/Rechazada */}
               <span
                 style={{
                   background: estadoColor + "22",
@@ -1201,7 +1208,11 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
       {/* ── Botón Nueva Factura + Buscador ── */}
       <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
         <button
-          onClick={() => toast.info("Usa el botón emitir desde un contrato para generar facturas.")}
+          onClick={() =>
+            toast.info(
+              "Las facturas se crean desde tu sistema de facturación web. Vista360 las muestra automáticamente desde Firestore.",
+            )
+          }
           style={{
             background: T.accent,
             border: "none",
@@ -1276,7 +1287,16 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
               value: filtroEstado,
               onChange: setFiltroEstado,
               label: "Todos los estados",
-              options: ["Todos", ...EST_FAC],
+              options: [
+                "Todos",
+                "Borrador",
+                "Emitida",
+                "Aceptada",
+                "Cobrada",
+                "Vencida",
+                "Anulada",
+                "Rechazada",
+              ],
             },
             {
               value: filtroMes,
@@ -1869,7 +1889,9 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
                             <button
                               onClick={e => {
                                 e.stopPropagation();
-                                toast.info("Integra tu API de facturación electrónica.");
+                                toast.info(
+                                "Abre tu sistema de facturación, selecciona este borrador y presiona Emitir a SUNAT. El estado se actualizará automáticamente.",
+                              );
                               }}
                               style={{
                                 background: "rgba(37,99,235,0.12)",
@@ -1907,7 +1929,9 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
                             <button
                               onClick={e => {
                                 e.stopPropagation();
-                                toast.info("Marca esta factura como cobrada en tu sistema.");
+                                toast.info(
+                                  "Para registrar el cobro, hazlo desde tu sistema de facturación web. Vista360 lo reflejará automáticamente.",
+                                );
                               }}
                               style={{
                                 background: "rgba(16,185,129,0.12)",
