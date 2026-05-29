@@ -69,4 +69,3 @@ export const ALLOWED_EMAILS: string[] = (import.meta.env.VITE_ALLOWED_EMAILS ?? 
   .split(",")
   .map((e: string) => e.trim())
   .filter(Boolean);
-
