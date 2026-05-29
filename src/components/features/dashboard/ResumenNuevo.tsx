@@ -137,11 +137,11 @@ function HeroCard({
       style={{
         position: "relative",
         margin: "0 -16px 22px",
-        padding: "10px 20px 24px",
-        borderBottomLeftRadius: 28,
-        borderBottomRightRadius: 28,
+        padding: "10px 22px 28px",
+        borderBottomLeftRadius: 32,
+        borderBottomRightRadius: 32,
         overflow: "hidden",
-        background: "linear-gradient(180deg, #0E1A3B 0%, #0E1A3B 40%, #15265A 100%)",
+        background: "linear-gradient(180deg, #0E1A3B 0%, #0E1A3B 35%, #152458 75%, #1A2E6E 100%)",
         color: "#fff",
       }}
     >
