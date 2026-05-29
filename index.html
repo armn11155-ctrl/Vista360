@@ -4,18 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!--
+      SPLASH: status bar y fondo oscuro desde el primer frame,
+      antes de que React monte. El JS (useHeaderShell) tomará
+      el control del theme-color en cuanto el usuario navegue.
+    -->
+    <meta name="theme-color" content="#0D1629" />
+    <style>
+      html, body { background: #0D1629 !important; }
+    </style>
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- iOS — ícono en pantalla de inicio (rutas reales en /public) -->
+    <!-- iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="Vista360" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-
-    <!-- Barra de estado: mismo color del splash (#0D1629) -->
-    <meta name="theme-color" content="#0D1629" />
 
     <title>Vista360</title>
   </head>
@@ -24,4 +31,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
