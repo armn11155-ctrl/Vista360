@@ -370,11 +370,23 @@ interface SwipeRowProps {
   onDelete: () => void;
   onEdit?: () => void;
   deleteLabel?: string;
+  /** Color de fondo del contenedor (debe coincidir con la card hija para evitar el flash blanco) */
+  bg?: string;
 }
-export function SwipeRow({ children, onDelete, onEdit, deleteLabel = "Eliminar" }: SwipeRowProps) {
+export function SwipeRow({ children, onDelete, onEdit, deleteLabel = "Eliminar", bg = "#0A1120" }: SwipeRowProps) {
   const [open, setOpen] = React.useState(false);
   return (
-    <div style={{ position: "relative", overflow: "hidden", borderRadius: 16, marginBottom: 10 }}>
+    <div
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        borderRadius: 22,
+        marginBottom: 10,
+        /* El fondo del wrapper coincide con la card: no aparece blanco al deslizar de más */
+        background: bg,
+      }}
+    >
+      {/* Acciones reveladas al deslizar */}
       <div
         style={{
           position: "absolute",
@@ -383,6 +395,8 @@ export function SwipeRow({ children, onDelete, onEdit, deleteLabel = "Eliminar" 
           bottom: 0,
           display: "flex",
           alignItems: "stretch",
+          borderRadius: "0 22px 22px 0",
+          overflow: "hidden",
         }}
       >
         {onEdit && (
@@ -392,13 +406,22 @@ export function SwipeRow({ children, onDelete, onEdit, deleteLabel = "Eliminar" 
               background: T.accent,
               color: "#fff",
               border: "none",
-              padding: "0 16px",
+              padding: "0 20px",
               cursor: "pointer",
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: 700,
               touchAction: "manipulation",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 4,
+              minWidth: 64,
             }}
           >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+            </svg>
             Editar
           </button>
         )}
@@ -408,23 +431,36 @@ export function SwipeRow({ children, onDelete, onEdit, deleteLabel = "Eliminar" 
             background: T.red,
             color: "#fff",
             border: "none",
-            padding: "0 16px",
+            padding: "0 20px",
             cursor: "pointer",
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: 700,
             touchAction: "manipulation",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 4,
+            minWidth: 76,
           }}
         >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+            <path d="M10 11v6M14 11v6" />
+            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+          </svg>
           {deleteLabel}
         </button>
       </div>
+      {/* Contenido deslizable */}
       <div
         onClick={() => setOpen(o => !o)}
         style={{
-          transform: open ? "translateX(-140px)" : "translateX(0)",
-          transition: "transform 0.2s ease",
-          background: T.white,
+          transform: open ? "translateX(-152px)" : "translateX(0)",
+          transition: "transform 0.22s cubic-bezier(.4,0,.2,1)",
           cursor: "pointer",
+          /* Sin background aquí: la card hija ya lo tiene */
         }}
       >
         {children}
