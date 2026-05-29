@@ -1890,8 +1890,8 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
                               onClick={e => {
                                 e.stopPropagation();
                                 toast.info(
-                                "Abre tu sistema de facturación, selecciona este borrador y presiona Emitir a SUNAT. El estado se actualizará automáticamente.",
-                              );
+                                  "Abre tu sistema de facturación, selecciona este borrador y presiona Emitir a SUNAT. El estado se actualizará automáticamente.",
+                                );
                               }}
                               style={{
                                 background: "rgba(37,99,235,0.12)",
