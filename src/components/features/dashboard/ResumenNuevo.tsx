@@ -137,7 +137,7 @@ function HeroCard({
       style={{
         position: "relative",
         margin: "0 -16px 22px",
-        padding: "10px 28px 28px",
+        padding: "10px 16px 28px",
         borderBottomLeftRadius: 32,
         borderBottomRightRadius: 32,
         overflow: "hidden",
