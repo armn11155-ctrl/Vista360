@@ -10,13 +10,13 @@ import { Modal, FieldGroup, Badge, Card, Spinner } from "../ui";
 // ── Menú drawer: solo los destinos que NO están en el bottom bar ──
 // El bottom bar ya tiene: Inicio, Contratos, Clientes, Paneles
 const MENU_DRAWER = [
-  { id: "historico", label: "Histórico" },
-  { id: "gastos", label: "Gastos" },
-  { id: "proveedores", label: "Proveedores" },
-  { id: "facturacion", label: "Facturación" },
-  { id: "capital", label: "Capital" },
-  { id: "reportes", label: "Reportes" },
   { id: "mapa", label: "Mapa" },
+  { id: "gastos", label: "Gastos" },
+  { id: "facturacion", label: "Facturación" },
+  { id: "reportes", label: "Reportes" },
+  { id: "capital", label: "Capital" },
+  { id: "proveedores", label: "Proveedores" },
+  { id: "historico", label: "Histórico" },
 ];
 
 // ── Iconos del drawer por id de tab ───────────────────────────────
