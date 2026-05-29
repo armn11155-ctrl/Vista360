@@ -43,7 +43,8 @@ export const CAT_PROVE = [
   "Tecnología",
   "Otro",
 ];
-export const EMOJIS = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"];
+// Íconos para paneles — reemplazados de P1-P10 a emojis visuales
+export const EMOJIS = ["🏙️", "🌆", "🏢", "🏬", "🛣️", "🌉", "🏗️", "🗼", "🌃", "🏪"];
 
 export const EMISOR = {
   razonSocial: import.meta.env.VITE_EMISOR_RAZON_SOCIAL ?? "",
@@ -68,3 +69,4 @@ export const ALLOWED_EMAILS: string[] = (import.meta.env.VITE_ALLOWED_EMAILS ?? 
   .split(",")
   .map((e: string) => e.trim())
   .filter(Boolean);
+
