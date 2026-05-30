@@ -56,6 +56,8 @@ export const env = {
     url: optional("VITE_API_URL"),
     /** Clave para autenticar con el backend */
     key: optional("VITE_API_KEY"),
+    /** URL de la app facturacion-web (para abrir "Nueva Factura") */
+    facturacionWebUrl: optional("VITE_FACTURACION_WEB_URL"),
   },
 
   /** Emails autorizados (separados por coma). Vacío = sin whitelist local. */

@@ -1208,11 +1208,18 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
       {/* ── Botón Nueva Factura + Buscador ── */}
       <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
         <button
-          onClick={() =>
-            toast.info(
-              "Las facturas se crean desde tu sistema de facturación web. Vista360 las muestra automáticamente desde Firestore.",
-            )
-          }
+          onClick={() => {
+            // Vista360 es solo-lectura para facturas. Si VITE_FACTURACION_WEB_URL
+            // está configurada, abrimos directamente la app de facturación.
+            const facUrl = import.meta.env.VITE_FACTURACION_WEB_URL;
+            if (facUrl) {
+              window.open(`${facUrl}/nueva-factura`, "_blank", "noopener");
+            } else {
+              toast.info(
+                "Las facturas se crean desde tu sistema de facturación web. Vista360 las muestra automáticamente desde Firestore.",
+              );
+            }
+          }}
           style={{
             background: T.accent,
             border: "none",
