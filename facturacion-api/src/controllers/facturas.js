@@ -1,5 +1,5 @@
 import { query, transaction } from '../db/pool.js'
-import { enviarASunat, consultarEstado } from '../services/sunat.js'
+import { enviarASunat, enviarBajaASunat } from '../services/sunat.js'
 
 // ── GET /api/facturas ─────────────────────────────────────────────
 export const listar = async (req, res) => {
@@ -54,7 +54,6 @@ export const listar = async (req, res) => {
       params
     )
 
-    // KPIs de resumen
     const { rows: [kpis] } = await query(
       `SELECT
         COUNT(*) FILTER (WHERE estado NOT IN ('Anulada','Rechazada')) AS total_comprobantes,
@@ -125,7 +124,6 @@ export const crear = async (req, res) => {
     if (!cliente_doc)  return res.status(400).json({ ok: false, error: 'RUC/DNI del cliente requerido' })
 
     const result = await transaction(async (client) => {
-      // Obtener y reservar número correlativo
       const { rows: [serie_row] } = await client.query(
         `UPDATE series SET correlativo = correlativo + 1
          WHERE tipo_doc = $1 AND serie = $2 AND activo = true
@@ -135,7 +133,6 @@ export const crear = async (req, res) => {
       if (!serie_row) throw new Error(`Serie ${serie} no encontrada o inactiva`)
       const numero = serie_row.correlativo
 
-      // Calcular totales
       let opGravada = 0, opExonerada = 0, opInafecta = 0, totalIgv = 0
 
       const itemsCalculados = items.map((item, idx) => {
@@ -148,22 +145,22 @@ export const crear = async (req, res) => {
         const igvItem  = Number((subtotal * pctIgv).toFixed(2))
         const total    = Number((subtotal + igvItem).toFixed(2))
 
-        if (tipoIgv === 'GRA')  opGravada  += subtotal
+        if (tipoIgv === 'GRA')  opGravada   += subtotal
         if (tipoIgv === 'EXO')  opExonerada += subtotal
         if (tipoIgv === 'INA')  opInafecta  += subtotal
         totalIgv += igvItem
 
         return {
           orden: idx + 1,
-          producto_id:    item.producto_id || null,
-          descripcion:    item.descripcion,
-          unidad_medida:  item.unidad_medida || 'ZZ',
-          cantidad:       cant,
+          producto_id:     item.producto_id || null,
+          descripcion:     item.descripcion,
+          unidad_medida:   item.unidad_medida || 'ZZ',
+          cantidad:        cant,
           precio_unitario: precio,
-          descuento:      desc,
-          tipo_igv:       tipoIgv,
-          porcentaje_igv: tipoIgv === 'GRA' ? 18 : 0,
-          igv_item:       igvItem,
+          descuento:       desc,
+          tipo_igv:        tipoIgv,
+          porcentaje_igv:  tipoIgv === 'GRA' ? 18 : 0,
+          igv_item:        igvItem,
           subtotal,
           total,
         }
@@ -176,7 +173,6 @@ export const crear = async (req, res) => {
       const subtotalTotal = Number((opGravada + opExonerada + opInafecta).toFixed(2))
       const totalFinal    = Number((subtotalTotal + totalIgv).toFixed(2))
 
-      // Insertar factura
       const { rows: [factura] } = await client.query(
         `INSERT INTO facturas (
           tipo_doc, serie, numero,
@@ -212,7 +208,6 @@ export const crear = async (req, res) => {
         ]
       )
 
-      // Insertar items
       for (const item of itemsCalculados) {
         await client.query(
           `INSERT INTO factura_items
@@ -239,7 +234,7 @@ export const crear = async (req, res) => {
   }
 }
 
-// ── POST /api/facturas/:id/emitir — Enviar a SUNAT ────────────────
+// ── POST /api/facturas/:id/emitir — Enviar a SUNAT ───────────────
 export const emitir = async (req, res) => {
   try {
     const { rows: [factura] } = await query(
@@ -247,7 +242,7 @@ export const emitir = async (req, res) => {
       [req.params.id]
     )
     if (!factura) return res.status(404).json({ ok: false, error: 'Factura no encontrada' })
-    if (!['Borrador'].includes(factura.estado)) {
+    if (factura.estado !== 'Borrador') {
       return res.status(400).json({ ok: false, error: `No se puede emitir una factura en estado "${factura.estado}"` })
     }
 
@@ -262,10 +257,10 @@ export const emitir = async (req, res) => {
       ok:      true,
       mensaje: result.mensaje,
       data: {
-        estado:      'Emitida',
+        estado:       'Emitida',
         sunat_estado: 'Aceptado',
-        cdr_url:     result.cdrUrl,
-        hash:        result.data?.arcCdr || '',
+        cdr_url:      result.cdrUrl,
+        hash:         result.data?.arcCdr || '',
       },
     })
   } catch (err) {
@@ -279,6 +274,36 @@ export const cobrar = async (req, res) => {
   try {
     const { metodo_pago, nro_operacion, fecha_pago, banco, monto, nota } = req.body
 
+    // Validaciones del cobro
+    if (!monto || isNaN(Number(monto)) || Number(monto) <= 0) {
+      return res.status(400).json({ ok: false, error: 'El campo "monto" es obligatorio y debe ser mayor a 0' })
+    }
+    if (!metodo_pago) {
+      return res.status(400).json({ ok: false, error: 'El campo "metodo_pago" es obligatorio' })
+    }
+
+    // Obtener la factura para validar el monto
+    const { rows: [factura] } = await query(
+      `SELECT id, total, estado FROM facturas WHERE id = $1 AND deleted = false`,
+      [req.params.id]
+    )
+    if (!factura) {
+      return res.status(404).json({ ok: false, error: 'Factura no encontrada' })
+    }
+    if (!['Emitida', 'Aceptada', 'Pendiente', 'Vencida'].includes(factura.estado)) {
+      return res.status(400).json({ ok: false, error: `No se puede cobrar una factura en estado "${factura.estado}"` })
+    }
+
+    const montoNum  = Number(Number(monto).toFixed(2))
+    const totalNum  = Number(Number(factura.total).toFixed(2))
+
+    if (montoNum > totalNum) {
+      return res.status(400).json({
+        ok:    false,
+        error: `El monto pagado (${montoNum}) no puede superar el total de la factura (${totalNum})`,
+      })
+    }
+
     await transaction(async (client) => {
       await client.query(
         `UPDATE facturas SET
@@ -291,7 +316,8 @@ export const cobrar = async (req, res) => {
       await client.query(
         `INSERT INTO pagos (factura_id, monto, metodo, nro_operacion, fecha_pago, banco, nota, usuario_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [req.params.id, monto, metodo_pago, nro_operacion || null, fecha_pago || new Date().toISOString().split('T')[0], banco || null, nota || null, req.user?.id || null]
+        [req.params.id, montoNum, metodo_pago, nro_operacion || null,
+         fecha_pago || new Date().toISOString().split('T')[0], banco || null, nota || null, req.user?.id || null]
       )
     })
 
@@ -301,16 +327,56 @@ export const cobrar = async (req, res) => {
   }
 }
 
-// ── DELETE /api/facturas/:id — Anular ────────────────────────────
+// ── POST /api/facturas/:id/anular ─────────────────────────────────
+// Para comprobantes ya emitidos a SUNAT (Emitida/Aceptada) se envía
+// primero la Comunicación de Baja; si SUNAT la acepta, se actualiza la BD.
+// Para Borradores simplemente se marca como Anulada sin notificar a SUNAT.
 export const anular = async (req, res) => {
   try {
     const { motivo } = req.body
+
+    const { rows: [factura] } = await query(
+      `SELECT * FROM facturas WHERE id = $1 AND deleted = false`,
+      [req.params.id]
+    )
+    if (!factura) {
+      return res.status(404).json({ ok: false, error: 'Factura no encontrada' })
+    }
+    if (['Anulada', 'Rechazada'].includes(factura.estado)) {
+      return res.status(400).json({ ok: false, error: `La factura ya está en estado "${factura.estado}"` })
+    }
+
+    // Comprobantes Cobrados no se pueden anular directamente
+    if (['Cobrada', 'Pagada'].includes(factura.estado)) {
+      return res.status(400).json({
+        ok:    false,
+        error: 'No se puede anular un comprobante ya cobrado. Emite una Nota de Crédito.',
+      })
+    }
+
+    const requiereBajaEnSunat = ['Emitida', 'Aceptada', 'Vencida'].includes(factura.estado)
+
+    if (requiereBajaEnSunat) {
+      // Adjuntar el motivo para que el XML de baja lo incluya
+      factura._motivoBaja = motivo || 'Anulado por el usuario'
+      await enviarBajaASunat(req.params.id, factura)
+    }
+
     await query(
-      `UPDATE facturas SET estado = 'Anulada', sunat_mensaje = $2, updated_at = NOW() WHERE id = $1`,
+      `UPDATE facturas
+       SET estado = 'Anulada', sunat_mensaje = $2, updated_at = NOW()
+       WHERE id = $1`,
       [req.params.id, motivo || 'Anulado por el usuario']
     )
-    res.json({ ok: true, mensaje: 'Factura anulada' })
+
+    res.json({
+      ok:     true,
+      mensaje: requiereBajaEnSunat
+        ? 'Factura anulada y comunicada a SUNAT correctamente'
+        : 'Borrador anulado',
+    })
   } catch (err) {
+    console.error(err)
     res.status(500).json({ ok: false, error: err.message })
   }
 }
