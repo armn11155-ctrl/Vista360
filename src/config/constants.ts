@@ -43,7 +43,27 @@ export const CAT_PROVE = [
   "Tecnología",
   "Otro",
 ];
-// Íconos para paneles — reemplazados de P1-P10 a emojis visuales
+// ── Tipos de panel y número de caras ──────────────────────────────────
+/** Tipos de panel disponibles */
+export const TIPOS_PANEL = [
+  "Unipolar",
+  "Mural",
+  "Valla",
+  "Led",
+  "Tótem",
+  "Otro",
+] as const;
+
+export type TipoPanel = typeof TIPOS_PANEL[number] | string;
+
+/**
+ * Retorna el número de caras (faces) que tiene un panel según su tipo.
+ * Unipolares tienen 2 caras (A y B). El resto tienen 1 cara.
+ */
+export const getCarasPanel = (tipo: string): 1 | 2 =>
+  tipo?.toLowerCase().includes("unipolar") ? 2 : 1;
+
+// ── Íconos para paneles — reemplazados de P1-P10 a emojis visuales ──
 export const EMOJIS = ["🏙️", "🌆", "🏢", "🏬", "🛣️", "🌉", "🏗️", "🗼", "🌃", "🏪"];
 
 export const EMISOR = {
@@ -69,3 +89,4 @@ export const ALLOWED_EMAILS: string[] = (import.meta.env.VITE_ALLOWED_EMAILS ?? 
   .split(",")
   .map((e: string) => e.trim())
   .filter(Boolean);
+
