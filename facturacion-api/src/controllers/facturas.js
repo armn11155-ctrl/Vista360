@@ -1,3 +1,4 @@
+import { crearContratoFirestore } from '../services/firebase-admin.js'
 import { query, transaction } from '../db/pool.js'
 import { enviarASunat, enviarBajaASunat } from '../services/sunat.js'
 
@@ -118,6 +119,7 @@ export const crear = async (req, res) => {
       fecha_emision, fecha_vencimiento,
       items = [],
       doc_ref_tipo, doc_ref_serie, doc_ref_numero, motivo_nc,
+      cara_panel,
     } = req.body
 
     if (!items.length) return res.status(400).json({ ok: false, error: 'Se requiere al menos un ítem' })
@@ -185,10 +187,11 @@ export const crear = async (req, res) => {
           subtotal, igv, total,
           op_gravada, op_exonerada, op_inafecta,
           doc_ref_tipo, doc_ref_serie, doc_ref_numero, motivo_nc,
+          cara_panel,
           estado, usuario_id
         ) VALUES (
           $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,
-          $19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,'Borrador',$32
+          $19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,'Borrador',$33
         ) RETURNING *`,
         [
           tipo_doc, serie, numero,
@@ -204,6 +207,7 @@ export const crear = async (req, res) => {
           opGravada, opExonerada, opInafecta,
           doc_ref_tipo || null, doc_ref_serie || null,
           doc_ref_numero || null, motivo_nc || null,
+          cara_panel || null,
           req.user?.id || null,
         ]
       )
@@ -226,6 +230,43 @@ export const crear = async (req, res) => {
 
       return { ...factura, items: itemsCalculados }
     })
+
+    // ── Auto-crear contrato en Firestore si la factura tiene período ──────
+    // Cuando se factura con periodo_inicio y periodo_fin, se crea automáticamente
+    // el contrato en Firebase para que Vista360 lo muestre como panel ocupado.
+    if (result.periodo_inicio && result.periodo_fin && result.panel_id) {
+      try {
+        // Buscar firebase_id del panel y del cliente en Postgres
+        const { rows: [panelRow] } = await query(
+          'SELECT firebase_id FROM paneles WHERE id = $1 AND firebase_id IS NOT NULL',
+          [result.panel_id]
+        )
+        const { rows: [clienteRow] } = await query(
+          'SELECT firebase_id FROM clientes WHERE id = $1 AND firebase_id IS NOT NULL',
+          [result.cliente_id]
+        )
+
+        if (panelRow?.firebase_id && clienteRow?.firebase_id) {
+          await crearContratoFirestore({
+            panel_firebase_id:   panelRow.firebase_id,
+            cliente_firebase_id: clienteRow.firebase_id,
+            cara:                result.cara_panel || null,
+            inicio:              result.periodo_inicio,
+            fin:                 result.periodo_fin,
+            monto:               result.total,
+            pagado:              false,
+            factura_id:          result.id,
+            factura_numero:      result.numero_fmt,
+          })
+          console.log(`✅ Contrato Firebase creado para factura ${result.numero_fmt}`)
+        } else {
+          console.warn(`⚠️  Sin firebase_id para panel ${result.panel_id} o cliente ${result.cliente_id} — contrato NO creado en Firestore`)
+        }
+      } catch (fbErr) {
+        // No fallamos la factura si Firebase falla — solo log
+        console.error('⚠️  Error al crear contrato en Firestore:', fbErr.message)
+      }
+    }
 
     res.status(201).json({ ok: true, data: result, mensaje: 'Factura creada como Borrador' })
   } catch (err) {
@@ -380,3 +421,4 @@ export const anular = async (req, res) => {
     res.status(500).json({ ok: false, error: err.message })
   }
 }
+
