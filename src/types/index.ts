@@ -53,6 +53,8 @@ export interface Panel {
   lat?: Coord;
   lng?: Coord;
   direccion?: string;
+  /** Precio mensual del panel en soles (PEN). */
+  precio?: number;
   /** Identificador visual del tipo de panel (ej: "🏙️", "🛣️"). Máx 2 chars. */
   icono?: string;
   foto?: string;
@@ -80,11 +82,17 @@ export interface Contrato {
   id: string;
   panel_id: string;
   cliente_id: string;
+  /** Cara del panel: 'A' | 'B' para unipolares (2 caras), null para murales (1 cara).
+   *  Contratos legacy sin este campo se tratan como que ocupan todas las caras. */
+  cara?: 'A' | 'B' | null;
   inicio: string;
   fin: string;
   monto: number;
   pagado: boolean;
   pagosMeses?: Record<string, boolean>;
+  /** Factura que originó este contrato (si fue creado automáticamente) */
+  factura_id?: string;
+  factura_numero?: string;
   deleted?: boolean;
   deletedAt?: FsTimestamp;
   createdAt?: Timestamp | null;
@@ -178,3 +186,4 @@ export interface AppSetters {
   setGastos: React.Dispatch<React.SetStateAction<Gasto[]>>;
   setProveedores: React.Dispatch<React.SetStateAction<Proveedor[]>>;
 }
+
