@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { fireEvent } from "@testing-library/react";
 
 // ── Mocks de Firebase ────────────────────────────────────────────
 const mockUnsubscribe = vi.fn();
-const mockOnSnapshot  = vi.fn((q, onNext, onError) => {
+const mockOnSnapshot  = vi.fn((_q, onNext, _onError) => {
   onNext({ docs: [] });
   return mockUnsubscribe;
 });
@@ -111,11 +111,11 @@ const mockFactura = (overrides = {}) => ({
   ...overrides,
 });
 
-const mockPanel = { id: "p1", nombre: "Panel Centro", ciudad: "Lima" };
-const mockCliente = { id: "c1", empresa: "Empresa ABC S.A.C.", ruc: "20123456789" };
+const mockPanel = { id: "p1", nombre: "Panel Centro", tipo: "LED", ciudad: "Lima", estado: "Libre" as const };
+const mockCliente = { id: "c1", empresa: "Empresa ABC S.A.C.", ruc: "20123456789", estado: "Activo" as const };
 
 const setupOnSnapshot = (facturas: object[]) => {
-  mockOnSnapshot.mockImplementationOnce((q, onNext) => {
+  mockOnSnapshot.mockImplementationOnce((_q, onNext) => {
     onNext({ docs: facturas.map(f => ({ id: (f as any).id, data: () => f })) });
     return mockUnsubscribe;
   });
@@ -123,7 +123,7 @@ const setupOnSnapshot = (facturas: object[]) => {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockOnSnapshot.mockImplementation((q, onNext) => {
+  mockOnSnapshot.mockImplementation((_q, onNext) => {
     onNext({ docs: [] });
     return mockUnsubscribe;
   });
@@ -206,7 +206,7 @@ describe("Facturacion — filtros", () => {
     // Cambiar filtro a Cobradas
     const selects = document.querySelectorAll("select");
     if (selects.length > 0) {
-      fireEvent.change(selects[0], { target: { value: "Cobrada" } });
+      fireEvent.change(selects[0]!, { target: { value: "Cobrada" } });
       await waitFor(() => {
         expect(document.body.textContent).toContain("Beta SA");
       });
@@ -236,7 +236,7 @@ describe("Facturacion — filtros", () => {
 // ── Tests: Error handling ─────────────────────────────────────────
 describe("Facturacion — errores", () => {
   it("muestra mensaje de error cuando Firestore falla", async () => {
-    mockOnSnapshot.mockImplementationOnce((q, onNext, onError) => {
+    mockOnSnapshot.mockImplementationOnce((_q, _onNext, onError) => {
       onError(new Error("Permiso denegado"));
       return mockUnsubscribe;
     });
@@ -284,7 +284,7 @@ describe("Facturacion — interacciones UI", () => {
     // Click en la card de la factura
     const cards = document.querySelectorAll("[style*='borderRadius']");
     if (cards.length > 0) {
-      try { fireEvent.click(cards[0]); } catch {}
+      try { fireEvent.click(cards[0]!); } catch {}
     }
   });
 
