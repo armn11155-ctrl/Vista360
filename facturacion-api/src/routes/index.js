@@ -1,24 +1,24 @@
 import { Router } from 'express'
 import { authJWT, authApiKey, auth, soloAdmin } from '../middleware/auth.js'
 import rateLimit from 'express-rate-limit'
+import { query } from '../db/pool.js'
 
 // Controllers
 import * as authCtrl from '../controllers/auth.js'
-import * as factCtrl from '../controllers/facturas.js'
-import * as cliCtrl  from '../controllers/clientes.js'
-import { analizarImagen } from '../controllers/ocr.js'
-import { eliminarImagen }    from '../controllers/cloudinary.js'
-import { getFirebaseUsage }  from '../controllers/firebaseUsage.js'
+import * as factCtrl  from '../controllers/facturas.js'
+import * as cliCtrl   from '../controllers/clientes.js'
+import { analizarImagen }  from '../controllers/ocr.js'
+import { eliminarImagen }  from '../controllers/cloudinary.js'
+import { getFirebaseUsage } from '../controllers/firebaseUsage.js'
 
 const router = Router()
 
 // ── AUTH ──────────────────────────────────────────────────────────
-router.post('/auth/login',          authCtrl.login)
-router.get ('/auth/me',             authJWT, authCtrl.me)
-router.post('/auth/api-keys',       authJWT, soloAdmin, authCtrl.generarApiKey)
+router.post('/auth/login',    authCtrl.login)
+router.get ('/auth/me',       authJWT, authCtrl.me)
+router.post('/auth/api-keys', authJWT, soloAdmin, authCtrl.generarApiKey)
 
 // ── OCR — Proxy seguro a Google Cloud Vision ──────────────────────
-// Rate limit estricto: 30 req / 15 min por IP (costo real de API)
 const ocrLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30,
@@ -27,12 +27,9 @@ const ocrLimit = rateLimit({
 router.post('/ocr', ocrLimit, authApiKey, analizarImagen)
 
 // ── CLOUDINARY — Eliminación segura de imágenes ───────────────────
-// El frontend no tiene el API Secret; el backend firma la petición
 router.post('/cloudinary/delete', authApiKey, eliminarImagen)
 
-// ── FIREBASE USAGE — Almacenamiento real vía Cloud Monitoring ─────
-// Requiere GOOGLE_SERVICE_ACCOUNT_JSON en el backend
-// Resultado cacheado 10 min para no exceder cuotas de la API
+// ── FIREBASE USAGE ────────────────────────────────────────────────
 router.get('/firebase/usage', authApiKey, getFirebaseUsage)
 
 // ── FACTURAS ──────────────────────────────────────────────────────
@@ -44,9 +41,9 @@ router.post('/facturas/:id/cobrar', authJWT, factCtrl.cobrar)
 router.post('/facturas/:id/anular', authJWT, factCtrl.anular)
 
 // ── CLIENTES ──────────────────────────────────────────────────────
-router.get ('/clientes',            auth, cliCtrl.listar)
-router.post('/clientes',            authJWT, cliCtrl.crear)
-router.put ('/clientes/:id',        authJWT, cliCtrl.actualizar)
+router.get ('/clientes',    auth, cliCtrl.listar)
+router.post('/clientes',    authJWT, cliCtrl.crear)
+router.put ('/clientes/:id', authJWT, cliCtrl.actualizar)
 
 // ── VISTA360 — Facturas por panel/cliente ─────────────────────────
 router.get('/vista360/facturas', authApiKey, async (req, res) => {
@@ -56,9 +53,9 @@ router.get('/vista360/facturas', authApiKey, async (req, res) => {
     const params = []
     let i = 1
 
-    if (panel_firebase_id) { conditions.push(`p.firebase_id = $${i++}`); params.push(panel_firebase_id) }
+    if (panel_firebase_id)   { conditions.push(`p.firebase_id = $${i++}`); params.push(panel_firebase_id) }
     if (cliente_firebase_id) { conditions.push(`c.firebase_id = $${i++}`); params.push(cliente_firebase_id) }
-    if (estado) { conditions.push(`f.estado = $${i++}`); params.push(estado) }
+    if (estado)              { conditions.push(`f.estado = $${i++}`);      params.push(estado) }
 
     const { rows } = await query(
       `SELECT f.id, f.numero_fmt, f.tipo_doc, f.estado, f.sunat_estado,
@@ -67,7 +64,7 @@ router.get('/vista360/facturas', authApiKey, async (req, res) => {
               f.pagado, f.fecha_pago,
               f.cliente_nombre, f.panel_nombre
        FROM facturas f
-       LEFT JOIN paneles p  ON p.id = f.panel_id
+       LEFT JOIN paneles  p ON p.id = f.panel_id
        LEFT JOIN clientes c ON c.id = f.cliente_id
        WHERE ${conditions.join(' AND ')}
        ORDER BY f.fecha_emision DESC
@@ -124,7 +121,7 @@ router.get('/reportes/resumen', auth, async (req, res) => {
 
 // ── HEALTH CHECK ──────────────────────────────────────────────────
 router.get('/health', (req, res) => {
-  res.json({ ok: true, service: 'Facturación 8 Millas', version: '1.0.0', timestamp: new Date() })
+  res.json({ ok: true, service: 'Facturación 8 Millas', version: '1.0.1', timestamp: new Date() })
 })
 
 export default router
