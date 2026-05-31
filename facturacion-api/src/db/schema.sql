@@ -107,6 +107,8 @@ CREATE TABLE IF NOT EXISTS facturas (
   -- Panel vinculado (opcional)
   panel_id        UUID REFERENCES paneles(id),
   panel_nombre    VARCHAR(200),
+  -- Cara del panel arrendada: 'A' | 'B' | NULL (NULL = panel de 1 cara o no aplica)
+  cara_panel      VARCHAR(1) CHECK (cara_panel IN ('A', 'B') OR cara_panel IS NULL),
   periodo_inicio  DATE,
   periodo_fin     DATE,
   concepto        VARCHAR(300),
@@ -229,6 +231,7 @@ CREATE INDEX IF NOT EXISTS idx_facturas_estado    ON facturas(estado);
 CREATE INDEX IF NOT EXISTS idx_facturas_fecha     ON facturas(fecha_emision);
 CREATE INDEX IF NOT EXISTS idx_facturas_cliente   ON facturas(cliente_id);
 CREATE INDEX IF NOT EXISTS idx_facturas_panel     ON facturas(panel_id);
+CREATE INDEX IF NOT EXISTS idx_facturas_cara      ON facturas(panel_id, cara_panel) WHERE cara_panel IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_facturas_num       ON facturas(tipo_doc, serie, numero);
 CREATE INDEX IF NOT EXISTS idx_items_factura      ON factura_items(factura_id);
 CREATE INDEX IF NOT EXISTS idx_clientes_doc       ON clientes(numero_doc);
@@ -254,3 +257,4 @@ ON CONFLICT DO NOTHING;
 INSERT INTO usuarios (nombre, email, password, rol) VALUES
   ('Administrador', 'admin@8millas.pe', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.', 'admin')
 ON CONFLICT (email) DO NOTHING;
+
