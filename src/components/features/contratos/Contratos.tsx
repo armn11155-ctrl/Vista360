@@ -48,6 +48,7 @@ import {
   ESTADOS_PRO,
   EMOJIS,
   EMISOR,
+  getCarasPanel,
 } from "../../../config/constants";
 
 // ── Componentes UI ────────────────────────────────────────────────
@@ -83,7 +84,7 @@ function Contratos({
   const closeBackdropRef = useRef(false);
   const modalOpenedAt = useRef(0);
   const sheetTouchedAt = useRef(0);
-  const emptyC = { panel_id: "", cliente_id: "", inicio: "", fin: "", monto: "", pagosMeses: {} };
+  const emptyC = { panel_id: "", cliente_id: "", cara: "", inicio: "", fin: "", monto: "", pagosMeses: {} };
   const [form, setForm] = useState(emptyC);
 
   // Generar lista de meses entre dos fechas
@@ -176,6 +177,7 @@ function Contratos({
     setForm({
       panel_id: c.panel_id,
       cliente_id: c.cliente_id,
+      cara: c.cara || "",
       inicio: c.inicio || "",
       fin: c.fin || "",
       monto: c.monto || "",
@@ -192,9 +194,11 @@ function Contratos({
     const meses = generarMeses(form.inicio, form.fin);
     const pagosMeses = form.pagosMeses || {};
     const pagado = pagosMeses[meses[0]?.key] || false;
+    const cara = form.cara || null;
     const payloadFull = {
       panel_id: form.panel_id,
       cliente_id: form.cliente_id,
+      cara,
       inicio: form.inicio,
       fin: form.fin,
       monto: Number(form.monto),
@@ -204,6 +208,7 @@ function Contratos({
     const payloadSimple = {
       panel_id: form.panel_id,
       cliente_id: form.cliente_id,
+      cara,
       inicio: form.inicio,
       fin: form.fin,
       monto: Number(form.monto),
@@ -401,6 +406,50 @@ function Contratos({
                 ))}
               </select>
             </F>
+
+            {/* ── Selector de cara — solo para Unipolares (2 caras) ── */}
+            {(() => {
+              const selPanel = paneles.find(p => p.id === form.panel_id);
+              const numCaras = getCarasPanel(selPanel?.tipo || "");
+              if (numCaras < 2) return null;
+              return (
+                <F label="Cara del panel *">
+                  <div style={{ display: "flex", gap: 10 }}>
+                    {(["A", "B"] as const).map(cara => {
+                      const active = form.cara === cara;
+                      return (
+                        <button
+                          key={cara}
+                          type="button"
+                          onPointerDown={e => e.stopPropagation()}
+                          onClick={() => setForm(f => ({ ...f, cara }))}
+                          style={{
+                            flex: 1,
+                            padding: "12px 0",
+                            borderRadius: 12,
+                            border: active ? "none" : `1.5px solid ${T.border}`,
+                            background: active ? T.accent : T.surface,
+                            color: active ? "#fff" : T.muted,
+                            fontWeight: 800,
+                            fontSize: 18,
+                            cursor: "pointer",
+                            touchAction: "manipulation",
+                            fontFamily: "inherit",
+                          }}
+                        >
+                          Cara {cara}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {!form.cara && (
+                    <div style={{ fontSize: 11, color: T.red, marginTop: 4 }}>
+                      Selecciona la cara que se va a arrendar
+                    </div>
+                  )}
+                </F>
+              );
+            })()}
 
             <F label="Cliente *">
               <select
@@ -1766,3 +1815,4 @@ const ICN = {
 // ── CRM ──────────────────────────────────────────────────────────
 
 export default Contratos;
+
