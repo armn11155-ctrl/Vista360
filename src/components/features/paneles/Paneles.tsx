@@ -5,7 +5,7 @@ import { fb } from "../../../services/firestore";
 import { T } from "../../../config/theme";
 import { toast, confirmAsync } from "../../../context/UIContext";
 import { validate } from "../../../lib/utils";
-import { CIUDADES, EMOJIS } from "../../../config/constants";
+import { CIUDADES, EMOJIS, TIPOS_PANEL, getCarasPanel } from "../../../config/constants";
 import { Modal, Pagination } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
 
@@ -295,11 +295,21 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
   };
 
   const hoyStr = new Date().toISOString().slice(0, 10);
-  const panelsConContratoHoy = new Set(
-    contratos.filter(c => !c.deleted && c.inicio <= hoyStr && c.fin >= hoyStr).map(c => c.panel_id),
-  );
-  const libres = paneles.filter(p => !panelsConContratoHoy.has(p.id)).length;
-  const ocupados = paneles.filter(p => panelsConContratoHoy.has(p.id)).length;
+
+  // ── Ocupación por cara (Unipolar = 2 caras A/B, Mural = 1 cara) ──────
+  const carasMap = new Map<string, { A: boolean; B: boolean }>();
+  contratos
+    .filter(c => !c.deleted && c.inicio <= hoyStr && c.fin >= hoyStr)
+    .forEach(c => {
+      const cur = carasMap.get(c.panel_id) ?? { A: false, B: false };
+      // Contratos legacy sin cara ocupan todas las caras del panel
+      if (!c.cara || c.cara === 'A') cur.A = true;
+      if (!c.cara || c.cara === 'B') cur.B = true;
+      carasMap.set(c.panel_id, cur);
+    });
+
+  const libres   = paneles.filter(p => !carasMap.has(p.id)).length;
+  const ocupados = paneles.filter(p => carasMap.has(p.id)).length;
   const { paginated, page, setPage, totalPages, total, pageSize } = usePagination(paneles, 12);
 
   return (
@@ -313,7 +323,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
             <PanelCard
               key={p.id}
               panel={p}
-              ocupado={panelsConContratoHoy.has(p.id)}
+              carasOcupadas={carasMap.get(p.id) ?? { A: false, B: false }}
               onEdit={openEdit}
               onDelete={eliminar}
             />
@@ -690,3 +700,4 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
 }
 
 export default Paneles;
+
