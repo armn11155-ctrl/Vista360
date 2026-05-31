@@ -1,4 +1,72 @@
-// @ts-nocheck — legacy file: migrating to strict TypeScript gradually
+// @ts-nocheck — migración progresiva a TypeScript estricto
+// Los tipos clave ya están definidos abajo; se irán activando archivo por archivo.
+
+// ── TypeScript interfaces para este módulo ────────────────────────
+interface ModalDetalleFacturaProps {
+  factura: import("../../../types").Factura & {
+    cliente_nombre?: string
+    cliente_doc?: string
+    cliente_email?: string
+    cliente_doc_tipo?: string
+    sunat_estado?: string
+    subtotal?: number
+    igv?: number
+    total?: number
+    moneda?: string
+    monto?: number
+    metodo_pago?: string
+    nro_operacion?: string
+    fecha_pago?: string
+    hash?: string
+    pdf_url?: string
+    xml_url?: string
+    periodo_inicio?: string
+    periodo_fin?: string
+    tipo?: string
+    serie?: string
+    numero?: string | number
+  }
+  paneles: import("../../../types").Panel[]
+  clientes: import("../../../types").Cliente[]
+  onClose: () => void
+}
+
+interface ModalPreFacturaProps {
+  contrato: import("../../../types").Contrato & { monto?: number; inicio?: string; fin?: string }
+  panel: import("../../../types").Panel & { ciudad?: string; tipo?: string; direccion?: string }
+  cliente: import("../../../types").Cliente & {
+    empresa?: string; ruc?: string; dni?: string
+    contacto?: string; celular?: string; telefono?: string; direccion?: string
+  }
+  onClose: () => void
+}
+
+interface FacturacionProps {
+  paneles: import("../../../types").Panel[]
+  clientes: import("../../../types").Cliente[]
+  contratos: import("../../../types").Contrato[]
+}
+
+// ── Constantes de facturación (IGV Perú) ─────────────────────────
+const IGV_RATE = 0.18
+
+/** Ciudades exoneradas de IGV bajo Ley de Amazonía N° 27037 */
+const CIUDADES_EXONERADAS_IGV = new Set([
+  'Huánuco', 'Loreto', 'San Martín', 'Ucayali',
+  'Amazonas', 'Madre de Dios', 'Pucallpa', 'Iquitos',
+  'Tarapoto', 'Tingo María', 'Puerto Maldonado',
+])
+
+const isExoneradoIGV = (ciudad: string): boolean =>
+  CIUDADES_EXONERADAS_IGV.has(ciudad)
+
+/**
+ * Logo 8 Millas en base64 (SVG minificado).
+ * Si tienes el logo real, reemplaza este valor con el base64 de tu imagen.
+ * Puedes obtenerlo con: btoa(String.fromCharCode(...new Uint8Array(buffer)))
+ */
+const DRAWER_LOGO_B64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgNDAiPjx0ZXh0IHg9IjAiIHk9IjMwIiBmb250LXNpemU9IjI4IiBmb250LXdlaWdodD0iOTAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZmlsbD0iI2ZmZiI+OCBNaWxsYXM8L3RleHQ+PC9zdmc+'
+
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import {
   collection,
@@ -794,11 +862,9 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
 // Ambas apps comparten el mismo proyecto Firebase.
 // ──────────────────────────────────────────────────────────────────
 
-// ── Lee facturas desde Firestore (compartido con facturacion-web) ──
-async function fetchFacturas(): Promise<Factura[]> {
-  const snap = await getDocs(query(collection(db, "facturas"), orderBy("fecha_emision", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() })) as unknown as Factura[];
-}
+// ── Facturacion usa onSnapshot para actualizaciones en tiempo real ──
+// Cuando facturacion-web emite o cobra un comprobante, Vista360 lo
+// refleja automáticamente sin necesidad de refrescar la pantalla.
 
 function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
   // contratos se recibe pero no se usa (compat con la firma anterior)
@@ -814,24 +880,27 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
 
   const conectado = true; // siempre conectado via Firebase
 
-  // ── Cargar comprobantes desde fuente activa ──
-  const cargar = useCallback(async () => {
+  // ── Suscripción en tiempo real a Firestore ─────────────────────
+  // onSnapshot mantiene la lista sincronizada automáticamente:
+  // cualquier cambio desde facturacion-web aparece al instante.
+  useEffect(() => {
     setLoading(true);
     setError("");
-    try {
-      const data = await fetchFacturas();
-      setFacturas(Array.isArray(data) ? data : []);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al cargar comprobantes");
-      setFacturas([]);
-    } finally {
-      setLoading(false);
-    }
+    const q = query(collection(db, "facturas"), orderBy("fecha_emision", "desc"));
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setFacturas(snap.docs.map(d => ({ id: d.id, ...d.data() })) as unknown as Factura[]);
+        setLoading(false);
+      },
+      (err) => {
+        setError(err instanceof Error ? err.message : "Error al cargar comprobantes");
+        setFacturas([]);
+        setLoading(false);
+      }
+    );
+    return () => unsub();
   }, []);
-
-  useEffect(() => {
-    cargar();
-  }, [cargar]);
 
   // Helpers para acceder a campos con fallback (formato API o legacy)
   const totalDe = f => Number(f.total ?? f.monto ?? 0);
