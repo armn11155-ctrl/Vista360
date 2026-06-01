@@ -191,15 +191,15 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
       style={{
         margin: "-20px -16px",
         minHeight: "100%",
-        background: "#070D1C",
+        background: "#ffffff",
         paddingBottom: "calc(100px + env(safe-area-inset-bottom))",
       }}
     >
       <div style={{ padding: "16px 16px 12px" }}>
-        <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: "-0.5px" }}>
+        <div style={{ fontSize: 22, fontWeight: 800, color: "#0F172A", letterSpacing: "-0.5px" }}>
           Mapa de Paneles
         </div>
-        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 3 }}>
+        <div style={{ fontSize: 13, color: "#64748B", marginTop: 3 }}>
           CartoDB Dark · Clic en un pin para ver detalles
         </div>
       </div>
@@ -287,7 +287,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
               justifyContent: "center",
               color: T.muted,
               gap: 10,
-              background: "#070C18",
+              background: "#f8fafc",
             }}
           >
             <div
