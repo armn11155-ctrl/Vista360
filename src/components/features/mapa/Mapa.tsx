@@ -116,11 +116,12 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
   useEffect(() => {
     if (!leafletReady || !mapRef.current || leafletRef.current) return;
     const L = window.L;
-    const map = L.map(mapRef.current, { center: PERU_CENTER, zoom: 5, zoomControl: false });
+    const map = L.map(mapRef.current, { center: PERU_CENTER, zoom: 5, zoomControl: false, zoomSnap: 0.5, wheelPxPerZoomLevel: 80 });
     L.control.zoom({ position: "bottomright" }).addTo(map);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19,
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+      subdomains: "abcd",
+      maxZoom: 20,
     }).addTo(map);
     leafletRef.current = map;
     return () => {
@@ -199,7 +200,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
           Mapa de Paneles
         </div>
         <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 3 }}>
-          OpenStreetMap · Clic en un pin para ver detalles
+          CartoDB Dark · Clic en un pin para ver detalles
         </div>
       </div>
 
