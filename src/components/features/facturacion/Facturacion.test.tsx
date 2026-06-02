@@ -2,13 +2,27 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 import { fireEvent } from "@testing-library/react";
 
-// ── Mocks de Firebase ────────────────────────────────────────────
-const mockUnsubscribe = vi.fn();
-const mockOnSnapshot = vi.fn((_q, onNext, _onError) => {
-  onNext({ docs: [] });
-  return mockUnsubscribe;
+// ── vi.hoisted: variables accesibles dentro de vi.mock factories ──
+// Vitest 4 hoist vi.mock() al top del archivo (antes de const/let),
+// por lo que cualquier variable referenciada en un factory DEBE
+// declararse con vi.hoisted() para evitar "Cannot access before init".
+const { mockUnsubscribe, mockOnSnapshot } = vi.hoisted(() => {
+  const mockUnsubscribe = vi.fn();
+  const mockOnSnapshot = vi.fn((_q: unknown, onNext: (s: { docs: unknown[] }) => void) => {
+    onNext({ docs: [] });
+    return mockUnsubscribe;
+  });
+  return { mockUnsubscribe, mockOnSnapshot };
 });
 
+const mockToast = vi.hoisted(() => ({
+  success: vi.fn(),
+  error: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+}));
+
+// ── Mocks de Firebase ─────────────────────────────────────────────
 vi.mock("firebase/firestore", () => ({
   collection: vi.fn(),
   getDocs: vi.fn().mockResolvedValue({ docs: [] }),
@@ -17,7 +31,7 @@ vi.mock("firebase/firestore", () => ({
   deleteDoc: vi.fn(),
   onSnapshot: mockOnSnapshot,
   doc: vi.fn(),
-  query: vi.fn((...a) => a),
+  query: vi.fn((...a: unknown[]) => a),
   orderBy: vi.fn(),
   where: vi.fn(),
   serverTimestamp: vi.fn(() => ({})),
@@ -31,12 +45,6 @@ vi.mock("firebase/auth", () => ({
   signOut: vi.fn(),
 }));
 
-const mockToast = {
-  success: vi.fn(),
-  error: vi.fn(),
-  info: vi.fn(),
-  warn: vi.fn(),
-};
 vi.mock("../../../context/UIContext", () => ({
   toast: mockToast,
   confirmAsync: vi.fn().mockResolvedValue(false),
@@ -63,7 +71,7 @@ vi.mock("../../../config/theme", () => ({
 }));
 
 vi.mock("../../../config/constants", () => ({
-  CIUDADES: ["Lima", "Huánuco"],
+  CIUDADES: ["Lima", "Huanuco"],
   CAT_GASTOS: ["Mant"],
   CAT_PROVE: ["Elect"],
   SECTORES: ["Retail"],
@@ -135,7 +143,7 @@ const mockCliente = {
 };
 
 const setupOnSnapshot = (facturas: object[]) => {
-  mockOnSnapshot.mockImplementationOnce((_q, onNext) => {
+  mockOnSnapshot.mockImplementationOnce((_q: unknown, onNext: (s: unknown) => void) => {
     onNext({ docs: facturas.map(f => ({ id: (f as any).id, data: () => f })) });
     return mockUnsubscribe;
   });
@@ -143,7 +151,7 @@ const setupOnSnapshot = (facturas: object[]) => {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockOnSnapshot.mockImplementation((_q, onNext) => {
+  mockOnSnapshot.mockImplementation((_q: unknown, onNext: (s: { docs: unknown[] }) => void) => {
     onNext({ docs: [] });
     return mockUnsubscribe;
   });
@@ -151,13 +159,13 @@ beforeEach(() => {
 
 // ── Tests: Renderizado base ───────────────────────────────────────
 describe("Facturacion — renderizado base", () => {
-  it("renderiza sin errores con props vacíos", () => {
+  it("renderiza sin errores con props vacios", () => {
     expect(() => render(<Facturacion {...baseProps} />)).not.toThrow();
   });
 
-  it("muestra el título Facturación", () => {
+  it("muestra el titulo Facturacion", () => {
     render(<Facturacion {...baseProps} />);
-    expect(document.body.textContent).toContain("Facturación");
+    expect(document.body.textContent).toContain("Facturaci");
   });
 
   it("muestra estado de carga inicial", () => {
@@ -170,7 +178,7 @@ describe("Facturacion — renderizado base", () => {
     expect(mockOnSnapshot).toHaveBeenCalledTimes(1);
   });
 
-  it("cancela la suscripción al desmontar", () => {
+  it("cancela la suscripcion al desmontar", () => {
     const { unmount } = render(<Facturacion {...baseProps} />);
     unmount();
     expect(mockUnsubscribe).toHaveBeenCalledTimes(1);
@@ -187,7 +195,6 @@ describe("Facturacion — KPIs", () => {
     ]);
     render(<Facturacion {...baseProps} />);
     await waitFor(() => {
-      // Total facturado excluye Anuladas: 1180 + 590 = 1770
       expect(document.body.textContent).toMatch(/S\/\s*1[.,]770|1770/);
     });
   });
@@ -219,8 +226,6 @@ describe("Facturacion — filtros", () => {
     await waitFor(() => {
       expect(document.body.textContent).toContain("Alpha SA");
     });
-
-    // Cambiar filtro a Cobradas
     const selects = document.querySelectorAll("select");
     if (selects.length > 0) {
       fireEvent.change(selects[0]!, { target: { value: "Cobrada" } });
@@ -230,7 +235,7 @@ describe("Facturacion — filtros", () => {
     }
   });
 
-  it("filtra por búsqueda de texto (cliente)", async () => {
+  it("filtra por busqueda de texto (cliente)", async () => {
     setupOnSnapshot([
       mockFactura({ id: "f1", cliente_nombre: "Minera Los Andes SAC", estado: "Emitida" }),
       mockFactura({ id: "f2", cliente_nombre: "Retail Tech Peru", estado: "Cobrada" }),
@@ -239,7 +244,6 @@ describe("Facturacion — filtros", () => {
     await waitFor(() => {
       expect(document.body.textContent).toContain("Minera Los Andes SAC");
     });
-
     const input = document.querySelector("input") as HTMLInputElement;
     if (input) {
       fireEvent.change(input, { target: { value: "minera" } });
@@ -253,17 +257,19 @@ describe("Facturacion — filtros", () => {
 // ── Tests: Error handling ─────────────────────────────────────────
 describe("Facturacion — errores", () => {
   it("muestra mensaje de error cuando Firestore falla", async () => {
-    mockOnSnapshot.mockImplementationOnce((_q, _onNext, onError) => {
-      onError(new Error("Permiso denegado"));
-      return mockUnsubscribe;
-    });
+    mockOnSnapshot.mockImplementationOnce(
+      (_q: unknown, _onNext: unknown, onError: (e: Error) => void) => {
+        onError(new Error("Permiso denegado"));
+        return mockUnsubscribe;
+      },
+    );
     render(<Facturacion {...baseProps} />);
     await waitFor(() => {
       expect(document.body.textContent).toContain("Permiso denegado");
     });
   });
 
-  it("muestra lista vacía cuando no hay comprobantes", async () => {
+  it("muestra lista vacia cuando no hay comprobantes", async () => {
     render(<Facturacion {...baseProps} />);
     await waitFor(() => {
       expect(document.body.textContent).toMatch(/no hay comprobante/i);
@@ -287,8 +293,7 @@ describe("Facturacion — interacciones UI", () => {
   it("cambia entre vista lista y vista resumen", async () => {
     render(<Facturacion {...baseProps} />);
     await waitFor(() => expect(document.body.textContent).not.toContain("Cargando"));
-    const buttons = document.querySelectorAll("button");
-    buttons.forEach(btn => {
+    document.querySelectorAll("button").forEach(btn => {
       try {
         fireEvent.click(btn);
       } catch {}
@@ -302,7 +307,6 @@ describe("Facturacion — interacciones UI", () => {
     await waitFor(() => {
       expect(document.body.textContent).toContain("TestCorp SA");
     });
-    // Click en la card de la factura
     const cards = document.querySelectorAll("[style*='borderRadius']");
     if (cards.length > 0) {
       try {
@@ -311,7 +315,7 @@ describe("Facturacion — interacciones UI", () => {
     }
   });
 
-  it("botón Nueva Factura muestra toast informativo si VITE_FACTURACION_WEB_URL no está configurado", async () => {
+  it("boton Nueva Factura muestra toast informativo si URL no esta configurado", async () => {
     render(<Facturacion {...baseProps} />);
     await waitFor(() => expect(document.body.textContent).not.toContain("Cargando"));
     const btn = Array.from(document.querySelectorAll("button")).find(b =>
@@ -324,7 +328,7 @@ describe("Facturacion — interacciones UI", () => {
   });
 });
 
-// ── Tests: Vistas de detalle ──────────────────────────────────────
+// ── Tests: Vista resumen ──────────────────────────────────────────
 describe("Facturacion — vista resumen", () => {
   it("muestra pipeline de cobros en vista resumen", async () => {
     setupOnSnapshot([
@@ -335,7 +339,6 @@ describe("Facturacion — vista resumen", () => {
     await waitFor(() => {
       expect(document.body.textContent).not.toContain("Cargando");
     });
-    // Cambiar a vista resumen
     const buttons = Array.from(document.querySelectorAll("button"));
     const resumenBtn = buttons.find(b => b.querySelector("svg rect"));
     if (resumenBtn) {
