@@ -25,16 +25,20 @@ export const mesLabel = (m: string): string =>
     .toLocaleDateString("es-PE", { month: "long", year: "numeric" })
     .replace(/^\w/, c => c.toUpperCase());
 
-export const haptic = (type: "light" | "medium" | "success" | "error" | "delete" | "create" | "save" = "light") => {
+export const haptic = (
+  type: "light" | "medium" | "success" | "error" | "delete" | "create" | "save" = "light",
+) => {
   try {
     // ── Sonido ──
-    import("./sounds").then(({ soundDelete, soundCreate, soundSuccess, soundError, soundSave }) => {
-      if (type === "delete") soundDelete();
-      else if (type === "create") soundCreate();
-      else if (type === "save") soundSave();
-      else if (type === "success") soundSuccess();
-      else if (type === "error") soundError();
-    }).catch(() => {});
+    import("./sounds")
+      .then(({ soundDelete, soundCreate, soundSuccess, soundError, soundSave }) => {
+        if (type === "delete") soundDelete();
+        else if (type === "create") soundCreate();
+        else if (type === "save") soundSave();
+        else if (type === "success") soundSuccess();
+        else if (type === "error") soundError();
+      })
+      .catch(() => {});
     // ── Vibración ──
     if (navigator.vibrate) {
       const patterns: Record<string, number[]> = {

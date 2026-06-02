@@ -44,7 +44,10 @@ function Splash({ done }: SplashProps) {
     const ts = [
       setTimeout(() => setF(1), 150), // outer ring + glow appears
       setTimeout(() => setF(2), 650), // inner ring + arc highlight sweeps
-      setTimeout(() => { setF(3); soundSplash(); }, 1300), // logo fade-in + chime
+      setTimeout(() => {
+        setF(3);
+        soundSplash();
+      }, 1300), // logo fade-in + chime
       setTimeout(() => setF(6), 3200), // begin fade out
       setTimeout(done, 3800),
     ];

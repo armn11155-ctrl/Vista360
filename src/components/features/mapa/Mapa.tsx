@@ -373,8 +373,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                       width: 64,
                       height: 64,
                       borderRadius: 14,
-                      background:
-                        "linear-gradient(155deg, #EFF6FF 0%, #DBEAFE 100%)",
+                      background: "linear-gradient(155deg, #EFF6FF 0%, #DBEAFE 100%)",
                       border: "1px solid #BFDBFE",
                       display: "flex",
                       alignItems: "center",
@@ -657,7 +656,9 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                         }}
                       >
                         Precio de lista:{" "}
-                        <span style={{ color: "#0F172A", fontWeight: 700 }}>{fmt(p.precio)}/mes</span>
+                        <span style={{ color: "#0F172A", fontWeight: 700 }}>
+                          {fmt(p.precio)}/mes
+                        </span>
                       </div>
                       {p.precio > 0 && (
                         <div
