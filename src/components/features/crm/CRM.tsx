@@ -177,10 +177,10 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
     };
     if (modal === "nuevo") {
       haptic("create");
-      const [r] = await fb.post("clientes", payload);
+      const r = await fb.post("clientes", payload);
       if (r) setClientes(p => [...p, r]);
     } else {
-      const [r] = await fb.patch("clientes", modal.id, payload);
+      const r = await fb.patch("clientes", modal.id, payload);
       if (r) setClientes(p => p.map(x => (x.id === modal.id ? r : x)));
     }
     setSaving(false);
