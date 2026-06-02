@@ -132,28 +132,8 @@ function Contratos({
         id: c.cliente_id,
       },
     }));
-  const datosEliminados = contratos
-    .filter(c => c.deleted)
-    .map(c => ({
-      ...c,
-      d: dias(c.fin),
-      panel: paneles.find(p => p.id === c.panel_id) || {
-        nombre: "Panel eliminado",
-        id: c.panel_id,
-      },
-      cliente: clientes.find(cl => cl.id === c.cliente_id) || {
-        nombre: "Cliente eliminado",
-        contacto: "",
-        id: c.cliente_id,
-      },
-    }));
-
   let fil: typeof datos;
-  if (filtro === "Eliminados")
-    fil = datosEliminados.sort(
-      (a, b) => new Date(b.deletedAt || 0).getTime() - new Date(a.deletedAt || 0).getTime(),
-    );
-  else if (filtro === "Activos") fil = datos.filter(c => c.d > 0).sort((a, b) => a.d - b.d);
+  if (filtro === "Activos") fil = datos.filter(c => c.d > 0).sort((a, b) => a.d - b.d);
   else fil = datos.filter(c => c.d > 0 && c.d <= 60).sort((a, b) => a.d - b.d);
 
   // Paginación — 8 contratos por página para que las cards oscuras no saturen el scroll
@@ -169,7 +149,6 @@ function Contratos({
   const activos = datos.filter(c => c.d > 0).length;
   const porVencer = datos.filter(c => c.d > 0 && c.d <= 60).length;
   const historicos = datos.filter(c => c.d <= 0).length;
-  const eliminadosCount = datosEliminados.length;
 
   const openNew = () => {
     modalOpenedAt.current = Date.now();
@@ -545,7 +524,7 @@ function Contratos({
                     <strong style={{ color: T.green }}>Pagado</strong> o{" "}
                     <strong style={{ color: T.red }}>Pendiente</strong>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8 }}>
                     {mesesForm.map((m, i) => {
                       const pagado = form.pagosMeses[m.key] || false;
                       return (
@@ -774,7 +753,7 @@ function Contratos({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
+          gridTemplateColumns: "repeat(2,1fr)",
           gap: 8,
           marginBottom: 18,
           padding: "14px 16px 0",
@@ -818,36 +797,12 @@ function Contratos({
               </svg>
             ),
           },
-          {
-            label: "Eliminados",
-            count: eliminadosCount,
-            icon: (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                <path d="M10 11v6M14 11v6" />
-                <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-              </svg>
-            ),
-          },
         ].map(f => {
           const isActive = filtro === f.label;
-          const isTrash = f.label === "Eliminados";
-          const activeGradient = isTrash
-            ? "linear-gradient(135deg,#7F1D1D,#991B1B)"
-            : "linear-gradient(135deg,#0F1729,#1E3A8A)";
-          const inactiveIconBg = isTrash ? "rgba(239,68,68,0.10)" : "#EFF4FF";
-          const inactiveIconColor = isTrash ? "#EF4444" : "#2563EB";
-          const inactiveTextColor = isTrash ? "#EF4444" : "#2563EB";
+          const activeGradient = "linear-gradient(135deg,#0F1729,#1E3A8A)";
+          const inactiveIconBg = "#EFF4FF";
+          const inactiveIconColor = "#2563EB";
+          const inactiveTextColor = "#2563EB";
           return (
             <button
               key={f.label}
@@ -913,45 +868,11 @@ function Contratos({
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 18, padding: "0 16px 32px" }}>
           {/* Banner de papelera */}
-          {filtro === "Eliminados" && fil.length > 0 && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "12px 16px",
-                background: "rgba(239,68,68,0.12)",
-                border: "1px solid rgba(239,68,68,0.25)",
-                borderRadius: 16,
-              }}
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#F87171"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              <span style={{ fontSize: 13, color: "#FCA5A5", fontWeight: 600, flex: 1 }}>
-                La ️ papelera es permanente — usa el botón rojo para eliminar definitivamente o
-                restaura el contrato.
-              </span>
-            </div>
-          )}
+
           {filPaged.map(c => {
-            const msg =
-              filtro !== "Eliminados"
-                ? encodeURIComponent(
-                    `Hola ${c.cliente?.contacto}, le recordamos que su contrato para *${c.panel?.nombre}* vence el *${fmtF(c.fin)}*. ¿Le interesa renovar? `,
-                  )
-                : "";
+            const msg = encodeURIComponent(
+              `Hola ${c.cliente?.contacto}, le recordamos que su contrato para *${c.panel?.nombre}* vence el *${fmtF(c.fin)}*. ¿Le interesa renovar? `,
+            );
             const meses = generarMeses(c.inicio, c.fin);
             const pm = c.pagosMeses || {};
             const pagados = meses.filter(m => pm[m.key]).length;
@@ -1213,142 +1134,74 @@ function Contratos({
                   <div style={{ flex: 1 }} />
 
                   {/* Botones acción */}
-                  {filtro === "Eliminados" ? (
-                    <>
-                      <button
-                        onClick={() => restaurar(c.id)}
-                        title="Restaurar"
-                        style={{
-                          width: 38,
-                          height: 38,
-                          borderRadius: 10,
-                          border: "1px solid rgba(16,185,129,0.3)",
-                          background: "rgba(16,185,129,0.10)",
-                          cursor: "pointer",
-                          touchAction: "manipulation",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "#34D399",
-                        }}
+                  <>
+                    {/* Editar */}
+                    <button
+                      onClick={() => openEdit(c)}
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 10,
+                        border: "1px solid rgba(255,255,255,0.14)",
+                        background: "rgba(255,255,255,0.08)",
+                        cursor: "pointer",
+                        touchAction: "manipulation",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "rgba(240,245,255,0.85)",
+                      }}
+                    >
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74" />
-                          <path d="M3 3v4h4" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => eliminarPermanente(c.id)}
-                        title="Eliminar definitivamente"
-                        style={{
-                          width: 38,
-                          height: 38,
-                          borderRadius: 10,
-                          border: "1px solid rgba(239,68,68,0.35)",
-                          background: "rgba(239,68,68,0.10)",
-                          cursor: "pointer",
-                          touchAction: "manipulation",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "#FCA5A5",
-                        }}
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                      </svg>
+                    </button>
+                    {/* WhatsApp */}
+                    <a
+                      href={`https://wa.me/${c.cliente.celular?.replace(/\D/g, "")}?text=${msg}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 10,
+                        border: "1px solid rgba(37,211,102,0.35)",
+                        background: "rgba(37,211,102,0.11)",
+                        cursor: "pointer",
+                        touchAction: "manipulation",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                      }}
+                    >
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 32 32"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
                       >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <polyline points="3 6 5 6 21 6" />
-                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                          <line x1="4" y1="4" x2="20" y2="20" />
-                        </svg>
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      {/* Editar */}
-                      <button
-                        onClick={() => openEdit(c)}
-                        style={{
-                          width: 38,
-                          height: 38,
-                          borderRadius: 10,
-                          border: "1px solid rgba(255,255,255,0.14)",
-                          background: "rgba(255,255,255,0.08)",
-                          cursor: "pointer",
-                          touchAction: "manipulation",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "rgba(240,245,255,0.85)",
-                        }}
-                      >
-                        <svg
-                          width="15"
-                          height="15"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                        </svg>
-                      </button>
-                      {/* WhatsApp */}
-                      <a
-                        href={`https://wa.me/${c.cliente.celular?.replace(/\D/g, "")}?text=${msg}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          width: 38,
-                          height: 38,
-                          borderRadius: 10,
-                          border: "1px solid rgba(37,211,102,0.35)",
-                          background: "rgba(37,211,102,0.11)",
-                          cursor: "pointer",
-                          touchAction: "manipulation",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          textDecoration: "none",
-                        }}
-                      >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M16 2C8.268 2 2 8.268 2 16c0 2.442.642 4.735 1.762 6.726L2 30l7.472-1.731A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2z"
-                            fill="#25D366"
-                          />
-                          <path
-                            d="M23.004 19.47c-.355-.177-2.1-1.035-2.424-1.154-.323-.118-.558-.177-.793.177-.236.354-.912 1.154-1.118 1.39-.207.236-.413.265-.768.089-.354-.177-1.497-.552-2.851-1.76-1.054-.94-1.765-2.1-1.972-2.455-.206-.354-.022-.545.155-.721.16-.16.355-.413.532-.62.177-.206.236-.354.354-.59.119-.235.06-.442-.029-.62-.09-.177-.793-1.912-1.087-2.618-.286-.688-.577-.595-.793-.606l-.676-.012c-.235 0-.62.088-.944.442-.324.354-1.236 1.208-1.236 2.944s1.265 3.416 1.442 3.652c.177.235 2.49 3.803 6.032 5.33.844.364 1.502.582 2.015.745.847.27 1.618.231 2.228.14.679-.1 2.1-.858 2.396-1.687.295-.83.295-1.54.207-1.687-.088-.147-.324-.236-.679-.413z"
-                            fill="#fff"
-                          />
-                        </svg>
-                      </a>
-                    </>
-                  )}
+                        <path
+                          d="M16 2C8.268 2 2 8.268 2 16c0 2.442.642 4.735 1.762 6.726L2 30l7.472-1.731A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2z"
+                          fill="#25D366"
+                        />
+                        <path
+                          d="M23.004 19.47c-.355-.177-2.1-1.035-2.424-1.154-.323-.118-.558-.177-.793.177-.236.354-.912 1.154-1.118 1.39-.207.236-.413.265-.768.089-.354-.177-1.497-.552-2.851-1.76-1.054-.94-1.765-2.1-1.972-2.455-.206-.354-.022-.545.155-.721.16-.16.355-.413.532-.62.177-.206.236-.354.354-.59.119-.235.06-.442-.029-.62-.09-.177-.793-1.912-1.087-2.618-.286-.688-.577-.595-.793-.606l-.676-.012c-.235 0-.62.088-.944.442-.324.354-1.236 1.208-1.236 2.944s1.265 3.416 1.442 3.652c.177.235 2.49 3.803 6.032 5.33.844.364 1.502.582 2.015.745.847.27 1.618.231 2.228.14.679-.1 2.1-.858 2.396-1.687.295-.83.295-1.54.207-1.687-.088-.147-.324-.236-.679-.413z"
+                          fill="#fff"
+                        />
+                      </svg>
+                    </a>
+                  </>
                 </div>
 
                 {/* ── LISTA DE PAGOS ── */}
@@ -1460,9 +1313,7 @@ function Contratos({
                 )}
               </div>
             );
-            return filtro === "Eliminados" ? (
-              <div key={c.id}>{card}</div>
-            ) : (
+            return (
               <SwipeRow key={c.id} onDelete={() => eliminar(c.id)} deleteLabel="Archivar">
                 {card}
               </SwipeRow>
@@ -1483,46 +1334,27 @@ function Contratos({
                   width: 64,
                   height: 64,
                   borderRadius: 18,
-                  background:
-                    filtro === "Eliminados" ? "rgba(239,68,68,0.15)" : "rgba(37,99,235,0.12)",
+                  background: "rgba(37,99,235,0.12)",
                   margin: "0 auto 14px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: filtro === "Eliminados" ? "#F87171" : "#60A5FA",
+                  color: "#60A5FA",
                 }}
               >
-                {filtro === "Eliminados" ? (
-                  <svg
-                    width="30"
-                    height="30"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                    <path d="M10 11v6M14 11v6" />
-                    <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-                  </svg>
-                ) : (
-                  <svg
-                    width="30"
-                    height="30"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                  </svg>
-                )}
+                <svg
+                  width="30"
+                  height="30"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
               </div>
               <div
                 style={{
@@ -1532,29 +1364,25 @@ function Contratos({
                   marginBottom: 6,
                 }}
               >
-                {filtro === "Eliminados"
-                  ? "La papelera está vacía"
-                  : "Sin contratos " + filtro.toLowerCase()}
+                {"Sin contratos " + filtro.toLowerCase()}
               </div>
-              {filtro !== "Eliminados" && (
-                <button
-                  onClick={openNew}
-                  style={{
-                    marginTop: 10,
-                    background: T.accent,
-                    border: "none",
-                    borderRadius: 12,
-                    padding: "11px 20px",
-                    color: "#fff",
-                    fontWeight: 700,
-                    fontSize: 14,
-                    cursor: "pointer",
-                    touchAction: "manipulation",
-                  }}
-                >
-                  + Crear primer contrato
-                </button>
-              )}
+              <button
+                onClick={openNew}
+                style={{
+                  marginTop: 10,
+                  background: T.accent,
+                  border: "none",
+                  borderRadius: 12,
+                  padding: "11px 20px",
+                  color: "#fff",
+                  fontWeight: 700,
+                  fontSize: 14,
+                  cursor: "pointer",
+                  touchAction: "manipulation",
+                }}
+              >
+                + Crear primer contrato
+              </button>
             </div>
           )}
           {/* Paginación de contratos */}
