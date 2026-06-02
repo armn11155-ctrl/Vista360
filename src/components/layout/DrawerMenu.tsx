@@ -136,6 +136,10 @@ const DRAWER_ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
+
+// ── CSS liquid glass 3D para el botón Archivados ─────────────────
+const ARCHIVE_GLASS_CSS = ;
+
 function DrawerMenu({
   open,
   onClose,
@@ -196,6 +200,7 @@ function DrawerMenu({
 
   return (
     <>
+      <style>{ARCHIVE_GLASS_CSS}</style>
       {open && (
         <div
           aria-hidden="true"
@@ -400,6 +405,7 @@ function DrawerMenu({
               onClose();
               onTrashOpen?.();
             }}
+            className="v360-archive-glass"
             style={{
               width: "100%",
               display: "flex",
@@ -440,9 +446,9 @@ function DrawerMenu({
               </svg>
             </div>
             <div style={{ flex: 1, textAlign: "left" }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#1D4ED8" }}>Archivados</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Archivados</div>
               {trashCount > 0 && (
-                <div style={{ fontSize: 11, color: "#3B82F6", marginTop: 1 }}>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", marginTop: 1 }}>
                   {trashCount} elemento{trashCount !== 1 ? "s" : ""} archivados
                 </div>
               )}
