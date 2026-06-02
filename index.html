@@ -19,7 +19,13 @@
 
     <!-- iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <!--
+      black-translucent: barra translucida con iconos blancos.
+      Permite que theme-color controle el color real de la barra
+      tanto en el splash oscuro como en los headers de color.
+      El AppHeader ya usa env(safe-area-inset-top) para el padding.
+    -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Vista360" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
