@@ -163,6 +163,23 @@ interface ModalProps {
   children: React.ReactNode;
 }
 export function Modal({ title, onClose, onSave, saveLabel = "Guardar", children }: ModalProps) {
+  // Detecta apertura del teclado virtual (visualViewport API) y eleva el modal
+  const [kbH, setKbH] = React.useState(0);
+  React.useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      const k = window.innerHeight - vv.offsetTop - vv.height;
+      setKbH(Math.max(0, Math.round(k)));
+    };
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, []);
+
   return (
     <div
       role="dialog"
@@ -170,12 +187,17 @@ export function Modal({ title, onClose, onSave, saveLabel = "Guardar", children 
       aria-label={title}
       style={{
         position: "fixed",
-        inset: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        // El bottom sube cuando aparece el teclado → el modal se eleva automáticamente
+        bottom: kbH,
         background: "rgba(0,0,0,0.5)",
         zIndex: 1000,
         display: "flex",
         alignItems: "flex-end",
         justifyContent: "center",
+        transition: "bottom 0.2s ease",
       }}
     >
       <div
@@ -185,9 +207,10 @@ export function Modal({ title, onClose, onSave, saveLabel = "Guardar", children 
           padding: "24px 20px",
           width: "100%",
           maxWidth: 540,
-          maxHeight: "92vh",
+          maxHeight: `calc(92dvh - ${kbH}px)`,
           overflowY: "auto",
           paddingBottom: `calc(24px + env(safe-area-inset-bottom))`,
+          transition: "max-height 0.2s ease",
         }}
       >
         <div
@@ -204,13 +227,16 @@ export function Modal({ title, onClose, onSave, saveLabel = "Guardar", children 
             style={{
               background: "none",
               border: "none",
-              fontSize: 20,
+              fontSize: 22,
               cursor: "pointer",
               color: T.muted,
               padding: 4,
               touchAction: "manipulation",
+              lineHeight: 1,
             }}
-          ></button>
+          >
+            ×
+          </button>
         </div>
         {children}
         {onSave && (
