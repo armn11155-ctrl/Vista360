@@ -172,6 +172,9 @@ describe("Facturacion — renderizado base", () => {
   });
 
   it("muestra estado de carga inicial", () => {
+    // El mock del beforeEach llama onNext sincronamente, saltando el loading.
+    // Para testear el estado de carga, usamos un mock que NO resuelve de inmediato.
+    mockOnSnapshot.mockImplementationOnce(() => mockUnsubscribe);
     render(<Facturacion {...baseProps} />);
     expect(document.body.textContent).toContain("Cargando");
   });
