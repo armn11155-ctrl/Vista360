@@ -8,10 +8,9 @@ import { fireEvent } from "@testing-library/react";
 // declararse con vi.hoisted() para evitar "Cannot access before init".
 const { mockUnsubscribe, mockOnSnapshot } = vi.hoisted(() => {
   const mockUnsubscribe = vi.fn();
-  const mockOnSnapshot = vi.fn((_q: unknown, onNext: (s: { docs: unknown[] }) => void) => {
-    onNext({ docs: [] });
-    return mockUnsubscribe;
-  });
+  // Sin firma estricta: mockImplementationOnce puede llamarse con 2 o 3 args
+  // (caso normal: _q, onNext | caso error: _q, _onNext, onError)
+  const mockOnSnapshot = vi.fn();
   return { mockUnsubscribe, mockOnSnapshot };
 });
 
@@ -143,18 +142,22 @@ const mockCliente = {
 };
 
 const setupOnSnapshot = (facturas: object[]) => {
-  mockOnSnapshot.mockImplementationOnce((_q: unknown, onNext: (s: unknown) => void) => {
-    onNext({ docs: facturas.map(f => ({ id: (f as any).id, data: () => f })) });
-    return mockUnsubscribe;
-  });
+  mockOnSnapshot.mockImplementationOnce(
+    (_q: unknown, onNext: (snapshot: { docs: { id: string; data: () => object }[] }) => void) => {
+      onNext({ docs: facturas.map(f => ({ id: (f as any).id, data: () => f })) });
+      return mockUnsubscribe;
+    },
+  );
 };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockOnSnapshot.mockImplementation((_q: unknown, onNext: (s: { docs: unknown[] }) => void) => {
-    onNext({ docs: [] });
-    return mockUnsubscribe;
-  });
+  mockOnSnapshot.mockImplementation(
+    (_q: unknown, onNext: (snapshot: { docs: never[] }) => void) => {
+      onNext({ docs: [] });
+      return mockUnsubscribe;
+    },
+  );
 });
 
 // ── Tests: Renderizado base ───────────────────────────────────────
@@ -258,8 +261,8 @@ describe("Facturacion — filtros", () => {
 describe("Facturacion — errores", () => {
   it("muestra mensaje de error cuando Firestore falla", async () => {
     mockOnSnapshot.mockImplementationOnce(
-      (_q: unknown, _onNext: unknown, onError: (e: Error) => void) => {
-        onError(new Error("Permiso denegado"));
+      (_q: unknown, _onNext: unknown, onError?: (e: Error) => void) => {
+        onError?.(new Error("Permiso denegado"));
         return mockUnsubscribe;
       },
     );
