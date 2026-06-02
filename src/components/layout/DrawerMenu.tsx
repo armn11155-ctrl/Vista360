@@ -136,7 +136,6 @@ const DRAWER_ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
-
 // ── CSS liquid glass 3D para el botón Archivados ─────────────────
 const ARCHIVE_GLASS_CSS = `
   .v360-archive-glass {
@@ -188,7 +187,7 @@ const ARCHIVE_GLASS_CSS = `
     position: relative;
     z-index: 1;
   }
-\`;
+`;
 
 function DrawerMenu({
   open,
