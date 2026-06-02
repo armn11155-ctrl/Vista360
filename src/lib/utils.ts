@@ -71,7 +71,11 @@ export const validate = {
   },
   email(email?: string): ValidationResult {
     if (!email) return null;
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? null : "El email no tiene un formato válido";
+    const trimmed = email.trim();
+    if (!trimmed) return null;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)
+      ? null
+      : "El email no tiene un formato válido";
   },
   fechasContrato(inicio: string, fin: string): ValidationResult {
     if (!inicio || !fin) return "Las fechas de inicio y fin son obligatorias";
