@@ -1,3 +1,11 @@
+import {
+  soundDelete,
+  soundCreate,
+  soundSuccess,
+  soundError,
+  soundSave,
+} from "./sounds";
+
 type ValidationResult = string | null;
 
 export const hoy = () => new Date();
@@ -29,16 +37,13 @@ export const haptic = (
   type: "light" | "medium" | "success" | "error" | "delete" | "create" | "save" = "light",
 ) => {
   try {
-    // ── Sonido ──
-    import("./sounds")
-      .then(({ soundDelete, soundCreate, soundSuccess, soundError, soundSave }) => {
-        if (type === "delete") soundDelete();
-        else if (type === "create") soundCreate();
-        else if (type === "save") soundSave();
-        else if (type === "success") soundSuccess();
-        else if (type === "error") soundError();
-      })
-      .catch(() => {});
+    // ── Sonido (import estático para no romper la cadena de gesto de usuario) ──
+    if (type === "delete") soundDelete();
+    else if (type === "create") soundCreate();
+    else if (type === "save") soundSave();
+    else if (type === "success") soundSuccess();
+    else if (type === "error") soundError();
+    // "light" y "medium" solo vibran, sin sonido
     // ── Vibración ──
     if (navigator.vibrate) {
       const patterns: Record<string, number[]> = {
