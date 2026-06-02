@@ -25,8 +25,8 @@ const GLASS_CSS = `
     /* Gradiente top→bottom para el efecto 3D elevado */
     background: linear-gradient(
       180deg,
-      rgba(17,31,66,0.92) 0%,
-      rgba(16,30,67,0.96) 100%
+      rgba(14,26,59,0.92) 0%,
+      rgba(14,26,59,0.96) 100%
     );
     backdrop-filter: blur(6px) saturate(140%) brightness(1.05);
     -webkit-backdrop-filter: blur(6px) saturate(140%) brightness(1.05);
