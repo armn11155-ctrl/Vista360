@@ -136,11 +136,11 @@ export function BottomTabBar({
             margin: "0 auto",
             pointerEvents: "auto",
             // Fondo oscuro — necesario para que el glass tenga contraste
-            background: "#0D1629",
-            border: "1px solid rgba(255,255,255,0.10)",
+            background: "#2563EB",
+            border: "1px solid rgba(255,255,255,0.22)",
             borderRadius: 28,
             boxShadow:
-              "0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06)",
+              "0 8px 32px rgba(37,99,235,0.55), 0 2px 12px rgba(37,99,235,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
           }}
         >
           {tabs.map(t => {
