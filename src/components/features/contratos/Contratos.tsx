@@ -221,6 +221,16 @@ function Contratos({
         if (r) setContratos(p => p.map(x => (x.id === modal.id ? { ...r, pagosMeses } : x)));
       }
       haptic(modal === "nuevo" ? "create" : "success");
+
+      // ── Auto estado panel ─────────────────────────────────────────
+      // Si el contrato está vigente hoy → panel pasa a Ocupado
+      if (modal === "nuevo" && r) {
+        const hoyStr = new Date().toISOString().slice(0, 10);
+        if (payloadFull.inicio <= hoyStr && payloadFull.fin >= hoyStr) {
+          fb.patch("paneles", payloadFull.panel_id, { estado: "Ocupado" }).catch(() => {});
+        }
+      }
+
       setModal(null);
       onModalChange?.(false);
       // Quedarse en contratos para que el usuario vea el contrato creado
@@ -244,6 +254,27 @@ function Contratos({
     setContratos(p =>
       p.map(c => (c.id === id ? { ...c, deleted: true, deletedAt: new Date().toISOString() } : c)),
     );
+    // ── Auto estado panel ─────────────────────────────────────────
+    // Si no quedan otros contratos activos en el mismo panel → Disponible
+    try {
+      const hoyStr = new Date().toISOString().slice(0, 10);
+      const archivado = contratos.find(c => c.id === id);
+      if (archivado) {
+        const sigueOcupado = contratos.some(
+          c =>
+            c.id !== id &&
+            c.panel_id === archivado.panel_id &&
+            !c.deleted &&
+            c.inicio <= hoyStr &&
+            c.fin >= hoyStr,
+        );
+        if (!sigueOcupado) {
+          fb.patch("paneles", archivado.panel_id, { estado: "Disponible" }).catch(() => {});
+        }
+      }
+    } catch {
+      /* no bloquear flujo */
+    }
   };
 
   const eliminarPermanente = async id => {
@@ -267,6 +298,10 @@ function Contratos({
 
   // Toggle pago mes desde la tarjeta (sin abrir modal)
   const togglePagoRapido = async (contrato, key) => {
+    // Si el mes fue facturado y aceptado por SUNAT, no se puede desmarcar
+    const estadoFac = contrato.mesesFacturados?.[key];
+    const bloqueado = !!estadoFac && ["Emitida", "Aceptada", "Cobrada"].includes(estadoFac);
+    if (bloqueado) return;
     const pm = { ...(contrato.pagosMeses || {}), [key]: !(contrato.pagosMeses || {})[key] };
     const pagado = pm[generarMeses(contrato.inicio, contrato.fin)[0]?.key] || false;
     const r = await fb.patch("contratos", contrato.id, { pagosMeses: pm, pagado });
