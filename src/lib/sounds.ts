@@ -10,11 +10,8 @@ export const unlockAudio = (): Promise<void> => {
       _ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
     if (_ctx.state === "suspended") {
-      return _ctx.resume().then(() => {
-        _unlocked = true;
-      });
+      return _ctx.resume();
     }
-    _unlocked = true;
     return Promise.resolve();
   } catch {
     return Promise.resolve();
