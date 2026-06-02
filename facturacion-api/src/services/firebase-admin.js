@@ -107,6 +107,47 @@ export async function crearContratoFirestore({
  * @param {string} contratoFirebaseId - ID del documento en contratos/
  * @param {string} motivo             - Motivo de anulación
  */
+/**
+ * Actualiza un contrato existente en Firestore.
+ * Usado por la API cuando una factura es emitida o cobrada:
+ * bloquea los meses correspondientes y sincroniza el estado de pago.
+ *
+ * Usa dot-notation para mergear claves individuales de mesesFacturados
+ * y pagosMeses sin sobreescribir el mapa completo.
+ *
+ * @param {string} contratoFirebaseId
+ * @param {object} updates
+ * @param {string}  [updates.factura_id]       UUID de la factura en Postgres
+ * @param {string}  [updates.factura_numero]    Número formateado p.ej. "F001-00000001"
+ * @param {string}  [updates.factura_estado]    "Emitida" | "Cobrada"
+ * @param {boolean} [updates.pagado]
+ * @param {Record<string,string>} [updates.mesesFacturados]  key "YYYY-MM" → estado
+ * @param {Record<string,boolean>} [updates.pagosMeses]      key "YYYY-MM" → true
+ */
+export async function actualizarContratoFirestore(contratoFirebaseId, updates = {}) {
+  const db = getAdminDb()
+  const payload = { updatedAt: FieldValue.serverTimestamp() }
+
+  if (updates.factura_id      !== undefined) payload.factura_id      = updates.factura_id
+  if (updates.factura_numero  !== undefined) payload.factura_numero  = updates.factura_numero
+  if (updates.factura_estado  !== undefined) payload.factura_estado  = updates.factura_estado
+  if (updates.pagado          !== undefined) payload.pagado          = updates.pagado
+
+  // Mergear mes a mes sin sobreescribir el mapa completo
+  if (updates.mesesFacturados) {
+    for (const [k, v] of Object.entries(updates.mesesFacturados)) {
+      payload[`mesesFacturados.${k}`] = v
+    }
+  }
+  if (updates.pagosMeses) {
+    for (const [k, v] of Object.entries(updates.pagosMeses)) {
+      payload[`pagosMeses.${k}`] = v
+    }
+  }
+
+  await db.collection('contratos').doc(contratoFirebaseId).update(payload)
+}
+
 export async function anularContratoFirestore(contratoFirebaseId, motivo = '') {
   const db = getAdminDb()
   await db.collection('contratos').doc(contratoFirebaseId).update({
