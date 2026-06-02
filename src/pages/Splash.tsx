@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
-import { soundSplash } from "../lib/sounds";
+import { soundSplash, unlockAudio } from "../lib/sounds";
 
 /** Color del splash — debe coincidir con T.dark */
 const SPLASH_BG = "#0D1629";
@@ -12,6 +12,23 @@ interface SplashProps {
 
 function Splash({ done }: SplashProps) {
   const [f, setF] = useState(0);
+  const soundFired = useRef(false);
+
+  // ── Encola el chime desde el primer momento.
+  //    Si el AudioContext ya está desbloqueado (sesión recurrente),
+  //    suena de inmediato. Si no, se lanza en el primer gesto del usuario.
+  useEffect(() => {
+    soundSplash();
+  }, []);
+
+  // ── En el primer touch/click sobre el splash, desbloquea el audio
+  //    explícitamente (por si el usuario toca la pantalla durante el splash).
+  const handleInteraction = () => {
+    if (!soundFired.current) {
+      soundFired.current = true;
+      unlockAudio();
+    }
+  };
 
   // ── Clava el theme-color al color del splash mientras está visible,
   //    y lo restaura al terminar para que useHeaderShell tome el control.
@@ -44,10 +61,7 @@ function Splash({ done }: SplashProps) {
     const ts = [
       setTimeout(() => setF(1), 150), // outer ring + glow appears
       setTimeout(() => setF(2), 650), // inner ring + arc highlight sweeps
-      setTimeout(() => {
-        setF(3);
-        soundSplash();
-      }, 1300), // logo fade-in + chime
+      setTimeout(() => setF(3), 1300), // logo fade-in + scale
       setTimeout(() => setF(6), 3200), // begin fade out
       setTimeout(done, 3800),
     ];
@@ -56,6 +70,8 @@ function Splash({ done }: SplashProps) {
 
   return (
     <div
+      onTouchStart={handleInteraction}
+      onClick={handleInteraction}
       style={{
         position: "fixed",
         top: 0,

@@ -1,7 +1,47 @@
 // ── sounds.ts — Sonidos UI con Web Audio API (sin archivos externos) ──
 // Inspirado en el lenguaje sonoro de Apple: limpio, armónico, tonal.
+//
+// ⚠️  Los navegadores (especialmente mobile) bloquean AudioContext hasta
+//     que hay un gesto del usuario. Este módulo implementa:
+//     1. unlockAudio() — debe llamarse desde cualquier touchstart/click
+//     2. Cola de sonidos pendientes que se vacía al desbloquear
 
 let _ctx: AudioContext | null = null;
+let _unlocked = false;
+const _pending: Array<() => void> = [];
+
+// ── Desbloqueo: llamar desde el primer gesto del usuario ──────────
+export const unlockAudio = () => {
+  if (_unlocked) return;
+  try {
+    if (!_ctx || _ctx.state === "closed") {
+      _ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const resume = _ctx.state === "suspended" ? _ctx.resume() : Promise.resolve();
+    resume.then(() => {
+      _unlocked = true;
+      // Vaciar cola de sonidos que esperaban el gesto
+      const queue = _pending.splice(0);
+      queue.forEach(fn => fn());
+    });
+  } catch {
+    /* silencioso */
+  }
+};
+
+// ── Instalación global del listener de desbloqueo ─────────────────
+// Se hace una sola vez al importar el módulo
+if (typeof window !== "undefined") {
+  const unlock = () => {
+    unlockAudio();
+    window.removeEventListener("touchstart", unlock, true);
+    window.removeEventListener("mousedown", unlock, true);
+    window.removeEventListener("keydown", unlock, true);
+  };
+  window.addEventListener("touchstart", unlock, { capture: true, passive: true });
+  window.addEventListener("mousedown", unlock, { capture: true, passive: true });
+  window.addEventListener("keydown", unlock, { capture: true, passive: true });
+}
 
 const getCtx = (): AudioContext => {
   if (!_ctx || _ctx.state === "closed") {
@@ -10,23 +50,35 @@ const getCtx = (): AudioContext => {
   return _ctx;
 };
 
-// Utilidad: encadena nodos y los conecta al destino
+// Ejecuta inmediatamente si ya desbloqueado, o encola para después
 const play = (build: (ctx: AudioContext, out: GainNode) => void) => {
-  try {
-    const ctx = getCtx();
-    if (ctx.state === "suspended") ctx.resume();
-    const master = ctx.createGain();
-    master.gain.setValueAtTime(0.35, ctx.currentTime);
-    master.connect(ctx.destination);
-    build(ctx, master);
-  } catch {
-    /* silencioso si el navegador bloquea */
+  const run = () => {
+    try {
+      const ctx = getCtx();
+      const resume = ctx.state === "suspended" ? ctx.resume() : Promise.resolve();
+      resume.then(() => {
+        const master = ctx.createGain();
+        master.gain.setValueAtTime(0.35, ctx.currentTime);
+        master.connect(ctx.destination);
+        build(ctx, master);
+      });
+    } catch {
+      /* silencioso si el navegador bloquea */
+    }
+  };
+
+  if (_unlocked) {
+    run();
+  } else {
+    // Guardar en cola; se ejecutará en el primer gesto
+    _pending.push(run);
+    // Limpiar la cola si crece demasiado (ej. varios sonidos antes del gesto)
+    if (_pending.length > 5) _pending.splice(0, _pending.length - 1);
   }
 };
 
 // ─────────────────────────────────────────────────────────────────
 // SPLASH — Chime de bienvenida tipo Apple startup
-// Inspirado en el "dong" del Mac: tono puro + resonancia etérea
 // ─────────────────────────────────────────────────────────────────
 export const soundSplash = () =>
   play((ctx, out) => {
@@ -48,23 +100,22 @@ export const soundSplash = () =>
     reverb.connect(reverbGain);
     reverbGain.connect(out);
 
-    // Tono fundamental — La4 (440 Hz), largo y suave
-    const fundamentalFreq = 440;
+    // Tono fundamental — La4 (440 Hz)
     const fundamental = ctx.createOscillator();
     const fundEnv = ctx.createGain();
     fundamental.type = "sine";
-    fundamental.frequency.setValueAtTime(fundamentalFreq, now);
+    fundamental.frequency.setValueAtTime(440, now);
     fundEnv.gain.setValueAtTime(0.0, now);
-    fundEnv.gain.linearRampToValueAtTime(0.55, now + 0.04); // ataque suave
+    fundEnv.gain.linearRampToValueAtTime(0.55, now + 0.04);
     fundEnv.gain.setValueAtTime(0.55, now + 0.12);
-    fundEnv.gain.exponentialRampToValueAtTime(0.001, now + 2.8); // cola larga
+    fundEnv.gain.exponentialRampToValueAtTime(0.001, now + 2.8);
     fundamental.connect(fundEnv);
     fundEnv.connect(out);
     fundEnv.connect(reverb);
     fundamental.start(now);
     fundamental.stop(now + 3.0);
 
-    // 2ª armónica — Mi5 (660 Hz), más baja, entra ligerísimo después
+    // Mi5 (660 Hz)
     const harm2 = ctx.createOscillator();
     const harm2Env = ctx.createGain();
     harm2.type = "sine";
@@ -78,7 +129,7 @@ export const soundSplash = () =>
     harm2.start(now + 0.02);
     harm2.stop(now + 2.5);
 
-    // 3ª armónica — La5 (880 Hz), brillo cristalino
+    // La5 (880 Hz)
     const harm3 = ctx.createOscillator();
     const harm3Env = ctx.createGain();
     harm3.type = "sine";
@@ -92,7 +143,7 @@ export const soundSplash = () =>
     harm3.start(now + 0.03);
     harm3.stop(now + 2.0);
 
-    // 4ª armónica — Mi6 (1320 Hz), shimmer lejano
+    // Mi6 (1320 Hz) shimmer
     const harm4 = ctx.createOscillator();
     const harm4Env = ctx.createGain();
     harm4.type = "sine";
@@ -106,7 +157,7 @@ export const soundSplash = () =>
     harm4.start(now + 0.04);
     harm4.stop(now + 1.2);
 
-    // Sub-bass suave — La3 (220 Hz), solo el inicio, da "peso"
+    // Sub-bass La3 (220 Hz) — da peso al inicio
     const sub = ctx.createOscillator();
     const subEnv = ctx.createGain();
     sub.type = "sine";
@@ -121,7 +172,7 @@ export const soundSplash = () =>
   });
 
 // ─────────────────────────────────────────────────────────────────
-// DELETE — Funk de macOS: dos tonos descendentes, rápido y seco
+// DELETE — Funk de macOS: dos tonos descendentes, seco
 // ─────────────────────────────────────────────────────────────────
 export const soundDelete = () =>
   play((ctx, out) => {
@@ -166,14 +217,12 @@ export const soundDelete = () =>
   });
 
 // ─────────────────────────────────────────────────────────────────
-// SAVE — Glass de macOS mejorado: campana + shimmer + micro-reverb
-// Más rico que el success puro; específico para "guardado"
+// SAVE — Glass mejorado: campana + shimmer + micro-reverb
 // ─────────────────────────────────────────────────────────────────
 export const soundSave = () =>
   play((ctx, out) => {
     const now = ctx.currentTime;
 
-    // Micro-reverb
     const bufLen = ctx.sampleRate * 0.6;
     const revBuf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
     const revData = revBuf.getChannelData(0);
@@ -186,7 +235,6 @@ export const soundSave = () =>
     reverb.connect(revGain);
     revGain.connect(out);
 
-    // Campana — Mi5 + La5 + Mi6: acorde mayor puro
     const freqs = [659.25, 880, 1318.5];
     freqs.forEach((freq, i) => {
       const osc = ctx.createOscillator();
@@ -203,7 +251,6 @@ export const soundSave = () =>
       osc.stop(now + i * 0.038 + 0.8);
     });
 
-    // Shimmer (Mi7 — 2637 Hz), muy suave, brillo de cristal
     const shimmer = ctx.createOscillator();
     const shimEnv = ctx.createGain();
     shimmer.type = "sine";
@@ -251,7 +298,7 @@ export const soundSuccess = () =>
   });
 
 // ─────────────────────────────────────────────────────────────────
-// CREATE — Hero de macOS: acorde ascendente, positivo y limpio
+// CREATE — Hero de macOS: acorde ascendente, positivo
 // ─────────────────────────────────────────────────────────────────
 export const soundCreate = () =>
   play((ctx, out) => {
