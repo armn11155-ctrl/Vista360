@@ -1,6 +1,5 @@
 // @ts-nocheck — legacy file: migrating to strict TypeScript gradually
 import { useEffect } from "react";
-import { T } from "../config/theme";
 
 export function useViewportSetup() {
   useEffect(() => {
@@ -32,10 +31,13 @@ export function useViewportSetup() {
       }
       setMeta("viewport", "width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no");
       setMeta("apple-mobile-web-app-capable", "yes");
-      setMeta("apple-mobile-web-app-status-bar-style", "default");
+      // black-translucent: barra translúcida con iconos blancos — compatible con
+      // splash oscuro y headers de color. El app maneja el safe-area-inset-top.
+      // NO sobreescribir theme-color aquí: lo gestiona Splash.tsx al montar
+      // y useHeaderShell.ts al navegar entre rutas.
+      setMeta("apple-mobile-web-app-status-bar-style", "black-translucent");
       setMeta("apple-mobile-web-app-title", "Vista360");
       setMeta("mobile-web-app-capable", "yes");
-      setMeta("theme-color", T.bg);
       setMeta("format-detection", "telephone=no");
     } catch {
       /* silencioso */
