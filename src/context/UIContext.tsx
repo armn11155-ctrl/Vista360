@@ -123,7 +123,9 @@ export function ToastProvider({ children }: { children?: React.ReactNode }) {
   // Necesario para que los sonidos funcionen en móvil y en navegadores
   // que requieren interacción antes de reproducir audio.
   useEffect(() => {
-    const unlock = () => { unlockAudio().catch(() => {}); };
+    const unlock = () => {
+      unlockAudio().catch(() => {});
+    };
     window.addEventListener("pointerdown", unlock, { once: true, passive: true });
     window.addEventListener("keydown", unlock, { once: true });
     return () => {
