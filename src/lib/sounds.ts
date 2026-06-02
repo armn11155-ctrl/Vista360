@@ -35,7 +35,7 @@ const play = (build: (ctx: AudioContext, out: GainNode) => void) => {
       build(ctx, master);
     };
     if (ctx.state === "suspended") {
-      ctx.resume().then(run);
+      ctx.resume().then(run).catch(() => {});
     } else {
       run();
     }
@@ -71,13 +71,12 @@ export const soundSplash = () =>
     revGain.connect(out);
 
     // Acorde La mayor: La3 · La4 · Do#5 · Mi5
-    // (igual que el startup chime de Mac — fundamental + octava + tercera mayor + quinta)
     const notes = [
-      { f: 220.0, vol: 0.55, decay: 2.4 }, // La3 — fundamental, el "peso"
-      { f: 440.0, vol: 0.45, decay: 2.2 }, // La4 — octava
-      { f: 554.37, vol: 0.3, decay: 1.9 }, // Do#5 — tercera mayor
-      { f: 659.25, vol: 0.22, decay: 1.6 }, // Mi5  — quinta
-      { f: 880.0, vol: 0.12, decay: 1.2 }, // La5  — segunda octava, brillo
+      { f: 220.0, vol: 0.55, decay: 2.4 },
+      { f: 440.0, vol: 0.45, decay: 2.2 },
+      { f: 554.37, vol: 0.3, decay: 1.9 },
+      { f: 659.25, vol: 0.22, decay: 1.6 },
+      { f: 880.0, vol: 0.12, decay: 1.2 },
     ];
 
     notes.forEach(({ f, vol, decay }) => {
@@ -85,12 +84,9 @@ export const soundSplash = () =>
       const env = ctx.createGain();
       osc.type = "sine";
       osc.frequency.setValueAtTime(f, now);
-
-      // Ataque instantáneo (≤8ms), decay exponencial largo
       env.gain.setValueAtTime(0.0, now);
       env.gain.linearRampToValueAtTime(vol, now + 0.008);
       env.gain.exponentialRampToValueAtTime(0.001, now + decay);
-
       osc.connect(env);
       env.connect(out);
       env.connect(reverb);
@@ -277,4 +273,83 @@ export const soundError = () =>
     env.connect(out);
     osc.start(now);
     osc.stop(now + 0.3);
+  });
+
+// ─────────────────────────────────────────────────────────────────
+// MESSAGE — Ping suave para mensajes / notificaciones de chat.
+// Dos sinusoides ascendentes: nota base (Do5) + quinta (Sol5).
+// Ataque rápido, decay medio — discreto pero audible.
+// ─────────────────────────────────────────────────────────────────
+export const soundMessage = () =>
+  play((ctx, out) => {
+    const now = ctx.currentTime;
+
+    // Micro-reverb muy corto
+    const revLen = Math.floor(ctx.sampleRate * 0.25);
+    const revBuf = ctx.createBuffer(1, revLen, ctx.sampleRate);
+    const revData = revBuf.getChannelData(0);
+    for (let i = 0; i < revLen; i++)
+      revData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.07));
+    const reverb = ctx.createConvolver();
+    reverb.buffer = revBuf;
+    const revGain = ctx.createGain();
+    revGain.gain.setValueAtTime(0.12, now);
+    reverb.connect(revGain);
+    revGain.connect(out);
+
+    // Do5 (523 Hz) + Sol5 (784 Hz) con ligero stagger
+    const notes = [
+      { f: 523.25, vol: 0.38, start: 0,     decay: 0.45 },
+      { f: 783.99, vol: 0.28, start: 0.055, decay: 0.38 },
+    ];
+
+    notes.forEach(({ f, vol, start, decay }) => {
+      const osc = ctx.createOscillator();
+      const env = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(f, now + start);
+      env.gain.setValueAtTime(0.0, now);
+      env.gain.linearRampToValueAtTime(vol, now + start + 0.01);
+      env.gain.exponentialRampToValueAtTime(0.001, now + start + decay);
+      osc.connect(env);
+      env.connect(out);
+      env.connect(reverb);
+      osc.start(now + start);
+      osc.stop(now + start + decay + 0.02);
+    });
+  });
+
+// ─────────────────────────────────────────────────────────────────
+// SEND — Whoosh ligero: mensaje enviado (más sutil que soundCreate)
+// ─────────────────────────────────────────────────────────────────
+export const soundSend = () =>
+  play((ctx, out) => {
+    const now = ctx.currentTime;
+
+    // Tono ascendente rápido
+    const osc = ctx.createOscillator();
+    const env = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+    env.gain.setValueAtTime(0.0, now);
+    env.gain.linearRampToValueAtTime(0.3, now + 0.015);
+    env.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    osc.connect(env);
+    env.connect(out);
+    osc.start(now);
+    osc.stop(now + 0.25);
+
+    // Shimmer tenue
+    const sh = ctx.createOscillator();
+    const shEnv = ctx.createGain();
+    sh.type = "sine";
+    sh.frequency.setValueAtTime(1760, now + 0.06);
+    shEnv.gain.setValueAtTime(0.0, now);
+    shEnv.gain.linearRampToValueAtTime(0.07, now + 0.075);
+    shEnv.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    sh.connect(shEnv);
+    shEnv.connect(out);
+    sh.start(now + 0.06);
+    sh.stop(now + 0.3);
   });
