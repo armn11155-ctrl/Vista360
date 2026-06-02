@@ -207,7 +207,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
         pagado,
         pagosMeses: pm,
       };
-      const [r] = await fb.patch("contratos", modal.id, payload);
+      const r = await fb.patch("contratos", modal.id, payload);
       if (r) setContratos(p => p.map(x => (x.id === modal.id ? { ...x, ...payload } : x)));
       closeModal();
     } catch (e) {
