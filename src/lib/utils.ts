@@ -71,11 +71,17 @@ export const validate = {
   },
   email(email?: string): ValidationResult {
     if (!email) return null;
-    const trimmed = email.trim();
+    const trimmed = email.trim().toLowerCase();
     if (!trimmed) return null;
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)
-      ? null
-      : "El email no tiene un formato válido";
+    // Validación permisiva: algo@algo.algo
+    // Usa indexOf para evitar problemas con motores regex en móvil
+    const at = trimmed.indexOf("@");
+    if (at < 1) return "El email no tiene un formato válido";
+    const domain = trimmed.slice(at + 1);
+    if (!domain || !domain.includes(".") || domain.startsWith(".") || domain.endsWith(".")) {
+      return "El email no tiene un formato válido";
+    }
+    return null;
   },
   fechasContrato(inicio: string, fin: string): ValidationResult {
     if (!inicio || !fin) return "Las fechas de inicio y fin son obligatorias";
