@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react";
 import { T } from "../config/theme";
-import { soundSuccess, soundError, soundSave } from "../lib/sounds";
+import { soundSuccess, soundError, soundSave, unlockAudio } from "../lib/sounds";
 
 // ── Tipos ─────────────────────────────────────────────────────────
 interface ToastEntry {
@@ -118,6 +118,19 @@ let _toastSeq = 0;
 export function ToastProvider({ children }: { children?: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastEntry[]>([]);
   const [confirm, setConfirm] = useState<ConfirmPayload | null>(null);
+
+  // ── Desbloquear AudioContext en el primer gesto del usuario ──────
+  // Necesario para que los sonidos funcionen en móvil y en navegadores
+  // que requieren interacción antes de reproducir audio.
+  useEffect(() => {
+    const unlock = () => { unlockAudio().catch(() => {}); };
+    window.addEventListener("pointerdown", unlock, { once: true, passive: true });
+    window.addEventListener("keydown", unlock, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+  }, []);
 
   const addToast = useCallback((type: ToastEntry["type"], msg: string) => {
     const id = ++_toastSeq;
