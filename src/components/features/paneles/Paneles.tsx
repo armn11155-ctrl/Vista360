@@ -4,7 +4,7 @@ import type { Panel, Contrato } from "../../../types";
 import { fb } from "../../../services/firestore";
 import { T } from "../../../config/theme";
 import { toast, confirmAsync } from "../../../context/UIContext";
-import { validate } from "../../../lib/utils";
+import { validate, haptic } from "../../../lib/utils";
 import { CIUDADES, EMOJIS, TIPOS_PANEL, getCarasPanel } from "../../../config/constants";
 import { Modal, Pagination } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
