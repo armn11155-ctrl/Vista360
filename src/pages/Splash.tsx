@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
 import { soundSplash, unlockAudio } from "../lib/sounds";
@@ -11,27 +11,13 @@ interface SplashProps {
 }
 
 function Splash({ done }: SplashProps) {
-  const [f, setF] = useState(0);
-  const soundFired = useRef(false);
+  // f === -1 → esperando primer gesto (pantalla lista pero invisible)
+  // f === 0  → arrancando animación
+  // f >= 1…6 → fases de la animación
+  const [f, setF] = useState(-1);
+  const started = useRef(false);
 
-  // ── Encola el chime desde el primer momento.
-  //    Si el AudioContext ya está desbloqueado (sesión recurrente),
-  //    suena de inmediato. Si no, se lanza en el primer gesto del usuario.
-  useEffect(() => {
-    soundSplash();
-  }, []);
-
-  // ── En el primer touch/click sobre el splash, desbloquea el audio
-  //    explícitamente (por si el usuario toca la pantalla durante el splash).
-  const handleInteraction = () => {
-    if (!soundFired.current) {
-      soundFired.current = true;
-      unlockAudio();
-    }
-  };
-
-  // ── Clava el theme-color al color del splash mientras está visible,
-  //    y lo restaura al terminar para que useHeaderShell tome el control.
+  // ── Clava el theme-color al color del splash ──────────────────
   useEffect(() => {
     const setTheme = (color: string) => {
       let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
@@ -44,34 +30,58 @@ function Splash({ done }: SplashProps) {
       document.documentElement.style.background = color;
       document.body.style.background = color;
     };
-
-    // Al montar: color del splash
     setTheme(SPLASH_BG);
-
     return () => {
-      // Al desmontar: devuelve el color de la app (useHeaderShell lo
-      // sobreescribirá enseguida con el color de la ruta activa)
       setTheme(T.bg);
       document.documentElement.style.background = "";
       document.body.style.background = "";
     };
   }, []);
 
+  // ── Arranca la secuencia desde el primer gesto del usuario ────
+  // El gesto desbloquea el AudioContext; el chime se lanza a los
+  // 1300ms exactos, sincronizado con el fade-in del logo.
+  const startSequence = useCallback(() => {
+    if (started.current) return;
+    started.current = true;
+
+    // 1. Desbloquear AudioContext con este mismo gesto
+    unlockAudio().then(() => {
+      // 2. Timers de animación
+      const t1 = setTimeout(() => setF(1), 150); // rings
+      const t2 = setTimeout(() => setF(2), 650); // arcs
+      const t3 = setTimeout(() => {
+        setF(3);
+        soundSplash(); // ← chime exactamente cuando aparece el logo
+      }, 1300);
+      const t4 = setTimeout(() => setF(6), 3200); // fade out
+      const t5 = setTimeout(done, 3800);
+
+      // Limpieza por si se desmonta antes de terminar
+      return () => [t1, t2, t3, t4, t5].forEach(clearTimeout);
+    });
+
+    setF(0); // quitar opacidad 0 del contenedor inmediatamente
+  }, [done]);
+
+  // ── En desktop (sin touch) arranca automáticamente ───────────
+  // En mobile el touchstart del propio splash activa startSequence.
   useEffect(() => {
-    const ts = [
-      setTimeout(() => setF(1), 150), // outer ring + glow appears
-      setTimeout(() => setF(2), 650), // inner ring + arc highlight sweeps
-      setTimeout(() => setF(3), 1300), // logo fade-in + scale
-      setTimeout(() => setF(6), 3200), // begin fade out
-      setTimeout(done, 3800),
-    ];
-    return () => ts.forEach(clearTimeout);
-  }, []);
+    const onMouse = () => startSequence();
+    // Dar 80ms para que el touch llegue primero si existe
+    const id = setTimeout(() => {
+      if (!started.current) startSequence();
+    }, 80);
+    window.addEventListener("mousedown", onMouse, { once: true });
+    return () => {
+      clearTimeout(id);
+      window.removeEventListener("mousedown", onMouse);
+    };
+  }, [startSequence]);
 
   return (
     <div
-      onTouchStart={handleInteraction}
-      onClick={handleInteraction}
+      onTouchStart={startSequence}
       style={{
         position: "fixed",
         top: 0,
@@ -83,8 +93,10 @@ function Splash({ done }: SplashProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        opacity: f >= 6 ? 0 : 1,
-        transition: f >= 6 ? "opacity .6s cubic-bezier(.4,0,.2,1)" : "none",
+        // f === -1: invisible hasta el primer gesto (evita flash antes de audio)
+        opacity: f === -1 ? 0 : f >= 6 ? 0 : 1,
+        transition:
+          f >= 6 ? "opacity .6s cubic-bezier(.4,0,.2,1)" : f >= 0 ? "opacity .15s ease" : "none",
         overflow: "hidden",
       }}
     >
@@ -125,7 +137,7 @@ function Splash({ done }: SplashProps) {
         />
       ))}
 
-      {/* ─── Outermost ring (animated pulse) ─── */}
+      {/* ─── Outermost ring ─── */}
       <div
         style={{
           position: "absolute",
@@ -145,7 +157,7 @@ function Splash({ done }: SplashProps) {
         }}
       />
 
-      {/* ─── Middle large ring (animated pulse, delayed) ─── */}
+      {/* ─── Middle ring ─── */}
       <div
         style={{
           position: "absolute",
@@ -165,7 +177,7 @@ function Splash({ done }: SplashProps) {
         }}
       />
 
-      {/* ─── Inner ring (logo container, animated pulse) ─── */}
+      {/* ─── Inner ring ─── */}
       <div
         style={{
           position: "absolute",
@@ -187,7 +199,7 @@ function Splash({ done }: SplashProps) {
         }}
       />
 
-      {/* ─── Bright arc rotating (CW) ─── */}
+      {/* ─── Arc CW ─── */}
       <svg
         style={{
           position: "absolute",
@@ -222,7 +234,7 @@ function Splash({ done }: SplashProps) {
         />
       </svg>
 
-      {/* ─── Second bright arc rotating (CCW, outer ring) ─── */}
+      {/* ─── Arc CCW (outer) ─── */}
       <svg
         style={{
           position: "absolute",
@@ -250,7 +262,7 @@ function Splash({ done }: SplashProps) {
         />
       </svg>
 
-      {/* ─── Soft inner glow behind logo (stronger, centered) ─── */}
+      {/* ─── Inner glow ─── */}
       <div
         style={{
           position: "absolute",
@@ -271,7 +283,7 @@ function Splash({ done }: SplashProps) {
         }}
       />
 
-      {/* ─── Logo centrado ─── */}
+      {/* ─── Logo ─── */}
       <div
         style={{
           position: "absolute",
