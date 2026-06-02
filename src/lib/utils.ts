@@ -25,12 +25,13 @@ export const mesLabel = (m: string): string =>
     .toLocaleDateString("es-PE", { month: "long", year: "numeric" })
     .replace(/^\w/, c => c.toUpperCase());
 
-export const haptic = (type: "light" | "medium" | "success" | "error" | "delete" | "create" = "light") => {
+export const haptic = (type: "light" | "medium" | "success" | "error" | "delete" | "create" | "save" = "light") => {
   try {
     // ── Sonido ──
-    import("./sounds").then(({ soundDelete, soundCreate, soundSuccess, soundError }) => {
+    import("./sounds").then(({ soundDelete, soundCreate, soundSuccess, soundError, soundSave }) => {
       if (type === "delete") soundDelete();
       else if (type === "create") soundCreate();
+      else if (type === "save") soundSave();
       else if (type === "success") soundSuccess();
       else if (type === "error") soundError();
     }).catch(() => {});
@@ -43,6 +44,7 @@ export const haptic = (type: "light" | "medium" | "success" | "error" | "delete"
         error: [30, 20, 30],
         delete: [30, 20, 30],
         create: [10, 50, 20],
+        save: [10, 40, 15],
       };
       navigator.vibrate(patterns[type] || [10]);
     }

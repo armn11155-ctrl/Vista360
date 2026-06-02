@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
+import { soundSplash } from "../lib/sounds";
 
 /** Color del splash — debe coincidir con T.dark */
 const SPLASH_BG = "#0D1629";
@@ -43,7 +44,7 @@ function Splash({ done }: SplashProps) {
     const ts = [
       setTimeout(() => setF(1), 150), // outer ring + glow appears
       setTimeout(() => setF(2), 650), // inner ring + arc highlight sweeps
-      setTimeout(() => setF(3), 1300), // logo fade-in + scale
+      setTimeout(() => { setF(3); soundSplash(); }, 1300), // logo fade-in + chime
       setTimeout(() => setF(6), 3200), // begin fade out
       setTimeout(done, 3800),
     ];
