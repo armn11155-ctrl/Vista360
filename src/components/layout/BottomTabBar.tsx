@@ -1,6 +1,5 @@
-import { useCallback } from "react";
+import { useCallback, useRef, useLayoutEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { T } from "../../config/theme";
 import { NAV_TAB_IDS } from "../../config/constants";
 
 interface Tab {
@@ -16,48 +15,51 @@ interface BottomTabBarProps {
   onAddClick: () => void;
 }
 
-// ── CSS del glass — mismo efecto que 8 Millas / Cyber ─────────────
+// ── CSS del glass — aplicado al pill deslizante, no a los botones ──
 const GLASS_CSS = `
-  .v360-btm-glass {
-    position: relative;
+  .v360-pill {
+    position: absolute;
+    top: 6px;
+    height: calc(100% - 12px);
+    border-radius: 18px;
     background: linear-gradient(
       160deg,
-      rgba(255,255,255,0.07) 0%,
-      rgba(255,255,255,0.03) 50%,
-      rgba(255,255,255,0.05) 100%
-    ) !important;
-    backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
-    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
-    border: 1px solid rgba(255,255,255,0.38) !important;
+      rgba(255,255,255,0.13) 0%,
+      rgba(255,255,255,0.06) 50%,
+      rgba(255,255,255,0.10) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%) brightness(1.15);
+    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.15);
+    border: 1px solid rgba(255,255,255,0.42);
     box-shadow:
-      0 6px 24px rgba(0,0,0,0.35),
-      0 2px 6px rgba(0,0,0,0.2),
-      inset 0px 4px 12px rgba(255,255,255,0.8),
-      inset 0px -3px 8px rgba(0,0,0,0.18),
-      inset 2px 0px 6px rgba(255,255,255,0.15) !important;
+      0 6px 24px rgba(0,0,0,0.25),
+      0 2px 6px rgba(0,0,0,0.15),
+      inset 0px 4px 12px rgba(255,255,255,0.85),
+      inset 0px -3px 8px rgba(0,0,0,0.12),
+      inset 2px 0px 6px rgba(255,255,255,0.18);
     overflow: hidden;
-    isolation: isolate;
-    transition: all 0.2s cubic-bezier(0.25,0.46,0.45,0.94) !important;
-    color: #fff !important;
+    pointer-events: none;
+    /* Transicion spring — se mueve hacia el tab tocado */
+    transition:
+      left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
+      width 0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
   }
   /* Shimmer iridiscente azul→magenta */
-  .v360-btm-glass::before {
+  .v360-pill::before {
     content: "";
     position: absolute;
     inset: 0;
     background: linear-gradient(
       110deg,
-      rgba(99,179,255,0.13) 0%,
-      rgba(168,100,255,0.09) 45%,
-      rgba(255,100,180,0.06) 75%,
+      rgba(99,179,255,0.18) 0%,
+      rgba(168,100,255,0.12) 45%,
+      rgba(255,100,180,0.08) 75%,
       transparent 100%
     );
     border-radius: inherit;
-    pointer-events: none;
-    z-index: 0;
   }
   /* Franja especular blanca en canto superior */
-  .v360-btm-glass::after {
+  .v360-pill::after {
     content: "";
     position: absolute;
     top: 0;
@@ -67,26 +69,15 @@ const GLASS_CSS = `
     background: linear-gradient(
       to right,
       transparent 0%,
-      rgba(255,255,255,0.9) 30%,
+      rgba(255,255,255,0.92) 30%,
       rgba(255,255,255,1) 50%,
-      rgba(255,255,255,0.9) 70%,
+      rgba(255,255,255,0.92) 70%,
       transparent 100%
     );
-    filter: blur(0.5px);
-    pointer-events: none;
-    z-index: 0;
-  }
-  /* Contenido del botón encima del shimmer */
-  .v360-btm-glass > * {
-    position: relative;
-    z-index: 1;
+    filter: blur(0.4px);
   }
 `;
 
-/**
- * Barra de navegación inferior de la PWA.
- * Extraído de AuthenticatedShell — reduce ~120 líneas de JSX inline.
- */
 export function BottomTabBar({
   tabs,
   icons,
@@ -96,6 +87,14 @@ export function BottomTabBar({
 }: BottomTabBarProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+
+  // Refs para medir posiciones reales de cada botón nav
+  const containerRef = useRef<HTMLDivElement>(null);
+  const btnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  // Posicion del pill deslizante
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
+  const [pillReady, setPillReady] = useState(false);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, tabId: string) => {
@@ -112,6 +111,32 @@ export function BottomTabBar({
     [navigate],
   );
 
+  // Medir el botón activo y mover el pill a su posición exacta
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const activeTab = tabs.find(t => {
+      if (t.id === "__add__") return false;
+      const route = t.id === "hoy" ? "/" : `/${t.id}`;
+      return !showProfile && pathname === route;
+    });
+    if (!activeTab) return;
+
+    const btn = btnRefs.current[activeTab.id];
+    if (!btn) return;
+
+    const cRect = container.getBoundingClientRect();
+    const bRect = btn.getBoundingClientRect();
+
+    setPill({
+      left: bRect.left - cRect.left,
+      width: bRect.width,
+    });
+    // Primer render: mostrar sin animación, luego activar transición
+    requestAnimationFrame(() => setPillReady(true));
+  }, [pathname, showProfile, tabs]);
+
   return (
     <>
       <style>{GLASS_CSS}</style>
@@ -126,16 +151,17 @@ export function BottomTabBar({
         }}
       >
         <div
+          ref={containerRef}
           role="tablist"
           aria-label="Navegación principal"
           style={{
+            position: "relative",
             display: "flex",
             alignItems: "center",
             padding: "6px 6px",
             maxWidth: 480,
             margin: "0 auto",
             pointerEvents: "auto",
-            // Fondo oscuro — necesario para que el glass tenga contraste
             background: "#2563EB",
             border: "1px solid rgba(255,255,255,0.22)",
             borderRadius: 28,
@@ -143,6 +169,21 @@ export function BottomTabBar({
               "0 8px 32px rgba(37,99,235,0.55), 0 2px 12px rgba(37,99,235,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
           }}
         >
+          {/* ── Pill deslizante — se mueve entre tabs ── */}
+          {pill && (
+            <div
+              className="v360-pill"
+              style={{
+                left: pill.left,
+                width: pill.width,
+                // Sin transición en el primer frame para evitar slide desde 0
+                transition: pillReady
+                  ? undefined // usa la transición del CSS
+                  : "none",
+              }}
+            />
+          )}
+
           {tabs.map(t => {
             if (t.id === "__add__") {
               return (
@@ -154,12 +195,12 @@ export function BottomTabBar({
                       width: 54,
                       height: 54,
                       borderRadius: "50%",
-                      background: T.accent,
-                      border: "3px solid rgba(255,255,255,0.15)",
+                      background: "#0E1A3B",
+                      border: "3px solid rgba(255,255,255,0.18)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      boxShadow: "0 8px 24px rgba(37,99,235,0.55), 0 2px 8px rgba(37,99,235,0.3)",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)",
                       marginTop: -28,
                       cursor: "pointer",
                     }}
@@ -183,14 +224,18 @@ export function BottomTabBar({
             return (
               <button
                 key={t.id}
+                ref={el => {
+                  btnRefs.current[t.id] = el;
+                }}
                 role="tab"
                 aria-selected={active}
                 aria-label={t.label}
                 tabIndex={active ? 0 : -1}
                 onClick={() => onTabClick(routePath)}
                 onKeyDown={e => handleKeyDown(e, t.id)}
-                className={active ? "v360-btm-glass" : undefined}
                 style={{
+                  position: "relative",
+                  zIndex: 1, // encima del pill
                   flex: 1,
                   display: "flex",
                   flexDirection: "column",
@@ -198,19 +243,19 @@ export function BottomTabBar({
                   justifyContent: "center",
                   gap: 3,
                   background: "transparent",
-                  border: "1px solid transparent",
-                  color: active ? "#fff" : "rgba(255,255,255,0.38)",
+                  border: "none",
+                  color: active ? "#fff" : "rgba(255,255,255,0.48)",
                   padding: "6px 4px",
                   minHeight: 48,
                   borderRadius: 18,
                   margin: "0 2px",
-                  transition: "color 0.18s ease",
                   cursor: "pointer",
+                  transition: "color 0.2s ease",
                 }}
               >
                 <div
                   style={{
-                    transition: "transform 0.18s cubic-bezier(.34,1.56,.64,1)",
+                    transition: "transform 0.28s cubic-bezier(.34,1.56,.64,1)",
                     transform: active ? "scale(1.12)" : "scale(1)",
                   }}
                 >
