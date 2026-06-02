@@ -93,6 +93,10 @@ export interface Contrato {
   /** Factura que originó este contrato (si fue creado automáticamente) */
   factura_id?: string;
   factura_numero?: string;
+  /** Estado de la factura vinculada. Si es Emitida/Cobrada, los meses están bloqueados. */
+  factura_estado?: string;
+  /** Meses bloqueados por factura SUNAT. key: "YYYY-MM", value: "Emitida"|"Cobrada" */
+  mesesFacturados?: Record<string, string>;
   deleted?: boolean;
   deletedAt?: FsTimestamp;
   createdAt?: Timestamp | null;
