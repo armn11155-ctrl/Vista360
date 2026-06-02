@@ -125,7 +125,7 @@ export function ProfileView({
         </div>
       </div>
 
-      <div style={{ padding: "16px 16px 0" }}>
+      <div style={{ padding: "16px 20px 0" }}>
         {/* ── Cerrar sesión ── */}
         <button
           onClick={() => setConfirmLogout(true)}

@@ -460,7 +460,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
     <div
       style={{
         background: T.bg,
-        margin: "-20px -16px",
+        margin: "-20px -20px",
         minHeight: "100%",
         paddingBottom: "calc(120px + env(safe-area-inset-bottom))",
       }}
@@ -573,7 +573,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
       </div>
 
       {/* ── SEARCH ── */}
-      <div style={{ padding: "14px 16px 10px", background: T.bg }}>
+      <div style={{ padding: "14px 20px 10px", background: T.bg }}>
         <div
           style={{
             display: "flex",
@@ -651,7 +651,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
         style={{
           display: "flex",
           gap: 7,
-          padding: "8px 16px 12px",
+          padding: "8px 20px 12px",
           background: T.bg,
           overflowX: "auto",
         }}
@@ -736,7 +736,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
           Cargando...
         </div>
       ) : (
-        <div style={{ padding: "10px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ padding: "10px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
           {paginated.length === 0 ? (
             <div
               style={{

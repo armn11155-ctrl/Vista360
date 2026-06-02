@@ -692,7 +692,7 @@ function Contratos({
           alignItems: "center",
           gap: 14,
           marginBottom: 18,
-          padding: "20px 16px 0",
+          padding: "20px 20px 0",
         }}
       >
         <div
@@ -743,7 +743,7 @@ function Contratos({
             background: T.accent,
             border: "none",
             borderRadius: 13,
-            padding: "10px 16px",
+            padding: "10px 20px",
             color: "#fff",
             fontWeight: 700,
             fontSize: 13,

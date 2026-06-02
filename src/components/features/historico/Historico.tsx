@@ -588,7 +588,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
       <div
         style={{
           background: "linear-gradient(160deg,#080D18 0%,#0D1525 60%,#0F172A 100%)",
-          margin: "-20px -16px 0",
+          margin: "-20px -20px 0",
           padding: "20px 20px 0",
           borderBottomLeftRadius: 0,
           borderBottomRightRadius: 0,

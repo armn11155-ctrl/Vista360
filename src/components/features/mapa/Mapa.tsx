@@ -196,13 +196,13 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
   return (
     <div
       style={{
-        margin: "-20px -16px",
+        margin: "-20px -20px",
         minHeight: "100%",
         background: "#ffffff",
         paddingBottom: "calc(100px + env(safe-area-inset-bottom))",
       }}
     >
-      <div style={{ padding: "16px 16px 12px" }}>
+      <div style={{ padding: "16px 20px 12px" }}>
         <div style={{ fontSize: 22, fontWeight: 800, color: "#0F172A", letterSpacing: "-0.5px" }}>
           Mapa de Paneles
         </div>
@@ -243,7 +243,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
             zIndex: 500,
             background: T.dark,
             borderRadius: 22,
-            padding: "10px 16px",
+            padding: "10px 20px",
             display: "flex",
             gap: 14,
             boxShadow: "0 6px 20px rgba(0,0,0,0.25)",

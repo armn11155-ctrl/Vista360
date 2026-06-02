@@ -2165,7 +2165,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
   return (
     <div style={{ paddingBottom: "calc(90px + env(safe-area-inset-bottom))", minHeight: "100%" }}>
       {/* ── Header ── */}
-      <div style={{ padding: "20px 16px 0" }}>
+      <div style={{ padding: "20px 20px 0" }}>
         <div
           style={{
             fontSize: 22,
@@ -2223,7 +2223,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
       </div>
 
       {/* ── Contenido de sección ── */}
-      <div style={{ padding: "0 16px" }}>
+      <div style={{ padding: "0 20px" }}>
         {section === "patrimonio" && renderPatrimonio()}
         {section === "liquidez" && renderLiquidez()}
         {section === "activos" && renderActivos()}
