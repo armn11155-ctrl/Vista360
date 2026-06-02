@@ -77,8 +77,11 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         paddingRight: 24,
         paddingTop: "max(24px, env(safe-area-inset-top))",
         paddingBottom: "max(24px, env(safe-area-inset-bottom))",
+        opacity: 0,
+        animation: "loginScreenAppear 0.5s ease-out 0.05s forwards",
       }}
     >
+      <style>{`@keyframes loginScreenAppear { from { opacity: 0 } to { opacity: 1 } }`}</style>
       {/* Halos decorativos */}
       <div
         style={{
