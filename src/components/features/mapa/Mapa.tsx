@@ -124,7 +124,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
       wheelPxPerZoomLevel: 80,
     });
     L.control.zoom({ position: "bottomright" }).addTo(map);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
       attribution:
         '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
       subdomains: "abcd",
@@ -207,7 +207,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
           Mapa de Paneles
         </div>
         <div style={{ fontSize: 13, color: "#64748B", marginTop: 3 }}>
-          CartoDB Dark · Clic en un pin para ver detalles
+          Clic en un pin para ver detalles
         </div>
       </div>
 
@@ -241,12 +241,12 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
             top: 16,
             left: 16,
             zIndex: 500,
-            background: T.dark,
+            background: "#ffffff",
             borderRadius: 22,
             padding: "10px 20px",
             display: "flex",
             gap: 14,
-            boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
           }}
         >
           {[
@@ -263,7 +263,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                   boxShadow: `0 0 6px ${c}`,
                 }}
               />
-              <span style={{ fontSize: 13, color: T.white, fontWeight: 600 }}>{l}</span>
+              <span style={{ fontSize: 13, color: "#0F172A", fontWeight: 600 }}>{l}</span>
             </div>
           ))}
         </div>
@@ -273,13 +273,13 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
             top: 16,
             right: 16,
             zIndex: 500,
-            background: T.dark,
+            background: "#ffffff",
             borderRadius: 22,
             padding: "10px 16px",
             fontSize: 13,
-            color: T.white,
+            color: "#0F172A",
             fontWeight: 600,
-            boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
           }}
         >
           {paneles.length} panel{paneles.length !== 1 ? "es" : ""}
@@ -345,12 +345,12 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                   left: 0,
                   right: 0,
                   zIndex: 500,
-                  background: "#0B1224",
+                  background: "#ffffff",
 
                   WebkitBackdropFilter: "blur(20px)",
                   padding: "14px 18px 22px",
                   borderRadius: "22px 22px 0 0",
-                  boxShadow: "0 -20px 50px rgba(0,0,0,0.4)",
+                  boxShadow: "0 -4px 24px rgba(0,0,0,0.12)",
                 }}
               >
                 {/* Drag handle */}
@@ -359,7 +359,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                     width: 42,
                     height: 5,
                     borderRadius: 3,
-                    background: "rgba(255,255,255,0.18)",
+                    background: "rgba(0,0,0,0.12)",
                     margin: "0 auto 16px",
                   }}
                 />
@@ -374,14 +374,14 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                       height: 64,
                       borderRadius: 14,
                       background:
-                        "linear-gradient(155deg, rgba(59,130,246,0.18) 0%, rgba(15,28,55,0.6) 100%)",
-                      border: "1px solid rgba(59,130,246,0.28)",
+                        "linear-gradient(155deg, #EFF6FF 0%, #DBEAFE 100%)",
+                      border: "1px solid #BFDBFE",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: 30,
                       flexShrink: 0,
-                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+                      boxShadow: "none",
                     }}
                   >
                     {p.foto || ""}
@@ -391,7 +391,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                       style={{
                         fontSize: 18,
                         fontWeight: 800,
-                        color: T.white,
+                        color: "#0F172A",
                         letterSpacing: "-0.4px",
                         lineHeight: 1.2,
                         marginBottom: 6,
@@ -406,7 +406,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                       <div
                         style={{
                           fontSize: 13,
-                          color: "rgba(255,255,255,0.55)",
+                          color: "#64748B",
                           display: "flex",
                           alignItems: "center",
                           gap: 6,
@@ -432,9 +432,9 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                       width: 36,
                       height: 36,
                       borderRadius: "50%",
-                      background: "rgba(255,255,255,0.08)",
+                      background: "rgba(0,0,0,0.06)",
                       border: "none",
-                      color: "rgba(255,255,255,0.6)",
+                      color: "#64748B",
                       cursor: "pointer",
                       touchAction: "manipulation",
                       display: "flex",
@@ -460,8 +460,8 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                     {/* Card principal: Cliente + monto */}
                     <div
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.06)",
+                        background: "#F8FAFC",
+                        border: "1px solid #E2E8F0",
                         borderRadius: 16,
                         padding: "14px 16px",
                         display: "flex",
@@ -498,7 +498,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                           style={{
                             fontSize: 16,
                             fontWeight: 800,
-                            color: T.white,
+                            color: "#0F172A",
                             letterSpacing: "-0.3px",
                             marginBottom: 3,
                           }}
@@ -508,7 +508,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                         <div
                           style={{
                             fontSize: 13,
-                            color: "rgba(255,255,255,0.55)",
+                            color: "#64748B",
                             fontWeight: 500,
                             whiteSpace: "nowrap",
                             overflow: "hidden",
@@ -516,14 +516,14 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                           }}
                         >
                           Cliente:{" "}
-                          <span style={{ color: T.white, fontWeight: 700 }}>
+                          <span style={{ color: "#0F172A", fontWeight: 700 }}>
                             {contrato.cliente?.empresa || "—"}
                           </span>
                         </div>
                         <div
                           style={{
                             fontSize: 13,
-                            color: "rgba(255,255,255,0.55)",
+                            color: "#64748B",
                             fontWeight: 500,
                             marginTop: 1,
                           }}
@@ -539,8 +539,8 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                       <div
                         style={{
-                          background: "rgba(255,255,255,0.04)",
-                          border: "1px solid rgba(255,255,255,0.06)",
+                          background: "#F8FAFC",
+                          border: "1px solid #E2E8F0",
                           borderRadius: 14,
                           padding: "11px 14px",
                         }}
@@ -548,7 +548,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                         <div
                           style={{
                             fontSize: 10.5,
-                            color: "rgba(255,255,255,0.45)",
+                            color: "#94A3B8",
                             fontWeight: 700,
                             marginBottom: 3,
                             textTransform: "uppercase",
@@ -561,7 +561,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                           style={{
                             fontSize: 13.5,
                             fontWeight: 800,
-                            color: diasVence > 15 ? T.green : diasVence > 0 ? T.white : T.red,
+                            color: diasVence > 15 ? T.green : diasVence > 0 ? "#0F172A" : T.red,
                           }}
                         >
                           {diasVence > 0 ? `en ${diasVence}d` : `hace ${Math.abs(diasVence)}d`}
@@ -569,8 +569,8 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                       </div>
                       <div
                         style={{
-                          background: "rgba(255,255,255,0.04)",
-                          border: "1px solid rgba(255,255,255,0.06)",
+                          background: "#F8FAFC",
+                          border: "1px solid #E2E8F0",
                           borderRadius: 14,
                           padding: "11px 14px",
                         }}
@@ -578,7 +578,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                         <div
                           style={{
                             fontSize: 10.5,
-                            color: "rgba(255,255,255,0.45)",
+                            color: "#94A3B8",
                             fontWeight: 700,
                             marginBottom: 3,
                             textTransform: "uppercase",
@@ -591,7 +591,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                           style={{
                             fontSize: 13.5,
                             fontWeight: 800,
-                            color: contrato.pagado ? T.green : T.white,
+                            color: contrato.pagado ? T.green : "#0F172A",
                           }}
                         >
                           {contrato.pagado ? "Cobrado" : "Pendiente"}
@@ -602,8 +602,8 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                 ) : (
                   <div
                     style={{
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.06)",
+                      background: "#F8FAFC",
+                      border: "1px solid #E2E8F0",
                       borderRadius: 16,
                       padding: "14px 16px",
                       display: "flex",
@@ -657,13 +657,13 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                         }}
                       >
                         Precio de lista:{" "}
-                        <span style={{ color: T.white, fontWeight: 700 }}>{fmt(p.precio)}/mes</span>
+                        <span style={{ color: "#0F172A", fontWeight: 700 }}>{fmt(p.precio)}/mes</span>
                       </div>
                       {p.precio > 0 && (
                         <div
                           style={{
                             fontSize: 13,
-                            color: "rgba(255,255,255,0.55)",
+                            color: "#64748B",
                             fontWeight: 500,
                             lineHeight: 1.4,
                           }}
@@ -688,9 +688,9 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                           width: 36,
                           height: 30,
                           borderRadius: 9,
-                          background: "rgba(255,255,255,0.08)",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                          color: T.white,
+                          background: "#F1F5F9",
+                          border: "1px solid #E2E8F0",
+                          color: "#0F172A",
                           fontSize: 18,
                           fontWeight: 600,
                           cursor: "pointer",
@@ -712,9 +712,9 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
                           width: 36,
                           height: 30,
                           borderRadius: 9,
-                          background: "rgba(255,255,255,0.08)",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                          color: T.white,
+                          background: "#F1F5F9",
+                          border: "1px solid #E2E8F0",
+                          color: "#0F172A",
                           fontSize: 20,
                           fontWeight: 600,
                           cursor: "pointer",
