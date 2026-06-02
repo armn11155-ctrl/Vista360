@@ -51,7 +51,8 @@ const play = (build: (ctx: AudioContext, out: GainNode) => void) => {
 // SPLASH — Mac startup chime
 // El clásico "bong" de Mac: acorde de La mayor (A-C#-E),
 // ataque instantáneo, sustain largo con decay suave.
-// Dura exactamente 2.4s para coincidir con el final del splash.
+// Dura exactamente 2.5s: logo aparece a t=1300ms, splash termina a t=3800ms
+// (1300ms + 2500ms = 3800ms).
 // ─────────────────────────────────────────────────────────────────
 export const soundSplash = () =>
   play((ctx, out) => {
@@ -75,10 +76,10 @@ export const soundSplash = () =>
 
     // Acorde La mayor: La3 · La4 · Do#5 · Mi5
     const notes = [
-      { f: 220.0, vol: 0.55, decay: 2.4 },
-      { f: 440.0, vol: 0.45, decay: 2.2 },
-      { f: 554.37, vol: 0.3, decay: 1.9 },
-      { f: 659.25, vol: 0.22, decay: 1.6 },
+      { f: 220.0, vol: 0.55, decay: 2.5 },
+      { f: 440.0, vol: 0.45, decay: 2.3 },
+      { f: 554.37, vol: 0.3, decay: 2.0 },
+      { f: 659.25, vol: 0.22, decay: 1.7 },
       { f: 880.0, vol: 0.12, decay: 1.2 },
     ];
 
