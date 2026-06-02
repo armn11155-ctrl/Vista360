@@ -41,6 +41,8 @@ function TrashModal({
         });
       } catch (e) {
         console.error("[Papelera] Error cargando elementos eliminados:", e);
+      } finally {
+        setLoadingTrash(false);
       }
     };
     loadDeleted();
@@ -237,7 +239,9 @@ function TrashModal({
               color: "#6B7280",
               fontSize: 16,
             }}
-          ></button>
+          >
+            ×
+          </button>
         </div>
 
         {/* Sub-tabs */}
