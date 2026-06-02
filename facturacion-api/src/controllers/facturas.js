@@ -1,6 +1,19 @@
-import { crearContratoFirestore } from '../services/firebase-admin.js'
+import { crearContratoFirestore, actualizarContratoFirestore } from '../services/firebase-admin.js'
 import { query, transaction } from '../db/pool.js'
 import { enviarASunat, enviarBajaASunat } from '../services/sunat.js'
+
+
+// ── Helper: genera lista de claves "YYYY-MM" entre dos fechas ISO ─
+function calcularMeses(inicio, fin) {
+  const meses = []
+  const d = new Date(inicio + 'T12:00:00')
+  const finD = new Date(fin + 'T12:00:00')
+  while (d <= finD) {
+    meses.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
+    d.setMonth(d.getMonth() + 1)
+  }
+  return meses
+}
 
 // ── GET /api/facturas ─────────────────────────────────────────────
 export const listar = async (req, res) => {
@@ -120,6 +133,8 @@ export const crear = async (req, res) => {
       items = [],
       doc_ref_tipo, doc_ref_serie, doc_ref_numero, motivo_nc,
       cara_panel,
+      // ID del contrato Firebase existente (desde ContratosPage de facturación-web)
+      contrato_firebase_id,
     } = req.body
 
     if (!items.length) return res.status(400).json({ ok: false, error: 'Se requiere al menos un ítem' })
@@ -231,12 +246,24 @@ export const crear = async (req, res) => {
       return { ...factura, items: itemsCalculados }
     })
 
-    // ── Auto-crear contrato en Firestore si la factura tiene período ──────
-    // Cuando se factura con periodo_inicio y periodo_fin, se crea automáticamente
-    // el contrato en Firebase para que Vista360 lo muestre como panel ocupado.
-    if (result.periodo_inicio && result.periodo_fin && result.panel_id) {
+    // ── Sincronizar con Firestore ─────────────────────────────────────────
+    if (contrato_firebase_id) {
+      // Contrato existente en Vista360 — solo vincular la factura
       try {
-        // Buscar firebase_id del panel y del cliente en Postgres
+        await actualizarContratoFirestore(contrato_firebase_id, {
+          factura_id:     result.id,
+          factura_numero: result.numero_fmt,
+          factura_estado: 'Borrador',
+        })
+        // Guardar el Firebase contrato ID en la factura para poder sincronizar luego
+        await query('UPDATE facturas SET firebase_id = $1 WHERE id = $2', [contrato_firebase_id, result.id])
+        console.log(`✅ Factura ${result.numero_fmt} vinculada al contrato Firebase ${contrato_firebase_id}`)
+      } catch (fbErr) {
+        console.error('⚠️  Error vinculando contrato en Firestore:', fbErr.message)
+      }
+    } else if (result.periodo_inicio && result.periodo_fin && result.panel_id) {
+      // Sin contrato existente — crear uno nuevo en Firestore
+      try {
         const { rows: [panelRow] } = await query(
           'SELECT firebase_id FROM paneles WHERE id = $1 AND firebase_id IS NOT NULL',
           [result.panel_id]
@@ -247,7 +274,7 @@ export const crear = async (req, res) => {
         )
 
         if (panelRow?.firebase_id && clienteRow?.firebase_id) {
-          await crearContratoFirestore({
+          const firebaseContratoId = await crearContratoFirestore({
             panel_firebase_id:   panelRow.firebase_id,
             cliente_firebase_id: clienteRow.firebase_id,
             cara:                result.cara_panel || null,
@@ -258,12 +285,12 @@ export const crear = async (req, res) => {
             factura_id:          result.id,
             factura_numero:      result.numero_fmt,
           })
+          await query('UPDATE facturas SET firebase_id = $1 WHERE id = $2', [firebaseContratoId, result.id])
           console.log(`✅ Contrato Firebase creado para factura ${result.numero_fmt}`)
         } else {
-          console.warn(`⚠️  Sin firebase_id para panel ${result.panel_id} o cliente ${result.cliente_id} — contrato NO creado en Firestore`)
+          console.warn(`⚠️  Sin firebase_id para panel ${result.panel_id} o cliente ${result.cliente_id}`)
         }
       } catch (fbErr) {
-        // No fallamos la factura si Firebase falla — solo log
         console.error('⚠️  Error al crear contrato en Firestore:', fbErr.message)
       }
     }
@@ -293,6 +320,25 @@ export const emitir = async (req, res) => {
     )
 
     const result = await enviarASunat(req.params.id, factura, items)
+
+    // ── Sincronizar meses facturados en Firestore ──────────────────
+    try {
+      const { rows: [fRow] } = await query(
+        'SELECT firebase_id, periodo_inicio, periodo_fin FROM facturas WHERE id = $1',
+        [req.params.id]
+      )
+      if (fRow?.firebase_id && fRow.periodo_inicio && fRow.periodo_fin) {
+        const meses = calcularMeses(fRow.periodo_inicio, fRow.periodo_fin)
+        const mesesFacturados = {}
+        meses.forEach(k => { mesesFacturados[k] = 'Emitida' })
+        await actualizarContratoFirestore(fRow.firebase_id, {
+          factura_estado: 'Emitida',
+          mesesFacturados,
+        })
+      }
+    } catch (fbErr) {
+      console.warn('⚠️  emitir: no se pudo actualizar Firestore contrato:', fbErr.message)
+    }
 
     res.json({
       ok:      true,
@@ -361,6 +407,28 @@ export const cobrar = async (req, res) => {
          fecha_pago || new Date().toISOString().split('T')[0], banco || null, nota || null, req.user?.id || null]
       )
     })
+
+    // ── Sincronizar pago en Firestore contrato ─────────────────────
+    try {
+      const { rows: [fRow] } = await query(
+        'SELECT firebase_id, periodo_inicio, periodo_fin FROM facturas WHERE id = $1',
+        [req.params.id]
+      )
+      if (fRow?.firebase_id && fRow.periodo_inicio && fRow.periodo_fin) {
+        const meses = calcularMeses(fRow.periodo_inicio, fRow.periodo_fin)
+        const mesesFacturados = {}
+        const pagosMeses = {}
+        meses.forEach(k => { mesesFacturados[k] = 'Cobrada'; pagosMeses[k] = true })
+        await actualizarContratoFirestore(fRow.firebase_id, {
+          factura_estado: 'Cobrada',
+          pagado:         true,
+          mesesFacturados,
+          pagosMeses,
+        })
+      }
+    } catch (fbErr) {
+      console.warn('⚠️  cobrar: no se pudo actualizar Firestore contrato:', fbErr.message)
+    }
 
     res.json({ ok: true, mensaje: 'Factura marcada como cobrada' })
   } catch (err) {
