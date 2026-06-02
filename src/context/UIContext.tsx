@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react";
 import { T } from "../config/theme";
+import { soundSuccess, soundError, soundCreate } from "../lib/sounds";
 
 // ── Tipos ─────────────────────────────────────────────────────────
 interface ToastEntry {
@@ -122,6 +123,9 @@ export function ToastProvider({ children }: { children?: React.ReactNode }) {
     const id = ++_toastSeq;
     setToasts(t => [...t, { id, type, msg }]);
     setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3800);
+    // ── Sonidos por tipo de notificación ──
+    if (type === "success") soundSuccess();
+    else if (type === "error") soundError();
   }, []);
 
   const showConfirm = useCallback((payload: ConfirmPayload) => setConfirm(payload), []);

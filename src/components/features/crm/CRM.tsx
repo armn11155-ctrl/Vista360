@@ -176,6 +176,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
       notas: form.notas,
     };
     if (modal === "nuevo") {
+      haptic("create");
       const [r] = await fb.post("clientes", payload);
       if (r) setClientes(p => [...p, r]);
     } else {
@@ -198,6 +199,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
       }))
     )
       return;
+    haptic("delete");
     await fb.del("clientes", id); // borrado lógico: deleted:true
     setClientes(p => p.filter(r => r.id !== id));
   };

@@ -664,9 +664,11 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
     };
     try {
       if (modal === "nuevo") {
+        haptic("create");
         const r = await fb.post("gastos", payload);
         setGastos(g => [r ?? { ...payload, id: Date.now() }, ...g]);
       } else {
+        haptic("success");
         const r = await fb.patch("gastos", modal.id, payload);
         setGastos(g => g.map(x => (x.id === modal.id ? (r ?? { ...modal, ...payload }) : x)));
       }
@@ -693,6 +695,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
     if (gasto?.fotoUrl) {
       fb.eliminarImagen(gasto.fotoUrl as string);
     }
+    haptic("delete");
     await fb.del("gastos", id, { hardDelete: true });
     setGastos(g => g.filter(x => x.id !== id));
     setVistaDetalle(null);

@@ -261,6 +261,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
     };
     try {
       if (modal === "nuevo") {
+        haptic("create");
         const r = await fb.post("paneles", payload);
         const saved = r?.[0]?.id ? r[0] : null;
         if (saved) setPaneles(p => [...p, saved]);
@@ -268,6 +269,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
         toast.success("Panel guardado correctamente");
         if (payload.estado === "Ocupado" && setTab) setTab("historico");
       } else {
+        haptic("success");
         const r = await fb.patch("paneles", (modal as Panel).id, payload);
         const saved = r?.[0]?.id ? r[0] : null;
         if (saved) setPaneles(p => p.map(x => (x.id === (modal as Panel).id ? saved : x)));
@@ -290,6 +292,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
       }))
     )
       return;
+    haptic("delete");
     await fb.del("paneles", id);
     setPaneles(p => p.filter(x => x.id !== id));
   };

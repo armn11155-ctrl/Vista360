@@ -146,9 +146,11 @@ function Proveedores({ proveedores, setProveedores, loading, onModalChange }: Pr
     };
     try {
       if (modal === "nuevo") {
+        haptic("create");
         const [r] = await fb.post("proveedores", payload);
         if (r) setProveedores(p => [...p, r]);
       } else {
+        haptic("success");
         const [r] = await fb.patch("proveedores", modal.id, payload);
         if (r) setProveedores(p => p.map(x => (x.id === modal.id ? { ...x, ...r } : x)));
       }
@@ -169,6 +171,7 @@ function Proveedores({ proveedores, setProveedores, loading, onModalChange }: Pr
       }))
     )
       return;
+    haptic("delete");
     await fb.del("proveedores", id);
     setProveedores(p => p.filter(x => x.id !== id));
   };

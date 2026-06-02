@@ -241,6 +241,7 @@ function Contratos({
         }
         if (r) setContratos(p => p.map(x => (x.id === modal.id ? { ...r, pagosMeses } : x)));
       }
+      haptic(modal === "nuevo" ? "create" : "success");
       setModal(null);
       onModalChange?.(false);
       // Quedarse en contratos para que el usuario vea el contrato creado
@@ -259,6 +260,7 @@ function Contratos({
       }))
     )
       return;
+    haptic("delete");
     await fb.del("contratos", id); // soft delete: deleted:true
     setContratos(p =>
       p.map(c => (c.id === id ? { ...c, deleted: true, deletedAt: new Date().toISOString() } : c)),
@@ -274,6 +276,7 @@ function Contratos({
       }))
     )
       return;
+    haptic("delete");
     await fb.del("contratos", id, { hardDelete: true });
     setContratos(p => p.filter(c => c.id !== id));
   };
