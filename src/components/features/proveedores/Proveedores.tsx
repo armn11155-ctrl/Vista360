@@ -74,7 +74,7 @@ import { toNumber, toDate } from "../../../lib/converters";
 import { CIUDADES, CAT_PROVE } from "../../../config/constants";
 
 // ── Componentes UI ────────────────────────────────────────────────
-import { Pagination, SwipeRow } from "../../ui";
+import { FieldGroup, Pagination, SwipeRow } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
 import { useVirtualList } from "../../../hooks/useVirtualList";
 
@@ -147,11 +147,11 @@ function Proveedores({ proveedores, setProveedores, loading, onModalChange }: Pr
     try {
       if (modal === "nuevo") {
         haptic("create");
-        const [r] = await fb.post("proveedores", payload);
+        const r = await fb.post("proveedores", payload);
         if (r) setProveedores(p => [...p, r]);
       } else {
         haptic("success");
-        const [r] = await fb.patch("proveedores", modal.id, payload);
+        const r = await fb.patch("proveedores", modal.id, payload);
         if (r) setProveedores(p => p.map(x => (x.id === modal.id ? { ...x, ...r } : x)));
       }
       setModal(null);
