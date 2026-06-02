@@ -27,15 +27,15 @@ const GLASS_CSS = `
     border-radius: 18px;
     background: linear-gradient(
       160deg,
-      rgba(29,78,216,0.96) 0%,
-      rgba(30,64,175,0.92) 50%,
-      rgba(29,78,216,0.94) 100%
+      rgba(14,26,59,0.97) 0%,
+      rgba(7,16,38,0.96) 50%,
+      rgba(14,26,59,0.97) 100%
     );
     backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
     -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
     border: 1px solid rgba(255,255,255,0.38);
     box-shadow:
-      0 6px 24px rgba(29,78,216,0.55),
+      0 6px 24px rgba(14,26,59,0.65),
       0 2px 8px rgba(0,0,0,0.18),
       inset 0px 4px 12px rgba(255,255,255,0.22),
       inset 0px -3px 8px rgba(0,0,0,0.18),
