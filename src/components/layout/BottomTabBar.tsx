@@ -15,69 +15,64 @@ interface BottomTabBarProps {
   onAddClick: () => void;
 }
 
-// ── CSS del glass — pill azul oscuro + efectos glass completos ───
-// El pill tiene su propio fondo azul oscuro: el backdrop-filter
-// difumina el blanco de la barra detras, y el shimmer + franja
-// especular blanca contrastan perfectamente sobre el azul.
+// ── CSS liquid glass 3D — pill elevado con efecto cristal real ───
 const GLASS_CSS = `
   .v360-pill {
     position: absolute;
     top: 6px;
     height: calc(100% - 12px);
     border-radius: 18px;
+    /* Gradiente top→bottom para el efecto 3D elevado */
     background: linear-gradient(
-      160deg,
-      rgba(13,26,60,0.97) 0%,
-      rgba(10,20,48,0.96) 50%,
-      rgba(13,26,60,0.97) 100%
+      180deg,
+      rgba(33,44,72,0.88) 0%,
+      rgba(12,22,57,0.94) 100%
     );
-    backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
-    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
-    border: 1px solid rgba(255,255,255,0.38);
+    backdrop-filter: blur(6px) saturate(140%) brightness(1.05);
+    -webkit-backdrop-filter: blur(6px) saturate(140%) brightness(1.05);
+    border: 1px solid rgba(255,255,255,0.52);
     box-shadow:
-      0 6px 24px rgba(13,26,60,0.6),
-      0 2px 8px rgba(0,0,0,0.18),
-      inset 0px 4px 12px rgba(255,255,255,0.22),
-      inset 0px -3px 8px rgba(0,0,0,0.18),
-      inset 2px 0px 6px rgba(255,255,255,0.12);
+      0 8px 28px rgba(12,22,57,0.50),
+      0 2px 8px rgba(0,0,0,0.20),
+      inset 0 1px 0 rgba(255,255,255,0.55),
+      inset 0 -1px 0 rgba(0,0,0,0.30);
     overflow: hidden;
     pointer-events: none;
     transition:
       left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
       width 0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
   }
-  /* Shimmer iridiscente azul→magenta sobre el azul del pill */
+  /* Highlight superior — simula luz viniendo de arriba (efecto lente) */
   .v360-pill::before {
     content: "";
     position: absolute;
-    inset: 0;
+    top: 0; left: 0; right: 0;
+    height: 55%;
     background: linear-gradient(
-      110deg,
-      rgba(99,179,255,0.20) 0%,
-      rgba(168,100,255,0.13) 45%,
-      rgba(255,100,180,0.08) 75%,
-      transparent 100%
+      180deg,
+      rgba(255,255,255,0.16) 0%,
+      rgba(255,255,255,0.0) 100%
     );
-    border-radius: inherit;
+    border-radius: 18px 18px 0 0;
     pointer-events: none;
   }
-  /* Franja especular blanca en canto superior */
+  /* Franja especular nítida en el borde superior */
   .v360-pill::after {
     content: "";
     position: absolute;
     top: 0;
-    left: 8%;
-    right: 8%;
-    height: 2px;
+    left: 10%;
+    right: 10%;
+    height: 1.5px;
     background: linear-gradient(
       to right,
       transparent 0%,
-      rgba(255,255,255,0.9) 30%,
+      rgba(255,255,255,0.92) 35%,
       rgba(255,255,255,1) 50%,
-      rgba(255,255,255,0.9) 70%,
+      rgba(255,255,255,0.92) 65%,
       transparent 100%
     );
-    filter: blur(0.5px);
+    filter: blur(0.3px);
     pointer-events: none;
   }
 `;
