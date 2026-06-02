@@ -380,7 +380,70 @@ export function SwipeRow({
   deleteLabel = "Eliminar",
   bg = "#0A1120",
 }: SwipeRowProps) {
-  const [open, setOpen] = React.useState(false);
+  const slideRef = React.useRef<HTMLDivElement>(null);
+  // Toda la lógica de arrastre vive en refs para evitar re-renders durante el drag
+  const drag = React.useRef<{
+    active: boolean;
+    x0: number;
+    y0: number;
+    off0: number;
+    dir: "h" | "v" | null;
+  }>({ active: false, x0: 0, y0: 0, off0: 0, dir: null });
+  const offRef = React.useRef(0);
+
+  // Ancho de las acciones: Editar(64) + Eliminar(88) = 152 | solo Eliminar = 88
+  const OPEN = onEdit ? -152 : -88;
+
+  /** Mueve el contenido deslizable directo al DOM (sin re-render). */
+  const applyTransform = (px: number, animate: boolean) => {
+    offRef.current = px;
+    if (!slideRef.current) return;
+    slideRef.current.style.transition = animate ? "transform .25s cubic-bezier(.4,0,.2,1)" : "none";
+    slideRef.current.style.transform = `translateX(${px}px)`;
+  };
+
+  const snapTo = (open: boolean) => applyTransform(open ? OPEN : 0, true);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    // Solo botón izquierdo en ratón; cualquier touch
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    drag.current = { active: true, x0: e.clientX, y0: e.clientY, off0: offRef.current, dir: null };
+    applyTransform(offRef.current, false); // apaga transición durante el arrastre
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    const d = drag.current;
+    if (!d.active) return;
+    const dx = e.clientX - d.x0;
+    const dy = e.clientY - d.y0;
+
+    // Esperamos 6 px para determinar dirección del gesto
+    if (!d.dir) {
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      d.dir = Math.abs(dx) >= Math.abs(dy) ? "h" : "v";
+    }
+    if (d.dir === "v") return; // gesto vertical → deja que el scroll nativo actúe
+
+    // Gesto horizontal: seguir el dedo con resistencia al sobre-deslizar
+    const next = Math.min(0, Math.max(OPEN - 24, d.off0 + dx));
+    applyTransform(next, false);
+  };
+
+  const onPointerUp = (e: React.PointerEvent) => {
+    const d = drag.current;
+    if (!d.active) return;
+    d.active = false;
+
+    const dx = e.clientX - d.x0;
+
+    // Si fue un tap (sin gesto horizontal detectado), no hacer nada
+    if (d.dir !== "h") return;
+
+    // Snap: abrir si se arrastró más de 40 px a la izquierda o ya pasó el punto medio
+    const shouldOpen = dx < -40 || offRef.current < OPEN / 2;
+    snapTo(shouldOpen);
+  };
+
   return (
     <div
       style={{
@@ -388,8 +451,16 @@ export function SwipeRow({
         overflow: "hidden",
         borderRadius: 22,
         marginBottom: 10,
-        /* El fondo del wrapper coincide con la card: no aparece blanco al deslizar de más */
         background: bg,
+        // pan-y: el browser maneja el scroll vertical y cede el horizontal a JS
+        touchAction: "pan-y",
+      }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={() => {
+        drag.current.active = false;
+        snapTo(false);
       }}
     >
       {/* Acciones reveladas al deslizar */}
@@ -477,16 +548,9 @@ export function SwipeRow({
           {deleteLabel}
         </button>
       </div>
-      {/* Contenido deslizable */}
-      <div
-        onClick={() => setOpen(o => !o)}
-        style={{
-          transform: open ? "translateX(-152px)" : "translateX(0)",
-          transition: "transform 0.22s cubic-bezier(.4,0,.2,1)",
-          cursor: "pointer",
-          /* Sin background aquí: la card hija ya lo tiene */
-        }}
-      >
+
+      {/* Contenido deslizable — manipulado directo al DOM vía ref */}
+      <div ref={slideRef} style={{ willChange: "transform" }}>
         {children}
       </div>
     </div>
