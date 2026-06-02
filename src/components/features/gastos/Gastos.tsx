@@ -202,6 +202,8 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
       const r = await fb.patch("sueldos", modalSueldo.id, payload);
       if (r) setSueldos(p => p.map(s => (s.id === modalSueldo.id ? r : s)));
     }
+    haptic(modalSueldo === "nuevo" ? "create" : "success");
+    toast.success(modalSueldo === "nuevo" ? "Empleado agregado" : "Sueldo actualizado");
     setModalSueldo(null);
   };
 
