@@ -15,66 +15,25 @@ interface BottomTabBarProps {
   onAddClick: () => void;
 }
 
-// ── CSS del glass — aplicado al pill deslizante, no a los botones ──
+// ── CSS del pill — tinte azul suave sobre fondo blanco ───────────
 const GLASS_CSS = `
   .v360-pill {
     position: absolute;
     top: 6px;
     height: calc(100% - 12px);
     border-radius: 18px;
-    background: linear-gradient(
-      160deg,
-      rgba(255,255,255,0.13) 0%,
-      rgba(255,255,255,0.06) 50%,
-      rgba(255,255,255,0.10) 100%
-    );
-    backdrop-filter: blur(20px) saturate(180%) brightness(1.15);
-    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.15);
-    border: 1px solid rgba(255,255,255,0.42);
+    background: rgba(37,99,235,0.09);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid rgba(37,99,235,0.22);
     box-shadow:
-      0 6px 24px rgba(0,0,0,0.25),
-      0 2px 6px rgba(0,0,0,0.15),
-      inset 0px 4px 12px rgba(255,255,255,0.85),
-      inset 0px -3px 8px rgba(0,0,0,0.12),
-      inset 2px 0px 6px rgba(255,255,255,0.18);
+      0 2px 10px rgba(37,99,235,0.14),
+      inset 0 1px 0 rgba(255,255,255,0.9);
     overflow: hidden;
     pointer-events: none;
-    /* Transicion spring — se mueve hacia el tab tocado */
     transition:
       left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
       width 0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
-  }
-  /* Shimmer iridiscente azul→magenta */
-  .v360-pill::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      110deg,
-      rgba(99,179,255,0.18) 0%,
-      rgba(168,100,255,0.12) 45%,
-      rgba(255,100,180,0.08) 75%,
-      transparent 100%
-    );
-    border-radius: inherit;
-  }
-  /* Franja especular blanca en canto superior */
-  .v360-pill::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 8%;
-    right: 8%;
-    height: 2px;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(255,255,255,0.92) 30%,
-      rgba(255,255,255,1) 50%,
-      rgba(255,255,255,0.92) 70%,
-      transparent 100%
-    );
-    filter: blur(0.4px);
   }
 `;
 
@@ -162,11 +121,10 @@ export function BottomTabBar({
             maxWidth: 480,
             margin: "0 auto",
             pointerEvents: "auto",
-            background: "#2563EB",
-            border: "1px solid rgba(255,255,255,0.22)",
+            background: "#FFFFFF",
+            border: "1px solid rgba(229,231,235,0.9)",
             borderRadius: 28,
-            boxShadow:
-              "0 8px 32px rgba(37,99,235,0.55), 0 2px 12px rgba(37,99,235,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
+            boxShadow: "0 8px 28px rgba(15,23,41,0.12), 0 2px 8px rgba(15,23,41,0.06)",
           }}
         >
           {/* ── Pill deslizante — se mueve entre tabs ── */}
@@ -244,7 +202,7 @@ export function BottomTabBar({
                   gap: 3,
                   background: "transparent",
                   border: "none",
-                  color: active ? "#fff" : "rgba(255,255,255,0.48)",
+                  color: active ? "#2563EB" : "#94A3B8",
                   padding: "6px 4px",
                   minHeight: 48,
                   borderRadius: 18,
