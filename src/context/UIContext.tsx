@@ -134,17 +134,28 @@ export function ToastProvider({ children }: { children?: React.ReactNode }) {
     };
   }, []);
 
+  // Ref para deduplicar: evita apilar el mismo mensaje si el usuario
+  // pulsa Guardar varias veces mientras el error sigue en pantalla.
+  const _active = React.useRef(new Set<string>());
+
   const addToast = useCallback((type: ToastEntry["type"], msg: string) => {
+    const key = `${type}:${msg}`;
+    if (_active.current.has(key)) return; // ya está visible, ignorar
+    _active.current.add(key);
     const id = ++_toastSeq;
     setToasts(t => [...t, { id, type, msg }]);
-    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3800);
+    setTimeout(() => {
+      setToasts(t => t.filter(x => x.id !== id));
+      _active.current.delete(key);
+    }, 3800);
     // ── Sonidos por tipo de notificación ──
     if (type === "success") {
-      // Distingue "guardado" de otros éxitos
       const isSave = /guard|actualiz|restaur|save/i.test(msg);
       if (isSave) soundSave();
       else soundSuccess();
-    } else if (type === "error") soundError();
+    } else if (type === "error" || type === "warn") {
+      soundError();
+    }
   }, []);
 
   const showConfirm = useCallback((payload: ConfirmPayload) => setConfirm(payload), []);
