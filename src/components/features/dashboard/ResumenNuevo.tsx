@@ -136,8 +136,8 @@ function HeroCard({
     <div
       style={{
         position: "relative",
-        margin: "0 -20px 22px",
-        padding: "10px 44px 32px",
+        margin: "-20px -20px 22px",
+        padding: "10px 28px 32px",
         borderBottomLeftRadius: 52,
         borderBottomRightRadius: 52,
         overflow: "hidden",
