@@ -121,6 +121,9 @@ function inp(label: string, key: string, form: any, setForm: any, opts: any = {}
           onChange={e => setForm((f: any) => ({ ...f, [key]: e.target.value }))}
           placeholder={ph}
           style={s}
+          autoCorrect={type === "email" ? "off" : undefined}
+          autoCapitalize={type === "email" ? "none" : undefined}
+          spellCheck={type === "email" ? false : undefined}
         />
       )}
     </div>
