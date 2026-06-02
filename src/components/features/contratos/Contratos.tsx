@@ -226,18 +226,18 @@ function Contratos({
       let r;
       if (modal === "nuevo") {
         try {
-          [r] = await fb.post("contratos", payloadFull);
+          r = await fb.post("contratos", payloadFull);
         } catch (e) {
           console.warn("[Contrato] payloadFull rechazado, usando payloadSimple:", e);
-          [r] = await fb.post("contratos", payloadSimple);
+          r = await fb.post("contratos", payloadSimple);
         }
         if (r) setContratos(p => [...p, { ...r, pagosMeses }]);
       } else {
         try {
-          [r] = await fb.patch("contratos", modal.id, payloadFull);
+          r = await fb.patch("contratos", modal.id, payloadFull);
         } catch (e) {
           console.warn("[Contrato] patch payloadFull rechazado, usando payloadSimple:", e);
-          [r] = await fb.patch("contratos", modal.id, payloadSimple);
+          r = await fb.patch("contratos", modal.id, payloadSimple);
         }
         if (r) setContratos(p => p.map(x => (x.id === modal.id ? { ...r, pagosMeses } : x)));
       }
@@ -290,7 +290,7 @@ function Contratos({
   const togglePagoRapido = async (contrato, key) => {
     const pm = { ...(contrato.pagosMeses || {}), [key]: !(contrato.pagosMeses || {})[key] };
     const pagado = pm[generarMeses(contrato.inicio, contrato.fin)[0]?.key] || false;
-    const [r] = await fb.patch("contratos", contrato.id, { pagosMeses: pm, pagado });
+    const r = await fb.patch("contratos", contrato.id, { pagosMeses: pm, pagado });
     if (r)
       setContratos(p => p.map(x => (x.id === contrato.id ? { ...x, pagosMeses: pm, pagado } : x)));
   };
