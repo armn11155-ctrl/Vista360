@@ -41,10 +41,10 @@ function Splash({ done }: SplashProps) {
     const warmUp = () => unlockAudio().catch(() => {});
     warmUp();
     window.addEventListener("touchstart", warmUp, { once: true, passive: true });
-    window.addEventListener("mousedown",  warmUp, { once: true });
+    window.addEventListener("mousedown", warmUp, { once: true });
     return () => {
       window.removeEventListener("touchstart", warmUp);
-      window.removeEventListener("mousedown",  warmUp);
+      window.removeEventListener("mousedown", warmUp);
     };
   }, []);
 
@@ -56,7 +56,10 @@ function Splash({ done }: SplashProps) {
     const ts = [
       setTimeout(() => setF(1), 150),
       setTimeout(() => setF(2), 650),
-      setTimeout(() => { setF(3); soundSplash(); }, 1300),
+      setTimeout(() => {
+        setF(3);
+        soundSplash();
+      }, 1300),
       setTimeout(() => setF(6), 3200),
       setTimeout(done, 3800),
     ];
