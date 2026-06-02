@@ -35,7 +35,10 @@ const play = (build: (ctx: AudioContext, out: GainNode) => void) => {
       build(ctx, master);
     };
     if (ctx.state === "suspended") {
-      ctx.resume().then(run).catch(() => {});
+      ctx
+        .resume()
+        .then(run)
+        .catch(() => {});
     } else {
       run();
     }
@@ -299,7 +302,7 @@ export const soundMessage = () =>
 
     // Do5 (523 Hz) + Sol5 (784 Hz) con ligero stagger
     const notes = [
-      { f: 523.25, vol: 0.38, start: 0,     decay: 0.45 },
+      { f: 523.25, vol: 0.38, start: 0, decay: 0.45 },
       { f: 783.99, vol: 0.28, start: 0.055, decay: 0.38 },
     ];
 
