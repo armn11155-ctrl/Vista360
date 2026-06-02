@@ -15,25 +15,70 @@ interface BottomTabBarProps {
   onAddClick: () => void;
 }
 
-// ── CSS del pill — tinte azul suave sobre fondo blanco ───────────
+// ── CSS del glass — pill azul oscuro + efectos glass completos ───
+// El pill tiene su propio fondo azul oscuro: el backdrop-filter
+// difumina el blanco de la barra detras, y el shimmer + franja
+// especular blanca contrastan perfectamente sobre el azul.
 const GLASS_CSS = `
   .v360-pill {
     position: absolute;
     top: 6px;
     height: calc(100% - 12px);
     border-radius: 18px;
-    background: rgba(37,99,235,0.09);
-    backdrop-filter: blur(12px) saturate(150%);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
-    border: 1px solid rgba(37,99,235,0.22);
+    background: linear-gradient(
+      160deg,
+      rgba(29,78,216,0.96) 0%,
+      rgba(30,64,175,0.92) 50%,
+      rgba(29,78,216,0.94) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
+    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
+    border: 1px solid rgba(255,255,255,0.38);
     box-shadow:
-      0 2px 10px rgba(37,99,235,0.14),
-      inset 0 1px 0 rgba(255,255,255,0.9);
+      0 6px 24px rgba(29,78,216,0.55),
+      0 2px 8px rgba(0,0,0,0.18),
+      inset 0px 4px 12px rgba(255,255,255,0.22),
+      inset 0px -3px 8px rgba(0,0,0,0.18),
+      inset 2px 0px 6px rgba(255,255,255,0.12);
     overflow: hidden;
     pointer-events: none;
     transition:
       left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
       width 0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+  /* Shimmer iridiscente azul→magenta sobre el azul del pill */
+  .v360-pill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      110deg,
+      rgba(99,179,255,0.20) 0%,
+      rgba(168,100,255,0.13) 45%,
+      rgba(255,100,180,0.08) 75%,
+      transparent 100%
+    );
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  /* Franja especular blanca en canto superior */
+  .v360-pill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 8%;
+    right: 8%;
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255,255,255,0.9) 30%,
+      rgba(255,255,255,1) 50%,
+      rgba(255,255,255,0.9) 70%,
+      transparent 100%
+    );
+    filter: blur(0.5px);
+    pointer-events: none;
   }
 `;
 
@@ -202,7 +247,7 @@ export function BottomTabBar({
                   gap: 3,
                   background: "transparent",
                   border: "none",
-                  color: active ? "#2563EB" : "#94A3B8",
+                  color: active ? "#ffffff" : "#94A3B8",
                   padding: "6px 4px",
                   minHeight: 48,
                   borderRadius: 18,
