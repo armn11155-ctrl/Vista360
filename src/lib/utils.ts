@@ -1,10 +1,4 @@
-import {
-  soundDelete,
-  soundCreate,
-  soundSuccess,
-  soundError,
-  soundSave,
-} from "./sounds";
+import { soundDelete, soundCreate, soundSuccess, soundError, soundSave } from "./sounds";
 
 type ValidationResult = string | null;
 
