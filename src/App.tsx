@@ -15,7 +15,6 @@ import { ShellErrorBoundary } from "./components/shared/ShellErrorBoundary";
 import { AppHeader } from "./components/layout/AppHeader";
 import { BottomTabBar } from "./components/layout/BottomTabBar";
 import { OfflineBanner } from "./components/ui";
-import { Logo360 } from "./components/layout/Logo360";
 import { BTM_ICONS } from "./components/layout/BottomTabIcons";
 import { BOTTOM_TABS_LIST } from "./config/constants";
 import { ProfileView } from "./components/features/profile/ProfileView";
@@ -233,14 +232,9 @@ function AppShell() {
             position: "fixed",
             inset: 0,
             background: T.dark,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             zIndex: 998,
           }}
-        >
-          <Logo360 width={120} />
-        </div>
+        />
       )}
 
       {!splash && authReady && !user && (
