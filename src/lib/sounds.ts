@@ -18,6 +18,9 @@ export const unlockAudio = (): Promise<void> => {
   }
 };
 
+// ── Estado del contexto (útil para saber si hay que esperar un gesto) ──
+export const isAudioReady = (): boolean => !!_ctx && _ctx.state === "running";
+
 const getCtx = (): AudioContext => {
   if (!_ctx || _ctx.state === "closed") {
     _ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
