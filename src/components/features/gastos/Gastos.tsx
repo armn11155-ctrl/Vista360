@@ -196,10 +196,10 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
       pagos: modalSueldo !== "nuevo" ? modalSueldo.pagos || {} : {},
     };
     if (modalSueldo === "nuevo") {
-      const [r] = await fb.post("sueldos", payload);
+      const r = await fb.post("sueldos", payload);
       if (r) setSueldos(p => [...p, r]);
     } else {
-      const [r] = await fb.patch("sueldos", modalSueldo.id, payload);
+      const r = await fb.patch("sueldos", modalSueldo.id, payload);
       if (r) setSueldos(p => p.map(s => (s.id === modalSueldo.id ? r : s)));
     }
     setModalSueldo(null);
