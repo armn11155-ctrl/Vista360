@@ -2,7 +2,6 @@
 // Inspirado en el lenguaje sonoro de Apple: limpio, armónico, tonal.
 
 let _ctx: AudioContext | null = null;
-let _unlocked = false;
 
 // ── Desbloqueo: llamar desde el primer gesto del usuario ──────────
 export const unlockAudio = (): Promise<void> => {
