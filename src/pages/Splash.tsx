@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
-import { soundSplash, unlockAudio } from "../lib/sounds";
+import { isAudioReady, soundSplash, unlockAudio } from "../lib/sounds";
 
 /** Color del splash — debe coincidir con T.dark */
 const SPLASH_BG = "#0D1629";
@@ -12,6 +12,16 @@ interface SplashProps {
 
 function Splash({ done }: SplashProps) {
   const [f, setF] = useState(0);
+
+  // Ref estable para done: el efecto de animación corre UNA sola vez
+  // sin importar si el padre regenera la función.
+  const doneRef = useRef(done);
+  useEffect(() => {
+    doneRef.current = done;
+  }, [done]);
+
+  // Ref para garantizar que el sonido se dispare exactamente una vez
+  const soundFired = useRef(false);
 
   // ── Clava el theme-color al color del splash ──────────────────
   useEffect(() => {
@@ -34,37 +44,55 @@ function Splash({ done }: SplashProps) {
     };
   }, []);
 
-  // ── Pre-calentar AudioContext lo antes posible ────────────────
-  // En iOS PWA, intentar resume() desde el primer gesto del usuario
-  // y también en mount (por si el contexto ya estaba desbloqueado).
+  // ── Desbloqueo de audio + disparo en gesto (iOS / PWA) ───────
+  // En iOS el AudioContext arranca suspendido y SOLO se puede reanudar
+  // desde el call-stack de un gesto del usuario.  Aquí capturamos el
+  // primer touchstart/mousedown, desbloqueamos el contexto y, si el
+  // temporizador ya pasó sin poder tocar, disparamos el sonido ahora.
   useEffect(() => {
-    const warmUp = () => unlockAudio().catch(() => {});
-    warmUp();
-    window.addEventListener("touchstart", warmUp, { once: true, passive: true });
-    window.addEventListener("mousedown", warmUp, { once: true });
+    const onGesture = () => {
+      unlockAudio()
+        .then(() => {
+          if (soundFired.current) return;
+          soundFired.current = true;
+          soundSplash();
+        })
+        .catch(() => {});
+    };
+    window.addEventListener("touchstart", onGesture, { once: true, passive: true });
+    window.addEventListener("mousedown", onGesture, { once: true });
     return () => {
-      window.removeEventListener("touchstart", warmUp);
-      window.removeEventListener("mousedown", warmUp);
+      window.removeEventListener("touchstart", onGesture);
+      window.removeEventListener("mousedown", onGesture);
     };
   }, []);
 
   // ── Animación + sonido ────────────────────────────────────────
-  // El sonido se dispara EXACTAMENTE cuando aparece el logo (t=1300ms)
-  // y tiene una duración de 2.5s para terminar justo cuando acaba el splash
-  // (1300ms + 2500ms = 3800ms).
+  // IMPORTANTE: dependencias vacías [] → los timers se crean UNA sola
+  // vez.  Esto evita que un cambio de referencia en `done` reinicie la
+  // animación y haga que el logo aparezca dos veces.
+  // `step` solo avanza f hacia adelante (Math.max) para que ningún
+  // re-render externo pueda retroceder la animación.
   useEffect(() => {
+    const step = (n: number) => setF(prev => Math.max(prev, n));
+
     const ts = [
-      setTimeout(() => setF(1), 150),
-      setTimeout(() => setF(2), 650),
+      setTimeout(() => step(1), 150),
+      setTimeout(() => step(2), 650),
       setTimeout(() => {
-        setF(3);
-        soundSplash();
+        step(3);
+        // Desktop / contexto ya desbloqueado → suena aquí mismo.
+        // iOS con contexto suspendido → el handler de gesto lo disparará.
+        if (isAudioReady() && !soundFired.current) {
+          soundFired.current = true;
+          soundSplash();
+        }
       }, 1300),
-      setTimeout(() => setF(6), 3200),
-      setTimeout(done, 3800),
+      setTimeout(() => step(6), 3200),
+      setTimeout(() => doneRef.current(), 3800),
     ];
     return () => ts.forEach(clearTimeout);
-  }, [done]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div
