@@ -138,7 +138,57 @@ const DRAWER_ICONS: Record<string, React.ReactNode> = {
 
 
 // ── CSS liquid glass 3D para el botón Archivados ─────────────────
-const ARCHIVE_GLASS_CSS = ;
+const ARCHIVE_GLASS_CSS = `
+  .v360-archive-glass {
+    position: relative;
+    background: linear-gradient(
+      180deg,
+      rgba(33,44,72,0.75) 0%,
+      rgba(14,26,59,0.88) 100%
+    ) !important;
+    backdrop-filter: blur(6px) saturate(140%) brightness(1.05) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(140%) brightness(1.05) !important;
+    border: 1px solid rgba(255,255,255,0.52) !important;
+    box-shadow:
+      0 6px 20px rgba(14,26,59,0.40),
+      0 2px 6px rgba(0,0,0,0.18),
+      inset 0 1px 0 rgba(255,255,255,0.50),
+      inset 0 -1px 0 rgba(0,0,0,0.25) !important;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .v360-archive-glass::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 55%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.0) 100%);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .v360-archive-glass::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1.5px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255,255,255,0.90) 35%,
+      rgba(255,255,255,1) 50%,
+      rgba(255,255,255,0.90) 65%,
+      transparent 100%
+    );
+    filter: blur(0.3px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .v360-archive-glass > * {
+    position: relative;
+    z-index: 1;
+  }
+\`;
 
 function DrawerMenu({
   open,
