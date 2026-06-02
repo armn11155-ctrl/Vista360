@@ -142,17 +142,17 @@ const ARCHIVE_GLASS_CSS = `
     position: relative;
     background: linear-gradient(
       180deg,
-      rgba(33,44,72,0.75) 0%,
-      rgba(14,26,59,0.88) 100%
+      rgba(239,244,255,0.92) 0%,
+      rgba(219,234,254,0.88) 100%
     ) !important;
-    backdrop-filter: blur(6px) saturate(140%) brightness(1.05) !important;
-    -webkit-backdrop-filter: blur(6px) saturate(140%) brightness(1.05) !important;
-    border: 1px solid rgba(255,255,255,0.52) !important;
+    backdrop-filter: blur(6px) saturate(140%) brightness(1.02) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(140%) brightness(1.02) !important;
+    border: 1px solid rgba(37,99,235,0.35) !important;
     box-shadow:
-      0 6px 20px rgba(14,26,59,0.40),
-      0 2px 6px rgba(0,0,0,0.18),
-      inset 0 1px 0 rgba(255,255,255,0.50),
-      inset 0 -1px 0 rgba(0,0,0,0.25) !important;
+      0 6px 20px rgba(37,99,235,0.18),
+      0 2px 6px rgba(37,99,235,0.10),
+      inset 0 1px 0 rgba(255,255,255,0.90),
+      inset 0 -1px 0 rgba(37,99,235,0.10) !important;
     overflow: hidden;
     isolation: isolate;
   }
@@ -161,7 +161,7 @@ const ARCHIVE_GLASS_CSS = `
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 55%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.0) 100%);
+    background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.0) 100%);
     border-radius: inherit;
     pointer-events: none;
     z-index: 0;
@@ -174,9 +174,9 @@ const ARCHIVE_GLASS_CSS = `
     background: linear-gradient(
       to right,
       transparent 0%,
-      rgba(255,255,255,0.90) 35%,
+      rgba(255,255,255,0.95) 35%,
       rgba(255,255,255,1) 50%,
-      rgba(255,255,255,0.90) 65%,
+      rgba(255,255,255,0.95) 65%,
       transparent 100%
     );
     filter: blur(0.3px);
@@ -495,9 +495,9 @@ function DrawerMenu({
               </svg>
             </div>
             <div style={{ flex: 1, textAlign: "left" }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Archivados</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#1D4ED8" }}>Archivados</div>
               {trashCount > 0 && (
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", marginTop: 1 }}>
+                <div style={{ fontSize: 11, color: "#3B82F6", marginTop: 1 }}>
                   {trashCount} elemento{trashCount !== 1 ? "s" : ""} archivados
                 </div>
               )}
