@@ -31,9 +31,9 @@ export function useViewportSetup() {
       }
       setMeta("viewport", "width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no");
       setMeta("apple-mobile-web-app-capable", "yes");
-      // black-translucent: barra translúcida con iconos blancos — compatible con
-      // splash oscuro y headers de color. El app maneja el safe-area-inset-top.
-      // NO sobreescribir theme-color aquí: lo gestiona Splash.tsx al montar
+      // black-translucent: barra translucida con iconos blancos, compatible con
+      // splash oscuro y headers de color. El header maneja env(safe-area-inset-top).
+      // NO sobreescribir theme-color aqui: lo gestionan Splash.tsx al montar
       // y useHeaderShell.ts al navegar entre rutas.
       setMeta("apple-mobile-web-app-status-bar-style", "black-translucent");
       setMeta("apple-mobile-web-app-title", "Vista360");
