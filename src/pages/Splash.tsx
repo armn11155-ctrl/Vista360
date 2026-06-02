@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
 import { soundSplash, unlockAudio } from "../lib/sounds";
@@ -11,11 +11,8 @@ interface SplashProps {
 }
 
 function Splash({ done }: SplashProps) {
-  // f === -1 → esperando primer gesto (pantalla lista pero invisible)
-  // f === 0  → arrancando animación
-  // f >= 1…6 → fases de la animación
-  const [f, setF] = useState(-1);
-  const started = useRef(false);
+  const [f, setF] = useState(0);
+  const chimeFired = useRef(false);
 
   // ── Clava el theme-color al color del splash ──────────────────
   useEffect(() => {
@@ -38,50 +35,48 @@ function Splash({ done }: SplashProps) {
     };
   }, []);
 
-  // ── Arranca la secuencia desde el primer gesto del usuario ────
-  // El gesto desbloquea el AudioContext; el chime se lanza a los
-  // 1300ms exactos, sincronizado con el fade-in del logo.
-  const startSequence = useCallback(() => {
-    if (started.current) return;
-    started.current = true;
-
-    // 1. Desbloquear AudioContext con este mismo gesto
-    unlockAudio().then(() => {
-      // 2. Timers de animación
-      const t1 = setTimeout(() => setF(1), 150); // rings
-      const t2 = setTimeout(() => setF(2), 650); // arcs
-      const t3 = setTimeout(() => {
-        setF(3);
-        soundSplash(); // ← chime exactamente cuando aparece el logo
-      }, 1300);
-      const t4 = setTimeout(() => setF(6), 3200); // fade out
-      const t5 = setTimeout(done, 3800);
-
-      // Limpieza por si se desmonta antes de terminar
-      return () => [t1, t2, t3, t4, t5].forEach(clearTimeout);
-    });
-
-    setF(0); // quitar opacidad 0 del contenedor inmediatamente
+  // ── Animación: arranca inmediatamente, sin esperar gesto ──────
+  useEffect(() => {
+    const ts = [
+      setTimeout(() => setF(1), 150),
+      setTimeout(() => setF(2), 650),
+      setTimeout(() => setF(3), 1300),
+      setTimeout(() => setF(6), 3200),
+      setTimeout(done, 3800),
+    ];
+    return () => ts.forEach(clearTimeout);
   }, [done]);
 
-  // ── En desktop (sin touch) arranca automáticamente ───────────
-  // En mobile el touchstart del propio splash activa startSequence.
+  // ── Chime: se dispara en el primer gesto del usuario.
+  //    Si el usuario toca antes del logo (t<1300ms), suena junto al logo.
+  //    Si toca después, suena en ese instante.
+  //    Si no toca nada (desktop sin interacción), suena igual via mousedown.
   useEffect(() => {
-    const onMouse = () => startSequence();
-    // Dar 80ms para que el touch llegue primero si existe
-    const id = setTimeout(() => {
-      if (!started.current) startSequence();
-    }, 80);
-    window.addEventListener("mousedown", onMouse, { once: true });
-    return () => {
-      clearTimeout(id);
-      window.removeEventListener("mousedown", onMouse);
+    const fire = () => {
+      if (chimeFired.current) return;
+      chimeFired.current = true;
+      unlockAudio().then(soundSplash);
     };
-  }, [startSequence]);
+
+    // Cualquier interacción desbloquea y dispara
+    window.addEventListener("touchstart", fire, { once: true, passive: true });
+    window.addEventListener("mousedown", fire, { once: true });
+    window.addEventListener("keydown", fire, { once: true });
+
+    // Fallback: si a los 1250ms el usuario no tocó nada, intentar igual
+    // (funciona en desktop donde AudioContext puede estar ya desbloqueado)
+    const fallback = setTimeout(fire, 1250);
+
+    return () => {
+      clearTimeout(fallback);
+      window.removeEventListener("touchstart", fire);
+      window.removeEventListener("mousedown", fire);
+      window.removeEventListener("keydown", fire);
+    };
+  }, []);
 
   return (
     <div
-      onTouchStart={startSequence}
       style={{
         position: "fixed",
         top: 0,
@@ -93,10 +88,8 @@ function Splash({ done }: SplashProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        // f === -1: invisible hasta el primer gesto (evita flash antes de audio)
-        opacity: f === -1 ? 0 : f >= 6 ? 0 : 1,
-        transition:
-          f >= 6 ? "opacity .6s cubic-bezier(.4,0,.2,1)" : f >= 0 ? "opacity .15s ease" : "none",
+        opacity: f >= 6 ? 0 : 1,
+        transition: f >= 6 ? "opacity .6s cubic-bezier(.4,0,.2,1)" : "none",
         overflow: "hidden",
       }}
     >
@@ -234,7 +227,7 @@ function Splash({ done }: SplashProps) {
         />
       </svg>
 
-      {/* ─── Arc CCW (outer) ─── */}
+      {/* ─── Arc CCW ─── */}
       <svg
         style={{
           position: "absolute",
