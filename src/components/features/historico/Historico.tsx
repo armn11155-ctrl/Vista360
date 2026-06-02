@@ -209,6 +209,8 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
       };
       const r = await fb.patch("contratos", modal.id, payload);
       if (r) setContratos(p => p.map(x => (x.id === modal.id ? { ...x, ...payload } : x)));
+      haptic("success");
+      toast.success("Contrato actualizado");
       closeModal();
     } catch (e) {
       toast.error("Error al guardar: " + e.message);
