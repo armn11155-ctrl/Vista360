@@ -127,7 +127,6 @@ export function AppHeader({
         <button
           onClick={onDrawerClick}
           aria-label="Abrir menú"
-          className={glassClass}
           style={{
             width: 40,
             height: 40,
