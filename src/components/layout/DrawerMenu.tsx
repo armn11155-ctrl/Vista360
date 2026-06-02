@@ -136,69 +136,6 @@ const DRAWER_ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
-// ── CSS del efecto glass (iguales a 8 Millas / Cyber) ─────────────
-const GLASS_CSS = `
-  .v360-nav-glass {
-    position: relative;
-    background: linear-gradient(
-      160deg,
-      rgba(255,255,255,0.07) 0%,
-      rgba(255,255,255,0.03) 50%,
-      rgba(255,255,255,0.05) 100%
-    );
-    backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
-    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
-    border: 1px solid rgba(255,255,255,0.38) !important;
-    box-shadow:
-      0 6px 24px rgba(0,0,0,0.35),
-      0 2px 6px rgba(0,0,0,0.2),
-      inset 0px 4px 12px rgba(255,255,255,0.8),
-      inset 0px -3px 8px rgba(0,0,0,0.18),
-      inset 2px 0px 6px rgba(255,255,255,0.15);
-    overflow: hidden;
-    isolation: isolate;
-    transition: all 0.2s cubic-bezier(0.25,0.46,0.45,0.94);
-  }
-  /* Shimmer iridiscente azul→magenta */
-  .v360-nav-glass::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      110deg,
-      rgba(99,179,255,0.13) 0%,
-      rgba(168,100,255,0.09) 45%,
-      rgba(255,100,180,0.06) 75%,
-      transparent 100%
-    );
-    border-radius: inherit;
-    pointer-events: none;
-  }
-  /* Franja blanca especular en el canto superior */
-  .v360-nav-glass::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 8%;
-    right: 8%;
-    height: 2px;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(255,255,255,0.9) 30%,
-      rgba(255,255,255,1) 50%,
-      rgba(255,255,255,0.9) 70%,
-      transparent 100%
-    );
-    filter: blur(0.5px);
-    pointer-events: none;
-  }
-  .v360-nav-btn:hover:not(.v360-nav-glass) {
-    background: rgba(255,255,255,0.06) !important;
-    color: rgba(255,255,255,0.8) !important;
-  }
-`;
-
 function DrawerMenu({
   open,
   onClose,
@@ -212,6 +149,7 @@ function DrawerMenu({
   const drawerRef = useRef<HTMLDivElement>(null);
 
   // Focus trap completo: Escape cierra, Tab/Shift+Tab ciclan dentro del drawer.
+  // Al abrir, el foco va automáticamente al primer elemento focusable.
   useEffect(() => {
     if (!open || !drawerRef.current) return;
     const FOCUSABLE_SEL = [
@@ -225,6 +163,7 @@ function DrawerMenu({
     const getFocusable = (): HTMLElement[] =>
       Array.from(drawerRef.current!.querySelectorAll<HTMLElement>(FOCUSABLE_SEL));
 
+    // Enfocar el primer elemento al abrir
     const focusable = getFocusable();
     if (focusable.length) focusable[0].focus();
 
@@ -257,9 +196,6 @@ function DrawerMenu({
 
   return (
     <>
-      {/* Inyectar CSS del glass una sola vez */}
-      <style>{GLASS_CSS}</style>
-
       {open && (
         <div
           aria-hidden="true"
@@ -277,7 +213,6 @@ function DrawerMenu({
           }}
         />
       )}
-
       <div
         ref={drawerRef}
         role="dialog"
@@ -288,13 +223,12 @@ function DrawerMenu({
           top: 0,
           left: 0,
           bottom: 0,
-          width: 280,
-          // Fondo oscuro — necesario para que el glass tenga contraste
-          background: "#0D1629",
+          width: 300,
+          background: T.white,
           zIndex: 2001,
           transform: open ? "translateX(0)" : "translateX(-100%)",
           transition: "transform 0.3s cubic-bezier(.4,0,.2,1)",
-          boxShadow: open ? "4px 0 40px rgba(0,0,0,0.4), 1px 0 0 rgba(255,255,255,0.06)" : "none",
+          boxShadow: open ? "4px 0 32px rgba(0,0,0,0.12)" : "none",
           display: "flex",
           flexDirection: "column",
           paddingTop: "max(20px, env(safe-area-inset-top))",
@@ -302,177 +236,151 @@ function DrawerMenu({
           overflow: "hidden",
         }}
       >
-        {/* ── Logo / Marca ── */}
-        <div
+        {/* ── Perfil de usuario ── */}
+        <button
+          onClick={() => {
+            onTabClick("/perfil");
+            onClose();
+          }}
           style={{
-            padding: "4px 20px 16px",
-            borderBottom: "1px solid rgba(255,255,255,0.07)",
+            padding: "16px 22px 20px",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            touchAction: "manipulation",
+            textAlign: "left",
+            width: "100%",
           }}
         >
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 800,
-              color: "rgba(255,255,255,0.22)",
-              letterSpacing: "2px",
-              textTransform: "uppercase",
-              marginBottom: 10,
-            }}
-          >
-            Vista360
-          </div>
-
-          {/* ── Perfil de usuario ── */}
-          <button
-            onClick={() => {
-              onTabClick("/perfil");
-              onClose();
-            }}
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              padding: "10px 12px",
-              borderRadius: 14,
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              cursor: "pointer",
-              touchAction: "manipulation",
-              textAlign: "left",
-            }}
-          >
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div
               style={{
-                width: 42,
-                height: 42,
+                width: 56,
+                height: 56,
                 borderRadius: "50%",
                 background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 60%, #2A5BD9 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#fff",
+                color: T.white,
                 fontWeight: 800,
-                fontSize: 15,
+                fontSize: 17,
                 flexShrink: 0,
                 letterSpacing: "0.5px",
-                boxShadow: "0 6px 18px rgba(30,58,138,0.45), inset 0 1px 0 rgba(255,255,255,0.2)",
+                boxShadow: "0 10px 24px rgba(30,58,138,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
               }}
             >
               {userInitials}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
-                style={{
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: "rgba(255,255,255,0.92)",
-                  letterSpacing: "-0.2px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
+                style={{ fontSize: 17, fontWeight: 800, color: T.text, letterSpacing: "-0.3px" }}
               >
                 {userName || "—"}
               </div>
-              <div
-                style={{
-                  fontSize: 11.5,
-                  color: "rgba(255,255,255,0.32)",
-                  marginTop: 2,
-                  fontWeight: 500,
-                }}
-              >
+              <div style={{ fontSize: 12.5, color: "#94A3B8", marginTop: 2, fontWeight: 500 }}>
                 8 Millas
               </div>
             </div>
             <svg
-              width="13"
-              height="13"
+              width="14"
+              height="14"
               fill="none"
               viewBox="0 0 24 24"
-              style={{ opacity: 0.28, flexShrink: 0 }}
+              style={{ opacity: 0.32, flexShrink: 0 }}
             >
               <path
                 d="M9 18l6-6-6-6"
-                stroke="#fff"
+                stroke="#0F1729"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </svg>
-          </button>
-        </div>
-
-        {/* ── Label sección ── */}
-        <div
-          style={{
-            fontSize: 9,
-            fontWeight: 800,
-            color: "rgba(255,255,255,0.2)",
-            letterSpacing: "1.8px",
-            textTransform: "uppercase",
-            padding: "14px 20px 6px",
-          }}
-        >
-          Principal
-        </div>
+          </div>
+        </button>
 
         {/* ── Items del menú ── */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "2px 10px 8px" }}>
-          {MENU_DRAWER.map(item => {
+        <div style={{ flex: 1, overflowY: "auto", padding: "4px 14px 8px" }}>
+          {MENU_DRAWER.map((item, idx) => {
             const active = activeTab === item.id;
+            const nextActive =
+              idx < MENU_DRAWER.length - 1 && activeTab === MENU_DRAWER[idx + 1]?.id;
+            const showDivider = idx < MENU_DRAWER.length - 1 && !active && !nextActive;
             return (
-              <button
-                key={item.id}
-                className={`v360-nav-btn${active ? " v360-nav-glass" : ""}`}
-                onClick={() => {
-                  onTabClick(item.id);
-                  onClose();
-                }}
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "9px 14px",
-                  margin: "1px 0",
-                  borderRadius: 10,
-                  background: "transparent",
-                  border: "1px solid transparent",
-                  cursor: "pointer",
-                  touchAction: "manipulation",
-                  transition: "all 0.15s",
-                  color: active ? "#fff" : "rgba(255,255,255,0.45)",
-                }}
-              >
-                {/* Icono */}
-                <span
+              <div key={item.id}>
+                <button
+                  onClick={() => {
+                    onTabClick(item.id);
+                    onClose();
+                  }}
                   style={{
+                    width: "100%",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                    color: "currentColor",
+                    gap: 14,
+                    padding: "10px 12px",
+                    margin: "2px 0",
+                    borderRadius: 16,
+                    background: active
+                      ? "linear-gradient(90deg, #DBE7FF 0%, #ECF2FF 100%)"
+                      : "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    touchAction: "manipulation",
+                    transition: "background 0.18s ease",
                   }}
                 >
-                  {DRAWER_ICONS[item.id]}
-                </span>
-
-                {/* Label */}
-                <span
-                  style={{
-                    fontSize: 13,
-                    fontWeight: active ? 700 : 600,
-                    color: "currentColor",
-                    flex: 1,
-                    textAlign: "left",
-                    letterSpacing: "-0.1px",
-                  }}
-                >
-                  {item.label}
-                </span>
-              </button>
+                  <div
+                    style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 12,
+                      background: active ? T.white : "#F5F7FB",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: active ? T.accent : "#1E3A8A",
+                      flexShrink: 0,
+                      boxShadow: active
+                        ? "0 4px 12px rgba(37,99,235,0.18), inset 0 0 0 1px rgba(37,99,235,0.10)"
+                        : "inset 0 0 0 1px rgba(15,23,41,0.04)",
+                    }}
+                  >
+                    {DRAWER_ICONS[item.id]}
+                  </div>
+                  <span
+                    style={{
+                      fontSize: 16,
+                      fontWeight: active ? 700 : 500,
+                      color: active ? T.accent : "#0F1729",
+                      flex: 1,
+                      textAlign: "left",
+                      letterSpacing: "-0.2px",
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                  <svg
+                    width="14"
+                    height="14"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    style={{ opacity: active ? 0.6 : 0.32, flexShrink: 0 }}
+                  >
+                    <path
+                      d="M9 18l6-6-6-6"
+                      stroke={active ? T.accent : "#0F1729"}
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                {showDivider && (
+                  <div style={{ height: 1, background: "#F1F3F8", margin: "0 18px" }} />
+                )}
+              </div>
             );
           })}
         </div>
@@ -480,16 +388,13 @@ function DrawerMenu({
         {/* ── Footer ── */}
         <div
           style={{
-            padding: "8px 10px 14px",
+            position: "relative",
+            padding: "8px 14px 18px",
             marginTop: "auto",
             flexShrink: 0,
-            borderTop: "1px solid rgba(255,255,255,0.07)",
-            display: "flex",
-            flexDirection: "column",
-            gap: 4,
+            borderTop: "1px solid #F1F3F8",
           }}
         >
-          {/* Archivados */}
           <button
             onClick={() => {
               onClose();
@@ -500,36 +405,52 @@ function DrawerMenu({
               display: "flex",
               alignItems: "center",
               gap: 12,
-              padding: "9px 14px",
-              borderRadius: 10,
-              background: "rgba(239,68,68,0.10)",
-              border: "1px solid rgba(239,68,68,0.18)",
+              padding: "11px 14px",
+              borderRadius: 14,
+              background: "#EFF4FF",
+              border: "1px solid #BFDBFE",
               cursor: "pointer",
               touchAction: "manipulation",
-              color: "rgba(248,113,113,0.85)",
-              transition: "background 0.15s",
             }}
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            <div
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 10,
+                background: T.accent,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
             >
-              <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-              <path d="M10 11v6M14 11v6" />
-            </svg>
-            <span style={{ fontSize: 13, fontWeight: 700, flex: 1, textAlign: "left" }}>
-              Archivados
-            </span>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <path d="M10 11v6M14 11v6" />
+              </svg>
+            </div>
+            <div style={{ flex: 1, textAlign: "left" }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#1D4ED8" }}>Archivados</div>
+              {trashCount > 0 && (
+                <div style={{ fontSize: 11, color: "#3B82F6", marginTop: 1 }}>
+                  {trashCount} elemento{trashCount !== 1 ? "s" : ""} archivados
+                </div>
+              )}
+            </div>
             {trashCount > 0 && (
               <span
                 style={{
-                  background: "rgba(239,68,68,0.8)",
+                  background: T.accent,
                   color: "#fff",
                   borderRadius: 99,
                   padding: "2px 8px",
