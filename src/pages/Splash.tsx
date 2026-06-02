@@ -12,7 +12,6 @@ interface SplashProps {
 
 function Splash({ done }: SplashProps) {
   const [f, setF] = useState(0);
-  const chimeFired = useRef(false);
 
   // ── Clava el theme-color al color del splash ──────────────────
   useEffect(() => {
@@ -35,45 +34,34 @@ function Splash({ done }: SplashProps) {
     };
   }, []);
 
-  // ── Animación: arranca inmediatamente, sin esperar gesto ──────
+  // ── Pre-calentar AudioContext lo antes posible ────────────────
+  // En iOS PWA, intentar resume() desde el primer gesto del usuario
+  // y también en mount (por si el contexto ya estaba desbloqueado).
+  useEffect(() => {
+    const warmUp = () => unlockAudio().catch(() => {});
+    warmUp();
+    window.addEventListener("touchstart", warmUp, { once: true, passive: true });
+    window.addEventListener("mousedown",  warmUp, { once: true });
+    return () => {
+      window.removeEventListener("touchstart", warmUp);
+      window.removeEventListener("mousedown",  warmUp);
+    };
+  }, []);
+
+  // ── Animación + sonido ────────────────────────────────────────
+  // El sonido se dispara EXACTAMENTE cuando aparece el logo (t=1300ms)
+  // y tiene una duración de 2.5s para terminar justo cuando acaba el splash
+  // (1300ms + 2500ms = 3800ms).
   useEffect(() => {
     const ts = [
       setTimeout(() => setF(1), 150),
       setTimeout(() => setF(2), 650),
-      setTimeout(() => setF(3), 1300),
+      setTimeout(() => { setF(3); soundSplash(); }, 1300),
       setTimeout(() => setF(6), 3200),
       setTimeout(done, 3800),
     ];
     return () => ts.forEach(clearTimeout);
   }, [done]);
-
-  // ── Chime: se dispara en el primer gesto del usuario.
-  //    Si el usuario toca antes del logo (t<1300ms), suena junto al logo.
-  //    Si toca después, suena en ese instante.
-  //    Si no toca nada (desktop sin interacción), suena igual via mousedown.
-  useEffect(() => {
-    const fire = () => {
-      if (chimeFired.current) return;
-      chimeFired.current = true;
-      unlockAudio().then(soundSplash);
-    };
-
-    // Cualquier interacción desbloquea y dispara
-    window.addEventListener("touchstart", fire, { once: true, passive: true });
-    window.addEventListener("mousedown", fire, { once: true });
-    window.addEventListener("keydown", fire, { once: true });
-
-    // Fallback: si a los 1250ms el usuario no tocó nada, intentar igual
-    // (funciona en desktop donde AudioContext puede estar ya desbloqueado)
-    const fallback = setTimeout(fire, 1250);
-
-    return () => {
-      clearTimeout(fallback);
-      window.removeEventListener("touchstart", fire);
-      window.removeEventListener("mousedown", fire);
-      window.removeEventListener("keydown", fire);
-    };
-  }, []);
 
   return (
     <div
