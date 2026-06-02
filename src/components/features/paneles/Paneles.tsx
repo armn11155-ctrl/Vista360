@@ -303,12 +303,12 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
     .forEach(c => {
       const cur = carasMap.get(c.panel_id) ?? { A: false, B: false };
       // Contratos legacy sin cara ocupan todas las caras del panel
-      if (!c.cara || c.cara === 'A') cur.A = true;
-      if (!c.cara || c.cara === 'B') cur.B = true;
+      if (!c.cara || c.cara === "A") cur.A = true;
+      if (!c.cara || c.cara === "B") cur.B = true;
       carasMap.set(c.panel_id, cur);
     });
 
-  const libres   = paneles.filter(p => !carasMap.has(p.id)).length;
+  const libres = paneles.filter(p => !carasMap.has(p.id)).length;
   const ocupados = paneles.filter(p => carasMap.has(p.id)).length;
   const { paginated, page, setPage, totalPages, total, pageSize } = usePagination(paneles, 12);
 
@@ -700,4 +700,3 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
 }
 
 export default Paneles;
-

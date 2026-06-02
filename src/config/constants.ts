@@ -45,16 +45,9 @@ export const CAT_PROVE = [
 ];
 // ── Tipos de panel y número de caras ──────────────────────────────────
 /** Tipos de panel disponibles */
-export const TIPOS_PANEL = [
-  "Unipolar",
-  "Mural",
-  "Valla",
-  "Led",
-  "Tótem",
-  "Otro",
-] as const;
+export const TIPOS_PANEL = ["Unipolar", "Mural", "Valla", "Led", "Tótem", "Otro"] as const;
 
-export type TipoPanel = typeof TIPOS_PANEL[number] | string;
+export type TipoPanel = (typeof TIPOS_PANEL)[number] | string;
 
 /**
  * Retorna el número de caras (faces) que tiene un panel según su tipo.
@@ -89,4 +82,3 @@ export const ALLOWED_EMAILS: string[] = (import.meta.env.VITE_ALLOWED_EMAILS ?? 
   .split(",")
   .map((e: string) => e.trim())
   .filter(Boolean);
-

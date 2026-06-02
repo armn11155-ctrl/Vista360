@@ -84,7 +84,15 @@ function Contratos({
   const closeBackdropRef = useRef(false);
   const modalOpenedAt = useRef(0);
   const sheetTouchedAt = useRef(0);
-  const emptyC = { panel_id: "", cliente_id: "", cara: "", inicio: "", fin: "", monto: "", pagosMeses: {} };
+  const emptyC = {
+    panel_id: "",
+    cliente_id: "",
+    cara: "",
+    inicio: "",
+    fin: "",
+    monto: "",
+    pagosMeses: {},
+  };
   const [form, setForm] = useState(emptyC);
 
   // Generar lista de meses entre dos fechas
@@ -1815,4 +1823,3 @@ const ICN = {
 // ── CRM ──────────────────────────────────────────────────────────
 
 export default Contratos;
-

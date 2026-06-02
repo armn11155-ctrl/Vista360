@@ -18,7 +18,7 @@ export interface PanelCardProps {
  */
 export function PanelCard({ panel: p, carasOcupadas, onEdit, onDelete }: PanelCardProps) {
   const numCaras = getCarasPanel(p.tipo);
-  const ocupado = numCaras === 2 ? (carasOcupadas.A || carasOcupadas.B) : carasOcupadas.A;
+  const ocupado = numCaras === 2 ? carasOcupadas.A || carasOcupadas.B : carasOcupadas.A;
   return (
     <div
       style={{
@@ -108,30 +108,45 @@ export function PanelCard({ panel: p, carasOcupadas, onEdit, onDelete }: PanelCa
           <div style={{ display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
             {numCaras === 2 ? (
               <>
-                <div style={{
-                  padding: "4px 10px", borderRadius: 999, fontSize: 12, fontWeight: 700,
-                  border: "1.5px solid #3B82F6",
-                  background: carasOcupadas.A ? "#3B82F6" : "transparent",
-                  color: carasOcupadas.A ? "#fff" : "#3B82F6",
-                }}>
+                <div
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: 999,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    border: "1.5px solid #3B82F6",
+                    background: carasOcupadas.A ? "#3B82F6" : "transparent",
+                    color: carasOcupadas.A ? "#fff" : "#3B82F6",
+                  }}
+                >
                   Cara A {carasOcupadas.A ? "·Ocupada" : "·Libre"}
                 </div>
-                <div style={{
-                  padding: "4px 10px", borderRadius: 999, fontSize: 12, fontWeight: 700,
-                  border: "1.5px solid #3B82F6",
-                  background: carasOcupadas.B ? "#3B82F6" : "transparent",
-                  color: carasOcupadas.B ? "#fff" : "#3B82F6",
-                }}>
+                <div
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: 999,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    border: "1.5px solid #3B82F6",
+                    background: carasOcupadas.B ? "#3B82F6" : "transparent",
+                    color: carasOcupadas.B ? "#fff" : "#3B82F6",
+                  }}
+                >
                   Cara B {carasOcupadas.B ? "·Ocupada" : "·Libre"}
                 </div>
               </>
             ) : (
-              <div style={{
-                padding: "6px 14px", borderRadius: 999, fontSize: 13, fontWeight: 700,
-                border: "1.5px solid #3B82F6",
-                background: ocupado ? "#3B82F6" : "transparent",
-                color: ocupado ? "#fff" : "#3B82F6",
-              }}>
+              <div
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: 999,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  border: "1.5px solid #3B82F6",
+                  background: ocupado ? "#3B82F6" : "transparent",
+                  color: ocupado ? "#fff" : "#3B82F6",
+                }}
+              >
                 {ocupado ? "Ocupado" : "Libre"}
               </div>
             )}
@@ -294,4 +309,3 @@ export function PanelCard({ panel: p, carasOcupadas, onEdit, onDelete }: PanelCa
     </div>
   );
 }
-

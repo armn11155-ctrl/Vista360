@@ -375,7 +375,14 @@ function DrawerMenu({
               >
                 {userName || "—"}
               </div>
-              <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.32)", marginTop: 2, fontWeight: 500 }}>
+              <div
+                style={{
+                  fontSize: 11.5,
+                  color: "rgba(255,255,255,0.32)",
+                  marginTop: 2,
+                  fontWeight: 500,
+                }}
+              >
                 8 Millas
               </div>
             </div>

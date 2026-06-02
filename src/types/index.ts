@@ -84,7 +84,7 @@ export interface Contrato {
   cliente_id: string;
   /** Cara del panel: 'A' | 'B' para unipolares (2 caras), null para murales (1 cara).
    *  Contratos legacy sin este campo se tratan como que ocupan todas las caras. */
-  cara?: 'A' | 'B' | null;
+  cara?: "A" | "B" | null;
   inicio: string;
   fin: string;
   monto: number;
@@ -186,4 +186,3 @@ export interface AppSetters {
   setGastos: React.Dispatch<React.SetStateAction<Gasto[]>>;
   setProveedores: React.Dispatch<React.SetStateAction<Proveedor[]>>;
 }
-

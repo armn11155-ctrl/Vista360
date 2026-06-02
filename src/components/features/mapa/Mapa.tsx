@@ -116,10 +116,17 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
   useEffect(() => {
     if (!leafletReady || !mapRef.current || leafletRef.current) return;
     const L = window.L;
-    const map = L.map(mapRef.current, { center: PERU_CENTER, zoom: 5, zoomControl: false, zoomSnap: 0.5, wheelPxPerZoomLevel: 80 });
+    const map = L.map(mapRef.current, {
+      center: PERU_CENTER,
+      zoom: 5,
+      zoomControl: false,
+      zoomSnap: 0.5,
+      wheelPxPerZoomLevel: 80,
+    });
     L.control.zoom({ position: "bottomright" }).addTo(map);
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
       subdomains: "abcd",
       maxZoom: 20,
     }).addTo(map);
