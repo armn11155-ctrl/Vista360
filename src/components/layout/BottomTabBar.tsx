@@ -27,18 +27,18 @@ const GLASS_CSS = `
     /* Interior limpio — navy oscuro como cristal tintado */
     background: rgba(14, 26, 59, 0.90);
 
-    /* Cuerpo del aro — tono medio entre el oscuro exterior y la luz interior */
-    border: 1.5px solid rgba(140, 155, 185, 0.32);
+    /* Aro ultra-fino — 0.5px = hairline en pantalla retina/OLED */
+    border: 0.5px solid rgba(140, 155, 185, 0.18);
 
     box-shadow:
-      /* 1. Anillo oscuro exterior — el aro "sobresale" del fondo blanco */
-      0 0 0 1px rgba(0, 0, 0, 0.55),
-      /* 2. Luz cara interior superior — 1 px exacto, no se expande */
-      inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      /* 1. Hairline oscuro exterior — define silueta sin engrosar */
+      0 0 0 0.5px rgba(0, 0, 0, 0.42),
+      /* 2. Luz cara interior superior — 1 px exacto */
+      inset 0 1px 0 rgba(255, 255, 255, 0.80),
       /* 3. Reflejo cara interior inferior — 1 px exacto */
-      inset 0 -1px 0 rgba(255, 255, 255, 0.60),
-      /* 4. Sombra de elevacion — solo profundidad */
-      0 4px 18px rgba(14, 26, 59, 0.35);
+      inset 0 -1px 0 rgba(255, 255, 255, 0.52),
+      /* 4. Sombra suave de elevacion */
+      0 4px 14px rgba(14, 26, 59, 0.28);
 
     transition:
       left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
