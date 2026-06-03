@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
@@ -9,6 +9,7 @@ import { ALLOWED_EMAILS } from "./config/constants";
 import { ToastProvider } from "./context/UIContext";
 import { AppProvider } from "./context/AppContext";
 import { useAppShell } from "./hooks/useAppShell";
+import { useSwipeNav } from "./hooks/useSwipeNav";
 import { useViewportSetup } from "./hooks/useViewportSetup";
 import { prefetchAllTabs, AppRouter } from "./components/layout/AppRouter";
 import { ShellErrorBoundary } from "./components/shared/ShellErrorBoundary";
@@ -37,6 +38,18 @@ interface AuthenticatedShellProps {
 
 function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
   const shell = useAppShell(user, onLogout);
+
+  // ── Swipe horizontal para cambiar de pestaña ──────────────────
+  useSwipeNav({
+    targetRef: shell.scrollRef as React.RefObject<HTMLElement>,
+    onNavigate: shell.handleTabClick,
+    disabled:
+      shell.anyModalOpen  ||
+      shell.showProfile   ||
+      shell.drawerOpen    ||
+      shell.notifOpen     ||
+      shell.globalSearch,
+  });
 
   return (
     <AppProvider data={shell.appData} setters={shell.appSetters} derived={shell.appDerived}>
