@@ -25,7 +25,7 @@ const GLASS_BTN_CSS = `
       border-box  → gradiente del aro: blanco arriba, oscuro abajo
     */
     background:
-      rgba(255, 255, 255, 0.07) padding-box,
+      linear-gradient(rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.07)) padding-box,
       linear-gradient(
         180deg,
         rgba(255, 255, 255, 0.78) 0%,
