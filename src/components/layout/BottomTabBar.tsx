@@ -15,7 +15,11 @@ interface BottomTabBarProps {
   onAddClick: () => void;
 }
 
-// ── CSS cristal con borde 3D — [oscuro]→[aro]→[luz]→[interior limpio]
+// ── CSS cristal líquido — borde con gradiente 3D real ────────────
+// Técnica: background dual padding-box / border-box
+//   El borde NO tiene un color plano — tiene un degradado que va
+//   de blanco brillante (arriba, donde pega la luz) a oscuro
+//   (abajo, en sombra). Eso le da volumen físico al aro.
 const GLASS_CSS = `
   .v360-pill {
     position: absolute;
@@ -24,21 +28,32 @@ const GLASS_CSS = `
     border-radius: 18px;
     pointer-events: none;
 
-    /* Interior limpio — navy oscuro como cristal tintado */
-    background: rgba(14, 26, 59, 0.90);
+    /*
+      padding-box → color del interior (navy limpio)
+      border-box  → gradiente del aro: luz arriba, sombra abajo
+    */
+    background:
+      rgba(14, 26, 59, 0.90) padding-box,
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.82) 0%,
+        rgba(160, 185, 220, 0.42) 28%,
+        rgba(40,  65, 115, 0.22) 62%,
+        rgba(0,   0,   0,  0.52) 100%
+      ) border-box;
 
-    /* Aro ultra-fino — 0.5px = hairline en pantalla retina/OLED */
-    border: 0.5px solid rgba(140, 155, 185, 0.18);
+    /* Borde transparente — el gradiente pinta el aro */
+    border: 1.5px solid transparent;
 
     box-shadow:
-      /* 1. Hairline oscuro exterior — define silueta sin engrosar */
-      0 0 0 0.5px rgba(0, 0, 0, 0.42),
-      /* 2. Luz cara interior superior — 1 px exacto */
-      inset 0 1px 0 rgba(255, 255, 255, 0.80),
-      /* 3. Reflejo cara interior inferior — 1 px exacto */
-      inset 0 -1px 0 rgba(255, 255, 255, 0.52),
-      /* 4. Sombra suave de elevacion */
-      0 4px 14px rgba(14, 26, 59, 0.28);
+      /* Hairline oscuro exterior — silueta y profundidad extra */
+      0 0 0 0.5px rgba(0, 0, 0, 0.40),
+      /* Luz exacta 1px en la cara interior superior */
+      inset 0 1px 0 rgba(255, 255, 255, 0.82),
+      /* Reflejo exacto 1px en la cara interior inferior */
+      inset 0 -1px 0 rgba(255, 255, 255, 0.50),
+      /* Sombra de elevación */
+      0 4px 14px rgba(14, 26, 59, 0.26);
 
     transition:
       left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1),

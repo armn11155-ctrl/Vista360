@@ -15,26 +15,37 @@ interface AppHeaderProps {
   showProfile?: boolean;
 }
 
-// ── CSS cristal con borde 3D para botones del header oscuro ─────
+// ── CSS cristal líquido — borde con gradiente 3D real ────────────
 const GLASS_BTN_CSS = `
   .v360-hdr-glass {
     position: relative;
 
-    /* Interior limpio — casi invisible sobre fondo oscuro */
-    background: rgba(255, 255, 255, 0.07) !important;
+    /*
+      padding-box → interior casi transparente (cristal limpio)
+      border-box  → gradiente del aro: blanco arriba, oscuro abajo
+    */
+    background:
+      rgba(255, 255, 255, 0.07) padding-box,
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.78) 0%,
+        rgba(160, 185, 220, 0.38) 28%,
+        rgba(50,  75, 125, 0.18) 62%,
+        rgba(0,   0,   0,  0.48) 100%
+      ) border-box !important;
 
-    /* Aro ultra-fino — 0.5px = hairline en pantalla retina/OLED */
-    border: 0.5px solid rgba(155, 170, 200, 0.22) !important;
+    /* Borde transparente — el gradiente pinta el aro */
+    border: 1.5px solid transparent !important;
 
     box-shadow:
-      /* 1. Hairline oscuro exterior — define silueta sin engrosar */
-      0 0 0 0.5px rgba(0, 0, 0, 0.52),
-      /* 2. Luz cara interior superior — 1 px exacto */
-      inset 0 1px 0 rgba(255, 255, 255, 0.85),
-      /* 3. Reflejo cara interior inferior — 1 px exacto */
-      inset 0 -1px 0 rgba(255, 255, 255, 0.58),
-      /* 4. Sombra suave de elevacion */
-      0 3px 10px rgba(0, 0, 0, 0.22) !important;
+      /* Hairline oscuro exterior */
+      0 0 0 0.5px rgba(0, 0, 0, 0.46),
+      /* Luz exacta 1px cara interior superior */
+      inset 0 1px 0 rgba(255, 255, 255, 0.84),
+      /* Reflejo exacto 1px cara interior inferior */
+      inset 0 -1px 0 rgba(255, 255, 255, 0.54),
+      /* Sombra de elevación */
+      0 3px 10px rgba(0, 0, 0, 0.20) !important;
 
     overflow: hidden;
     isolation: isolate;
