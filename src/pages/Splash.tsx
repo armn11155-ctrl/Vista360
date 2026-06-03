@@ -3,7 +3,7 @@ import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
 import { isAudioReady, soundSplash, unlockAudio } from "../lib/sounds";
 
-/** Color del splash — debe coincidir con T.dark */
+/** Debe coincidir con T.dark */
 const SPLASH_BG = "#0D1629";
 
 interface SplashProps {
@@ -11,16 +11,14 @@ interface SplashProps {
 }
 
 function Splash({ done }: SplashProps) {
-  const [f, setF] = useState(0);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [logoVisible, setLogoVisible]       = useState(false);
+  const [subtitleVisible, setSubtitleVisible] = useState(false);
+  const [fadeOut, setFadeOut]               = useState(false);
 
-  // Ref estable para done: el efecto de animación corre UNA sola vez
-  // sin importar si el padre regenera la función.
-  const doneRef = useRef(done);
-  useEffect(() => {
-    doneRef.current = done;
-  }, [done]);
+  const doneRef     = useRef(done);
+  useEffect(() => { doneRef.current = done; }, [done]);
 
-  // Ref para garantizar que el sonido se dispare exactamente una vez
   const soundFired = useRef(false);
 
   // ── Clava el theme-color al color del splash ──────────────────
@@ -45,10 +43,6 @@ function Splash({ done }: SplashProps) {
   }, []);
 
   // ── Desbloqueo de audio + disparo en gesto (iOS / PWA) ───────
-  // En iOS el AudioContext arranca suspendido y SOLO se puede reanudar
-  // desde el call-stack de un gesto del usuario.  Aquí capturamos el
-  // primer touchstart/mousedown, desbloqueamos el contexto y, si el
-  // temporizador ya pasó sin poder tocar, disparamos el sonido ahora.
   useEffect(() => {
     const onGesture = () => {
       unlockAudio()
@@ -60,257 +54,262 @@ function Splash({ done }: SplashProps) {
         .catch(() => {});
     };
     window.addEventListener("touchstart", onGesture, { once: true, passive: true });
-    window.addEventListener("mousedown", onGesture, { once: true });
+    window.addEventListener("mousedown",  onGesture, { once: true });
     return () => {
       window.removeEventListener("touchstart", onGesture);
-      window.removeEventListener("mousedown", onGesture);
+      window.removeEventListener("mousedown",  onGesture);
     };
   }, []);
 
-  // ── Animación + sonido ────────────────────────────────────────
-  // IMPORTANTE: dependencias vacías [] → los timers se crean UNA sola
-  // vez.  Esto evita que un cambio de referencia en `done` reinicie la
-  // animación y haga que el logo aparezca dos veces.
-  // `step` solo avanza f hacia adelante (Math.max) para que ningún
-  // re-render externo pueda retroceder la animación.
+  // ── Animación canvas + timers ─────────────────────────────────
+  // Dependencias vacías [] → corre UNA sola vez. Accedemos a done
+  // exclusivamente a través de doneRef para no reiniciar la animación.
   useEffect(() => {
-    const step = (n: number) => setF(prev => Math.max(prev, n));
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+    let animId: number;
 
-    const ts = [
-      setTimeout(() => step(1), 150),
-      setTimeout(() => step(2), 650),
-      setTimeout(() => {
-        step(3);
-        // Desktop / contexto ya desbloqueado → suena aquí mismo.
-        // iOS con contexto suspendido → el handler de gesto lo disparará.
-        if (isAudioReady() && !soundFired.current) {
-          soundFired.current = true;
-          soundSplash();
+    const resize = () => {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    /* ── Líneas ────────────────────────────────────────────────── */
+    const N = 26;
+    // Seed fija: generamos todo UNA sola vez al montar
+    const lines = Array.from({ length: N }, (_, i) => ({
+      yRatio: i / (N - 1),
+      thick : Math.random() < 0.22 ? 1.35 : 0.6,
+      alpha : 0.07 + Math.random() * 0.24,
+      // Retraso escalonado: 0 → ~850 ms
+      delay : i * 32 + Math.random() * 50,
+      // Dos tonos de azul del tema (#2563EB accent, #60A5FA blue-400)
+      hue   : Math.random() < 0.65
+        ? ([37,  99, 235] as [number, number, number])  // blue-600
+        : ([96, 165, 250] as [number, number, number]), // blue-400
+      dots  : (() => {
+        const d: number[] = [];
+        if (Math.random() < 0.52) d.push(0.07 + Math.random() * 0.30);
+        if (Math.random() < 0.34) d.push(0.58 + Math.random() * 0.33);
+        return d;
+      })(),
+    }));
+
+    /* ── Timing ────────────────────────────────────────────────── */
+    // Grow ends: T_GROW + last_delay + 50 ≈ 800+850+50 = 1700 ms
+    // Hold ends: 1700+100 = 1800 ms
+    // Compress:  1800 → 2600 ms (800 ms)
+    //   logo at: 1800 + 800*0.35 ≈ 2080 ms
+    //   sub  at: 1800 + 800*0.55 ≈ 2240 ms
+    // Fade at:   2600 + 700      = 3300 ms
+    // Done at:   2600 + 1200     = 3800 ms  ← igual que la versión anterior
+    const T_GROW     = 800;
+    const T_HOLD     = 100;
+    const T_COMPRESS = 800;
+    const LAST_DELAY = lines[N - 1].delay;
+
+    const eOut = (t: number) => 1 - (1 - t) ** 3;
+    const eIO  = (t: number) =>
+      t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
+
+    type Phase = "grow" | "hold" | "compress" | "done";
+    let phase      : Phase = "grow";
+    let phaseStart = 0;
+    const flags = { logo: false, sub: false, sound: false, fade: false, done: false };
+
+    /* ── Render loop ───────────────────────────────────────────── */
+    function draw(ts: number) {
+      if (!phaseStart) phaseStart = ts;
+      const el = ts - phaseStart;
+      const W  = canvas!.width, H = canvas!.height;
+      const cx = W / 2,         cy = H / 2;
+
+      // Fondo base
+      ctx.fillStyle = SPLASH_BG;
+      ctx.fillRect(0, 0, W, H);
+
+      // Líneas de contabilidad estáticas (muy sutiles)
+      const lStep = Math.max(Math.floor(H / 34), 18);
+      ctx.lineWidth   = 0.5;
+      ctx.strokeStyle = "rgba(37,99,235,0.028)";
+      for (let y = lStep; y < H; y += lStep) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      // Líneas animadas
+      lines.forEach(line => {
+        const baseY = line.yRatio * H;
+        let sx: number, ex: number, ly: number, a: number;
+
+        if (phase === "grow") {
+          const le = el - line.delay;
+          if (le <= 0) return;
+          const t = Math.min(le / T_GROW, 1);
+          sx = 0; ex = eOut(t) * (W + 80); ly = baseY; a = line.alpha;
+
+        } else if (phase === "hold") {
+          sx = 0; ex = W + 80; ly = baseY; a = line.alpha;
+
+        } else if (phase === "compress") {
+          const t  = Math.min(el / T_COMPRESS, 1);
+          const et = eIO(t);
+          // Bordes convergen al centro horizontalmente
+          sx = et * (cx - 60);
+          ex = W + 80 - et * (W + 80 - cx - 60);
+          // Derive vertical suave hacia cy
+          ly = baseY - (baseY - cy) * et * 0.21;
+          // Desvanecimiento al final
+          a  = line.alpha * (et > 0.62 ? 1 - (et - 0.62) / 0.38 : 1);
+
+        } else { return; }
+
+        if (ex <= sx || a < 0.004) return;
+
+        const [r, g, b] = line.hue;
+        ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
+        ctx.lineWidth   = line.thick;
+        ctx.beginPath(); ctx.moveTo(sx, ly); ctx.lineTo(ex, ly); ctx.stroke();
+
+        // Puntos de acento
+        if (a > 0.025) {
+          line.dots.forEach(ratio => {
+            const dx = sx + (ex - sx) * ratio;
+            ctx.fillStyle = `rgba(147,197,253,${Math.min(a * 2.2, 0.52)})`;
+            ctx.beginPath(); ctx.arc(dx, ly, 2.7, 0, Math.PI * 2); ctx.fill();
+          });
         }
-      }, 1300),
-      setTimeout(() => step(6), 3200),
-      setTimeout(() => doneRef.current(), 3800),
-    ];
-    return () => ts.forEach(clearTimeout);
+      });
+
+      // Viñeta radial
+      const vig = ctx.createRadialGradient(cx, cy, H * 0.04, cx, cy, H * 0.82);
+      vig.addColorStop(0, "rgba(0,0,0,0)");
+      vig.addColorStop(1, "rgba(0,0,0,0.45)");
+      ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
+
+      // Halo azul al comprimir
+      if (phase === "compress" || phase === "done") {
+        const ct = phase === "done" ? 1 : Math.min(el / T_COMPRESS, 1);
+        const ga = eIO(ct) * 0.09;
+        const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(W, H) * 0.38);
+        glow.addColorStop(0, `rgba(37,99,235,${ga})`);
+        glow.addColorStop(1, "rgba(37,99,235,0)");
+        ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+      }
+
+      /* ── Transiciones de fase ────────────────────────────────── */
+      if (phase === "grow" && el > T_GROW + LAST_DELAY + 50) {
+        phase = "hold"; phaseStart = ts;
+
+      } else if (phase === "hold" && el > T_HOLD) {
+        phase = "compress"; phaseStart = ts;
+        // Sonido al iniciar compresión (contexto ya puede estar desbloqueado)
+        if (isAudioReady() && !flags.sound) {
+          flags.sound = true; soundFired.current = true; soundSplash();
+        }
+
+      } else if (phase === "compress") {
+        const ct = el / T_COMPRESS;
+        if (ct > 0.35 && !flags.logo) { flags.logo = true; setLogoVisible(true);     }
+        if (ct > 0.55 && !flags.sub)  { flags.sub  = true; setSubtitleVisible(true); }
+        if (ct >= 1)                   { phase = "done"; phaseStart = ts;             }
+
+      } else if (phase === "done") {
+        if (el > 700  && !flags.fade) { flags.fade = true; setFadeOut(true);       }
+        if (el > 1200 && !flags.done) { flags.done = true; doneRef.current();      }
+      }
+
+      animId = requestAnimationFrame(draw);
+    }
+
+    animId = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", resize);
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* ── JSX ─────────────────────────────────────────────────────── */
   return (
     <div
       style={{
-        position: "fixed",
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        zIndex: 999,
-        background: T.dark,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        opacity: f >= 6 ? 0 : 1,
-        transition: f >= 6 ? "opacity .6s cubic-bezier(.4,0,.2,1)" : "none",
-        overflow: "hidden",
+        position : "fixed",
+        inset    : 0,
+        zIndex   : 999,
+        background: SPLASH_BG,
+        overflow : "hidden",
+        opacity  : fadeOut ? 0 : 1,
+        transition: fadeOut ? "opacity 0.6s cubic-bezier(.4,0,.2,1)" : "none",
       }}
     >
-      <style>{`
-        @keyframes spArcLoop{0%{transform:translate(-50%,-50%) rotate(0)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
-        @keyframes spArcLoopRev{0%{transform:translate(-50%,-50%) rotate(0)}100%{transform:translate(-50%,-50%) rotate(-360deg)}}
-        @keyframes spGlowPulse{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}
-        @keyframes spRingPulse{0%,100%{opacity:.18;transform:translate(-50%,-50%) scale(1)}50%{opacity:.42;transform:translate(-50%,-50%) scale(1.04)}}
-        @keyframes spStarTwinkle{0%,100%{opacity:.15}50%{opacity:.55}}
-      `}</style>
+      {/* Canvas de líneas */}
+      <canvas
+        ref={canvasRef}
+        style={{ position: "absolute", inset: 0, display: "block" }}
+      />
 
-      {/* ─── Tiny twinkling dots ─── */}
-      {[
-        { x: 18, y: 22, d: 0 },
-        { x: 82, y: 14, d: 1.5 },
-        { x: 88, y: 78, d: 0.8 },
-        { x: 12, y: 82, d: 2.2 },
-        { x: 36, y: 8, d: 1.1 },
-        { x: 64, y: 90, d: 0.4 },
-        { x: 6, y: 48, d: 1.8 },
-        { x: 94, y: 46, d: 0.6 },
-      ].map((s, i) => (
+      {/* Overlay UI */}
+      <div
+        style={{
+          position      : "absolute",
+          inset         : 0,
+          display       : "flex",
+          flexDirection : "column",
+          alignItems    : "center",
+          justifyContent: "center",
+          pointerEvents : "none",
+          userSelect    : "none",
+        }}
+      >
+        {/* Logo */}
         <div
-          key={i}
           style={{
-            position: "absolute",
-            left: `${s.x}%`,
-            top: `${s.y}%`,
-            width: 2,
-            height: 2,
-            borderRadius: "50%",
-            background: "#A8C0FF",
-            boxShadow: "0 0 4px rgba(168,192,255,.7)",
-            animation: `spStarTwinkle 3s ease-in-out ${s.d}s infinite`,
-            opacity: f >= 1 ? 1 : 0,
-            transition: "opacity 1s ease",
+            opacity  : logoVisible ? 1 : 0,
+            transform: logoVisible
+              ? "scale(1) translateY(0)"
+              : "scale(0.8) translateY(14px)",
+            transition: logoVisible
+              ? "opacity 1.1s ease, transform 1.1s cubic-bezier(0.2,1,0.35,1)"
+              : "none",
+            filter:
+              "drop-shadow(0 0 32px rgba(37,99,235,0.45)) " +
+              "drop-shadow(0 0 10px rgba(96,165,250,0.30))",
+          }}
+        >
+          <Logo360 width={220} />
+        </div>
+
+        {/* Separador */}
+        <div
+          style={{
+            width     : logoVisible ? "min(280px, 55vw)" : 0,
+            height    : 1,
+            background: "rgba(37,99,235,0.35)",
+            margin    : "18px auto 15px",
+            transition: logoVisible
+              ? "width 1.05s cubic-bezier(0.4,0,0.2,1) 0.2s"
+              : "none",
           }}
         />
-      ))}
 
-      {/* ─── Outermost ring ─── */}
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          width: "160vmin",
-          height: "160vmin",
-          maxWidth: 1200,
-          maxHeight: 1200,
-          borderRadius: "50%",
-          border: "1px solid rgba(140,180,255,.18)",
-          boxShadow: "inset 0 0 80px rgba(80,120,255,.05)",
-          opacity: f >= 1 ? 1 : 0,
-          animation: f >= 1 ? "spRingPulse 4.5s ease-in-out infinite" : "none",
-          transform: "translate(-50%,-50%)",
-          transition: "opacity 1.4s ease",
-        }}
-      />
-
-      {/* ─── Middle ring ─── */}
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          width: "95vmin",
-          height: "95vmin",
-          maxWidth: 720,
-          maxHeight: 720,
-          borderRadius: "50%",
-          border: "1px solid rgba(150,190,255,.22)",
-          boxShadow: "inset 0 0 120px rgba(60,100,220,.08)",
-          opacity: f >= 1 ? 1 : 0,
-          animation: f >= 1 ? "spRingPulse 4.5s ease-in-out 0.8s infinite" : "none",
-          transform: "translate(-50%,-50%)",
-          transition: "opacity 1.2s ease .15s",
-        }}
-      />
-
-      {/* ─── Inner ring ─── */}
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          width: "58vmin",
-          height: "58vmin",
-          maxWidth: 440,
-          maxHeight: 440,
-          borderRadius: "50%",
-          border: "1px solid rgba(160,200,255,.28)",
-          background:
-            "radial-gradient(circle at 50% 50%, rgba(60,110,220,.28) 0%, rgba(30,60,140,.10) 55%, transparent 100%)",
-          boxShadow: "inset 0 0 80px rgba(80,140,255,.14), 0 0 100px rgba(40,80,200,.25)",
-          opacity: f >= 2 ? 1 : 0,
-          animation: f >= 2 ? "spRingPulse 4.5s ease-in-out 1.6s infinite" : "none",
-          transform: "translate(-50%,-50%)",
-          transition: "opacity 1s ease",
-        }}
-      />
-
-      {/* ─── Arc CW ─── */}
-      <svg
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          width: "58vmin",
-          height: "58vmin",
-          maxWidth: 440,
-          maxHeight: 440,
-          opacity: f >= 2 ? 1 : 0,
-          animation: f >= 2 ? "spArcLoop 8s linear infinite" : "none",
-          transformOrigin: "center",
-          transform: "translate(-50%,-50%)",
-          transition: "opacity 1s ease .2s",
-          filter: "drop-shadow(0 0 12px rgba(120,170,255,.7))",
-        }}
-        viewBox="0 0 100 100"
-      >
-        <defs>
-          <linearGradient id="spArc" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#4F7CFF" stopOpacity="0" />
-            <stop offset="50%" stopColor="#9BBBFF" stopOpacity="1" />
-            <stop offset="100%" stopColor="#4F7CFF" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M 14,50 A 36,36 0 0 1 86,50"
-          fill="none"
-          stroke="url(#spArc)"
-          strokeWidth="0.7"
-          strokeLinecap="round"
-        />
-      </svg>
-
-      {/* ─── Arc CCW ─── */}
-      <svg
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          width: "95vmin",
-          height: "95vmin",
-          maxWidth: 720,
-          maxHeight: 720,
-          opacity: f >= 2 ? 0.7 : 0,
-          animation: f >= 2 ? "spArcLoopRev 12s linear infinite" : "none",
-          transformOrigin: "center",
-          transform: "translate(-50%,-50%)",
-          transition: "opacity 1s ease .3s",
-          filter: "drop-shadow(0 0 10px rgba(120,170,255,.5))",
-        }}
-        viewBox="0 0 100 100"
-      >
-        <path
-          d="M 18,50 A 32,32 0 0 1 82,50"
-          fill="none"
-          stroke="url(#spArc)"
-          strokeWidth="0.5"
-          strokeLinecap="round"
-        />
-      </svg>
-
-      {/* ─── Inner glow ─── */}
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          width: "42vmin",
-          height: "42vmin",
-          maxWidth: 340,
-          maxHeight: 340,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(100,150,255,.32) 0%, rgba(60,100,220,.12) 45%, transparent 75%)",
-          opacity: f >= 2 ? 1 : 0,
-          animation: f >= 2 ? "spGlowPulse 3.5s ease-in-out infinite" : "none",
-          transform: "translate(-50%,-50%)",
-          transition: "opacity 1s ease",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* ─── Logo ─── */}
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          transform: `translate(-50%,-50%) scale(${f >= 3 ? 1 : 0.85})`,
-          zIndex: 5,
-          opacity: f >= 3 ? 1 : 0,
-          transition:
-            "opacity .9s cubic-bezier(.34,1.28,.64,1), transform 1.1s cubic-bezier(.34,1.28,.64,1)",
-          filter:
-            "drop-shadow(0 0 28px rgba(120,170,255,.65)) drop-shadow(0 0 8px rgba(180,200,255,.4))",
-        }}
-      >
-        <Logo360 width={220} />
+        {/* Subtítulo */}
+        <div
+          style={{
+            fontFamily  : '"DM Sans", system-ui, sans-serif',
+            fontWeight  : 300,
+            fontSize    : "clamp(0.58rem, 1.5vw, 0.85rem)",
+            letterSpacing: "0.55em",
+            textTransform: "uppercase",
+            color       : "#60A5FA",
+            opacity     : subtitleVisible ? 1 : 0,
+            transition  : subtitleVisible ? "opacity 0.9s ease 0.35s" : "none",
+          }}
+        >
+          · Facturación ·
+        </div>
       </div>
     </div>
   );
