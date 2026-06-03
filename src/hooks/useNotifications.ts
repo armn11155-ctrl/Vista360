@@ -46,7 +46,7 @@ function loadStored(): Record<string, number> {
             : 0;
       if (!ts) continue;
       const prefix = k.split("_")[0] as string;
-      const ttl = TTL_MS[prefix] ?? TTL_MS["cv"] ?? (90 * 24 * 60 * 60 * 1000);
+      const ttl: number = TTL_MS[prefix] ?? TTL_MS["cv"] ?? 7776000000;
       if (now - ts < ttl) cleaned[k] = ts; // aún vigente → conservar
     }
     return cleaned;
@@ -89,7 +89,7 @@ export function useNotifications({ contractsActive, paneles, clientesActive, swR
     /** Envía una notificación solo si no está dentro de su TTL. */
     const push = (key: string, titulo: string, cuerpo: string, urgente = false) => {
       const prefix = key.split("_")[0] as string;
-      const ttl = TTL_MS[prefix] ?? TTL_MS["cv"] ?? (90 * 24 * 60 * 60 * 1000);
+      const ttl: number = TTL_MS[prefix] ?? TTL_MS["cv"] ?? 7776000000;
       if (stored[key] !== undefined && ahora - stored[key] < ttl) return;
 
       try {
