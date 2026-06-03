@@ -33,27 +33,27 @@ const GLASS_CSS = `
       border-box  → gradiente del aro: luz arriba, sombra abajo
     */
     background:
-      linear-gradient(rgba(14, 26, 59, 0.90), rgba(14, 26, 59, 0.90)) padding-box,
+      linear-gradient(rgba(14, 26, 59, 0.60), rgba(14, 26, 59, 0.60)) padding-box,
       linear-gradient(
         180deg,
-        rgba(255, 255, 255, 0.82) 0%,
-        rgba(160, 185, 220, 0.42) 28%,
+        rgba(255, 255, 255, 0.50) 0%,
+        rgba(160, 185, 220, 0.22) 28%,
         rgba(40,  65, 115, 0.22) 62%,
         rgba(0,   0,   0,  0.52) 100%
       ) border-box;
 
     /* Borde transparente — el gradiente pinta el aro */
-    border: 1.5px solid transparent;
+    border: 0.75px solid transparent;
 
     box-shadow:
       /* Hairline oscuro exterior — silueta y profundidad extra */
-      0 0 0 0.5px rgba(0, 0, 0, 0.40),
+      0 0 0 0.5px rgba(0, 0, 0, 0.22),
       /* Luz exacta 1px en la cara interior superior */
-      inset 0 1px 0 rgba(255, 255, 255, 0.82),
+      inset 0 1px 0 rgba(255, 255, 255, 0.65),
       /* Reflejo exacto 1px en la cara interior inferior */
-      inset 0 -1px 0 rgba(255, 255, 255, 0.50),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.30),
       /* Sombra de elevación */
-      0 4px 14px rgba(14, 26, 59, 0.26);
+      0 4px 16px rgba(14, 26, 59, 0.16);
 
     transition:
       left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
@@ -145,7 +145,9 @@ export function BottomTabBar({
             maxWidth: 480,
             margin: "0 auto",
             pointerEvents: "auto",
-            background: "#FFFFFF",
+            backdropFilter: "blur(24px) saturate(1.5)",
+            WebkitBackdropFilter: "blur(24px) saturate(1.5)",
+            background: "rgba(255, 255, 255, 0.72)",
             border: "1px solid rgba(229,231,235,0.9)",
             borderRadius: 28,
             boxShadow: "0 8px 28px rgba(15,23,41,0.12), 0 2px 8px rgba(15,23,41,0.06)",
