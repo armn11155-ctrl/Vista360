@@ -33,7 +33,7 @@ const GLASS_CSS = `
       border-box  → gradiente del aro: luz arriba, sombra abajo
     */
     background:
-      linear-gradient(rgba(14, 26, 59, 0.78), rgba(14, 26, 59, 0.78)) padding-box,
+      linear-gradient(rgba(14, 26, 59, 0.90), rgba(14, 26, 59, 0.90)) padding-box,
       linear-gradient(
         180deg,
         rgba(255, 255, 255, 0.28) 0%,
