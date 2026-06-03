@@ -15,45 +15,38 @@ interface AppHeaderProps {
   showProfile?: boolean;
 }
 
-// ── CSS cristal líquido — borde con gradiente 3D real ────────────
+// ── Liquid glass — solo el borde, interior transparente ──────────
+// Técnica idéntica al pill del BottomTabBar pero más limpia:
+// el padding-box es completamente transparente (se ve el fondo real),
+// el border-box pinta el aro 3D con gradiente de luz arriba / sombra abajo.
 const GLASS_BTN_CSS = `
-  .v360-hdr-glass {
-    position: relative;
-
-    /*
-      padding-box → interior casi transparente (cristal limpio)
-      border-box  → gradiente del aro: blanco arriba, oscuro abajo
-    */
+  .v360-icon-glass {
     background:
-      linear-gradient(rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.07)) padding-box,
+      rgba(255, 255, 255, 0.00) padding-box,
       linear-gradient(
         180deg,
-        rgba(255, 255, 255, 0.78) 0%,
-        rgba(160, 185, 220, 0.38) 28%,
-        rgba(50,  75, 125, 0.18) 62%,
-        rgba(0,   0,   0,  0.48) 100%
+        rgba(255, 255, 255, 0.92)  0%,
+        rgba(210, 225, 255, 0.48) 22%,
+        rgba(60,  100, 180, 0.16) 58%,
+        rgba(0,     0,   0, 0.58) 100%
       ) border-box !important;
 
-    /* Borde transparente — el gradiente pinta el aro */
-    border: 1.5px solid transparent !important;
+    border: 1px solid transparent !important;
 
     box-shadow:
-      /* Hairline oscuro exterior */
-      0 0 0 0.5px rgba(0, 0, 0, 0.46),
-      /* Luz exacta 1px cara interior superior */
-      inset 0 1px 0 rgba(255, 255, 255, 0.84),
-      /* Reflejo exacto 1px cara interior inferior */
-      inset 0 -1px 0 rgba(255, 255, 255, 0.54),
-      /* Sombra de elevación */
-      0 3px 10px rgba(0, 0, 0, 0.20) !important;
+      /* Hairline exterior oscuro — el aro "sobresale" */
+      0 0 0 0.5px rgba(0, 0, 0, 0.22),
+      /* Luz cara interior superior (1 px exacto, sin blur) */
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.90),
+      /* Sombra cara interior inferior */
+      inset 0 -1px  0 rgba(0, 0, 0, 0.12),
+      /* Elevación suave */
+      0 2px 8px rgba(0, 0, 0, 0.10) !important;
 
-    overflow: hidden;
     isolation: isolate;
+    overflow: hidden;
   }
-  .v360-hdr-glass > * {
-    position: relative;
-    z-index: 1;
-  }
+  .v360-icon-glass > * { position: relative; z-index: 1; }
 `;
 
 /**
@@ -82,9 +75,6 @@ export function AppHeader({
     .join("")
     .toUpperCase();
 
-  // Clase glass solo cuando el header tiene fondo oscuro
-  const glassClass = headerDark ? "v360-hdr-glass" : undefined;
-
   return (
     <>
       <style>{GLASS_BTN_CSS}</style>
@@ -103,30 +93,28 @@ export function AppHeader({
           gap: 10,
         }}
       >
-        {/* Drawer toggle */}
+        {/* ── Drawer / Inicio ── liquid glass border, interior transparente */}
         <button
           onClick={onDrawerClick}
           aria-label="Abrir menú"
-          className={glassClass}
+          className="v360-icon-glass"
           style={{
             width: 40,
             height: 40,
             borderRadius: 12,
-            background: headerDark ? "rgba(255,255,255,0.10)" : T.text,
-            border: headerDark ? "1px solid rgba(255,255,255,0.14)" : "none",
+            background: "transparent",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
-            boxShadow: headerDark ? "none" : "0 4px 12px rgba(15,23,41,0.18)",
             cursor: "pointer",
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="3" width="8" height="8" rx="2" fill="white" />
-            <rect x="13" y="3" width="8" height="8" rx="2" fill="white" />
-            <rect x="3" y="13" width="8" height="8" rx="2" fill="white" />
-            <rect x="13" y="13" width="8" height="8" rx="2" fill="white" />
+            <rect x="3"  y="3"  width="8" height="8" rx="2" fill={headerDark ? "white" : T.text} />
+            <rect x="13" y="3"  width="8" height="8" rx="2" fill={headerDark ? "white" : T.text} />
+            <rect x="3"  y="13" width="8" height="8" rx="2" fill={headerDark ? "white" : T.text} />
+            <rect x="13" y="13" width="8" height="8" rx="2" fill={headerDark ? "white" : T.text} />
           </svg>
         </button>
 
@@ -145,17 +133,16 @@ export function AppHeader({
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-          {/* Search */}
+          {/* ── Search ── liquid glass border, interior transparente */}
           <button
             onClick={onSearchClick}
             aria-label="Buscar"
-            className={glassClass}
+            className="v360-icon-glass"
             style={{
               width: 40,
               height: 40,
               borderRadius: "50%",
-              background: headerDark ? "rgba(255,255,255,0.10)" : T.white,
-              border: headerDark ? "1px solid rgba(255,255,255,0.14)" : `1px solid ${T.border}`,
+              background: "transparent",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -173,17 +160,16 @@ export function AppHeader({
             </svg>
           </button>
 
-          {/* Notifications */}
+          {/* ── Notificaciones ── liquid glass border, interior transparente */}
           <button
             onClick={onNotifClick}
             aria-label="Notificaciones"
-            className={glassClass}
+            className="v360-icon-glass"
             style={{
               width: 40,
               height: 40,
               borderRadius: "50%",
-              background: headerDark ? "rgba(255,255,255,0.10)" : T.white,
-              border: headerDark ? "1px solid rgba(255,255,255,0.14)" : `1px solid ${T.border}`,
+              background: "transparent",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -211,14 +197,14 @@ export function AppHeader({
                   height: 8,
                   borderRadius: "50%",
                   background: T.red,
-                  border: `2px solid ${T.white}`,
+                  border: `2px solid ${headerDark ? headerColor : T.white}`,
                   zIndex: 2,
                 }}
               />
             )}
           </button>
 
-          {/* Avatar */}
+          {/* ── Avatar — mantiene su estilo propio ── */}
           <button
             onClick={onProfileClick}
             aria-label="Ver perfil"
