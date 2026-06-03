@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
@@ -9,7 +9,7 @@ import { ALLOWED_EMAILS } from "./config/constants";
 import { ToastProvider } from "./context/UIContext";
 import { AppProvider } from "./context/AppContext";
 import { useAppShell } from "./hooks/useAppShell";
-import { useSwipeNav } from "./hooks/useSwipeNav";
+import { SwipeTabWrapper } from "./components/layout/SwipeTabWrapper";
 import { useViewportSetup } from "./hooks/useViewportSetup";
 import { prefetchAllTabs, AppRouter } from "./components/layout/AppRouter";
 import { ShellErrorBoundary } from "./components/shared/ShellErrorBoundary";
@@ -39,18 +39,6 @@ interface AuthenticatedShellProps {
 function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
   const shell = useAppShell(user, onLogout);
 
-  // ── Swipe horizontal para cambiar de pestaña ──────────────────
-  useSwipeNav({
-    targetRef: shell.scrollRef as React.RefObject<HTMLElement>,
-    onNavigate: shell.handleTabClick,
-    disabled:
-      shell.anyModalOpen  ||
-      shell.showProfile   ||
-      shell.drawerOpen    ||
-      shell.notifOpen     ||
-      shell.globalSearch,
-  });
-
   return (
     <AppProvider data={shell.appData} setters={shell.appSetters} derived={shell.appDerived}>
       {!shell.isOnline && <OfflineBanner />}
@@ -69,20 +57,17 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           showProfile={shell.showProfile}
         />
 
-        <main
-          ref={shell.scrollRef}
-          data-scroll
-          style={{
-            flex: 1,
-            minHeight: 0,
-            overflowY: "scroll",
-            overflowX: "hidden",
-            overscrollBehavior: "none",
-            touchAction: "pan-y",
-            position: "relative",
-          }}
-        >
-          {shell.showProfile ? (
+        {/* ── Perfil: scroll simple sin swipe ── */}
+        {shell.showProfile && (
+          <main
+            ref={shell.scrollRef}
+            data-scroll
+            style={{
+              flex: 1, minHeight: 0,
+              overflowY: "scroll", overflowX: "hidden",
+              overscrollBehavior: "none",
+            }}
+          >
             <ProfileView
               user={user}
               userName={shell.userName}
@@ -91,16 +76,23 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
               setConfirmLogout={shell.setConfirmLogout}
               onLogout={shell.handleLogout}
             />
-          ) : (
-            // AppRouter ya no recibe colecciones — las lee del contexto
+          </main>
+        )}
+
+        {/* ── Tabs: SwipeTabWrapper maneja el gesto y el preview ── */}
+        {!shell.showProfile && (
+          <SwipeTabWrapper
+            scrollRef={shell.scrollRef}
+            disabled={shell.anyModalOpen || shell.drawerOpen || shell.notifOpen || shell.globalSearch}
+          >
             <AppRouter
               userName={shell.userName}
               autoScan={shell.autoScan}
               setAutoScan={shell.setAutoScan}
               onModalChange={shell.setAnyModalOpen}
             />
-          )}
-        </main>
+          </SwipeTabWrapper>
+        )}
 
         {!shell.anyModalOpen && (
           <BottomTabBar
