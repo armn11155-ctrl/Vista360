@@ -15,60 +15,29 @@ interface AppHeaderProps {
   showProfile?: boolean;
 }
 
-// ── CSS liquid glass 3D para botones del header oscuro ───────────
+// ── CSS cristal con borde 3D para botones del header oscuro ─────
 const GLASS_BTN_CSS = `
   .v360-hdr-glass {
     position: relative;
-    background: linear-gradient(
-      180deg,
-      rgba(33,44,72,0.75) 0%,
-      rgba(14,26,59,0.88) 100%
-    ) !important;
-    backdrop-filter: blur(6px) saturate(140%) brightness(1.05) !important;
-    -webkit-backdrop-filter: blur(6px) saturate(140%) brightness(1.05) !important;
-    border: 1px solid rgba(255,255,255,0.52) !important;
+
+    /* Interior limpio — casi invisible sobre fondo oscuro */
+    background: rgba(255, 255, 255, 0.07) !important;
+
+    /* Cuerpo del aro — tono medio */
+    border: 1.5px solid rgba(155, 170, 200, 0.30) !important;
+
     box-shadow:
-      0 6px 20px rgba(14,26,59,0.40),
-      0 2px 6px rgba(0,0,0,0.18),
-      inset 0 1px 0 rgba(255,255,255,0.50),
-      inset 0 -1px 0 rgba(0,0,0,0.25) !important;
+      /* 1. Anillo oscuro exterior — el aro sobresale */
+      0 0 0 1px rgba(0, 0, 0, 0.62),
+      /* 2. Luz cara interior superior — 1 px exacto */
+      inset 0 1px 0 rgba(255, 255, 255, 0.88),
+      /* 3. Reflejo cara interior inferior — 1 px exacto */
+      inset 0 -1px 0 rgba(255, 255, 255, 0.62),
+      /* 4. Sombra de elevacion */
+      0 3px 14px rgba(0, 0, 0, 0.28) !important;
+
     overflow: hidden;
     isolation: isolate;
-  }
-  /* Highlight superior — efecto lente convexa */
-  .v360-hdr-glass::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 55%;
-    background: linear-gradient(
-      180deg,
-      rgba(255,255,255,0.18) 0%,
-      rgba(255,255,255,0.0) 100%
-    );
-    border-radius: inherit;
-    pointer-events: none;
-    z-index: 0;
-  }
-  /* Franja especular nítida en borde superior */
-  .v360-hdr-glass::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 15%;
-    right: 15%;
-    height: 1.5px;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(255,255,255,0.90) 35%,
-      rgba(255,255,255,1) 50%,
-      rgba(255,255,255,0.90) 65%,
-      transparent 100%
-    );
-    filter: blur(0.3px);
-    pointer-events: none;
-    z-index: 0;
   }
   .v360-hdr-glass > * {
     position: relative;

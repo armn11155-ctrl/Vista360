@@ -15,65 +15,34 @@ interface BottomTabBarProps {
   onAddClick: () => void;
 }
 
-// ── CSS liquid glass 3D — pill elevado con efecto cristal real ───
+// ── CSS cristal con borde 3D — [oscuro]→[aro]→[luz]→[interior limpio]
 const GLASS_CSS = `
   .v360-pill {
     position: absolute;
     top: 6px;
     height: calc(100% - 12px);
     border-radius: 18px;
-    /* Gradiente top→bottom para el efecto 3D elevado */
-    background: linear-gradient(
-      180deg,
-      rgba(14,26,59,0.92) 0%,
-      rgba(14,26,59,0.96) 100%
-    );
-    backdrop-filter: blur(6px) saturate(140%) brightness(1.05);
-    -webkit-backdrop-filter: blur(6px) saturate(140%) brightness(1.05);
-    border: 1px solid rgba(255,255,255,0.52);
-    box-shadow:
-      0 8px 28px rgba(12,22,57,0.50),
-      0 2px 8px rgba(0,0,0,0.20),
-      inset 0 1px 0 rgba(255,255,255,0.55),
-      inset 0 -1px 0 rgba(0,0,0,0.30);
-    overflow: hidden;
     pointer-events: none;
+
+    /* Interior limpio — navy oscuro como cristal tintado */
+    background: rgba(14, 26, 59, 0.90);
+
+    /* Cuerpo del aro — tono medio entre el oscuro exterior y la luz interior */
+    border: 1.5px solid rgba(140, 155, 185, 0.32);
+
+    box-shadow:
+      /* 1. Anillo oscuro exterior — el aro "sobresale" del fondo blanco */
+      0 0 0 1px rgba(0, 0, 0, 0.55),
+      /* 2. Luz cara interior superior — 1 px exacto, no se expande */
+      inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      /* 3. Reflejo cara interior inferior — 1 px exacto */
+      inset 0 -1px 0 rgba(255, 255, 255, 0.60),
+      /* 4. Sombra de elevacion — solo profundidad */
+      0 4px 18px rgba(14, 26, 59, 0.35);
+
     transition:
       left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
       width 0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
-  }
-  /* Highlight superior — simula luz viniendo de arriba (efecto lente) */
-  .v360-pill::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 55%;
-    background: linear-gradient(
-      180deg,
-      rgba(255,255,255,0.16) 0%,
-      rgba(255,255,255,0.0) 100%
-    );
-    border-radius: 18px 18px 0 0;
-    pointer-events: none;
-  }
-  /* Franja especular nítida en el borde superior */
-  .v360-pill::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 10%;
-    right: 10%;
-    height: 1.5px;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(255,255,255,0.92) 35%,
-      rgba(255,255,255,1) 50%,
-      rgba(255,255,255,0.92) 65%,
-      transparent 100%
-    );
-    filter: blur(0.3px);
-    pointer-events: none;
   }
 `;
 
