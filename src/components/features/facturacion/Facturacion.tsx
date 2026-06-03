@@ -879,6 +879,102 @@ function ModalDetalleFactura({ factura, paneles, clientes, onClose }: ModalDetal
 // Cuando facturacion-web emite o cobra un comprobante, Vista360 lo
 // refleja automáticamente sin necesidad de refrescar la pantalla.
 
+
+// ── KPI CARD — mismo diseño que Contratos (dark navy + wave) ─────────────────
+const KPIDark = ({
+  label,
+  value,
+  valueColor = T.white,
+  sub,
+  accent = T.accent,
+  icon,
+}: {
+  label: string;
+  value: string | number;
+  valueColor?: string;
+  sub?: string;
+  accent?: string;
+  icon?: React.ReactNode;
+}) => {
+  const waveId = `kd-${(accent || "").replace("#", "")}-${Math.random().toString(36).slice(2, 7)}`;
+  return (
+    <div
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        background: "linear-gradient(145deg,#0E1835 0%,#0A1228 100%)",
+        border: "1px solid rgba(79,124,255,0.18)",
+        borderRadius: 18,
+        padding: "16px 16px 18px",
+        boxShadow: "0 8px 24px rgba(8,12,28,0.45),inset 0 1px 0 rgba(255,255,255,0.04)",
+        minHeight: 138,
+      }}
+    >
+      <svg
+        viewBox="0 0 400 120"
+        preserveAspectRatio="none"
+        style={{
+          position: "absolute",
+          left: 0, right: 0, bottom: 0,
+          width: "100%", height: 80,
+          pointerEvents: "none", opacity: 0.35,
+        }}
+      >
+        <defs>
+          <linearGradient id={waveId} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor={accent} stopOpacity="0" />
+            <stop offset="0.5" stopColor={accent} stopOpacity="0.55" />
+            <stop offset="1" stopColor={accent} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d="M0 60 Q100 20 200 50 T400 40" stroke={`url(#${waveId})`} strokeWidth="1.2" fill="none" />
+        <path d="M0 80 Q120 40 240 70 T400 60" stroke={`url(#${waveId})`} strokeWidth="0.8" fill="none" opacity="0.7" />
+        <path d="M0 100 Q140 60 280 90 T400 80" stroke={`url(#${waveId})`} strokeWidth="0.6" fill="none" opacity="0.5" />
+      </svg>
+      <div style={{ position: "relative", zIndex: 2 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+          <div
+            style={{
+              fontSize: 9.5, fontWeight: 800, color: "#5B7FCC",
+              letterSpacing: 1.4, flex: 1, lineHeight: 1.3, textTransform: "uppercase",
+            }}
+          >
+            {label}
+          </div>
+          <div
+            style={{
+              width: 38, height: 38, borderRadius: 10,
+              border: `1px solid ${
+                accent === T.green  ? "rgba(16,185,129,0.4)"  :
+                accent === T.white  ? "rgba(245,158,11,0.4)"  :
+                accent === T.red    ? "rgba(239,68,68,0.4)"   :
+                                      "rgba(255,255,255,0.18)"
+              }`,
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}
+          >
+            {icon}
+          </div>
+        </div>
+        <div
+          style={{
+            fontSize: 26, fontWeight: 900, color: valueColor,
+            letterSpacing: "-0.8px", lineHeight: 1, marginBottom: 8,
+            fontVariantNumeric: "tabular-nums", wordBreak: "break-word",
+          }}
+        >
+          {value}
+        </div>
+        {sub && (
+          <div style={{ fontSize: 10.5, color: "rgba(160,180,220,0.65)", fontWeight: 500 }}>
+            {sub}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
   // contratos se recibe pero no se usa (compat con la firma anterior)
   const [facturas, setFacturas] = useState<Factura[]>([]);
@@ -965,50 +1061,36 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
   const numeroFmt = (n: string | number | null | undefined) => String(n ?? "").padStart(8, "0");
 
   // ── DECORACIONES (líneas onduladas en cards oscuras) ──
-  const WaveDeco = ({ color = T.accent }) => (
-    <svg
-      viewBox="0 0 400 120"
-      preserveAspectRatio="none"
-      style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: "100%",
-        height: 80,
-        pointerEvents: "none",
-        opacity: 0.35,
-      }}
-    >
-      <defs>
-        <linearGradient id={`wv-${color.replace("#", "")}`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor={color} stopOpacity="0" />
-          <stop offset="0.5" stopColor={color} stopOpacity="0.55" />
-          <stop offset="1" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M0 60 Q100 20 200 50 T400 40"
-        stroke={`url(#wv-${color.replace("#", "")})`}
-        strokeWidth="1.2"
-        fill="none"
-      />
-      <path
-        d="M0 80 Q120 40 240 70 T400 60"
-        stroke={`url(#wv-${color.replace("#", "")})`}
-        strokeWidth="0.8"
-        fill="none"
-        opacity="0.7"
-      />
-      <path
-        d="M0 100 Q140 60 280 90 T400 80"
-        stroke={`url(#wv-${color.replace("#", "")})`}
-        strokeWidth="0.6"
-        fill="none"
-        opacity="0.5"
-      />
-    </svg>
-  );
+  const WaveDeco = ({ color = T.accent }) => {
+    const id = `fwv-${color.replace("#", "")}-${Math.random().toString(36).slice(2, 7)}`;
+    return (
+      <svg
+        viewBox="0 0 400 120"
+        preserveAspectRatio="none"
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: "100%",
+          height: 80,
+          pointerEvents: "none",
+          opacity: 0.35,
+        }}
+      >
+        <defs>
+          <linearGradient id={id} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor={color} stopOpacity="0" />
+            <stop offset="0.5" stopColor={color} stopOpacity="0.55" />
+            <stop offset="1" stopColor={color} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d="M0 60 Q100 20 200 50 T400 40" stroke={`url(#${id})`} strokeWidth="1.2" fill="none" />
+        <path d="M0 80 Q120 40 240 70 T400 60" stroke={`url(#${id})`} strokeWidth="0.8" fill="none" opacity="0.7" />
+        <path d="M0 100 Q140 60 280 90 T400 80" stroke={`url(#${id})`} strokeWidth="0.6" fill="none" opacity="0.5" />
+      </svg>
+    );
+  };
 
   return (
     <div style={{ paddingBottom: 32 }}>
@@ -1216,74 +1298,15 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
             ),
           },
         ].map((k, i) => (
-          <div
+          <KPIDark
             key={i}
-            style={{
-              position: "relative",
-              overflow: "hidden",
-              background: "linear-gradient(145deg,#0E1835 0%,#0A1228 100%)",
-              border: "1px solid rgba(79,124,255,0.18)",
-              borderRadius: 18,
-              padding: "16px 16px 18px",
-              boxShadow: "0 8px 24px rgba(8,12,28,0.45),inset 0 1px 0 rgba(255,255,255,0.04)",
-              minHeight: 138,
-            }}
-          >
-            <WaveDeco color={k.accent} />
-            <div style={{ position: "relative", zIndex: 2 }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  marginBottom: 12,
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 9.5,
-                    fontWeight: 800,
-                    color: k.labelColor,
-                    letterSpacing: 1.4,
-                    flex: 1,
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {k.label}
-                </div>
-                <div
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 10,
-                    border: `1px solid ${k.accent === T.green ? "rgba(16,185,129,0.4)" : "rgba(255,255,255,0.18)"}`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  {k.icon}
-                </div>
-              </div>
-              <div
-                style={{
-                  fontSize: 26,
-                  fontWeight: 900,
-                  color: k.valueColor,
-                  letterSpacing: "-0.8px",
-                  lineHeight: 1,
-                  marginBottom: 8,
-                  fontVariantNumeric: "tabular-nums",
-                }}
-              >
-                {k.val}
-              </div>
-              <div style={{ fontSize: 10.5, color: "rgba(160,180,220,0.65)", fontWeight: 500 }}>
-                {k.sub}
-              </div>
-            </div>
-          </div>
+            label={k.label}
+            value={k.val}
+            valueColor={k.valueColor}
+            sub={k.sub}
+            accent={k.accent}
+            icon={k.icon}
+          />
         ))}
       </div>
 
