@@ -11,7 +11,7 @@
  * invalidar el caché anterior.
  */
 
-const CACHE_VERSION = "v360-v5";
+const CACHE_VERSION = "v360-v6";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
