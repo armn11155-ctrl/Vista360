@@ -25,8 +25,10 @@ function Splash({ done }: SplashProps) {
       document.documentElement.style.background = c;
       document.body.style.background = c;
     };
-    // Azul del brillo atmosférico de la Tierra en la imagen
-    setColor("#0d5ea6");
+    // Negro puro = continuación exacta del cielo de la foto
+    // En iOS (black-translucent) la imagen se ve detrás del status bar
+    // En Android el negro coincide pixel a pixel con el top de la imagen
+    setColor("#000000");
     return () => {
       setColor(T.bg);
       document.documentElement.style.background = "";
