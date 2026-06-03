@@ -33,17 +33,17 @@ const GLASS_CSS = `
       border-box  → gradiente del aro: luz arriba, sombra abajo
     */
     background:
-      linear-gradient(rgba(14, 26, 59, 0.60), rgba(14, 26, 59, 0.60)) padding-box,
+      linear-gradient(rgba(14, 26, 59, 0.78), rgba(14, 26, 59, 0.78)) padding-box,
       linear-gradient(
         180deg,
-        rgba(255, 255, 255, 0.50) 0%,
-        rgba(160, 185, 220, 0.22) 28%,
+        rgba(255, 255, 255, 0.28) 0%,
+        rgba(160, 185, 220, 0.10) 28%,
         rgba(40,  65, 115, 0.22) 62%,
         rgba(0,   0,   0,  0.52) 100%
       ) border-box;
 
     /* Borde transparente — el gradiente pinta el aro */
-    border: 0.75px solid transparent;
+    border: 0.5px solid transparent;
 
     box-shadow:
       /* Hairline oscuro exterior — silueta y profundidad extra */
