@@ -3,255 +3,245 @@ import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
 import { isAudioReady, soundSplash, unlockAudio } from "../lib/sounds";
 
-const BG = "#0D1629";
+const BG = "#010b18";
 
 interface SplashProps { done: () => void; }
 
 function Splash({ done }: SplashProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [logoVisible, setLogoVisible] = useState(false);
-  const [subVisible,  setSubVisible]  = useState(false);
-  const [fadeOut,     setFadeOut]     = useState(false);
+  const cvs   = useRef<HTMLCanvasElement>(null);
+  const [show, setShow]   = useState(false);   // logo visible
+  const [sub,  setSub]    = useState(false);   // subtitle
+  const [fade, setFade]   = useState(false);
   const doneRef = useRef(done);
-  useEffect(() => { doneRef.current = done; }, [done]);
-  const soundFired = useRef(false);
+  useEffect(()=>{ doneRef.current=done; },[done]);
+  const sf = useRef(false);
 
+  // ── theme-color ─────────────────────────────────────────
   useEffect(() => {
-    const set = (c: string) => {
+    const set = (c:string) => {
       let m = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-      if (!m) { m = document.createElement("meta"); m.setAttribute("name","theme-color"); document.head.appendChild(m); }
-      m.setAttribute("content", c); document.documentElement.style.background = c; document.body.style.background = c;
+      if (!m){m=document.createElement("meta");m.setAttribute("name","theme-color");document.head.appendChild(m);}
+      m.setAttribute("content",c);document.documentElement.style.background=c;document.body.style.background=c;
     };
     set(BG);
-    return () => { set(T.bg); document.documentElement.style.background=""; document.body.style.background=""; };
-  }, []);
+    return ()=>{set(T.bg);document.documentElement.style.background="";document.body.style.background="";};
+  },[]);
 
-  useEffect(() => {
-    const go = () => unlockAudio().then(() => { if (soundFired.current) return; soundFired.current=true; soundSplash(); }).catch(()=>{});
-    window.addEventListener("touchstart", go, { once:true, passive:true });
-    window.addEventListener("mousedown",  go, { once:true });
-    return () => { window.removeEventListener("touchstart",go); window.removeEventListener("mousedown",go); };
-  }, []);
-  useEffect(() => {
-    const canvas = canvasRef.current; if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-    let animId: number;
+  // ── audio ────────────────────────────────────────────────
+  useEffect(()=>{
+    const go=()=>unlockAudio().then(()=>{if(sf.current)return;sf.current=true;soundSplash();}).catch(()=>{});
+    window.addEventListener("touchstart",go,{once:true,passive:true});
+    window.addEventListener("mousedown",go,{once:true});
+    return ()=>{window.removeEventListener("touchstart",go);window.removeEventListener("mousedown",go);};
+  },[]);
 
-    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-    resize(); window.addEventListener("resize", resize);
+  /* ── canvas ocean ─────────────────────────────────────── */
+  useEffect(()=>{
+    const canvas = cvs.current; if (!canvas) return;
+    const ctx    = canvas.getContext("2d")!;
+    let id: number;
+    const rs = ()=>{ canvas.width=window.innerWidth; canvas.height=window.innerHeight; };
+    rs(); window.addEventListener("resize",rs);
 
-    /* ─── Paleta: tonos azul elegante + blanco ─────────────────── */
-    const PALETTE: [number,number,number][] = [[79,124,255],[0,212,255],[155,187,255],[96,165,250],[180,210,255]];
-    const WHITE: [number,number,number] = [255,255,255];
+    /* Estrellas */
+    const STARS = Array.from({length:90},()=>({
+      x: Math.random(), y: Math.random()*0.40,
+      r: 0.4+Math.random()*1.1, p: Math.random()*Math.PI*2,
+    }));
 
-    /* ─── Líneas en espiral de Arquímedes ──────────────────────── */
-    const N = 52;
-    const TURNS = 2.5;
-    const W0 = canvas.width, H0 = canvas.height;
-    const MAX_R = Math.min(W0, H0) * 0.44;
-
-    const lines = Array.from({ length: N }, (_, i) => {
-      const p = i / N;
-      const angle  = p * TURNS * Math.PI * 2;
-      const r      = MAX_R * 0.06 + p * MAX_R * 0.82;
-      const isW    = Math.random() < 0.18;
-      const color  = isW ? WHITE : PALETTE[Math.floor(Math.random() * PALETTE.length)];
+    /* Destellos en el agua (caustics) */
+    const CAUS = Array.from({length:28},()=>{
+      const row = Math.random();
       return {
-        baseAngle: angle,
-        r,
-        length : (18 + p * 58) * (0.7 + Math.random() * 0.6),
-        color,
-        thick  : 0.5 + p * 0.9 + (Math.random() < 0.2 ? 0.8 : 0),
-        alpha  : 0.30 + Math.random() * 0.50,
-        delay  : i * 12,              // 0 → 612 ms escalonado
+        x: Math.random(), y: 0.46+row*0.54,
+        rx:18+Math.random()*55, ry:4+Math.random()*12,
+        p: Math.random()*Math.PI*2, sp:0.15+Math.random()*0.4,
       };
     });
 
-    /* ─── Timing total ≈ 3.8 s ─────────────────────────────────
-       GROW ends : 850 + 612 + 38 = 1500 ms
-       SPIN ends : 1500 + 1000    = 2500 ms
-       CONV ends : 2500 +  500    = 3000 ms
-       logo at   : 3000 ms  (inmediato tras convergencia)
-       fade at   : 3000 + 350     = 3350 ms
-       done()    : 3000 + 800     = 3800 ms
-    ─────────────────────────────────────────────────────────── */
-    const T_GROW_L  = 850;
-    const LAST_DLY  = lines[N - 1].delay;   // 612 ms
-    const T_GROW_END = T_GROW_L + LAST_DLY + 38;  // 1500
-    const T_SPIN    = 1000;
-    const T_SPIN_END = T_GROW_END + T_SPIN;        // 2500
-    const T_CONV    = 500;
-    const T_CONV_END = T_SPIN_END + T_CONV;        // 3000
+    /* Partículas de espuma */
+    const FOAM = Array.from({length:18},()=>{
+      const side = Math.random()<0.5?-1:1;
+      return {
+        ox:side*(0.04+Math.random()*0.12), oy:-0.01+Math.random()*0.03,
+        r:1+Math.random()*2, p:Math.random()*Math.PI*2, sp:0.6+Math.random()*0.5,
+      };
+    });
 
-    const eOut = (t: number) => 1 - (1 - t) ** 3;
-    const eIO  = (t: number) => t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
-    const eIn  = (t: number) => t ** 2;
-
-    const fl = { logo:false, sub:false, fade:false, done:false };
-    let totalRot = 0;  // rotación acumulada para la fase convergencia
-
-    /* ─── Dibuja una línea con doble glow ──────────────────────── */
-    function gl(x1:number, y1:number, x2:number, y2:number,
-                r:number, g:number, b:number, a:number, tk:number) {
-      ctx.save();
-      ctx.lineCap = "round";
-      ctx.shadowColor = `rgba(${r},${g},${b},1)`;
-      ctx.shadowBlur  = 26; ctx.strokeStyle = `rgba(${r},${g},${b},${Math.min(a*0.9,0.55)})`;
-      ctx.lineWidth   = tk * 3;
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
-      ctx.shadowBlur  = 7;  ctx.strokeStyle = `rgba(${r},${g},${b},${Math.min(a*4,1)})`;
-      ctx.lineWidth   = tk * 0.6;
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
-      ctx.restore();
+    /* Olas — altura en Y dado X y tiempo */
+    function wy(x:number, baseY:number, t:number, amp=1):number{
+      return baseY
+        +Math.sin(x*0.007 +t*0.50)*24*amp
+        +Math.sin(x*0.015 -t*0.38+1.2)*13*amp
+        +Math.sin(x*0.031 +t*0.80+2.5)*7*amp
+        +Math.sin(x*0.004 +t*0.18)*32*amp;
     }
 
-    /* ─── Bloom central ────────────────────────────────────────── */
-    function bloom(cx:number, cy:number, intensity:number) {
-      ctx.save();
-      const g = ctx.createRadialGradient(cx,cy,0,cx,cy,140*intensity+20);
-      g.addColorStop(0,   `rgba(255,255,255,${intensity*0.45})`);
-      g.addColorStop(0.25,`rgba(79,124,255,${intensity*0.35})`);
-      g.addColorStop(1,   "rgba(0,0,0,0)");
-      ctx.fillStyle = g; ctx.fillRect(0,0,canvas!.width,canvas!.height);
-      ctx.restore();
-    }
+    const fl={logo:false,sub:false,fd:false,dn:false};
+    let t0=0;
 
-    /* ─── Loop principal ───────────────────────────────────────── */
-    let start = 0;
-    function draw(ts: number) {
-      if (!start) start = ts;
-      const el = ts - start;
-      const W  = canvas!.width, H = canvas!.height;
-      const cx = W / 2, cy = H / 2;
+    function draw(ts:number){
+      if(!t0)t0=ts;
+      const el=ts-t0, t=el/1000;
+      const W=canvas!.width, H=canvas!.height, cx=W/2;
 
-      ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+      /* ─ Cielo ─ */
+      const sky=ctx.createLinearGradient(0,0,0,H*0.50);
+      sky.addColorStop(0,"#000810");
+      sky.addColorStop(0.55,"#011628");
+      sky.addColorStop(1,"#052040");
+      ctx.fillStyle=sky; ctx.fillRect(0,0,W,H*0.50);
 
-      /* Reglas de fondo ultra-sutiles */
-      ctx.lineWidth = 0.35; ctx.strokeStyle = "rgba(79,124,255,0.03)";
-      const ls = Math.max(Math.floor(H/36), 16);
-      for (let y = ls; y < H; y += ls) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+      /* Estrellas */
+      STARS.forEach(s=>{
+        const tw=0.35+0.65*Math.abs(Math.sin(t*1.4+s.p));
+        ctx.fillStyle=`rgba(210,225,255,${(tw*0.85).toFixed(2)})`;
+        ctx.beginPath(); ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2); ctx.fill();
+      });
 
-      ctx.save();
-      ctx.translate(cx, cy);
+      /* ─ Océano (fondo) ─ */
+      const horizY=H*0.44;
+      const sea=ctx.createLinearGradient(0,horizY,0,H);
+      sea.addColorStop(0,  "#0e3468");
+      sea.addColorStop(0.18,"#082242");
+      sea.addColorStop(0.55,"#051530");
+      sea.addColorStop(1,  "#020b1e");
+      ctx.fillStyle=sea; ctx.fillRect(0,horizY,W,H-horizY);
 
-      if (el < T_GROW_END) {
-        /* ── FASE 1: GROW ─── */
-        lines.forEach(line => {
-          const le = el - line.delay; if (le <= 0) return;
-          const t  = Math.min(le / T_GROW_L, 1);
-          const len = eOut(t) * line.length;
-          const x1 = Math.cos(line.baseAngle) * line.r;
-          const y1 = Math.sin(line.baseAngle) * line.r;
-          const x2 = Math.cos(line.baseAngle) * (line.r + len);
-          const y2 = Math.sin(line.baseAngle) * (line.r + len);
-          const [r,g,b] = line.color;
-          gl(x1,y1,x2,y2,r,g,b,line.alpha,line.thick);
-        });
-
-      } else if (el < T_SPIN_END) {
-        /* ── FASE 2: SPIN (espiral) ─── */
-        const spinT   = (el - T_GROW_END) / T_SPIN;
-        const spinA   = eIO(spinT) * Math.PI * 2.8;  // ~1.4 vueltas
-        totalRot      = spinA;
-        ctx.rotate(spinA);
-
-        lines.forEach(line => {
-          const shrink = eIn(spinT);
-          const len = line.length * (1 - shrink * 0.45);
-          const r   = line.r * (1 - shrink * 0.1);
-          const x1  = Math.cos(line.baseAngle) * r;
-          const y1  = Math.sin(line.baseAngle) * r;
-          const x2  = Math.cos(line.baseAngle) * (r + len);
-          const y2  = Math.sin(line.baseAngle) * (r + len);
-          const a   = line.alpha * (1 - spinT * 0.35);
-          const [ri,g,b] = line.color;
-          gl(x1,y1,x2,y2,ri,g,b,a,line.thick);
-        });
-
-      } else if (el < T_CONV_END) {
-        /* ── FASE 3: CONVERGE ─── */
-        const ct  = (el - T_SPIN_END) / T_CONV;
-        const et  = eIO(ct);
-        ctx.rotate(totalRot + et * Math.PI * 0.6);
-
-        lines.forEach(line => {
-          const r   = line.r   * (1 - et);
-          const len = line.length * (1 - et);
-          if (len < 1) return;
-          const x1 = Math.cos(line.baseAngle) * r;
-          const y1 = Math.sin(line.baseAngle) * r;
-          const x2 = Math.cos(line.baseAngle) * (r + len);
-          const y2 = Math.sin(line.baseAngle) * (r + len);
-          const a  = line.alpha * (1 - et);
-          const [ri,g,b] = line.color;
-          gl(x1,y1,x2,y2,ri,g,b,a,line.thick);
-        });
-      }
-
+      /* Caustics */
+      ctx.save(); ctx.globalCompositeOperation="screen";
+      CAUS.forEach(c=>{
+        const cx2=c.x*W+Math.sin(t*c.sp+c.p)*18;
+        const cy2=c.y*H+Math.sin(t*c.sp*1.3+c.p+1)*9;
+        const a=0.028+0.038*Math.abs(Math.sin(t*c.sp*0.7+c.p));
+        const g=ctx.createRadialGradient(cx2,cy2,0,cx2,cy2,c.rx);
+        g.addColorStop(0,`rgba(40,120,210,${a.toFixed(3)})`)
+        g.addColorStop(1,"rgba(0,0,0,0)");
+        ctx.fillStyle=g;
+        ctx.beginPath(); ctx.ellipse(cx2,cy2,c.rx,c.ry,0,0,Math.PI*2); ctx.fill();
+      });
       ctx.restore();
 
-      /* Bloom central — crece desde converge */
-      if (el > T_SPIN_END) {
-        const bt = Math.min((el - T_SPIN_END) / (T_CONV + 200), 1);
-        bloom(cx, cy, eIO(bt));
+      /* ─ Capas de olas ─ */
+      const WAVE_COLS=[
+        "rgba(14,52,118,0.28)","rgba(18,65,138,0.22)","rgba(25,80,155,0.16)",
+        "rgba(32,100,172,0.11)","rgba(55,135,195,0.07)",
+      ];
+      for(let lyr=WAVE_COLS.length-1;lyr>=0;lyr--){
+        ctx.beginPath();
+        for(let x=0;x<=W;x+=3){
+          const y=wy(x,horizY,t)+lyr*4;
+          x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        }
+        ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
+        ctx.fillStyle=WAVE_COLS[lyr]; ctx.fill();
       }
 
-      /* Viñeta */
-      const vig = ctx.createRadialGradient(cx,cy,H*0.05,cx,cy,H*0.88);
-      vig.addColorStop(0,"rgba(0,0,0,0)"); vig.addColorStop(1,"rgba(0,0,0,0.5)");
+      /* Bordes brillantes en las crestas */
+      for(let i=0;i<3;i++){
+        ctx.beginPath();
+        for(let x=0;x<=W;x+=3){
+          const y=wy(x,horizY,t+i*0.25);
+          x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        }
+        ctx.strokeStyle=`rgba(120,200,255,${(0.07-i*0.02).toFixed(2)})`;
+        ctx.lineWidth=1; ctx.stroke();
+      }
+
+      /* ─ Reflejo del logo en el agua ─ */
+      if(show){
+        const logoSurfY=wy(cx,horizY,t);
+        const refGrad=ctx.createLinearGradient(0,logoSurfY+10,0,logoSurfY+110);
+        refGrad.addColorStop(0,"rgba(80,160,255,0.22)");
+        refGrad.addColorStop(1,"rgba(80,160,255,0)");
+        ctx.fillStyle=refGrad;
+        ctx.beginPath(); ctx.ellipse(cx,logoSurfY+55,80,30,0,0,Math.PI*2); ctx.fill();
+
+        /* Espuma alrededor del logo */
+        FOAM.forEach(f=>{
+          const fx=cx+f.ox*W+Math.sin(t*f.sp+f.p)*6;
+          const fy=logoSurfY+f.oy*H+Math.cos(t*f.sp*1.2+f.p)*4;
+          const fa=0.25+0.35*Math.abs(Math.sin(t*f.sp+f.p));
+          ctx.fillStyle=`rgba(200,230,255,${fa.toFixed(2)})`;
+          ctx.beginPath(); ctx.arc(fx,fy,f.r,0,Math.PI*2); ctx.fill();
+        });
+
+        /* Anillos de onda que emanan del logo */
+        for(let r=0;r<3;r++){
+          const phase=(t*0.5+r*0.33)%1;
+          const radius=40+phase*120;
+          const alpha=(1-phase)*0.12;
+          ctx.strokeStyle=`rgba(80,160,255,${alpha.toFixed(3)})`;
+          ctx.lineWidth=1;
+          ctx.beginPath(); ctx.ellipse(cx,logoSurfY+6,radius,radius*0.28,0,0,Math.PI*2); ctx.stroke();
+        }
+      }
+
+      /* ─ Brillo en el horizonte ─ */
+      const hg=ctx.createLinearGradient(0,horizY-20,0,horizY+25);
+      hg.addColorStop(0,"rgba(0,0,0,0)");
+      hg.addColorStop(0.5,"rgba(15,70,155,0.18)");
+      hg.addColorStop(1,"rgba(0,0,0,0)");
+      ctx.fillStyle=hg; ctx.fillRect(0,horizY-20,W,45);
+
+      /* ─ Viñeta ─ */
+      const vig=ctx.createRadialGradient(cx,H*0.5,H*0.2,cx,H*0.5,H*0.82);
+      vig.addColorStop(0,"rgba(0,0,0,0)"); vig.addColorStop(1,"rgba(0,0,0,0.62)");
       ctx.fillStyle=vig; ctx.fillRect(0,0,W,H);
 
-      /* Flags de UI */
-      if (el > T_CONV_END      && !fl.logo) { fl.logo=true; setLogoVisible(true); }
-      if (el > T_CONV_END+180  && !fl.sub)  { fl.sub =true; setSubVisible(true);  }
-      if (el > T_CONV_END+350  && !fl.fade) { fl.fade=true; setFadeOut(true);      }
-      if (el > T_CONV_END+800  && !fl.done) { fl.done=true; doneRef.current();     }
+      /* ─ Flags ─ */
+      if(el>1300&&!fl.logo){fl.logo=true;setShow(true);}
+      if(el>1900&&!fl.sub) {fl.sub =true;setSub(true); }
+      if(el>4400&&!fl.fd)  {fl.fd  =true;setFade(true);}
+      if(el>5000&&!fl.dn)  {fl.dn  =true;doneRef.current();}
 
-      animId = requestAnimationFrame(draw);
+      id=requestAnimationFrame(draw);
     }
 
-    animId = requestAnimationFrame(draw);
-    return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", resize); };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    id=requestAnimationFrame(draw);
+    return ()=>{cancelAnimationFrame(id);window.removeEventListener("resize",rs);};
+  },[]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return (
-    <div style={{ position:"fixed",inset:0,zIndex:999,background:BG,overflow:"hidden",
-      opacity:fadeOut?0:1,transition:fadeOut?"opacity 0.65s cubic-bezier(.4,0,.2,1)":"none" }}>
-      <canvas ref={canvasRef} style={{ position:"absolute",inset:0,display:"block" }}/>
-      <div style={{ position:"absolute",inset:0,display:"flex",flexDirection:"column",
-        alignItems:"center",justifyContent:"center",pointerEvents:"none",userSelect:"none" }}>
+  return(
+    <div style={{position:"fixed",inset:0,zIndex:999,background:BG,overflow:"hidden",
+      opacity:fade?0:1,transition:fade?"opacity 0.7s cubic-bezier(.4,0,.2,1)":"none"}}>
+      <canvas ref={cvs} style={{position:"absolute",inset:0,display:"block"}}/>
 
-        <div style={{
-          opacity  : logoVisible ? 1 : 0,
-          transform: logoVisible ? "scale(1) translateY(0)" : "scale(0.75) translateY(18px)",
-          transition: logoVisible
-            ? "opacity 1.1s ease, transform 1.2s cubic-bezier(0.2,1,0.35,1)" : "none",
-          filter: "drop-shadow(0 0 44px rgba(79,124,255,0.65)) drop-shadow(0 0 16px rgba(255,255,255,0.25))",
-        }}>
-          <Logo360 width={220}/>
-        </div>
+      <style>{`
+        @keyframes oceanBob{
+          0%,100%{transform:translate(-50%,-50%) translateY(0px) rotate(-0.4deg);}
+          50%     {transform:translate(-50%,-50%) translateY(-14px) rotate(0.4deg);}
+        }
+        @keyframes fadeRise{
+          from{opacity:0;transform:translate(-50%,-50%) translateY(30px);}
+          to  {opacity:1;transform:translate(-50%,-50%) translateY(0px);}
+        }
+      `}</style>
 
-        <div style={{
-          width     : logoVisible ? "min(300px,54vw)" : 0,
-          height    : 1,
-          background: "linear-gradient(90deg,transparent,rgba(79,124,255,0.7),rgba(255,255,255,0.4),transparent)",
-          margin    : "20px auto 16px",
-          transition: logoVisible ? "width 1.1s cubic-bezier(0.4,0,0.2,1) 0.15s" : "none",
-        }}/>
+      {/* Logo flotando en el horizonte */}
+      <div style={{
+        position:"absolute", left:"50%", top:"44%",
+        transform:"translate(-50%,-50%)",
+        opacity:show?1:0,
+        animation:show?"fadeRise 1.2s cubic-bezier(0.2,1,0.35,1) forwards, oceanBob 4s ease-in-out 1.2s infinite":"none",
+        filter:"drop-shadow(0 6px 24px rgba(0,140,255,0.55)) drop-shadow(0 0 50px rgba(0,100,200,0.35))",
+        willChange:"transform",
+      }}>
+        <Logo360 width={200}/>
+      </div>
 
-        <div style={{
-          fontFamily   : '"DM Sans",system-ui,sans-serif',
-          fontWeight   : 300,
-          fontSize     : "clamp(0.56rem,1.4vw,0.82rem)",
-          letterSpacing: "0.58em",
-          textTransform: "uppercase" as const,
-          color        : "#9BBBFF",
-          textShadow   : "0 0 14px rgba(79,124,255,0.6)",
-          opacity      : subVisible ? 1 : 0,
-          transition   : subVisible ? "opacity 0.9s ease 0.3s" : "none",
-        }}>
-          · Vista360 ·
-        </div>
+      {/* Subtítulo */}
+      <div style={{
+        position:"absolute", left:"50%", top:"calc(44% + 80px)",
+        transform:"translateX(-50%)",
+        fontFamily:'"DM Sans",system-ui,sans-serif', fontWeight:300,
+        fontSize:"clamp(0.55rem,1.3vw,0.80rem)", letterSpacing:"0.58em",
+        textTransform:"uppercase" as const, color:"rgba(140,200,255,0.80)",
+        textShadow:"0 0 16px rgba(0,140,255,0.5)",
+        opacity:sub?1:0, transition:sub?"opacity 1s ease":"none",
+        whiteSpace:"nowrap",
+      }}>
+        · Vista360 ·
       </div>
     </div>
   );
