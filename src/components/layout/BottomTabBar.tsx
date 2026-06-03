@@ -36,24 +36,26 @@ const GLASS_CSS = `
       linear-gradient(rgba(14, 26, 59, 0.90), rgba(14, 26, 59, 0.90)) padding-box,
       linear-gradient(
         180deg,
-        rgba(255, 255, 255, 0.28) 0%,
-        rgba(160, 185, 220, 0.10) 28%,
-        rgba(40,  65, 115, 0.22) 62%,
-        rgba(0,   0,   0,  0.52) 100%
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.70) 12%,
+        rgba(190, 215, 255, 0.35) 30%,
+        rgba(20,  45, 100, 0.15) 62%,
+        rgba(0,   0,   0,  0.70) 88%,
+        rgba(0,   0,   0,  0.80) 100%
       ) border-box;
 
     /* Borde transparente — el gradiente pinta el aro */
     border: 0.5px solid transparent;
 
     box-shadow:
-      /* Hairline oscuro exterior — silueta y profundidad extra */
-      0 0 0 0.5px rgba(0, 0, 0, 0.22),
-      /* Luz exacta 1px en la cara interior superior */
-      inset 0 1px 0 rgba(255, 255, 255, 0.65),
-      /* Reflejo exacto 1px en la cara interior inferior */
-      inset 0 -1px 0 rgba(255, 255, 255, 0.30),
-      /* Sombra de elevación */
-      0 4px 16px rgba(14, 26, 59, 0.16);
+      /* Silueta exterior fina */
+      0 0 0 0.5px rgba(0, 0, 0, 0.28),
+      /* Specular superior: rayo de luz entrando al cristal */
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.88),
+      /* Sombra inferior interior: profundidad del cristal */
+      inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+      /* Elevación suave */
+      0 4px 20px rgba(14, 26, 59, 0.20);
 
     transition:
       left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
