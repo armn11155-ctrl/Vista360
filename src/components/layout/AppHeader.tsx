@@ -26,9 +26,10 @@ const GLASS_BTN_CSS = `
       linear-gradient(
         180deg,
         rgba(255, 255, 255, 0.92)  0%,
-        rgba(210, 225, 255, 0.48) 22%,
-        rgba(60,  100, 180, 0.16) 58%,
-        rgba(0,     0,   0, 0.58) 100%
+        rgba(210, 225, 255, 0.48) 20%,
+        rgba(60,  100, 180, 0.12) 50%,
+        rgba(0,     0,   0, 0.28) 72%,
+        rgba(190, 220, 255, 0.72) 100%
       ) border-box !important;
 
     border: 1px solid transparent !important;
@@ -36,10 +37,10 @@ const GLASS_BTN_CSS = `
     box-shadow:
       /* Hairline exterior oscuro — el aro "sobresale" */
       0 0 0 0.5px rgba(0, 0, 0, 0.22),
-      /* Luz cara interior superior (1 px exacto, sin blur) */
+      /* Luz cara interior superior */
       inset 0 1.5px 0 rgba(255, 255, 255, 0.90),
-      /* Sombra cara interior inferior */
-      inset 0 -1px  0 rgba(0, 0, 0, 0.12),
+      /* Luz cara interior inferior — reflejo secundario */
+      inset 0 -1.5px 0 rgba(255, 255, 255, 0.55),
       /* Elevación suave */
       0 2px 8px rgba(0, 0, 0, 0.10) !important;
 
