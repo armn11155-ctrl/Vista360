@@ -25,7 +25,8 @@ function Splash({ done }: SplashProps) {
       document.documentElement.style.background = c;
       document.body.style.background = c;
     };
-    setColor("#000000");
+    // Azul del brillo atmosférico de la Tierra en la imagen
+    setColor("#0d5ea6");
     return () => {
       setColor(T.bg);
       document.documentElement.style.background = "";
@@ -113,7 +114,7 @@ function Splash({ done }: SplashProps) {
           transition: "opacity 1s ease, transform 1s cubic-bezier(0.2,1,0.4,1)",
         }}
       >
-        <Logo360 width={260} />
+        <Logo360 width={310} />
       </div>
     </div>
   );
