@@ -247,7 +247,7 @@ function HeroCard({
                 lineHeight: 1,
               }}
             >
-              {visible ? fmt(ingActual) : <span style={{ letterSpacing: 2, color: "#fff" }}>S/ ••••••</span>}
+              {visible ? fmt(ingActual) : <span style={{ letterSpacing: 3, color: "#fff", fontSize: "1em", fontWeight: "inherit" }}>S/ ••••••</span>}
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, color: positive ? "#5BD39A" : "#FF7A8A",
               position: "relative", display: "inline-block" }}>
@@ -255,7 +255,8 @@ function HeroCard({
                 {positive ? "+" : ""}{deltaPct.toFixed(1)}%
               </span>
               {!visible && (
-                <span style={{ position: "absolute", left: 0, top: 0, whiteSpace: "nowrap" }}>
+                <span style={{ position: "absolute", left: 0, top: 0, whiteSpace: "nowrap",
+                  fontSize: "1em", fontWeight: "inherit" }}>
                   {positive ? "+" : ""}{mask(deltaPct.toFixed(1))}%
                 </span>
               )}
@@ -287,7 +288,8 @@ function HeroCard({
               </span>
               {!visible && (
                 <span style={{ position: "absolute", left: 8, top: "50%",
-                  transform: "translateY(-50%)", whiteSpace: "nowrap" }}>
+                  transform: "translateY(-50%)", whiteSpace: "nowrap",
+                  fontSize: "1em", fontWeight: "inherit" }}>
                   {positive ? "+" : "-"}{mask(fmt(Math.abs(delta)))}
                 </span>
               )}
