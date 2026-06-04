@@ -294,7 +294,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
               }}
             >
               <span style={{ fontSize: 17, fontWeight: 800, color: T.text }}>Editar Contrato</span>
-              <button className="v360-glass-btn"
+              <button
                 onClick={closeModal}
                 style={{
                   background: T.border,
@@ -415,7 +415,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                   {mesesForm.map(m => {
                     const pagado = !!(form.pagosMeses || {})[m.key];
                     return (
-                      <button className="v360-glass-btn"
+                      <button
                         key={m.key}
                         onClick={() => toggleMesPago(m.key)}
                         onMouseDown={e => e.stopPropagation()}
@@ -442,7 +442,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
               </F>
             )}
             <div style={{ display: "flex", gap: 10, marginTop: 20, position: "sticky", bottom: 0 }}>
-              <button className="v360-glass-btn"
+              <button
                 onClick={closeModal}
                 style={{
                   flex: 1,
@@ -460,7 +460,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
               >
                 Cancelar
               </button>
-              <button className="v360-glass-btn"
+              <button
                 onClick={guardar}
                 disabled={saving}
                 style={{
@@ -483,7 +483,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
             </div>
             <div style={{ marginTop: 24, paddingTop: 18, borderTop: `1px dashed ${T.border}` }}>
               {!confirmDelete ? (
-                <button className="v360-glass-btn"
+                <button
                   onClick={() => setConfirmDelete(true)}
                   style={{
                     width: "100%",
@@ -542,7 +542,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                     Esta acción marcará el contrato como eliminado.
                   </div>
                   <div style={{ display: "flex", gap: 10 }}>
-                    <button className="v360-glass-btn"
+                    <button
                       onClick={() => setConfirmDelete(false)}
                       style={{
                         flex: 1,
@@ -559,7 +559,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                     >
                       Cancelar
                     </button>
-                    <button className="v360-glass-btn"
+                    <button
                       onClick={eliminar}
                       disabled={saving}
                       style={{
@@ -634,11 +634,8 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
             style={{
               padding: "8px 14px",
               borderRadius: 12,
-              backdropFilter: "blur(20px) saturate(180%)",
-              WebkitBackdropFilter: "blur(20px) saturate(180%)",
-              background: "linear-gradient(rgba(122,150,200,0.18), rgba(122,150,200,0.10))",
-              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 2px 8px rgba(0,0,0,0.18)",
-              border: "none",
+              background: "rgba(255,255,255,0.13)",
+              border: "1px solid rgba(255,255,255,0.25)",
               color: "#fff",
               fontWeight: 700,
               fontSize: 14,
@@ -665,11 +662,8 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
               flex: 1,
               padding: "8px 14px",
               borderRadius: 12,
-              backdropFilter: "blur(20px) saturate(180%)",
-              WebkitBackdropFilter: "blur(20px) saturate(180%)",
-              background: "linear-gradient(rgba(122,150,200,0.18), rgba(122,150,200,0.10))",
-              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 2px 8px rgba(0,0,0,0.18)",
-              border: "none",
+              background: "rgba(255,255,255,0.13)",
+              border: "1px solid rgba(255,255,255,0.25)",
               color: "#fff",
               fontWeight: 600,
               fontSize: 14,
@@ -760,7 +754,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                 const futuro =
                   anioEfectivo === new Date().getFullYear() && i > mesActual && val === 0;
                 return (
-                  <button className="v360-glass-btn"
+                  <button
                     key={i}
                     onClick={() => setMesSel(mesSel === i ? null : i)}
                     style={{
@@ -1128,7 +1122,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                                   {c.pagado ? "Pagado" : "Pendiente"}
                                 </span>
                               </div>
-                              <button className="v360-glass-btn"
+                              <button
                                 onClick={() => openEdit(c)}
                                 style={{
                                   display: "inline-flex",
