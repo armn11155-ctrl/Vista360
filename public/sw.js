@@ -11,7 +11,7 @@
  * invalidar el caché anterior.
  */
 
-const CACHE_VERSION = "v360-v7";
+const CACHE_VERSION = "v360-v8";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -84,9 +84,11 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // 4. Network-First: navegación HTML (con fallback offline)
+  // 4. Stale-While-Revalidate: navegación HTML
+  // Sirve el HTML cacheado INMEDIATAMENTE (sin esperar red) → elimina
+  // la pantalla blanca al abrir la app. Actualiza el caché en background.
   if (request.mode === "navigate") {
-    event.respondWith(networkFirstWithOfflineFallback(request));
+    event.respondWith(staleWhileRevalidateHTML(request));
     return;
   }
 
@@ -113,23 +115,24 @@ async function cacheFirst(request, cacheName) {
   }
 }
 
-async function networkFirstWithOfflineFallback(request) {
-  try {
-    const response = await fetch(request);
-    const cache = await caches.open(STATIC_CACHE);
-    cache.put(request, response.clone());
-    return response;
-  } catch {
-    const cached = await caches.match(request) || await caches.match("/index.html");
-    if (cached) return cached;
-    return new Response(
-      `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Sin conexión | Vista360</title></head>
-       <body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#0E1A3B;color:#fff;">
-         <div style="text-align:center"><h2>📡 Sin conexión</h2><p>Los datos guardados estarán disponibles cuando vuelva la red.</p></div>
-       </body></html>`,
-      { headers: { "Content-Type": "text/html" } },
-    );
-  }
+// HTML: Stale-While-Revalidate
+// 1. Devuelve el HTML cacheado inmediatamente (primer paint = dark, sin flash blanco)
+// 2. Actualiza el caché en background para tener siempre la versión fresca
+async function staleWhileRevalidateHTML(request) {
+  const cache = await caches.open(STATIC_CACHE);
+  const cached = await cache.match(request) || await cache.match("/index.html");
+
+  // Actualización en background — no bloquea la respuesta
+  const networkPromise = fetch(request)
+    .then(response => {
+      if (response.ok) cache.put(request, response.clone());
+      return response;
+    })
+    .catch(() => null);
+
+  // Si hay caché: servir inmediatamente (cero espera = cero flash blanco)
+  // Si no hay caché (primera visita): esperar la red
+  return cached || networkPromise;
 }
 
 async function staleWhileRevalidate(request, cacheName) {
