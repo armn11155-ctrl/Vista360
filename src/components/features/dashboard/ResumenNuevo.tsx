@@ -245,9 +245,28 @@ function HeroCard({
                 color: "#fff",
                 letterSpacing: "-0.03em",
                 lineHeight: 1,
+                position: "relative",
               }}
             >
-              {visible ? fmt(ingActual) : <span style={{ letterSpacing: 3, color: "#fff", fontSize: "1em", fontWeight: "inherit" }}>S/ ••••••</span>}
+              <span style={{ visibility: visible ? "visible" : "hidden" }}>
+                {fmt(ingActual)}
+              </span>
+              {!visible && (
+                <span
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: 0,
+                    fontSize: "1em",
+                    fontWeight: "inherit",
+                    color: "#fff",
+                    letterSpacing: "0.12em",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {"S/ " + "•".repeat(Math.max(4, fmt(ingActual).replace("S/ ", "").length))}
+                </span>
+              )}
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, color: positive ? "#5BD39A" : "#FF7A8A",
               position: "relative", display: "inline-block" }}>
