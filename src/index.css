@@ -171,32 +171,3 @@ textarea {
   padding-bottom: 80px;
 }
 
-/* ── Swipe de pestaña — entrada desde el lado correcto ─────────────────
-   useSwipeNav anota data-swipe-dir en <body> justo antes de navegar.
-   "left"  = usuario deslizó hacia la izquierda → siguiente pestaña entra desde la derecha
-   "right" = usuario deslizó hacia la derecha   → pestaña anterior entra desde la izquierda
-   ─────────────────────────────────────────────────────────────────── */
-@keyframes swipeInFromRight {
-  from { opacity: 0; transform: translateX(40px); }
-  to   { opacity: 1; transform: translateX(0);    }
-}
-
-@keyframes swipeInFromLeft {
-  from { opacity: 0; transform: translateX(-40px); }
-  to   { opacity: 1; transform: translateX(0);     }
-}
-
-body[data-swipe-dir="left"]  .tabPanel {
-  animation: swipeInFromRight 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-body[data-swipe-dir="right"] .tabPanel {
-  animation: swipeInFromLeft  0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body[data-swipe-dir="left"]  .tabPanel,
-  body[data-swipe-dir="right"] .tabPanel {
-    animation: none;
-  }
-}
