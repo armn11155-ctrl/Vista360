@@ -23,6 +23,8 @@ const PRECACHE_URLS = [
   "/icon-192.png",
   "/icon-512.png",
   "/apple-touch-icon.png",
+  // Assets críticos del splash — pre-cacheados para carga instantánea
+  "/splash-bg.jpg",
 ];
 
 // Dominios que NUNCA se cachean (Firebase, Cloudinary, APIs)
@@ -159,3 +161,4 @@ self.addEventListener("notificationclick", event => {
       }),
   );
 });
+
