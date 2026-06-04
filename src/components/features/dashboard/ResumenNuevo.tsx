@@ -245,7 +245,7 @@ function HeroCard({
                 lineHeight: 1,
               }}
             >
-              {visible ? fmt(ingActual) : <span style={{ letterSpacing: 2, opacity: 0.55 }}>S/ ••••••</span>}
+              {visible ? fmt(ingActual) : <span style={{ letterSpacing: 2, color: "#fff" }}>S/ ••••••</span>}
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, color: positive ? "#5BD39A" : "#FF7A8A" }}>
               {positive ? "+" : ""}{visible ? `${deltaPct.toFixed(1)}%` : "••%"}
