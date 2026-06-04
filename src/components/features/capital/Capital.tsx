@@ -2204,15 +2204,19 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                 borderRadius: 99,
                 whiteSpace: "nowrap",
                 flexShrink: 0,
-                background: section === t.id ? "rgba(16,185,129,0.18)" : "rgba(255,255,255,0.05)",
-                border: `1px solid ${section === t.id ? "rgba(16,185,129,0.45)" : "rgba(255,255,255,0.08)"}`,
-                color: section === t.id ? "#34D399" : "rgba(148,175,255,0.5)",
+                backdropFilter: "blur(20px) saturate(180%)",
+                WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                background: section === t.id
+                  ? "linear-gradient(rgba(122,150,200,0.22), rgba(122,150,200,0.12))"
+                  : "rgba(122,150,200,0.07)",
+                border: "none",
+                boxShadow: section === t.id ? "inset 0 0 0 1px rgba(255,255,255,0.07), inset 1.8px 3px 0px -2px rgba(255,255,255,0.36), inset -2px -2px 0px -2px rgba(255,255,255,0.32), inset -3px -8px 1px -6px rgba(255,255,255,0.24), inset -0.3px -1px 4px 0px rgba(0,0,0,0.32), inset -1.5px 2.5px 0px -2px rgba(0,0,0,0.36), inset 0px 3px 4px -2px rgba(0,0,0,0.36), inset 2px -6.5px 1px -4px rgba(0,0,0,0.18), 0px 1px 5px rgba(0,0,0,0.30), 0px 8px 24px rgba(0,0,0,0.28)" : "inset 0 0 0 1px rgba(255,255,255,0.06)",
+                color: section === t.id ? "#0E1A3B" : "rgba(14,26,59,0.52)",
                 fontSize: 12,
                 fontWeight: section === t.id ? 700 : 500,
                 cursor: "pointer",
                 touchAction: "manipulation",
                 fontFamily: "inherit",
-                boxShadow: "none",
               }}
             >
               <span style={{ fontSize: 13 }}>{t.icon}</span>
