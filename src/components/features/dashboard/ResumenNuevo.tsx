@@ -282,7 +282,7 @@ function HeroCard({
             {visible && <span style={{ fontSize: 11, color: "rgba(200,212,240,0.55)" }}>vs mes anterior</span>}
           </div>
           <div style={{ flex: 1 }} />
-          <button className="v360-glass-btn"
+          <button
             onClick={() => setTab("contratos")}
             style={{
               marginTop: 14,
@@ -319,7 +319,7 @@ function HeroCard({
 
         <div style={{ flex: "1 1 44%", minWidth: 0, display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button className="v360-glass-btn"
+            <button
               onClick={() => setVisible(v => !v)}
               style={{
                 display: "inline-flex",
