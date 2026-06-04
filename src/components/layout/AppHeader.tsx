@@ -21,14 +21,15 @@ interface AppHeaderProps {
 // el border-box pinta el aro 3D con gradiente de luz arriba / sombra abajo.
 const GLASS_BTN_CSS = `
   .v360-icon-glass {
-    backdrop-filter: blur(20px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-    background: linear-gradient(
-      rgba(122,150,200,0.14),
-      rgba(122,150,200,0.08)
-    ) !important;
-    border: none !important;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07), inset 1.8px 3px 0px -2px rgba(255,255,255,0.36), inset -2px -2px 0px -2px rgba(255,255,255,0.32), inset -3px -8px 1px -6px rgba(255,255,255,0.24), inset -0.3px -1px 4px 0px rgba(0,0,0,0.32), inset -1.5px 2.5px 0px -2px rgba(0,0,0,0.36), inset 0px 3px 4px -2px rgba(0,0,0,0.36), inset 2px -6.5px 1px -4px rgba(0,0,0,0.18), 0px 1px 5px rgba(0,0,0,0.30), 0px 8px 24px rgba(0,0,0,0.28) !important;
+    /* Glass sutil para botones pequeños — sin gradiente, sin las 10 capas */
+    backdrop-filter: blur(10px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.13) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.22),
+      inset 0 -1px 0 rgba(0,0,0,0.10),
+      0 2px 8px rgba(0,0,0,0.18) !important;
     isolation: isolate;
     overflow: hidden;
   }
