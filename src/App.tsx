@@ -9,7 +9,7 @@ import { ALLOWED_EMAILS } from "./config/constants";
 import { ToastProvider } from "./context/UIContext";
 import { AppProvider } from "./context/AppContext";
 import { useAppShell } from "./hooks/useAppShell";
-import { SwipeTabWrapper } from "./components/layout/SwipeTabWrapper";
+// SwipeTabWrapper eliminado — se reemplazó por scroll div simple (sin swipe)
 import { useViewportSetup } from "./hooks/useViewportSetup";
 import { prefetchAllTabs, AppRouter } from "./components/layout/AppRouter";
 import { ShellErrorBoundary } from "./components/shared/ShellErrorBoundary";
@@ -79,19 +79,29 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           </main>
         )}
 
-        {/* ── Tabs: SwipeTabWrapper maneja el gesto y el preview ── */}
+        {/* ── Tabs: scroll simple sin swipe horizontal ── */}
         {!shell.showProfile && (
-          <SwipeTabWrapper
-            scrollRef={shell.scrollRef}
-            disabled={shell.anyModalOpen || shell.drawerOpen || shell.notifOpen || shell.globalSearch}
-          >
-            <AppRouter
-              userName={shell.userName}
-              autoScan={shell.autoScan}
-              setAutoScan={shell.setAutoScan}
-              onModalChange={shell.setAnyModalOpen}
-            />
-          </SwipeTabWrapper>
+          <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
+            <div
+              ref={shell.scrollRef}
+              data-scroll
+              style={{
+                position: "absolute",
+                inset: 0,
+                overflowY: "scroll",
+                overflowX: "hidden",
+                overscrollBehavior: "none",
+                touchAction: "pan-y",
+              }}
+            >
+              <AppRouter
+                userName={shell.userName}
+                autoScan={shell.autoScan}
+                setAutoScan={shell.setAutoScan}
+                onModalChange={shell.setAnyModalOpen}
+              />
+            </div>
+          </div>
         )}
 
         {!shell.anyModalOpen && (
