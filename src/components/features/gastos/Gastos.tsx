@@ -824,11 +824,11 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
           <button className="v360-glass-btn"
             onClick={abrirNuevo}
             style={{
-              background: "linear-gradient(135deg,#2563EB,#3B82F6)",
+              background: "transparent",
               border: "none",
               borderRadius: 12,
               padding: "10px 18px",
-              color: "#fff",
+              color: "#0E1A3B",
               fontWeight: 700,
               fontSize: 13,
               cursor: "pointer",
@@ -843,11 +843,11 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
           <button className="v360-glass-btn"
             onClick={abrirNuevoSueldo}
             style={{
-              background: "linear-gradient(135deg,#2563EB,#3B82F6)",
+              background: "transparent",
               border: "none",
               borderRadius: 12,
               padding: "10px 18px",
-              color: "#fff",
+              color: "#0E1A3B",
               fontWeight: 700,
               fontSize: 13,
               cursor: "pointer",
