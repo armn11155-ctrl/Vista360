@@ -119,11 +119,36 @@ export function BottomTabBar({
 }: BottomTabBarProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  // Rutas con fondo oscuro — íconos y letras en blanco automáticamente
-  const DARK_ROUTES = new Set(['/', '/mapa']);
-  const onDark = DARK_ROUTES.has(pathname);
-  const iconColor = onDark ? '#ffffff' : '#0E1A3B';
-  const iconColorMuted = onDark ? 'rgba(255,255,255,0.55)' : 'rgba(14,26,59,0.45)';
+
+  // Detección automática de fondo oscuro/claro por luminancia
+  // Lee el mismo HEADER_COLORS que usa useHeaderShell — sin hardcodear rutas
+  const HEADER_BG: Record<string, string> = {
+    "/":           "#0E1A3B",
+    "/capital":    "#0E1A3B",
+    "/contratos":  "#0E1A3B",
+    "/historico":  "#0A0F1A",
+    "/mapa":       "#070D1C",
+    "/crm":        "#0E1A3B",
+    "/gastos":     "#0E1A3B",
+    "/reportes":   "#0E1A3B",
+    "/proveedores":"#0E1A3B",
+    "/facturacion":"#0E1A3B",
+  };
+
+  // Calcula luminancia relativa — devuelve true si el color es oscuro
+  const isDark = (hex: string): boolean => {
+    const h = hex.replace("#", "");
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.45;
+  };
+
+  // Fondo real de la ruta actual (fallback: blanco = claro)
+  const routeBg   = HEADER_BG[pathname] ?? "#ffffff";
+  const onDark    = isDark(routeBg);
+  const iconColor = onDark ? "#ffffff" : "#0E1A3B";
+  const iconColorMuted = onDark ? "rgba(255,255,255,0.55)" : "rgba(14,26,59,0.45)";
 
   const containerRef = useRef<HTMLDivElement>(null);
   const btnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
