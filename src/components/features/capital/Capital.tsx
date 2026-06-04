@@ -998,7 +998,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           >
             Cuentas bancarias
           </div>
-          <button
+          <button className="v360-glass-btn"
             onClick={() => openAdd("cuentas")}
             style={{
               display: "inline-flex",
@@ -1083,7 +1083,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                   {fmtS2(c.saldo)}
                 </div>
               </div>
-              <button
+              <button className="v360-glass-btn"
                 onClick={() => openEdit("cuentas", c)}
                 style={{
                   width: 30,
@@ -1140,7 +1140,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
               Efectivo disponible en caja
             </div>
           </div>
-          <button
+          <button className="v360-glass-btn"
             onClick={() => {
               setModal("caja");
               setForm({ caja: String(data.caja) });
@@ -1288,7 +1288,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           >
             Mis activos
           </div>
-          <button
+          <button className="v360-glass-btn"
             onClick={() => openAdd("activos")}
             style={{
               display: "inline-flex",
@@ -1373,7 +1373,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                     {fmtS2(a.valor)}
                   </div>
                 </div>
-                <button
+                <button className="v360-glass-btn"
                   onClick={() => openEdit("activos", a)}
                   style={{
                     width: 30,
@@ -1493,7 +1493,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             >
               Distribución
             </div>
-            <button
+            <button className="v360-glass-btn"
               onClick={() => {
                 setModal("fondos");
                 const f2 = {};
@@ -1608,7 +1608,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           >
             Mis objetivos
           </div>
-          <button
+          <button className="v360-glass-btn"
             onClick={() => openAdd("objetivos")}
             style={{
               display: "inline-flex",
@@ -1679,7 +1679,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                       </div>
                     )}
                   </div>
-                  <button
+                  <button className="v360-glass-btn"
                     onClick={() => openEdit("objetivos", o)}
                     style={{
                       width: 30,
@@ -1772,7 +1772,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
       />
       <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
         {editItem && (
-          <button
+          <button className="v360-glass-btn"
             onClick={() => {
               deleteItem("cuentas", editItem.id);
               closeModal();
@@ -1794,7 +1794,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             Eliminar
           </button>
         )}
-        <button
+        <button className="v360-glass-btn"
           onClick={() => saveItem("cuentas")}
           disabled={saving}
           style={{
@@ -1833,7 +1833,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
         prefix="S/"
         placeholder="0.00"
       />
-      <button
+      <button className="v360-glass-btn"
         onClick={async () => {
           setSaving(true);
           await saveData({ caja: Number(form.caja || 0) });
@@ -1905,7 +1905,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
       />
       <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
         {editItem && (
-          <button
+          <button className="v360-glass-btn"
             onClick={() => {
               deleteItem("activos", editItem.id);
               closeModal();
@@ -1927,7 +1927,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             Eliminar
           </button>
         )}
-        <button
+        <button className="v360-glass-btn"
           onClick={() => saveItem("activos")}
           disabled={saving}
           style={{
@@ -1964,7 +1964,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             {f.label}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <button
+            <button className="v360-glass-btn"
               onClick={() =>
                 setForm(prev => ({
                   ...prev,
@@ -2016,7 +2016,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                 )}
               </div>
             </div>
-            <button
+            <button className="v360-glass-btn"
               onClick={() =>
                 setForm(prev => ({
                   ...prev,
@@ -2055,7 +2055,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
       >
         Total: {data.fondos.reduce((s, f, i) => s + Number(form[`pct_${i}`] ?? f.pct), 0)}%
       </div>
-      <button
+      <button className="v360-glass-btn"
         onClick={saveFondos}
         disabled={saving}
         style={{
@@ -2115,7 +2115,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
       />
       <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
         {editItem && (
-          <button
+          <button className="v360-glass-btn"
             onClick={() => {
               deleteItem("objetivos", editItem.id);
               closeModal();
@@ -2137,7 +2137,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             Eliminar
           </button>
         )}
-        <button
+        <button className="v360-glass-btn"
           onClick={() => saveItem("objetivos")}
           disabled={saving}
           style={{
@@ -2193,7 +2193,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           }}
         >
           {TABS.map(t => (
-            <button
+            <button className="v360-glass-btn"
               key={t.id}
               onClick={() => setSection(t.id)}
               style={{
@@ -2204,19 +2204,15 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                 borderRadius: 99,
                 whiteSpace: "nowrap",
                 flexShrink: 0,
-                backdropFilter: "blur(20px) saturate(180%)",
-                WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                background: section === t.id
-                  ? "linear-gradient(rgba(122,150,200,0.22), rgba(122,150,200,0.12))"
-                  : "rgba(122,150,200,0.07)",
-                border: "none",
-                boxShadow: section === t.id ? "inset 0 0 0 1px rgba(255,255,255,0.07), inset 1.8px 3px 0px -2px rgba(255,255,255,0.36), inset -2px -2px 0px -2px rgba(255,255,255,0.32), inset -3px -8px 1px -6px rgba(255,255,255,0.24), inset -0.3px -1px 4px 0px rgba(0,0,0,0.32), inset -1.5px 2.5px 0px -2px rgba(0,0,0,0.36), inset 0px 3px 4px -2px rgba(0,0,0,0.36), inset 2px -6.5px 1px -4px rgba(0,0,0,0.18), 0px 1px 5px rgba(0,0,0,0.30), 0px 8px 24px rgba(0,0,0,0.28)" : "inset 0 0 0 1px rgba(255,255,255,0.06)",
-                color: section === t.id ? "#0E1A3B" : "rgba(14,26,59,0.52)",
+                background: section === t.id ? "rgba(16,185,129,0.18)" : "rgba(255,255,255,0.05)",
+                border: `1px solid ${section === t.id ? "rgba(16,185,129,0.45)" : "rgba(255,255,255,0.08)"}`,
+                color: section === t.id ? "#34D399" : "rgba(148,175,255,0.5)",
                 fontSize: 12,
                 fontWeight: section === t.id ? 700 : 500,
                 cursor: "pointer",
                 touchAction: "manipulation",
                 fontFamily: "inherit",
+                boxShadow: "none",
               }}
             >
               <span style={{ fontSize: 13 }}>{t.icon}</span>
