@@ -74,6 +74,7 @@ export function AppHeader({
           paddingRight: 16,
           paddingBottom: 6,
           background: headerColor,
+          transition: "background-color 200ms ease",
           borderBottom: headerDark ? "none" : `1px solid rgba(229,231,235,0.8)`,
           display: "flex",
           alignItems: "center",
