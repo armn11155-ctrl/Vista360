@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useLayoutEffect } from "react";
 import { useLocation } from "react-router-dom";
 import type { User } from "firebase/auth";
 import { T } from "../config/theme";
@@ -39,21 +39,21 @@ export function useHeaderShell(user: User, showProfile: boolean) {
   const headerColor = showProfile ? T.bg : (HEADER_COLORS[location.pathname] ?? T.bg);
   const headerDark = headerColor !== T.bg;
 
-  // ── theme-color dinámico con RAF — adapta status bar a cada ruta ────
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-      if (!meta) {
-        meta = document.createElement("meta");
-        meta.setAttribute("name", "theme-color");
-        document.head.appendChild(meta);
-      }
-      meta.setAttribute("content", headerColor);
-      document.documentElement.style.background = headerColor;
-      document.body.style.background = headerColor;
-      document.documentElement.style.setProperty("--app-bg", headerColor);
-    });
-    return () => cancelAnimationFrame(raf);
+  // ── theme-color síncrono con useLayoutEffect ─────────────────────────
+  // useLayoutEffect corre ANTES de que el browser pinte el frame —
+  // el status bar recibe el nuevo color en el mismo ciclo de render
+  // que el AppHeader, sin el delay de un frame del RAF anterior.
+  useLayoutEffect(() => {
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.setAttribute("name", "theme-color");
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute("content", headerColor);
+    document.documentElement.style.background = headerColor;
+    document.body.style.background = headerColor;
+    document.documentElement.style.setProperty("--app-bg", headerColor);
   }, [headerColor]);
 
   // ── Título del documento ───────────────────────────────────────────
@@ -84,4 +84,5 @@ export function useHeaderShell(user: User, showProfile: boolean) {
     pageTitle: TAB_TITLES[location.pathname] ?? "Inicio",
   };
 }
+
 
