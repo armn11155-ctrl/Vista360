@@ -72,7 +72,7 @@ export function AppHeader({
           paddingTop: "env(safe-area-inset-top)",
           paddingLeft: 16,
           paddingRight: 16,
-          paddingBottom: 12,
+          paddingBottom: 6,
           background: headerColor,
           borderBottom: headerDark ? "none" : `1px solid rgba(229,231,235,0.8)`,
           display: "flex",
