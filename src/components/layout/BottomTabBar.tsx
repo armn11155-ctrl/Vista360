@@ -15,12 +15,18 @@ interface BottomTabBarProps {
   onAddClick: () => void;
 }
 
-// ── CSS cristal líquido — borde con gradiente 3D real ────────────
-// Técnica: background dual padding-box / border-box
-//   El borde NO tiene un color plano — tiene un degradado que va
-//   de blanco brillante (arriba, donde pega la luz) a oscuro
-//   (abajo, en sombra). Eso le da volumen físico al aro.
+// ── CSS cristal líquido — glass upgrade con squish direction-aware ───
 const GLASS_CSS = `
+  /* ── Variables de reflex para tema oscuro de Vista360 ── */
+  .v360-bar {
+    --rl: 0.4;   /* reflex-light  */
+    --rd: 1.8;   /* reflex-dark   */
+    --cg: 122, 150, 200;   /* glass tint RGB */
+    --cl: 255, 255, 255;   /* light RGB      */
+    --cd: 0, 0, 0;         /* dark RGB       */
+  }
+
+  /* ── Pill deslizante ── */
   .v360-pill {
     position: absolute;
     top: 6px;
@@ -28,12 +34,8 @@ const GLASS_CSS = `
     border-radius: 18px;
     pointer-events: none;
 
-    /*
-      padding-box → color del interior (navy limpio)
-      border-box  → gradiente del aro: luz arriba, sombra abajo
-    */
     background:
-      linear-gradient(rgba(14, 26, 59, 0.90), rgba(14, 26, 59, 0.90)) padding-box,
+      linear-gradient(rgba(14, 26, 59, 0.92), rgba(14, 26, 59, 0.92)) padding-box,
       linear-gradient(
         180deg,
         rgba(255, 255, 255, 0.95) 0%,
@@ -44,24 +46,72 @@ const GLASS_CSS = `
         rgba(0,   0,   0,  0.80) 100%
       ) border-box;
 
-    /* Borde transparente — el gradiente pinta el aro */
     border: 0.5px solid transparent;
 
     box-shadow:
-      /* Silueta exterior fina */
-      0 0 0 0.5px rgba(0, 0, 0, 0.28),
-      /* Specular superior: rayo de luz entrando al cristal */
-      inset 0 1.5px 0 rgba(255, 255, 255, 0.88),
-      /* Sombra inferior interior: profundidad del cristal */
-      inset 0 -1px 0 rgba(0, 0, 0, 0.18),
-      /* Elevación suave */
-      0 4px 20px rgba(14, 26, 59, 0.20);
+      0 0 0 0.5px rgba(0, 0, 0, 0.30),
+      inset 0 0 0 1px  rgba(255,255,255, calc(var(--rl) * 0.10)),
+      inset 2px 1px 0px -1px rgba(255,255,255, calc(var(--rl) * 0.90)),
+      inset -1.5px -1px 0px -1px rgba(255,255,255, calc(var(--rl) * 0.80)),
+      inset -2px -6px 1px -5px rgba(255,255,255, calc(var(--rl) * 0.60)),
+      inset -1px 2px 3px -1px rgba(0,0,0, calc(var(--rd) * 0.20)),
+      inset 0px -4px 1px -2px rgba(0,0,0, calc(var(--rd) * 0.10)),
+      0px 3px 12px rgba(14, 26, 59, 0.45);
 
     transition:
-      left 0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
-      width 0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
+      left   0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
+      width  0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+
+  /* ── Squish: moviéndose a la derecha — se estira desde la izquierda ── */
+  .v360-pill--right {
+    transform-origin: left center;
+    animation: v360SquishRight 420ms cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+
+  /* ── Squish: moviéndose a la izquierda — se estira desde la derecha ── */
+  .v360-pill--left {
+    transform-origin: right center;
+    animation: v360SquishLeft 420ms cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+
+  @keyframes v360SquishRight {
+    0%   { scale: 1    1; }
+    40%  { scale: 1.18 1; }
+    100% { scale: 1    1; }
+  }
+
+  @keyframes v360SquishLeft {
+    0%   { scale: 1    1; }
+    40%  { scale: 1.18 1; }
+    100% { scale: 1    1; }
   }
 `;
+
+// ── Box-shadow multi-capa para la barra (dark glass) ────────────────
+// Misma técnica del referente: inset highlights arriba (luz),
+// inset sombras abajo (profundidad), drop-shadow exterior suave.
+const BAR_BOX_SHADOW = [
+  /* Borde perimetral tenue */
+  "inset 0 0 0 1px rgba(255,255,255,0.07)",
+  /* Specular superior: rayo de luz entrando al cristal */
+  "inset 1.8px 3px 0px -2px rgba(255,255,255,0.36)",
+  /* Highlight lateral derecho */
+  "inset -2px -2px 0px -2px rgba(255,255,255,0.32)",
+  /* Highlight borde inferior interior */
+  "inset -3px -8px 1px -6px rgba(255,255,255,0.24)",
+  /* Sombra interior suave */
+  "inset -0.3px -1px 4px 0px rgba(0,0,0,0.32)",
+  /* Sombra lateral oscura */
+  "inset -1.5px 2.5px 0px -2px rgba(0,0,0,0.36)",
+  /* Sombra inferior profundidad */
+  "inset 0px 3px 4px -2px rgba(0,0,0,0.36)",
+  /* Sombra borde exterior inferior */
+  "inset 2px -6.5px 1px -4px rgba(0,0,0,0.18)",
+  /* Drop shadow exterior: elevación */
+  "0px 1px 5px rgba(0,0,0,0.30)",
+  "0px 8px 24px rgba(0,0,0,0.28)",
+].join(", ");
 
 export function BottomTabBar({
   tabs,
@@ -73,13 +123,15 @@ export function BottomTabBar({
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  // Refs para medir posiciones reales de cada botón nav
   const containerRef = useRef<HTMLDivElement>(null);
   const btnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  // Posicion del pill deslizante
   const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
   const [pillReady, setPillReady] = useState(false);
+
+  // ── Tracking de dirección para squish ──────────────────────────────
+  const prevIdxRef = useRef<number>(-1);
+  const [squishClass, setSquishClass] = useState("");
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, tabId: string) => {
@@ -96,7 +148,6 @@ export function BottomTabBar({
     [navigate],
   );
 
-  // Medir el botón activo y mover el pill a su posición exacta
   useLayoutEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -114,13 +165,23 @@ export function BottomTabBar({
     const cRect = container.getBoundingClientRect();
     const bRect = btn.getBoundingClientRect();
 
-    setPill({
-      left: bRect.left - cRect.left,
-      width: bRect.width,
-    });
-    // Primer render: mostrar sin animación, luego activar transición
+    setPill({ left: bRect.left - cRect.left, width: bRect.width });
+
+    // ── Dirección del movimiento → clase squish ──
+    const currentIdx = NAV_TAB_IDS.indexOf(activeTab.id);
+    const prevIdx = prevIdxRef.current;
+
+    if (pillReady && prevIdx !== -1 && prevIdx !== currentIdx) {
+      const dir = currentIdx > prevIdx ? "v360-pill--right" : "v360-pill--left";
+      setSquishClass(dir);
+      // Limpiar clase al terminar la animación
+      const t = setTimeout(() => setSquishClass(""), 440);
+      return () => clearTimeout(t);
+    }
+
+    prevIdxRef.current = currentIdx;
     requestAnimationFrame(() => setPillReady(true));
-  }, [pathname, showProfile, tabs]);
+  }, [pathname, showProfile, tabs, pillReady]);
 
   return (
     <>
@@ -137,6 +198,7 @@ export function BottomTabBar({
       >
         <div
           ref={containerRef}
+          className="v360-bar"
           role="tablist"
           aria-label="Navegación principal"
           style={{
@@ -147,25 +209,24 @@ export function BottomTabBar({
             maxWidth: 480,
             margin: "0 auto",
             pointerEvents: "auto",
-            backdropFilter: "blur(24px) saturate(1.5)",
-            WebkitBackdropFilter: "blur(24px) saturate(1.5)",
-            background: "rgba(255, 255, 255, 0.72)",
-            border: "1px solid rgba(229,231,235,0.9)",
+            /* ── Dark glass upgrade ── */
+            backdropFilter: "blur(20px) saturate(180%)",
+            WebkitBackdropFilter: "blur(20px) saturate(180%)",
+            background:
+              "linear-gradient(rgba(var(--cg,122,150,200),0.14), rgba(var(--cg,122,150,200),0.08))",
             borderRadius: 28,
-            boxShadow: "0 8px 28px rgba(15,23,41,0.12), 0 2px 8px rgba(15,23,41,0.06)",
+            border: "none",
+            boxShadow: BAR_BOX_SHADOW,
           }}
         >
-          {/* ── Pill deslizante — se mueve entre tabs ── */}
+          {/* ── Pill deslizante con squish ── */}
           {pill && (
             <div
-              className="v360-pill"
+              className={`v360-pill${squishClass ? " " + squishClass : ""}`}
               style={{
                 left: pill.left,
                 width: pill.width,
-                // Sin transición en el primer frame para evitar slide desde 0
-                transition: pillReady
-                  ? undefined // usa la transición del CSS
-                  : "none",
+                transition: pillReady ? undefined : "none",
               }}
             />
           )}
@@ -210,9 +271,7 @@ export function BottomTabBar({
             return (
               <button
                 key={t.id}
-                ref={el => {
-                  btnRefs.current[t.id] = el;
-                }}
+                ref={el => { btnRefs.current[t.id] = el; }}
                 role="tab"
                 aria-selected={active}
                 aria-label={t.label}
@@ -221,7 +280,7 @@ export function BottomTabBar({
                 onKeyDown={e => handleKeyDown(e, t.id)}
                 style={{
                   position: "relative",
-                  zIndex: 1, // encima del pill
+                  zIndex: 1,
                   flex: 1,
                   display: "flex",
                   flexDirection: "column",
@@ -230,13 +289,13 @@ export function BottomTabBar({
                   gap: 3,
                   background: "transparent",
                   border: "none",
-                  color: active ? "#ffffff" : "#94A3B8",
+                  color: active ? "#ffffff" : "rgba(180,200,240,0.55)",
                   padding: "6px 4px",
                   minHeight: 48,
                   borderRadius: 18,
                   margin: "0 2px",
                   cursor: "pointer",
-                  transition: "color 0.2s ease",
+                  transition: "color 0.22s ease",
                 }}
               >
                 <div
