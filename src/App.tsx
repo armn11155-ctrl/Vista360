@@ -113,6 +113,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
               shell.setAutoScan(true);
               shell.handleTabClick("/gastos");
             }}
+            headerDark={shell.headerDark}
           />
         )}
 
