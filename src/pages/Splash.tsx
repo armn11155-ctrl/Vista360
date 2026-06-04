@@ -30,9 +30,10 @@ function Splash({ done }: SplashProps) {
     // En Android el negro coincide pixel a pixel con el top de la imagen
     setColor("#000000");
     return () => {
-      // Dejar que useHeaderShell maneje el color al montar AuthenticatedShell
-      document.documentElement.style.background = T.bg;
-      document.body.style.background = T.bg;
+      // fix: usar color oscuro inicial en vez de T.bg (#F2F4F8)
+      // para evitar el destello blanco antes de que useHeaderShell tome el control
+      document.documentElement.style.background = "#0E1A3B";
+      document.body.style.background = "#0E1A3B";
     };
   }, []);
 
