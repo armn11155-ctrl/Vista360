@@ -26,7 +26,7 @@ const GLASS_CSS = `
     --cd: 0, 0, 0;         /* dark RGB       */
   }
 
-  /* ── Pill deslizante ── */
+  /* ── Pill deslizante — mismo glass que la barra ── */
   .v360-pill {
     position: absolute;
     top: 6px;
@@ -34,29 +34,26 @@ const GLASS_CSS = `
     border-radius: 18px;
     pointer-events: none;
 
-    background:
-      linear-gradient(rgba(14, 26, 59, 0.92), rgba(14, 26, 59, 0.92)) padding-box,
-      linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.95) 0%,
-        rgba(255, 255, 255, 0.70) 12%,
-        rgba(190, 215, 255, 0.35) 30%,
-        rgba(20,  45, 100, 0.15) 62%,
-        rgba(0,   0,   0,  0.70) 88%,
-        rgba(0,   0,   0,  0.80) 100%
-      ) border-box;
+    /* Transparente, igual que la barra */
+    background: linear-gradient(
+      rgba(122, 150, 200, 0.18),
+      rgba(122, 150, 200, 0.10)
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
 
-    border: 0.5px solid transparent;
-
+    /* Mismo box-shadow multicapa que la barra */
     box-shadow:
-      0 0 0 0.5px rgba(0, 0, 0, 0.30),
-      inset 0 0 0 1px  rgba(255,255,255, calc(var(--rl) * 0.10)),
-      inset 2px 1px 0px -1px rgba(255,255,255, calc(var(--rl) * 0.90)),
-      inset -1.5px -1px 0px -1px rgba(255,255,255, calc(var(--rl) * 0.80)),
-      inset -2px -6px 1px -5px rgba(255,255,255, calc(var(--rl) * 0.60)),
-      inset -1px 2px 3px -1px rgba(0,0,0, calc(var(--rd) * 0.20)),
-      inset 0px -4px 1px -2px rgba(0,0,0, calc(var(--rd) * 0.10)),
-      0px 3px 12px rgba(14, 26, 59, 0.45);
+      inset 0 0 0 1px rgba(255,255,255,0.07),
+      inset 1.8px 3px 0px -2px rgba(255,255,255,0.36),
+      inset -2px -2px 0px -2px rgba(255,255,255,0.32),
+      inset -3px -8px 1px -6px rgba(255,255,255,0.24),
+      inset -0.3px -1px 4px 0px rgba(0,0,0,0.32),
+      inset -1.5px 2.5px 0px -2px rgba(0,0,0,0.36),
+      inset 0px 3px 4px -2px rgba(0,0,0,0.36),
+      inset 2px -6.5px 1px -4px rgba(0,0,0,0.18),
+      0px 1px 5px rgba(0,0,0,0.30),
+      0px 8px 24px rgba(0,0,0,0.28);
 
     transition:
       left   0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
@@ -289,7 +286,7 @@ export function BottomTabBar({
                   gap: 3,
                   background: "transparent",
                   border: "none",
-                  color: active ? "#ffffff" : "rgba(180,200,240,0.55)",
+                  color: active ? "#4A8CFF" : "rgba(74,140,255,0.52)",
                   padding: "6px 4px",
                   minHeight: 48,
                   borderRadius: 18,
