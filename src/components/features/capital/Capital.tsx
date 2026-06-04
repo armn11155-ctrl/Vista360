@@ -998,7 +998,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           >
             Cuentas bancarias
           </div>
-          <button className="v360-glass-btn"
+          <button
             onClick={() => openAdd("cuentas")}
             style={{
               display: "inline-flex",
@@ -1083,7 +1083,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                   {fmtS2(c.saldo)}
                 </div>
               </div>
-              <button className="v360-glass-btn"
+              <button
                 onClick={() => openEdit("cuentas", c)}
                 style={{
                   width: 30,
@@ -1140,7 +1140,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
               Efectivo disponible en caja
             </div>
           </div>
-          <button className="v360-glass-btn"
+          <button
             onClick={() => {
               setModal("caja");
               setForm({ caja: String(data.caja) });
@@ -1288,7 +1288,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           >
             Mis activos
           </div>
-          <button className="v360-glass-btn"
+          <button
             onClick={() => openAdd("activos")}
             style={{
               display: "inline-flex",
@@ -1373,7 +1373,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                     {fmtS2(a.valor)}
                   </div>
                 </div>
-                <button className="v360-glass-btn"
+                <button
                   onClick={() => openEdit("activos", a)}
                   style={{
                     width: 30,
@@ -1493,7 +1493,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             >
               Distribución
             </div>
-            <button className="v360-glass-btn"
+            <button
               onClick={() => {
                 setModal("fondos");
                 const f2 = {};
@@ -1608,7 +1608,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           >
             Mis objetivos
           </div>
-          <button className="v360-glass-btn"
+          <button
             onClick={() => openAdd("objetivos")}
             style={{
               display: "inline-flex",
@@ -1679,7 +1679,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                       </div>
                     )}
                   </div>
-                  <button className="v360-glass-btn"
+                  <button
                     onClick={() => openEdit("objetivos", o)}
                     style={{
                       width: 30,
@@ -1772,7 +1772,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
       />
       <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
         {editItem && (
-          <button className="v360-glass-btn"
+          <button
             onClick={() => {
               deleteItem("cuentas", editItem.id);
               closeModal();
@@ -1794,7 +1794,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             Eliminar
           </button>
         )}
-        <button className="v360-glass-btn"
+        <button
           onClick={() => saveItem("cuentas")}
           disabled={saving}
           style={{
@@ -1833,7 +1833,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
         prefix="S/"
         placeholder="0.00"
       />
-      <button className="v360-glass-btn"
+      <button
         onClick={async () => {
           setSaving(true);
           await saveData({ caja: Number(form.caja || 0) });
@@ -1905,7 +1905,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
       />
       <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
         {editItem && (
-          <button className="v360-glass-btn"
+          <button
             onClick={() => {
               deleteItem("activos", editItem.id);
               closeModal();
@@ -1927,7 +1927,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             Eliminar
           </button>
         )}
-        <button className="v360-glass-btn"
+        <button
           onClick={() => saveItem("activos")}
           disabled={saving}
           style={{
@@ -1964,7 +1964,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             {f.label}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <button className="v360-glass-btn"
+            <button
               onClick={() =>
                 setForm(prev => ({
                   ...prev,
@@ -2016,7 +2016,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                 )}
               </div>
             </div>
-            <button className="v360-glass-btn"
+            <button
               onClick={() =>
                 setForm(prev => ({
                   ...prev,
@@ -2055,7 +2055,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
       >
         Total: {data.fondos.reduce((s, f, i) => s + Number(form[`pct_${i}`] ?? f.pct), 0)}%
       </div>
-      <button className="v360-glass-btn"
+      <button
         onClick={saveFondos}
         disabled={saving}
         style={{
@@ -2115,7 +2115,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
       />
       <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
         {editItem && (
-          <button className="v360-glass-btn"
+          <button
             onClick={() => {
               deleteItem("objetivos", editItem.id);
               closeModal();
@@ -2137,7 +2137,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             Eliminar
           </button>
         )}
-        <button className="v360-glass-btn"
+        <button
           onClick={() => saveItem("objetivos")}
           disabled={saving}
           style={{
@@ -2204,21 +2204,15 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                 borderRadius: 99,
                 whiteSpace: "nowrap",
                 flexShrink: 0,
-                backdropFilter: "blur(16px) saturate(160%)",
-                WebkitBackdropFilter: "blur(16px) saturate(160%)",
-                background: section === t.id
-                  ? "linear-gradient(rgba(122,150,200,0.28), rgba(122,150,200,0.16))"
-                  : "rgba(122,150,200,0.07)",
-                border: `1px solid ${section === t.id ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.06)"}`,
-                boxShadow: section === t.id
-                  ? "inset 0 1px 0 rgba(255,255,255,0.20), 0 2px 8px rgba(0,0,0,0.20)"
-                  : "none",
-                color: section === t.id ? "#0E1A3B" : "rgba(148,175,255,0.6)",
+                background: section === t.id ? "rgba(16,185,129,0.18)" : "rgba(255,255,255,0.05)",
+                border: `1px solid ${section === t.id ? "rgba(16,185,129,0.45)" : "rgba(255,255,255,0.08)"}`,
+                color: section === t.id ? "#34D399" : "rgba(148,175,255,0.5)",
                 fontSize: 12,
                 fontWeight: section === t.id ? 700 : 500,
                 cursor: "pointer",
                 touchAction: "manipulation",
                 fontFamily: "inherit",
+                boxShadow: "none",
               }}
             >
               <span style={{ fontSize: 13 }}>{t.icon}</span>
