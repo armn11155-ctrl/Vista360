@@ -46,7 +46,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "prettier": "^3.5.3",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.60.0",
+    "typescript-eslint": "^8.60.1",
     "vite": "^6.3.5",
     "vitest": "^4.1.8",
     "conventional-changelog-cli": "^5.0.0",
