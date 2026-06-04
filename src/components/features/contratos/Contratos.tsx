@@ -751,7 +751,7 @@ function Contratos({
             {contratos.filter(c => !c.deleted).length} contratos · {activos} activos
           </div>
         </div>
-        <button className="v360-glass-btn"
+        <button
           onClick={openNew}
           style={{
             display: "inline-flex",
@@ -839,7 +839,7 @@ function Contratos({
           const inactiveIconColor = "#2563EB";
           const inactiveTextColor = "#2563EB";
           return (
-            <button className="v360-glass-btn"
+            <button
               key={f.label}
               onClick={() => setFiltro(f.label)}
               style={{
