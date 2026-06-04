@@ -9,7 +9,6 @@ import { ALLOWED_EMAILS } from "./config/constants";
 import { ToastProvider } from "./context/UIContext";
 import { AppProvider } from "./context/AppContext";
 import { useAppShell } from "./hooks/useAppShell";
-// SwipeTabWrapper eliminado — se reemplazó por scroll div simple (sin swipe)
 import { useViewportSetup } from "./hooks/useViewportSetup";
 import { prefetchAllTabs, AppRouter } from "./components/layout/AppRouter";
 import { ShellErrorBoundary } from "./components/shared/ShellErrorBoundary";
@@ -57,7 +56,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           showProfile={shell.showProfile}
         />
 
-        {/* ── Perfil: scroll simple sin swipe ── */}
+        {/* ── Perfil ── */}
         {shell.showProfile && (
           <main
             ref={shell.scrollRef}
@@ -79,7 +78,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           </main>
         )}
 
-        {/* ── Tabs: scroll simple sin swipe horizontal ── */}
+        {/* ── Tabs ── */}
         {!shell.showProfile && (
           <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
             <div
