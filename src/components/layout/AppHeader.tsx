@@ -21,29 +21,24 @@ interface AppHeaderProps {
 // el border-box pinta el aro 3D con gradiente de luz arriba / sombra abajo.
 const GLASS_BTN_CSS = `
   .v360-icon-glass {
-    background:
-      rgba(255, 255, 255, 0.00) padding-box,
-      linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.92)  0%,
-        rgba(210, 225, 255, 0.48) 20%,
-        rgba(60,  100, 180, 0.12) 50%,
-        rgba(0,     0,   0, 0.28) 72%,
-        rgba(190, 220, 255, 0.72) 100%
-      ) border-box !important;
-
-    border: 1px solid transparent !important;
-
+    background: linear-gradient(
+      rgba(122,150,200,0.14),
+      rgba(122,150,200,0.08)
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: none !important;
     box-shadow:
-      /* Hairline exterior oscuro — el aro "sobresale" */
-      0 0 0 0.5px rgba(0, 0, 0, 0.22),
-      /* Luz cara interior superior */
-      inset 0 1.5px 0 rgba(255, 255, 255, 0.90),
-      /* Luz cara interior inferior — reflejo secundario */
-      inset 0 -1.5px 0 rgba(255, 255, 255, 0.55),
-      /* Elevación suave */
-      0 2px 8px rgba(0, 0, 0, 0.10) !important;
-
+      inset 0 0 0 1px rgba(255,255,255,0.07),
+      inset 1.8px 3px 0px -2px rgba(255,255,255,0.36),
+      inset -2px -2px 0px -2px rgba(255,255,255,0.32),
+      inset -3px -8px 1px -6px rgba(255,255,255,0.24),
+      inset -0.3px -1px 4px 0px rgba(0,0,0,0.32),
+      inset -1.5px 2.5px 0px -2px rgba(0,0,0,0.36),
+      inset 0px 3px 4px -2px rgba(0,0,0,0.36),
+      inset 2px -6.5px 1px -4px rgba(0,0,0,0.18),
+      0px 1px 5px rgba(0,0,0,0.30),
+      0px 8px 24px rgba(0,0,0,0.28) !important;
     isolation: isolate;
     overflow: hidden;
   }
