@@ -113,6 +113,8 @@ function HeroCard({
   const fechaCap = fechaHoy.charAt(0).toUpperCase() + fechaHoy.slice(1);
   const fmt = n =>
     `S/ ${Number(n || 0).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  // Reemplaza solo dígitos con • manteniendo separadores (comas, puntos)
+  const mask = (s: string) => s.replace(/\d/g, "•");
 
   // bar chart: últimos 6 meses
   const d = new Date();
@@ -254,7 +256,7 @@ function HeroCard({
               </span>
               {!visible && (
                 <span style={{ position: "absolute", left: 0, top: 0, whiteSpace: "nowrap" }}>
-                  {positive ? "+" : ""}••.•%
+                  {positive ? "+" : ""}{mask(deltaPct.toFixed(1))}%
                 </span>
               )}
             </div>
@@ -286,7 +288,7 @@ function HeroCard({
               {!visible && (
                 <span style={{ position: "absolute", left: 8, top: "50%",
                   transform: "translateY(-50%)", whiteSpace: "nowrap" }}>
-                  {positive ? "+" : "-"}S/ ••••
+                  {positive ? "+" : "-"}{mask(fmt(Math.abs(delta)))}
                 </span>
               )}
             </span>
