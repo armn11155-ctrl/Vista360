@@ -230,10 +230,10 @@ function HeroCard({
           <div
             style={{
               display: "flex",
-              alignItems: "baseline",
-              gap: 8,
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: 4,
               marginTop: 6,
-              flexWrap: "wrap",
             }}
           >
             <div
