@@ -32,7 +32,7 @@ export function useUIShell(onLogout: () => void) {
         setShowProfile(true);
       } else {
         setShowProfile(false);
-        navigate(path);
+        navigate(path, { replace: true }); // replace: no acumula historial → el gesto nativo de "atrás" no cambia de pestaña
       }
     },
     [navigate],
