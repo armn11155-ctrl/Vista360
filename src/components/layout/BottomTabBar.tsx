@@ -1,6 +1,19 @@
 import { useCallback, useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { NAV_TAB_IDS } from "../../config/constants";
+import { HEADER_COLORS } from "../../hooks/useHeaderShell";
+import { T } from "../../config/theme";
+// ── Actualiza theme-color en el event handler del click ───────────────
+// Corre antes de que React re-renderice, garantizando que el status bar
+// cambie en el mismo instante que el gesto del usuario.
+function applyThemeColorNow(routePath: string): void {
+  const color = HEADER_COLORS[routePath] ?? T.bg;
+  const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", color);
+  document.documentElement.style.background = color;
+  document.body.style.background = color;
+}
+
 
 interface Tab {
   id: string;
@@ -344,7 +357,10 @@ export function BottomTabBar({
                 aria-selected={active}
                 aria-label={t.label}
                 tabIndex={active ? 0 : -1}
-                onClick={() => onTabClick(routePath)}
+                onClick={() => {
+                  applyThemeColorNow(routePath);
+                  onTabClick(routePath);
+                }}
                 onKeyDown={e => handleKeyDown(e, t.id)}
                 style={{
                   position: "relative",
@@ -391,4 +407,5 @@ export function BottomTabBar({
     </>
   );
 }
+
 
