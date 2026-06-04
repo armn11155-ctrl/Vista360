@@ -247,8 +247,16 @@ function HeroCard({
             >
               {visible ? fmt(ingActual) : <span style={{ letterSpacing: 2, color: "#fff" }}>S/ ••••••</span>}
             </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: positive ? "#5BD39A" : "#FF7A8A" }}>
-              {positive ? "+" : ""}{visible ? `${deltaPct.toFixed(1)}%` : "••%"}
+            <div style={{ fontSize: 12, fontWeight: 700, color: positive ? "#5BD39A" : "#FF7A8A",
+              position: "relative", display: "inline-block" }}>
+              <span style={{ visibility: visible ? "visible" : "hidden" }}>
+                {positive ? "+" : ""}{deltaPct.toFixed(1)}%
+              </span>
+              {!visible && (
+                <span style={{ position: "absolute", left: 0, top: 0, whiteSpace: "nowrap" }}>
+                  {positive ? "+" : ""}••.•%
+                </span>
+              )}
             </div>
           </div>
           <div
@@ -269,9 +277,18 @@ function HeroCard({
                 border: `1px solid ${positive ? "rgba(91,211,154,0.25)" : "rgba(255,122,138,0.25)"}`,
                 padding: "3px 8px",
                 borderRadius: 999,
+                position: "relative",
               }}
             >
-              {positive ? "+" : "-"}{visible ? fmt(Math.abs(delta)) : "••••"}
+              <span style={{ visibility: visible ? "visible" : "hidden" }}>
+                {positive ? "+" : "-"}{fmt(Math.abs(delta))}
+              </span>
+              {!visible && (
+                <span style={{ position: "absolute", left: 8, top: "50%",
+                  transform: "translateY(-50%)", whiteSpace: "nowrap" }}>
+                  {positive ? "+" : "-"}S/ ••••
+                </span>
+              )}
             </span>
             <span style={{ fontSize: 11, color: "rgba(200,212,240,0.55)" }}>vs mes anterior</span>
           </div>
