@@ -325,18 +325,15 @@ function HeroCard({
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
-                backdropFilter: "blur(10px) saturate(150%)",
-                WebkitBackdropFilter: "blur(10px) saturate(150%)",
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.13)",
-                color: "#fff",
+                background: visible ? "rgba(91,211,154,0.18)" : "rgba(29,107,255,0.18)",
+                border: `1px solid ${visible ? "rgba(91,211,154,0.35)" : "rgba(127,174,255,0.35)"}`,
+                color: visible ? "#5BD39A" : "#BDD2FF",
                 borderRadius: 999,
                 padding: "4px 10px",
                 fontSize: 11,
                 fontWeight: 600,
                 cursor: "pointer",
                 touchAction: "manipulation",
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.18)",
               }}
             >
               {visible ? "Ocultar" : "Mostrar"}
