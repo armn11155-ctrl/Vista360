@@ -1,6 +1,8 @@
 import { useCallback, useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { NAV_TAB_IDS } from "../../config/constants";
+import { HEADER_COLORS } from "../../hooks/useHeaderShell";
+import { T } from "../../config/theme";
 
 interface Tab {
   id: string;
@@ -90,20 +92,25 @@ const BAR_BOX_SHADOW = [
   "0px 8px 24px rgba(0,0,0,0.28)",
 ].join(", ");
 
-// ── Lee la luminancia de un punto específico en el DOM ──────────────
-// Busca el primer elemento con fondo opaco (no transparente), ignorando
-// la barra de navegación misma y el nodo <html>.
+// ── Actualiza theme-color ANTES de que React re-renderice ──────────
+// Llamado en el event handler del click, no en un efecto —
+// así el status bar cambia en el mismo frame que el gesto del usuario.
+function applyThemeColorNow(routePath: string) {
+  const color = HEADER_COLORS[routePath] ?? T.bg;
+  const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", color);
+  document.documentElement.style.background = color;
+  document.body.style.background = color;
+}
+
+// ── Luminancia en un punto del DOM ─────────────────────────────────
 function getLuminanceAt(x: number, y: number): number | null {
   const els = document.elementsFromPoint(x, y);
   for (const el of els) {
-    // Saltar la propia barra y sus hijos
     if (el.closest?.(".v360-bar")) continue;
-    // Saltar <html> (su fondo lo maneja useHeaderShell vía body)
     if (el === document.documentElement) continue;
-
     const bg = window.getComputedStyle(el).backgroundColor;
     if (!bg || bg === "rgba(0, 0, 0, 0)" || bg === "transparent") continue;
-
     const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
     if (m) {
       return (
@@ -115,34 +122,24 @@ function getLuminanceAt(x: number, y: number): number | null {
   return null;
 }
 
-// ── Muestreo en 3 puntos horizontales + mediana ────────────────────
-//
-//  Por qué 3 puntos:
-//  • Las tarjetas (ej. Contratos) tienen márgenes laterales (~12-16px).
-//  • x = 8px y x = w-8px caen FUERA del área de la barra (left:12)
-//    y generalmente FUERA de las tarjetas → tocan el fondo de la página.
-//  • x = w/2 toca lo que está directamente debajo del centro de la barra.
-//
-//  La MEDIANA de las 3 lecturas es robusta:
-//  • Fondo oscuro + tarjeta blanca central → [oscuro, blanco, oscuro] → mediana=oscuro ✓
-//  • Fondo blanco (sección sin tarjetas)   → [blanco, blanco, blanco] → mediana=blanco ✓
-//
+// ── Muestreo en 3 puntos + mediana ────────────────────────────────
+// Los bordes (x=8, x=w-8) quedan fuera de la barra (left:12) y
+// generalmente fuera del margen de las tarjetas → leen el fondo real.
+// Mediana: una tarjeta blanca en centro no puede ganar si los lados son oscuros.
 function sampleLuminanceBehindBar(): boolean | null {
-  const y = window.innerHeight - 68; // centro aproximado del área de la barra
+  const y = window.innerHeight - 68;
   const w = window.innerWidth;
 
   const samples: number[] = [
-    getLuminanceAt(8, y),       // borde izquierdo (fuera de márgenes de tarjetas)
-    getLuminanceAt(w / 2, y),   // centro
-    getLuminanceAt(w - 8, y),   // borde derecho
+    getLuminanceAt(8, y),
+    getLuminanceAt(w / 2, y),
+    getLuminanceAt(w - 8, y),
   ].filter((v): v is number => v !== null);
 
   if (samples.length === 0) return null;
 
-  // Mediana: resistente a un punto atípico (tarjeta blanca aislada en fondo oscuro)
   const sorted = [...samples].sort((a, b) => a - b);
-  const median = sorted[Math.floor(sorted.length / 2)]!;
-  return median < 0.5; // true = oscuro
+  return sorted[Math.floor(sorted.length / 2)]! < 0.5;
 }
 
 export function BottomTabBar({
@@ -159,30 +156,23 @@ export function BottomTabBar({
   // ── Estado de luminancia dinámica ──────────────────────────────────
   const [onDark, setOnDark] = useState<boolean>(headerDark);
 
-  // Función de muestreo estable (sin deps: lee el DOM en vivo)
   const sample = useCallback(() => {
     const result = sampleLuminanceBehindBar();
     if (result !== null) setOnDark(result);
   }, []);
 
-  // Al cambiar de ruta: reset optimista al valor de ruta + re-muestreo del DOM nuevo
   useEffect(() => {
     setOnDark(headerDark);
     const raf = requestAnimationFrame(sample);
     return () => cancelAnimationFrame(raf);
   }, [pathname, headerDark, sample]);
 
-  // Scroll listener con RAF throttle — activo toda la vida del componente
   useEffect(() => {
     let rafId: number | null = null;
     const onScroll = () => {
       if (rafId !== null) return;
-      rafId = requestAnimationFrame(() => {
-        sample();
-        rafId = null;
-      });
+      rafId = requestAnimationFrame(() => { sample(); rafId = null; });
     };
-    // capture:true → captura scroll de cualquier contenedor anidado
     document.addEventListener("scroll", onScroll, { passive: true, capture: true });
     return () => {
       document.removeEventListener("scroll", onScroll, { capture: true });
@@ -190,8 +180,17 @@ export function BottomTabBar({
     };
   }, [sample]);
 
-  const iconColor      = onDark ? "#ffffff"                : "#0E1A3B";
-  const iconColorMuted = onDark ? "rgba(255,255,255,0.55)" : "rgba(14,26,59,0.45)";
+  // ── Colores ────────────────────────────────────────────────────────
+  //
+  // ACTIVO: adaptativo — blanco en fondo oscuro, azul oscuro en fondo claro.
+  //
+  // INACTIVO: siempre azul oscuro (no adaptativo), independiente del fondo.
+  //   • Resto de tabs: rgba(14,26,59,0.52) — azul oscuro semi-transparente
+  //   • Inicio (hoy): rgba(14,26,59,0.80) — un poco más oscuro, como pidió el usuario
+  //
+  const iconColorActive     = onDark ? "#ffffff" : "#0E1A3B";
+  const iconColorInactive   = "rgba(14,26,59,0.52)";   // todos los inactivos
+  const iconColorInactiveHome = "rgba(14,26,59,0.80)"; // inicio — más oscuro
 
   // ── Pill + squish ──────────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
@@ -331,6 +330,10 @@ export function BottomTabBar({
             const routePath = t.id === "hoy" ? "/" : `/${t.id}`;
             const active = !showProfile && pathname === routePath;
 
+            // Color inactivo: inicio más oscuro que el resto
+            const inactiveColor =
+              t.id === "hoy" ? iconColorInactiveHome : iconColorInactive;
+
             return (
               <button
                 key={t.id}
@@ -339,7 +342,12 @@ export function BottomTabBar({
                 aria-selected={active}
                 aria-label={t.label}
                 tabIndex={active ? 0 : -1}
-                onClick={() => onTabClick(routePath)}
+                onClick={() => {
+                  // ── Actualizar theme-color ANTES del re-render de React ──
+                  // Garantiza que status bar y header cambien en el mismo frame.
+                  applyThemeColorNow(routePath);
+                  onTabClick(routePath);
+                }}
                 onKeyDown={e => handleKeyDown(e, t.id)}
                 style={{
                   position: "relative",
@@ -352,7 +360,7 @@ export function BottomTabBar({
                   gap: 3,
                   background: "transparent",
                   border: "none",
-                  color: active ? iconColor : iconColorMuted,
+                  color: active ? iconColorActive : inactiveColor,
                   padding: "6px 4px",
                   minHeight: 48,
                   borderRadius: 18,
