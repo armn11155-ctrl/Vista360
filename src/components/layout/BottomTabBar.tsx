@@ -13,6 +13,8 @@ interface BottomTabBarProps {
   showProfile: boolean;
   onTabClick: (path: string) => void;
   onAddClick: () => void;
+  /** true cuando el header de la ruta actual es oscuro (viene de useHeaderShell) */
+  headerDark?: boolean;
 }
 
 // ── CSS cristal líquido — glass upgrade con squish direction-aware ───
@@ -86,26 +88,15 @@ const GLASS_CSS = `
 `;
 
 // ── Box-shadow multi-capa para la barra (dark glass) ────────────────
-// Misma técnica del referente: inset highlights arriba (luz),
-// inset sombras abajo (profundidad), drop-shadow exterior suave.
 const BAR_BOX_SHADOW = [
-  /* Borde perimetral tenue */
   "inset 0 0 0 1px rgba(255,255,255,0.07)",
-  /* Specular superior: rayo de luz entrando al cristal */
   "inset 1.8px 3px 0px -2px rgba(255,255,255,0.36)",
-  /* Highlight lateral derecho */
   "inset -2px -2px 0px -2px rgba(255,255,255,0.32)",
-  /* Highlight borde inferior interior */
   "inset -3px -8px 1px -6px rgba(255,255,255,0.24)",
-  /* Sombra interior suave */
   "inset -0.3px -1px 4px 0px rgba(0,0,0,0.32)",
-  /* Sombra lateral oscura */
   "inset -1.5px 2.5px 0px -2px rgba(0,0,0,0.36)",
-  /* Sombra inferior profundidad */
   "inset 0px 3px 4px -2px rgba(0,0,0,0.36)",
-  /* Sombra borde exterior inferior */
   "inset 2px -6.5px 1px -4px rgba(0,0,0,0.18)",
-  /* Drop shadow exterior: elevación */
   "0px 1px 5px rgba(0,0,0,0.30)",
   "0px 8px 24px rgba(0,0,0,0.28)",
 ].join(", ");
@@ -116,39 +107,15 @@ export function BottomTabBar({
   showProfile,
   onTabClick,
   onAddClick,
+  headerDark = true,
 }: BottomTabBarProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  // Detección automática de fondo oscuro/claro por luminancia
-  // Lee el mismo HEADER_COLORS que usa useHeaderShell — sin hardcodear rutas
-  const HEADER_BG: Record<string, string> = {
-    "/":           "#0E1A3B",
-    "/capital":    "#0E1A3B",
-    "/contratos":  "#0E1A3B",
-    "/historico":  "#0A0F1A",
-    "/mapa":       "#070D1C",
-    "/crm":        "#0E1A3B",
-    "/gastos":     "#0E1A3B",
-    "/reportes":   "#0E1A3B",
-    "/proveedores":"#0E1A3B",
-    "/facturacion":"#0E1A3B",
-  };
-
-  // Calcula luminancia relativa — devuelve true si el color es oscuro
-  const isDark = (hex: string): boolean => {
-    const h = hex.replace("#", "");
-    const r = parseInt(h.slice(0, 2), 16);
-    const g = parseInt(h.slice(2, 4), 16);
-    const b = parseInt(h.slice(4, 6), 16);
-    return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.45;
-  };
-
-  // Fondo real de la ruta actual (fallback: blanco = claro)
-  const routeBg   = HEADER_BG[pathname] ?? "#ffffff";
-  const onDark    = isDark(routeBg);
-  const iconColor = onDark ? "#ffffff" : "#0E1A3B";
-  const iconColorMuted = onDark ? "rgba(255,255,255,0.55)" : "rgba(14,26,59,0.45)";
+  // Colores de íconos/texto según luminancia del fondo de la ruta actual.
+  // headerDark viene de useHeaderShell — fuente única de verdad, sin duplicar el mapa.
+  const iconColor      = headerDark ? "#ffffff"               : "#0E1A3B";
+  const iconColorMuted = headerDark ? "rgba(255,255,255,0.55)" : "rgba(14,26,59,0.45)";
 
   const containerRef = useRef<HTMLDivElement>(null);
   const btnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -201,7 +168,6 @@ export function BottomTabBar({
     if (pillReady && prevIdx !== -1 && prevIdx !== currentIdx) {
       const dir = currentIdx > prevIdx ? "v360-pill--right" : "v360-pill--left";
       setSquishClass(dir);
-      // Limpiar clase al terminar la animación
       const t = setTimeout(() => setSquishClass(""), 440);
       return () => clearTimeout(t);
     }
@@ -236,7 +202,6 @@ export function BottomTabBar({
             maxWidth: 480,
             margin: "0 auto",
             pointerEvents: "auto",
-            /* ── Dark glass upgrade ── */
             backdropFilter: "blur(20px) saturate(180%)",
             WebkitBackdropFilter: "blur(20px) saturate(180%)",
             background:
