@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
@@ -169,6 +169,8 @@ function AppShell() {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [firebaseDown, setFbDown] = useState(false);
+  // true cuando la animación del splash terminó pero authReady aún no llegó
+  const splashWaiting = useRef(false);
 
   useEffect(() => {
     const lockScroll = () => {
@@ -214,12 +216,21 @@ function AppShell() {
             }
           }
           setAuthReady(true);
+          // Si la animación del splash ya terminó y estaba esperando, cerrar ahora
+          if (splashWaiting.current) {
+            splashWaiting.current = false;
+            setSplash(false);
+          }
         },
         err => {
           console.error("[Auth] error:", err);
           clearTimeout(fallback);
           setFbDown(true);
           setAuthReady(true);
+          if (splashWaiting.current) {
+            splashWaiting.current = false;
+            setSplash(false);
+          }
         },
       );
     } catch (err) {
@@ -238,7 +249,19 @@ function AppShell() {
     <ToastProvider>
       {/* CSS global movido a src/index.css — ver refactor(styles) */}
 
-      {splash && <Splash done={() => setSplash(false)} />}
+      {splash && (
+        <Splash
+          done={() => {
+            if (authReady) {
+              // Auth ya respondió → cerrar splash inmediatamente
+              setSplash(false);
+            } else {
+              // Auth aún no llegó → splash se queda hasta que llegue
+              splashWaiting.current = true;
+            }
+          }}
+        />
+      )}
 
       {!splash && !authReady && (
         <div
