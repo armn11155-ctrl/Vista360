@@ -245,40 +245,22 @@ function HeroCard({
                 color: "#fff",
                 letterSpacing: "-0.03em",
                 lineHeight: 1,
-                position: "relative",
+                filter: visible ? "none" : "blur(7px)",
+                userSelect: visible ? "auto" : "none",
+                transition: "filter 0.2s ease",
               }}
             >
-              <span style={{ visibility: visible ? "visible" : "hidden" }}>
-                {fmt(ingActual)}
-              </span>
-              {!visible && (
-                <span
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    top: 0,
-                    fontSize: "1em",
-                    fontWeight: "inherit",
-                    color: "#fff",
-                    letterSpacing: "0.12em",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {"S/ " + "•".repeat(Math.max(4, fmt(ingActual).replace("S/ ", "").length))}
-                </span>
-              )}
+              {fmt(ingActual)}
             </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: positive ? "#5BD39A" : "#FF7A8A",
-              position: "relative", display: "inline-block" }}>
-              <span style={{ visibility: visible ? "visible" : "hidden" }}>
-                {positive ? "+" : ""}{deltaPct.toFixed(1)}%
-              </span>
-              {!visible && (
-                <span style={{ position: "absolute", left: 0, top: 0, whiteSpace: "nowrap",
-                  fontSize: "1em", fontWeight: "inherit" }}>
-                  {positive ? "+" : ""}{mask(deltaPct.toFixed(1))}%
-                </span>
-              )}
+            <div style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: positive ? "#5BD39A" : "#FF7A8A",
+              filter: visible ? "none" : "blur(5px)",
+              userSelect: visible ? "auto" : "none",
+              transition: "filter 0.2s ease",
+            }}>
+              {positive ? "+" : ""}{deltaPct.toFixed(1)}%
             </div>
           </div>
           <div
@@ -299,19 +281,12 @@ function HeroCard({
                 border: `1px solid ${positive ? "rgba(91,211,154,0.25)" : "rgba(255,122,138,0.25)"}`,
                 padding: "3px 8px",
                 borderRadius: 999,
-                position: "relative",
+                filter: visible ? "none" : "blur(5px)",
+                userSelect: visible ? "auto" : "none",
+                transition: "filter 0.2s ease",
               }}
             >
-              <span style={{ visibility: visible ? "visible" : "hidden" }}>
-                {positive ? "+" : "-"}{fmt(Math.abs(delta))}
-              </span>
-              {!visible && (
-                <span style={{ position: "absolute", left: 8, top: "50%",
-                  transform: "translateY(-50%)", whiteSpace: "nowrap",
-                  fontSize: "1em", fontWeight: "inherit" }}>
-                  {positive ? "+" : "-"}{mask(fmt(Math.abs(delta)))}
-                </span>
-              )}
+              {positive ? "+" : "-"}{fmt(Math.abs(delta))}
             </span>
             <span style={{ fontSize: 11, color: "rgba(200,212,240,0.55)" }}>vs mes anterior</span>
           </div>
