@@ -34,6 +34,19 @@
   </head>
   <body style="background:#000;margin:0">
     <div id="root"></div>
+    <script>
+      // Garantiza fondo oscuro al restaurar desde bfcache (iOS background→foreground)
+      // y en cualquier re-show antes de que React tome el control.
+      (function () {
+        function applyDark() {
+          document.documentElement.style.background = "#0E1A3B";
+          if (document.body) document.body.style.background = "#0E1A3B";
+        }
+        applyDark();
+        window.addEventListener("pageshow", applyDark);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+
