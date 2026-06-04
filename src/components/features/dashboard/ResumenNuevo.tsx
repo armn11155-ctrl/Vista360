@@ -102,6 +102,7 @@ function HeroCard({
   setTab = () => {},
   userName = "",
 }: HeroCardProps) {
+  const [visible, setVisible] = React.useState(false);
   const hora = new Date().getHours();
   const saludo = hora < 12 ? "Buenos días" : hora < 18 ? "Buenas tardes" : "Buenas noches";
   const fechaHoy = new Date().toLocaleDateString("es-PE", {
@@ -244,12 +245,14 @@ function HeroCard({
                 lineHeight: 1,
               }}
             >
-              {fmt(ingActual)}
+              {visible ? fmt(ingActual) : <span style={{ letterSpacing: 2, opacity: 0.55 }}>S/ ••••••</span>}
             </div>
+            {visible && (
             <div style={{ fontSize: 12, fontWeight: 700, color: positive ? "#5BD39A" : "#FF7A8A" }}>
               {positive ? "+" : ""}
               {deltaPct.toFixed(1)}%
             </div>
+            )}
           </div>
           <div
             style={{
@@ -260,6 +263,7 @@ function HeroCard({
               marginTop: 8,
             }}
           >
+            {visible && (
             <span
               style={{
                 fontSize: 11,
@@ -274,7 +278,8 @@ function HeroCard({
               {positive ? "+" : "-"}
               {fmt(Math.abs(delta))}
             </span>
-            <span style={{ fontSize: 11, color: "rgba(200,212,240,0.55)" }}>vs mes anterior</span>
+            )}
+            {visible && <span style={{ fontSize: 11, color: "rgba(200,212,240,0.55)" }}>vs mes anterior</span>}
           </div>
           <div style={{ flex: 1 }} />
           <button
@@ -314,24 +319,27 @@ function HeroCard({
 
         <div style={{ flex: "1 1 44%", minWidth: 0, display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <div
+            <button
+              onClick={() => setVisible(v => !v)}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
-                background: "rgba(29,107,255,0.18)",
-                border: "1px solid rgba(127,174,255,0.35)",
-                color: "#BDD2FF",
+                background: visible ? "rgba(91,211,154,0.18)" : "rgba(29,107,255,0.18)",
+                border: `1px solid ${visible ? "rgba(91,211,154,0.35)" : "rgba(127,174,255,0.35)"}`,
+                color: visible ? "#5BD39A" : "#BDD2FF",
                 borderRadius: 999,
                 padding: "4px 10px",
                 fontSize: 11,
                 fontWeight: 600,
+                cursor: "pointer",
+                touchAction: "manipulation",
               }}
             >
-              6 meses
+              {visible ? "Ocultar" : "Mostrar"}
               <svg
-                width="9"
-                height="9"
+                width="11"
+                height="11"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -339,9 +347,20 @@ function HeroCard({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <polyline points="6 9 12 15 18 9" />
+                {visible ? (
+                  <g>
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </g>
+                ) : (
+                  <g>
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </g>
+                )}
               </svg>
-            </div>
+            </button>
           </div>
           <div
             style={{
