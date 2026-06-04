@@ -512,10 +512,10 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
               alignItems: "center",
               gap: 7,
               padding: "10px 18px",
-              background: "#fff",
+              background: "transparent",
               border: "none",
               borderRadius: 50,
-              color: T.accent,
+              color: "#fff",
               fontWeight: 700,
               fontSize: 13,
               cursor: "pointer",
@@ -665,7 +665,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
           const active = activeFilter === f;
           const dot = f === "Activos" ? T.green : f === "En riesgo" ? T.red : null;
           return (
-            <button className="v360-glass-btn"
+            <button
               key={f}
               onClick={() => {
                 setActiveFilter(f);
