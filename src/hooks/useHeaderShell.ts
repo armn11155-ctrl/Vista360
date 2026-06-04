@@ -39,21 +39,19 @@ export function useHeaderShell(user: User, showProfile: boolean) {
   const headerColor = showProfile ? T.bg : (HEADER_COLORS[location.pathname] ?? T.bg);
   const headerDark = headerColor !== T.bg;
 
-  // ── theme-color dinámico con RAF — adapta status bar a cada ruta ────
+  // ── theme-color síncrono — sin RAF para que el status bar cambie
+  // en el mismo frame que el header, sin delay perceptible ────────────
   useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-      if (!meta) {
-        meta = document.createElement("meta");
-        meta.setAttribute("name", "theme-color");
-        document.head.appendChild(meta);
-      }
-      meta.setAttribute("content", headerColor);
-      document.documentElement.style.background = headerColor;
-      document.body.style.background = headerColor;
-      document.documentElement.style.setProperty("--app-bg", headerColor);
-    });
-    return () => cancelAnimationFrame(raf);
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.setAttribute("name", "theme-color");
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute("content", headerColor);
+    document.documentElement.style.background = headerColor;
+    document.body.style.background = headerColor;
+    document.documentElement.style.setProperty("--app-bg", headerColor);
   }, [headerColor]);
 
   // ── Título del documento ───────────────────────────────────────────
