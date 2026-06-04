@@ -605,12 +605,13 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             }}
             title="Mes específico"
             style={{
-              padding: "5px 10px",
+              padding: "9px 14px",
               borderRadius: 10,
-              border: "1.5px solid rgba(79,124,255,0.3)",
-              background: "#F1F5F9",
-              color: mesFilter ? "#1E40AF" : "#94A3B8",
-              fontSize: 12,
+              border: "1.5px solid rgba(14,26,59,0.30)",
+              background: "#EEF2FF",
+              color: mesFilter ? "#0E1A3B" : "rgba(14,26,59,0.4)",
+              fontSize: 14,
+              fontWeight: 600,
               outline: "none",
               cursor: "pointer",
               fontFamily: "inherit",
@@ -626,12 +627,13 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             }}
             title="Desde"
             style={{
-              padding: "5px 10px",
+              padding: "9px 14px",
               borderRadius: 10,
-              border: "1.5px solid rgba(79,124,255,0.3)",
-              background: "#F1F5F9",
-              color: fechaDesde ? "#1E40AF" : "#94A3B8",
-              fontSize: 12,
+              border: "1.5px solid rgba(14,26,59,0.30)",
+              background: "#EEF2FF",
+              color: fechaDesde ? "#0E1A3B" : "rgba(14,26,59,0.4)",
+              fontSize: 14,
+              fontWeight: 600,
               outline: "none",
               cursor: "pointer",
               fontFamily: "inherit",
@@ -646,12 +648,13 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             }}
             title="Hasta"
             style={{
-              padding: "5px 10px",
+              padding: "9px 14px",
               borderRadius: 10,
-              border: "1.5px solid rgba(79,124,255,0.3)",
-              background: "#F1F5F9",
-              color: fechaHasta ? "#1E40AF" : "#94A3B8",
-              fontSize: 12,
+              border: "1.5px solid rgba(14,26,59,0.30)",
+              background: "#EEF2FF",
+              color: fechaHasta ? "#0E1A3B" : "rgba(14,26,59,0.4)",
+              fontSize: 14,
+              fontWeight: 600,
               outline: "none",
               cursor: "pointer",
               fontFamily: "inherit",
