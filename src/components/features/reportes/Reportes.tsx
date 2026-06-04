@@ -214,7 +214,7 @@ function MesCard({
                   {margen}% margen
                 </span>
               )}
-              <button
+              <button className="v360-glass-btn"
                 onClick={() => exportMesPDF(m)}
                 style={{
                   marginLeft: "auto",
@@ -361,7 +361,7 @@ function MesCard({
             )}
             {/* Expandir contratos */}
             {ctrsConDetalle.length > 0 && (
-              <button
+              <button className="v360-glass-btn"
                 onClick={() => setExpandido(e => !e)}
                 style={{
                   width: "100%",
@@ -605,13 +605,12 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             }}
             title="Mes específico"
             style={{
-              padding: "9px 14px",
+              padding: "5px 10px",
               borderRadius: 10,
-              border: "1.5px solid rgba(14,26,59,0.30)",
-              background: "#EEF2FF",
-              color: mesFilter ? "#0E1A3B" : "rgba(14,26,59,0.4)",
-              fontSize: 14,
-              fontWeight: 600,
+              border: "1.5px solid rgba(79,124,255,0.3)",
+              background: "#F1F5F9",
+              color: mesFilter ? "#1E40AF" : "#94A3B8",
+              fontSize: 12,
               outline: "none",
               cursor: "pointer",
               fontFamily: "inherit",
@@ -627,13 +626,12 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             }}
             title="Desde"
             style={{
-              padding: "9px 14px",
+              padding: "5px 10px",
               borderRadius: 10,
-              border: "1.5px solid rgba(14,26,59,0.30)",
-              background: "#EEF2FF",
-              color: fechaDesde ? "#0E1A3B" : "rgba(14,26,59,0.4)",
-              fontSize: 14,
-              fontWeight: 600,
+              border: "1.5px solid rgba(79,124,255,0.3)",
+              background: "#F1F5F9",
+              color: fechaDesde ? "#1E40AF" : "#94A3B8",
+              fontSize: 12,
               outline: "none",
               cursor: "pointer",
               fontFamily: "inherit",
@@ -648,20 +646,19 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             }}
             title="Hasta"
             style={{
-              padding: "9px 14px",
+              padding: "5px 10px",
               borderRadius: 10,
-              border: "1.5px solid rgba(14,26,59,0.30)",
-              background: "#EEF2FF",
-              color: fechaHasta ? "#0E1A3B" : "rgba(14,26,59,0.4)",
-              fontSize: 14,
-              fontWeight: 600,
+              border: "1.5px solid rgba(79,124,255,0.3)",
+              background: "#F1F5F9",
+              color: fechaHasta ? "#1E40AF" : "#94A3B8",
+              fontSize: 12,
               outline: "none",
               cursor: "pointer",
               fontFamily: "inherit",
             }}
           />
           {tieneFiltroDeFecha && (
-            <button
+            <button className="v360-glass-btn"
               onClick={() => {
                 setMesFilter("");
                 setFechaDesde("");
@@ -1497,7 +1494,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
             ),
           };
           return (
-            <button
+            <button className="v360-glass-btn"
               key={s.id}
               onClick={() => setSeccion(s.id)}
               style={{
@@ -1605,7 +1602,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                 gap: 10,
               }}
             >
-              <button
+              <button className="v360-glass-btn"
                 onClick={() => setAnio(a => a - 1)}
                 style={{
                   width: 34,
@@ -1638,7 +1635,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
               >
                 {anio}
               </div>
-              <button
+              <button className="v360-glass-btn"
                 onClick={() => setAnio(a => a + 1)}
                 style={{
                   width: 34,
@@ -1681,7 +1678,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
               const esSelected = selectedMes === m.mes;
               const activo = esSelected || (!selectedMes && esHoy);
               return (
-                <button
+                <button className="v360-glass-btn"
                   key={m.mes}
                   onClick={() => setSelectedMes(prev => (prev === m.mes ? null : m.mes))}
                   style={{
@@ -1726,7 +1723,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
           </div>
 
           {/* ── Botón exportar PDF anual ── */}
-          <button
+          <button className="v360-glass-btn"
             onClick={exportAnualMensualPDF}
             style={{
               width: "100%",
