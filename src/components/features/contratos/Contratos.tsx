@@ -394,7 +394,7 @@ function Contratos({
               <span style={{ fontSize: 17, fontWeight: 800, color: T.text }}>
                 {modal === "nuevo" ? "Nuevo Contrato" : "Editar Contrato"}
               </span>
-              <button className="v360-glass-btn"
+              <button
                 onClick={() => {
                   setModal(null);
                   onModalChange?.(false);
@@ -443,7 +443,7 @@ function Contratos({
                     {(["A", "B"] as const).map(cara => {
                       const active = form.cara === cara;
                       return (
-                        <button className="v360-glass-btn"
+                        <button
                           key={cara}
                           type="button"
                           onPointerDown={e => e.stopPropagation()}
@@ -563,7 +563,7 @@ function Contratos({
                     {mesesForm.map((m, i) => {
                       const pagado = form.pagosMeses[m.key] || false;
                       return (
-                        <button className="v360-glass-btn"
+                        <button
                           key={m.key}
                           onClick={() => toggleMesPago(m.key)}
                           style={{
@@ -658,7 +658,7 @@ function Contratos({
             ) : null}
 
             <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-              <button className="v360-glass-btn"
+              <button
                 onClick={() => {
                   setModal(null);
                   onModalChange?.(false);
@@ -678,7 +678,7 @@ function Contratos({
               >
                 Cancelar
               </button>
-              <button className="v360-glass-btn"
+              <button
                 onClick={guardar}
                 disabled={saving}
                 style={{
@@ -1171,7 +1171,7 @@ function Contratos({
                   {/* Botones acción */}
                   <>
                     {/* Editar */}
-                    <button className="v360-glass-btn"
+                    <button
                       onClick={() => openEdit(c)}
                       style={{
                         width: 38,
@@ -1256,7 +1256,7 @@ function Contratos({
                       {meses.map(m => {
                         const pag = pm[m.key] || false;
                         return (
-                          <button className="v360-glass-btn"
+                          <button
                             key={m.key}
                             onClick={() => togglePagoRapido(c, m.key)}
                             style={{
@@ -1401,7 +1401,7 @@ function Contratos({
               >
                 {"Sin contratos " + filtro.toLowerCase()}
               </div>
-              <button className="v360-glass-btn"
+              <button
                 onClick={openNew}
                 style={{
                   marginTop: 10,
