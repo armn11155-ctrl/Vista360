@@ -13,17 +13,11 @@ interface BottomTabBarProps {
   showProfile: boolean;
   onTabClick: (path: string) => void;
   onAddClick: () => void;
-  /**
-   * Valor inicial por ruta (de useHeaderShell).
-   * Se usa como punto de partida; el detector en tiempo real lo sobreescribe
-   * frame a frame según la luminancia real del contenido detrás de la barra.
-   */
+  /** Valor inicial por ruta (de useHeaderShell). El detector en tiempo real lo sobreescribe. */
   headerDark?: boolean;
 }
 
-// ── CSS cristal líquido — glass upgrade con squish direction-aware ───
 const GLASS_CSS = `
-  /* ── Variables de reflex para tema oscuro de Vista360 ── */
   .v360-bar {
     --rl: 0.4;
     --rd: 1.8;
@@ -96,36 +90,59 @@ const BAR_BOX_SHADOW = [
   "0px 8px 24px rgba(0,0,0,0.28)",
 ].join(", ");
 
-// ── Lee la luminancia real del contenido justo detrás de la barra ──
-// Usa elementsFromPoint en el centro superior de la zona de la barra,
-// ignora la barra misma y los nodos raíz, y devuelve true si es oscuro.
-function sampleLuminanceBehindBar(): boolean | null {
-  // Punto de muestreo: centro horizontal, ~68px desde abajo
-  // (justo dentro del área donde la barra es transparente)
-  const x = window.innerWidth / 2;
-  const y = window.innerHeight - 68;
-
+// ── Lee la luminancia de un punto específico en el DOM ──────────────
+// Busca el primer elemento con fondo opaco (no transparente), ignorando
+// la barra de navegación misma y el nodo <html>.
+function getLuminanceAt(x: number, y: number): number | null {
   const els = document.elementsFromPoint(x, y);
-
   for (const el of els) {
-    // Saltar la propia barra de navegación y sus hijos
+    // Saltar la propia barra y sus hijos
     if (el.closest?.(".v360-bar")) continue;
-    // Saltar html/body (sus backgrounds los maneja useHeaderShell)
-    if (el === document.documentElement || el === document.body) continue;
+    // Saltar <html> (su fondo lo maneja useHeaderShell vía body)
+    if (el === document.documentElement) continue;
 
     const bg = window.getComputedStyle(el).backgroundColor;
     if (!bg || bg === "rgba(0, 0, 0, 0)" || bg === "transparent") continue;
 
     const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
     if (m) {
-      const lum =
+      return (
         (0.299 * Number(m[1]) + 0.587 * Number(m[2]) + 0.114 * Number(m[3])) /
-        255;
-      return lum < 0.5; // true = oscuro
+        255
+      );
     }
   }
+  return null;
+}
 
-  return null; // no se encontró fondo opaco
+// ── Muestreo en 3 puntos horizontales + mediana ────────────────────
+//
+//  Por qué 3 puntos:
+//  • Las tarjetas (ej. Contratos) tienen márgenes laterales (~12-16px).
+//  • x = 8px y x = w-8px caen FUERA del área de la barra (left:12)
+//    y generalmente FUERA de las tarjetas → tocan el fondo de la página.
+//  • x = w/2 toca lo que está directamente debajo del centro de la barra.
+//
+//  La MEDIANA de las 3 lecturas es robusta:
+//  • Fondo oscuro + tarjeta blanca central → [oscuro, blanco, oscuro] → mediana=oscuro ✓
+//  • Fondo blanco (sección sin tarjetas)   → [blanco, blanco, blanco] → mediana=blanco ✓
+//
+function sampleLuminanceBehindBar(): boolean | null {
+  const y = window.innerHeight - 68; // centro aproximado del área de la barra
+  const w = window.innerWidth;
+
+  const samples: number[] = [
+    getLuminanceAt(8, y),       // borde izquierdo (fuera de márgenes de tarjetas)
+    getLuminanceAt(w / 2, y),   // centro
+    getLuminanceAt(w - 8, y),   // borde derecho
+  ].filter((v): v is number => v !== null);
+
+  if (samples.length === 0) return null;
+
+  // Mediana: resistente a un punto atípico (tarjeta blanca aislada en fondo oscuro)
+  const sorted = [...samples].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)]!;
+  return median < 0.5; // true = oscuro
 }
 
 export function BottomTabBar({
@@ -140,26 +157,24 @@ export function BottomTabBar({
   const { pathname } = useLocation();
 
   // ── Estado de luminancia dinámica ──────────────────────────────────
-  // Arranca con el valor por ruta y se actualiza en cada scroll frame.
   const [onDark, setOnDark] = useState<boolean>(headerDark);
 
-  // Función de muestreo estable (sin deps externas — lee el DOM en vivo)
+  // Función de muestreo estable (sin deps: lee el DOM en vivo)
   const sample = useCallback(() => {
     const result = sampleLuminanceBehindBar();
     if (result !== null) setOnDark(result);
   }, []);
 
-  // Al cambiar de ruta: resetear al valor de ruta y muestrear el nuevo DOM
+  // Al cambiar de ruta: reset optimista al valor de ruta + re-muestreo del DOM nuevo
   useEffect(() => {
-    setOnDark(headerDark); // reset optimista inmediato
-    const raf = requestAnimationFrame(sample); // luego leer el DOM real
+    setOnDark(headerDark);
+    const raf = requestAnimationFrame(sample);
     return () => cancelAnimationFrame(raf);
   }, [pathname, headerDark, sample]);
 
-  // Listener de scroll con RAF throttle — activo toda la vida del componente
+  // Scroll listener con RAF throttle — activo toda la vida del componente
   useEffect(() => {
     let rafId: number | null = null;
-
     const onScroll = () => {
       if (rafId !== null) return;
       rafId = requestAnimationFrame(() => {
@@ -167,34 +182,22 @@ export function BottomTabBar({
         rafId = null;
       });
     };
-
     // capture:true → captura scroll de cualquier contenedor anidado
-    document.addEventListener("scroll", onScroll, {
-      passive: true,
-      capture: true,
-    });
-
+    document.addEventListener("scroll", onScroll, { passive: true, capture: true });
     return () => {
       document.removeEventListener("scroll", onScroll, { capture: true });
       if (rafId !== null) cancelAnimationFrame(rafId);
     };
   }, [sample]);
 
-  // Colores resultantes — transición CSS suaviza el cambio
-  const iconColor = onDark ? "#ffffff" : "#0E1A3B";
-  const iconColorMuted = onDark
-    ? "rgba(255,255,255,0.55)"
-    : "rgba(14,26,59,0.45)";
+  const iconColor      = onDark ? "#ffffff"                : "#0E1A3B";
+  const iconColorMuted = onDark ? "rgba(255,255,255,0.55)" : "rgba(14,26,59,0.45)";
 
   // ── Pill + squish ──────────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
   const btnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-
-  const [pill, setPill] = useState<{ left: number; width: number } | null>(
-    null,
-  );
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
   const [pillReady, setPillReady] = useState(false);
-
   const prevIdxRef = useRef<number>(-1);
   const [squishClass, setSquishClass] = useState("");
 
@@ -229,15 +232,13 @@ export function BottomTabBar({
 
     const cRect = container.getBoundingClientRect();
     const bRect = btn.getBoundingClientRect();
-
     setPill({ left: bRect.left - cRect.left, width: bRect.width });
 
     const currentIdx = NAV_TAB_IDS.indexOf(activeTab.id);
     const prevIdx = prevIdxRef.current;
 
     if (pillReady && prevIdx !== -1 && prevIdx !== currentIdx) {
-      const dir =
-        currentIdx > prevIdx ? "v360-pill--right" : "v360-pill--left";
+      const dir = currentIdx > prevIdx ? "v360-pill--right" : "v360-pill--left";
       setSquishClass(dir);
       const t = setTimeout(() => setSquishClass(""), 440);
       return () => clearTimeout(t);
@@ -296,10 +297,7 @@ export function BottomTabBar({
           {tabs.map(t => {
             if (t.id === "__add__") {
               return (
-                <div
-                  key="add"
-                  style={{ flex: 1, display: "flex", justifyContent: "center" }}
-                >
+                <div key="add" style={{ flex: 1, display: "flex", justifyContent: "center" }}>
                   <button
                     aria-label="Registrar gasto rápido"
                     onClick={onAddClick}
@@ -312,8 +310,7 @@ export function BottomTabBar({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      boxShadow:
-                        "0 8px 24px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)",
                       marginTop: -28,
                       cursor: "pointer",
                     }}
@@ -337,9 +334,7 @@ export function BottomTabBar({
             return (
               <button
                 key={t.id}
-                ref={el => {
-                  btnRefs.current[t.id] = el;
-                }}
+                ref={el => { btnRefs.current[t.id] = el; }}
                 role="tab"
                 aria-selected={active}
                 aria-label={t.label}
