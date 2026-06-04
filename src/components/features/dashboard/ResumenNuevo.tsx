@@ -282,7 +282,7 @@ function HeroCard({
             {visible && <span style={{ fontSize: 11, color: "rgba(200,212,240,0.55)" }}>vs mes anterior</span>}
           </div>
           <div style={{ flex: 1 }} />
-          <button
+          <button className="v360-glass-btn"
             onClick={() => setTab("contratos")}
             style={{
               marginTop: 14,
@@ -319,7 +319,7 @@ function HeroCard({
 
         <div style={{ flex: "1 1 44%", minWidth: 0, display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button
+            <button className="v360-glass-btn"
               onClick={() => setVisible(v => !v)}
               style={{
                 display: "inline-flex",
@@ -500,7 +500,7 @@ function AccionesCard({ panalesLibres, setTab }: AccionesCardProps) {
         >
           Acciones recomendadas
         </span>
-        <button
+        <button className="v360-glass-btn"
           style={{
             background: "none",
             border: "none",
@@ -560,7 +560,7 @@ function AccionesCard({ panalesLibres, setTab }: AccionesCardProps) {
             Tienes {panalesLibres} paneles listos para asignar.
           </div>
         </div>
-        <button
+        <button className="v360-glass-btn"
           onClick={() => setTab("paneles")}
           style={{
             background: T.accent,
@@ -706,7 +706,7 @@ function ActividadReciente({ contratos, clientes, paneles }: ActividadRecientePr
         >
           Actividad reciente
         </span>
-        <button
+        <button className="v360-glass-btn"
           style={{
             background: "none",
             border: "none",
