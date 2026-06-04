@@ -18,6 +18,20 @@ export const unlockAudio = (): Promise<void> => {
   }
 };
 
+// ── Pre-unlock automático en el primer gesto ─────────────────────
+// En iOS / Android el AudioContext arranca "suspended" aunque se cree
+// dentro de un handler de clic. Si haptic() se llama desde código async
+// (ej: después de await Firestore), ya no hay gesto activo y el sonido
+// se silencia. Escuchar el PRIMER toque garantiza que el contexto quede
+// en estado "running" para todas las llamadas posteriores.
+if (typeof window !== "undefined") {
+  const _preUnlock = () => {
+    unlockAudio().catch(() => {});
+  };
+  document.addEventListener("touchstart", _preUnlock, { once: true, passive: true });
+  document.addEventListener("pointerdown", _preUnlock, { once: true, passive: true });
+}
+
 // ── Estado del contexto (útil para saber si hay que esperar un gesto) ──
 export const isAudioReady = (): boolean => !!_ctx && _ctx.state === "running";
 
