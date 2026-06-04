@@ -286,7 +286,7 @@ export function BottomTabBar({
                   gap: 3,
                   background: "transparent",
                   border: "none",
-                  color: active ? "#4A8CFF" : "rgba(74,140,255,0.52)",
+                  color: active ? "#1D6BFF" : "rgba(29,107,255,0.48)",
                   padding: "6px 4px",
                   minHeight: 48,
                   borderRadius: 18,
