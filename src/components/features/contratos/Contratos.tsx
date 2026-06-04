@@ -757,10 +757,8 @@ function Contratos({
             display: "inline-flex",
             alignItems: "center",
             gap: 7,
-            backdropFilter: "blur(10px) saturate(150%)",
-            WebkitBackdropFilter: "blur(10px) saturate(150%)",
-            background: "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.13)",
+            background: T.accent,
+            border: "none",
             borderRadius: 13,
             padding: "10px 20px",
             color: "#fff",
@@ -768,7 +766,7 @@ function Contratos({
             fontSize: 13,
             cursor: "pointer",
             touchAction: "manipulation",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.18)",
+            boxShadow: "0 6px 18px rgba(37,99,235,0.4)",
           }}
         >
           <svg
