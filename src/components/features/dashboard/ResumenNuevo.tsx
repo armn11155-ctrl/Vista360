@@ -242,25 +242,59 @@ function HeroCard({
               style={{
                 fontSize: 26,
                 fontWeight: 800,
-                color: "#fff",
                 letterSpacing: "-0.03em",
                 lineHeight: 1,
-                filter: visible ? "none" : "blur(7px)",
-                userSelect: visible ? "auto" : "none",
-                transition: "filter 0.2s ease",
+                position: "relative",
+                display: "inline-block",
               }}
             >
-              {fmt(ingActual)}
+              <span style={{ color: visible ? "#fff" : "transparent", userSelect: visible ? "auto" : "none" }}>
+                {fmt(ingActual)}
+              </span>
+              {!visible && (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    color: "#fff",
+                    fontSize: "0.55em",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {"S/\u00a0" + "\u25CF".repeat(Math.max(4, fmt(ingActual).replace("S/ ", "").replace(/\D/g, "").length + 1))}
+                </span>
+              )}
             </div>
             <div style={{
               fontSize: 12,
               fontWeight: 700,
-              color: positive ? "#5BD39A" : "#FF7A8A",
-              filter: visible ? "none" : "blur(5px)",
-              userSelect: visible ? "auto" : "none",
-              transition: "filter 0.2s ease",
+              position: "relative",
+              display: "inline-block",
             }}>
-              {positive ? "+" : ""}{deltaPct.toFixed(1)}%
+              <span style={{ color: visible ? (positive ? "#5BD39A" : "#FF7A8A") : "transparent", userSelect: visible ? "auto" : "none" }}>
+                {positive ? "+" : ""}{deltaPct.toFixed(1)}%
+              </span>
+              {!visible && (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    color: positive ? "#5BD39A" : "#FF7A8A",
+                    fontSize: "0.7em",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {"\u25CF".repeat(Math.max(3, `${positive ? "+" : ""}${deltaPct.toFixed(1)}%`.replace(/\D/g, "").length + 2))}
+                </span>
+              )}
             </div>
           </div>
           <div
@@ -281,12 +315,29 @@ function HeroCard({
                 border: `1px solid ${positive ? "rgba(91,211,154,0.25)" : "rgba(255,122,138,0.25)"}`,
                 padding: "3px 8px",
                 borderRadius: 999,
-                filter: visible ? "none" : "blur(5px)",
-                userSelect: visible ? "auto" : "none",
-                transition: "filter 0.2s ease",
+                position: "relative",
+                display: "inline-block",
               }}
             >
-              {positive ? "+" : "-"}{fmt(Math.abs(delta))}
+              <span style={{ color: visible ? "inherit" : "transparent", userSelect: visible ? "auto" : "none" }}>
+                {positive ? "+" : "-"}{fmt(Math.abs(delta))}
+              </span>
+              {!visible && (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    inset: "0 8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    fontSize: "0.7em",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {"\u25CF".repeat(Math.max(4, fmt(Math.abs(delta)).replace(/\D/g, "").length + 2))}
+                </span>
+              )}
             </span>
             <span style={{ fontSize: 11, color: "rgba(200,212,240,0.55)" }}>vs mes anterior</span>
           </div>
