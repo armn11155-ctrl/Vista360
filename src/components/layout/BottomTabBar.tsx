@@ -119,6 +119,11 @@ export function BottomTabBar({
 }: BottomTabBarProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  // Rutas con fondo oscuro — íconos y letras en blanco automáticamente
+  const DARK_ROUTES = new Set(['/', '/mapa']);
+  const onDark = DARK_ROUTES.has(pathname);
+  const iconColor = onDark ? '#ffffff' : '#0E1A3B';
+  const iconColorMuted = onDark ? 'rgba(255,255,255,0.55)' : 'rgba(14,26,59,0.45)';
 
   const containerRef = useRef<HTMLDivElement>(null);
   const btnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -286,7 +291,7 @@ export function BottomTabBar({
                   gap: 3,
                   background: "transparent",
                   border: "none",
-                  color: active ? "#0E1A3B" : "rgba(14,26,59,0.52)",
+                  color: active ? iconColor : iconColorMuted,
                   padding: "6px 4px",
                   minHeight: 48,
                   borderRadius: 18,
