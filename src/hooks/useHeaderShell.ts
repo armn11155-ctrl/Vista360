@@ -39,22 +39,12 @@ export function useHeaderShell(user: User, showProfile: boolean) {
   const headerColor = showProfile ? T.bg : (HEADER_COLORS[location.pathname] ?? T.bg);
   const headerDark = headerColor !== T.bg;
 
-  // ── theme-color — requestAnimationFrame: actualiza en el siguiente frame ──
-  // Sin lag visible y sin el flash brusco del update inmediato
+    // ── Solo body.background — theme-color queda fijo en #0E1A3B del HTML ──
+  // No tocar theme-color dinámicamente evita el flash del status bar en iOS
   useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-      if (!meta) {
-        meta = document.createElement("meta");
-        meta.setAttribute("name", "theme-color");
-        document.head.appendChild(meta);
-      }
-      meta.setAttribute("content", headerColor);
-      document.documentElement.style.background = headerColor;
-      document.body.style.background = headerColor;
-      document.documentElement.style.setProperty("--app-bg", headerColor);
-    });
-    return () => cancelAnimationFrame(raf);
+    document.documentElement.style.background = headerColor;
+    document.body.style.background = headerColor;
+    document.documentElement.style.setProperty("--app-bg", headerColor);
   }, [headerColor]);
 
   // ── Título del documento ───────────────────────────────────────────
