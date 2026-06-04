@@ -1,4 +1,4 @@
-import { useCallback, useRef, useLayoutEffect, useState } from "react";
+import { useCallback, useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { NAV_TAB_IDS } from "../../config/constants";
 
@@ -13,7 +13,11 @@ interface BottomTabBarProps {
   showProfile: boolean;
   onTabClick: (path: string) => void;
   onAddClick: () => void;
-  /** true cuando el header de la ruta actual es oscuro (viene de useHeaderShell) */
+  /**
+   * Valor inicial por ruta (de useHeaderShell).
+   * Se usa como punto de partida; el detector en tiempo real lo sobreescribe
+   * frame a frame según la luminancia real del contenido detrás de la barra.
+   */
   headerDark?: boolean;
 }
 
@@ -21,30 +25,25 @@ interface BottomTabBarProps {
 const GLASS_CSS = `
   /* ── Variables de reflex para tema oscuro de Vista360 ── */
   .v360-bar {
-    --rl: 0.4;   /* reflex-light  */
-    --rd: 1.8;   /* reflex-dark   */
-    --cg: 122, 150, 200;   /* glass tint RGB */
-    --cl: 255, 255, 255;   /* light RGB      */
-    --cd: 0, 0, 0;         /* dark RGB       */
+    --rl: 0.4;
+    --rd: 1.8;
+    --cg: 122, 150, 200;
+    --cl: 255, 255, 255;
+    --cd: 0, 0, 0;
   }
 
-  /* ── Pill deslizante — mismo glass que la barra ── */
   .v360-pill {
     position: absolute;
     top: 6px;
     height: calc(100% - 12px);
     border-radius: 18px;
     pointer-events: none;
-
-    /* Transparente, igual que la barra */
     background: linear-gradient(
       rgba(122, 150, 200, 0.18),
       rgba(122, 150, 200, 0.10)
     );
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-
-    /* Mismo box-shadow multicapa que la barra */
     box-shadow:
       inset 0 0 0 1px rgba(255,255,255,0.07),
       inset 1.8px 3px 0px -2px rgba(255,255,255,0.36),
@@ -56,19 +55,16 @@ const GLASS_CSS = `
       inset 2px -6.5px 1px -4px rgba(0,0,0,0.18),
       0px 1px 5px rgba(0,0,0,0.30),
       0px 8px 24px rgba(0,0,0,0.28);
-
     transition:
       left   0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
       width  0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
   }
 
-  /* ── Squish: moviéndose a la derecha — se estira desde la izquierda ── */
   .v360-pill--right {
     transform-origin: left center;
     animation: v360SquishRight 420ms cubic-bezier(0.34, 1.2, 0.64, 1);
   }
 
-  /* ── Squish: moviéndose a la izquierda — se estira desde la derecha ── */
   .v360-pill--left {
     transform-origin: right center;
     animation: v360SquishLeft 420ms cubic-bezier(0.34, 1.2, 0.64, 1);
@@ -87,7 +83,6 @@ const GLASS_CSS = `
   }
 `;
 
-// ── Box-shadow multi-capa para la barra (dark glass) ────────────────
 const BAR_BOX_SHADOW = [
   "inset 0 0 0 1px rgba(255,255,255,0.07)",
   "inset 1.8px 3px 0px -2px rgba(255,255,255,0.36)",
@@ -101,6 +96,38 @@ const BAR_BOX_SHADOW = [
   "0px 8px 24px rgba(0,0,0,0.28)",
 ].join(", ");
 
+// ── Lee la luminancia real del contenido justo detrás de la barra ──
+// Usa elementsFromPoint en el centro superior de la zona de la barra,
+// ignora la barra misma y los nodos raíz, y devuelve true si es oscuro.
+function sampleLuminanceBehindBar(): boolean | null {
+  // Punto de muestreo: centro horizontal, ~68px desde abajo
+  // (justo dentro del área donde la barra es transparente)
+  const x = window.innerWidth / 2;
+  const y = window.innerHeight - 68;
+
+  const els = document.elementsFromPoint(x, y);
+
+  for (const el of els) {
+    // Saltar la propia barra de navegación y sus hijos
+    if (el.closest?.(".v360-bar")) continue;
+    // Saltar html/body (sus backgrounds los maneja useHeaderShell)
+    if (el === document.documentElement || el === document.body) continue;
+
+    const bg = window.getComputedStyle(el).backgroundColor;
+    if (!bg || bg === "rgba(0, 0, 0, 0)" || bg === "transparent") continue;
+
+    const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (m) {
+      const lum =
+        (0.299 * Number(m[1]) + 0.587 * Number(m[2]) + 0.114 * Number(m[3])) /
+        255;
+      return lum < 0.5; // true = oscuro
+    }
+  }
+
+  return null; // no se encontró fondo opaco
+}
+
 export function BottomTabBar({
   tabs,
   icons,
@@ -112,18 +139,62 @@ export function BottomTabBar({
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  // Colores de íconos/texto según luminancia del fondo de la ruta actual.
-  // headerDark viene de useHeaderShell — fuente única de verdad, sin duplicar el mapa.
-  const iconColor      = headerDark ? "#ffffff"               : "#0E1A3B";
-  const iconColorMuted = headerDark ? "rgba(255,255,255,0.55)" : "rgba(14,26,59,0.45)";
+  // ── Estado de luminancia dinámica ──────────────────────────────────
+  // Arranca con el valor por ruta y se actualiza en cada scroll frame.
+  const [onDark, setOnDark] = useState<boolean>(headerDark);
 
+  // Función de muestreo estable (sin deps externas — lee el DOM en vivo)
+  const sample = useCallback(() => {
+    const result = sampleLuminanceBehindBar();
+    if (result !== null) setOnDark(result);
+  }, []);
+
+  // Al cambiar de ruta: resetear al valor de ruta y muestrear el nuevo DOM
+  useEffect(() => {
+    setOnDark(headerDark); // reset optimista inmediato
+    const raf = requestAnimationFrame(sample); // luego leer el DOM real
+    return () => cancelAnimationFrame(raf);
+  }, [pathname, headerDark, sample]);
+
+  // Listener de scroll con RAF throttle — activo toda la vida del componente
+  useEffect(() => {
+    let rafId: number | null = null;
+
+    const onScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        sample();
+        rafId = null;
+      });
+    };
+
+    // capture:true → captura scroll de cualquier contenedor anidado
+    document.addEventListener("scroll", onScroll, {
+      passive: true,
+      capture: true,
+    });
+
+    return () => {
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, [sample]);
+
+  // Colores resultantes — transición CSS suaviza el cambio
+  const iconColor = onDark ? "#ffffff" : "#0E1A3B";
+  const iconColorMuted = onDark
+    ? "rgba(255,255,255,0.55)"
+    : "rgba(14,26,59,0.45)";
+
+  // ── Pill + squish ──────────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
   const btnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(
+    null,
+  );
   const [pillReady, setPillReady] = useState(false);
 
-  // ── Tracking de dirección para squish ──────────────────────────────
   const prevIdxRef = useRef<number>(-1);
   const [squishClass, setSquishClass] = useState("");
 
@@ -161,12 +232,12 @@ export function BottomTabBar({
 
     setPill({ left: bRect.left - cRect.left, width: bRect.width });
 
-    // ── Dirección del movimiento → clase squish ──
     const currentIdx = NAV_TAB_IDS.indexOf(activeTab.id);
     const prevIdx = prevIdxRef.current;
 
     if (pillReady && prevIdx !== -1 && prevIdx !== currentIdx) {
-      const dir = currentIdx > prevIdx ? "v360-pill--right" : "v360-pill--left";
+      const dir =
+        currentIdx > prevIdx ? "v360-pill--right" : "v360-pill--left";
       setSquishClass(dir);
       const t = setTimeout(() => setSquishClass(""), 440);
       return () => clearTimeout(t);
@@ -211,7 +282,6 @@ export function BottomTabBar({
             boxShadow: BAR_BOX_SHADOW,
           }}
         >
-          {/* ── Pill deslizante con squish ── */}
           {pill && (
             <div
               className={`v360-pill${squishClass ? " " + squishClass : ""}`}
@@ -226,7 +296,10 @@ export function BottomTabBar({
           {tabs.map(t => {
             if (t.id === "__add__") {
               return (
-                <div key="add" style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+                <div
+                  key="add"
+                  style={{ flex: 1, display: "flex", justifyContent: "center" }}
+                >
                   <button
                     aria-label="Registrar gasto rápido"
                     onClick={onAddClick}
@@ -239,7 +312,8 @@ export function BottomTabBar({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)",
+                      boxShadow:
+                        "0 8px 24px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)",
                       marginTop: -28,
                       cursor: "pointer",
                     }}
@@ -263,7 +337,9 @@ export function BottomTabBar({
             return (
               <button
                 key={t.id}
-                ref={el => { btnRefs.current[t.id] = el; }}
+                ref={el => {
+                  btnRefs.current[t.id] = el;
+                }}
                 role="tab"
                 aria-selected={active}
                 aria-label={t.label}
