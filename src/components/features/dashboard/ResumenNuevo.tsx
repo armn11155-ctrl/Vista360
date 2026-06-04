@@ -248,8 +248,9 @@ function HeroCard({
               {visible ? fmt(ingActual) : <span style={{ letterSpacing: 2, opacity: 0.55 }}>S/ ••••••</span>}
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, color: positive ? "#5BD39A" : "#FF7A8A" }}>
-              {positive ? "+" : ""}
-              {deltaPct.toFixed(1)}%
+              {visible
+                ? `${positive ? "+" : ""}${deltaPct.toFixed(1)}%`
+                : <span style={{ opacity: 0.7 }}>{positive ? "+" : ""}••%</span>}
             </div>
           </div>
           <div
@@ -261,7 +262,6 @@ function HeroCard({
               marginTop: 8,
             }}
           >
-            {visible && (
             <span
               style={{
                 fontSize: 11,
@@ -273,10 +273,10 @@ function HeroCard({
                 borderRadius: 999,
               }}
             >
-              {positive ? "+" : "-"}
-              {fmt(Math.abs(delta))}
+              {visible
+                ? `${positive ? "+" : "-"}${fmt(Math.abs(delta))}`
+                : <span style={{ opacity: 0.7 }}>{positive ? "+" : "-"}••••</span>}
             </span>
-            )}
             <span style={{ fontSize: 11, color: "rgba(200,212,240,0.55)" }}>vs mes anterior</span>
           </div>
           <div style={{ flex: 1 }} />
