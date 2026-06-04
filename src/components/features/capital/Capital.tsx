@@ -2193,7 +2193,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           }}
         >
           {TABS.map(t => (
-            <button className="v360-glass-btn"
+            <button
               key={t.id}
               onClick={() => setSection(t.id)}
               style={{
@@ -2204,15 +2204,21 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                 borderRadius: 99,
                 whiteSpace: "nowrap",
                 flexShrink: 0,
-                background: section === t.id ? "rgba(16,185,129,0.18)" : "rgba(255,255,255,0.05)",
-                border: `1px solid ${section === t.id ? "rgba(16,185,129,0.45)" : "rgba(255,255,255,0.08)"}`,
-                color: section === t.id ? "#34D399" : "rgba(148,175,255,0.5)",
+                backdropFilter: "blur(16px) saturate(160%)",
+                WebkitBackdropFilter: "blur(16px) saturate(160%)",
+                background: section === t.id
+                  ? "linear-gradient(rgba(122,150,200,0.28), rgba(122,150,200,0.16))"
+                  : "rgba(122,150,200,0.07)",
+                border: `1px solid ${section === t.id ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.06)"}`,
+                boxShadow: section === t.id
+                  ? "inset 0 1px 0 rgba(255,255,255,0.20), 0 2px 8px rgba(0,0,0,0.20)"
+                  : "none",
+                color: section === t.id ? "#0E1A3B" : "rgba(148,175,255,0.6)",
                 fontSize: 12,
                 fontWeight: section === t.id ? 700 : 500,
                 cursor: "pointer",
                 touchAction: "manipulation",
                 fontFamily: "inherit",
-                boxShadow: "none",
               }}
             >
               <span style={{ fontSize: 13 }}>{t.icon}</span>
