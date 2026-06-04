@@ -39,23 +39,18 @@ export function useHeaderShell(user: User, showProfile: boolean) {
   const headerColor = showProfile ? T.bg : (HEADER_COLORS[location.pathname] ?? T.bg);
   const headerDark = headerColor !== T.bg;
 
-  // ── theme-color meta tag — debounce para evitar parpadeo al cambiar de tab ──
+  // ── theme-color meta tag — actualización directa sin debounce ──
   useEffect(() => {
-    // Pequeño delay para que el color solo se actualice cuando la navegación
-    // se asienta, no en cada render intermedio → elimina el flash del status bar
-    const timer = setTimeout(() => {
-      let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-      if (!meta) {
-        meta = document.createElement("meta");
-        meta.setAttribute("name", "theme-color");
-        document.head.appendChild(meta);
-      }
-      meta.setAttribute("content", headerColor);
-      document.documentElement.style.background = headerColor;
-      document.body.style.background = headerColor;
-      document.documentElement.style.setProperty("--app-bg", headerColor);
-    }, 80);
-    return () => clearTimeout(timer);
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.setAttribute("name", "theme-color");
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute("content", headerColor);
+    document.documentElement.style.background = headerColor;
+    document.body.style.background = headerColor;
+    document.documentElement.style.setProperty("--app-bg", headerColor);
   }, [headerColor]);
 
   // ── Título del documento ───────────────────────────────────────────
