@@ -821,14 +821,14 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
           sub="OCR · Boletas · Sueldos"
         />
         {tabGastos === "gastos" ? (
-          <button className="v360-glass-btn"
+          <button
             onClick={abrirNuevo}
             style={{
-              background: "transparent",
+              background: "linear-gradient(135deg,#2563EB,#3B82F6)",
               border: "none",
               borderRadius: 12,
               padding: "10px 18px",
-              color: "#0E1A3B",
+              color: "#fff",
               fontWeight: 700,
               fontSize: 13,
               cursor: "pointer",
@@ -840,14 +840,14 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
             + Nuevo
           </button>
         ) : (
-          <button className="v360-glass-btn"
+          <button
             onClick={abrirNuevoSueldo}
             style={{
-              background: "transparent",
+              background: "linear-gradient(135deg,#2563EB,#3B82F6)",
               border: "none",
               borderRadius: 12,
               padding: "10px 18px",
-              color: "#0E1A3B",
+              color: "#fff",
               fontWeight: 700,
               fontSize: 13,
               cursor: "pointer",
@@ -877,7 +877,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
           { id: "gastos", label: "Gastos" },
           { id: "sueldos", label: "Sueldos" },
         ].map(t => (
-          <button className="v360-glass-btn"
+          <button
             key={t.id}
             onClick={() => setTabGastos(t.id)}
             style={{
@@ -947,7 +947,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                   <span style={{ fontSize: 17, fontWeight: 800, color: T.text }}>
                     {modalSueldo === "nuevo" ? "Nuevo empleado" : "Editar empleado"}
                   </span>
-                  <button className="v360-glass-btn"
+                  <button
                     onClick={() => setModalSueldo(null)}
                     style={{
                       background: T.border,
@@ -1021,7 +1021,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                   </div>
                 ))}
                 <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-                  <button className="v360-glass-btn"
+                  <button
                     onClick={() => setModalSueldo(null)}
                     style={{
                       flex: 1,
@@ -1038,7 +1038,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                   >
                     Cancelar
                   </button>
-                  <button className="v360-glass-btn"
+                  <button
                     onClick={guardarSueldo}
                     style={{
                       flex: 2,
@@ -1057,7 +1057,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                   </button>
                 </div>
                 {modalSueldo !== "nuevo" && (
-                  <button className="v360-glass-btn"
+                  <button
                     onClick={() => {
                       eliminarSueldo(modalSueldo.id);
                       setModalSueldo(null);
@@ -1112,7 +1112,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
               marginBottom: 18,
             }}
           >
-            <button className="v360-glass-btn"
+            <button
               onClick={() => cambiarMes(-1)}
               style={{
                 background: "#1E3050",
@@ -1137,7 +1137,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                 {sueldosPagadosMes}/{sueldos.length} pagados · {fmt(totalSueldosMes)} total
               </div>
             </div>
-            <button className="v360-glass-btn"
+            <button
               onClick={() => cambiarMes(1)}
               style={{
                 background: "#1E3050",
@@ -1202,7 +1202,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
               <div style={{ fontSize: 13, color: T.muted, marginBottom: 20 }}>
                 Agrega a tu equipo para llevar el control de sueldos
               </div>
-              <button className="v360-glass-btn"
+              <button
                 onClick={abrirNuevoSueldo}
                 style={{
                   background: "linear-gradient(135deg,#2563EB,#3B82F6)",
@@ -1321,7 +1321,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         </span>
                       </div>
                       {/* Btn editar */}
-                      <button className="v360-glass-btn"
+                      <button
                         onClick={() => abrirEditarSueldo(s)}
                         style={{
                           width: 34,
@@ -1350,7 +1350,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         </svg>
                       </button>
                       {/* Btn PAGAR */}
-                      <button className="v360-glass-btn"
+                      <button
                         onClick={() => pagarSueldo(s.id)}
                         style={{
                           display: "flex",
@@ -1485,7 +1485,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
               marginBottom: 18,
             }}
           >
-            <button className="v360-glass-btn"
+            <button
               onClick={() => cambiarMes(-1)}
               style={{
                 background: "#1E3050",
@@ -1510,7 +1510,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                 {fmt(totalMes)} total · {delMes.length} gastos
               </div>
             </div>
-            <button className="v360-glass-btn"
+            <button
               onClick={() => cambiarMes(1)}
               style={{
                 background: "#1E3050",
@@ -1602,7 +1602,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
               <div style={{ fontSize: 13, color: T.muted, marginBottom: 20 }}>
                 Sube una foto de tu boleta — el OCR extrae todos los datos
               </div>
-              <button className="v360-glass-btn"
+              <button
                 onClick={abrirNuevo}
                 style={{
                   background: "linear-gradient(135deg,#2563EB,#3B82F6)",
@@ -1897,7 +1897,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         }}
                         onClick={e => e.stopPropagation()}
                       >
-                        <button className="v360-glass-btn"
+                        <button
                           onClick={() => abrirEditar(g)}
                           style={{
                             background: "rgba(37,99,235,0.12)",
@@ -1929,7 +1929,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           </svg>
                           Editar
                         </button>
-                        <button className="v360-glass-btn"
+                        <button
                           onClick={() => setVistaDetalle(g)}
                           style={{
                             background: "rgba(16,185,129,0.12)",
@@ -1961,7 +1961,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           </svg>
                           Ver detalle
                         </button>
-                        <button className="v360-glass-btn"
+                        <button
                           onClick={() => eliminar(g.id)}
                           style={{
                             background: "rgba(239,68,68,0.12)",
@@ -2079,7 +2079,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                     >
                       Registrado
                     </span>
-                    <button className="v360-glass-btn"
+                    <button
                       onClick={() => setVistaDetalle(null)}
                       style={{
                         width: 30,
@@ -2176,7 +2176,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         </div>
                       </div>
                     )}
-                    <button className="v360-glass-btn"
+                    <button
                       onClick={() => fileRef.current.click()}
                       style={{
                         width: "100%",
@@ -2482,7 +2482,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                     <div
                       style={{ display: "flex", gap: 10, paddingTop: 8, flexDirection: "column" }}
                     >
-                      <button className="v360-glass-btn"
+                      <button
                         onClick={async () => {
                           const g = vistaDetalle;
                           const DARK = "#0D1B3E",
@@ -2635,7 +2635,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         Exportar PDF con foto
                       </button>
                       <div style={{ display: "flex", gap: 10 }}>
-                        <button className="v360-glass-btn"
+                        <button
                           onClick={() => eliminar(vistaDetalle.id)}
                           style={{
                             flex: 1,
@@ -2656,7 +2656,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         >
                           Eliminar
                         </button>
-                        <button className="v360-glass-btn"
+                        <button
                           onClick={() => abrirEditar(vistaDetalle)}
                           style={{
                             flex: 1,
@@ -2743,7 +2743,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                   <div style={{ fontSize: 16, fontWeight: 800, color: T.white }}>
                     {modal === "nuevo" ? " Nuevo Gasto" : "Editar Gasto"}
                   </div>
-                  <button className="v360-glass-btn"
+                  <button
                     onClick={() => {
                       setModal(null);
                       onModalChange?.(false);
@@ -2899,7 +2899,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                       </div>
                     )}
                     <div style={{ display: "flex", gap: 8 }}>
-                      <button className="v360-glass-btn"
+                      <button
                         onClick={() => fileRef.current.click()}
                         style={{
                           flex: 1,
@@ -3109,7 +3109,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
 
                   {/* Botones guardar */}
                   <div style={{ display: "flex", gap: 10 }}>
-                    <button className="v360-glass-btn"
+                    <button
                       onClick={() => {
                         setModal(null);
                         onModalChange?.(false);
@@ -3128,7 +3128,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                     >
                       Cancelar
                     </button>
-                    <button className="v360-glass-btn"
+                    <button
                       onClick={guardar}
                       disabled={saving}
                       style={{
