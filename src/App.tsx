@@ -169,6 +169,10 @@ function AppShell() {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [firebaseDown, setFbDown] = useState(false);
+  // Ref para evitar stale closure en el done() del splash
+  const authReadyRef = useRef(false);
+  // true cuando la animación del splash terminó pero auth aún no llegó
+  const splashWaiting = useRef(false);
 
   useEffect(() => {
     const lockScroll = () => {
@@ -190,8 +194,13 @@ function AppShell() {
 
   useEffect(() => {
     const fallback = setTimeout(() => {
+      authReadyRef.current = true;
       setAuthReady(true);
       setFbDown(true);
+      if (splashWaiting.current) {
+        splashWaiting.current = false;
+        setSplash(false);
+      }
     }, 3000);
     let unsub: (() => void) | undefined;
     try {
@@ -213,13 +222,23 @@ function AppShell() {
               }
             }
           }
+          authReadyRef.current = true;
           setAuthReady(true);
+          if (splashWaiting.current) {
+            splashWaiting.current = false;
+            setSplash(false);
+          }
         },
         err => {
           console.error("[Auth] error:", err);
           clearTimeout(fallback);
           setFbDown(true);
+          authReadyRef.current = true;
           setAuthReady(true);
+          if (splashWaiting.current) {
+            splashWaiting.current = false;
+            setSplash(false);
+          }
         },
       );
     } catch (err) {
@@ -238,7 +257,18 @@ function AppShell() {
     <ToastProvider>
       {/* CSS global movido a src/index.css — ver refactor(styles) */}
 
-      {splash && <Splash done={() => setSplash(false)} />}
+      {splash && (
+        <Splash
+          done={() => {
+            // Usar ref en vez de estado para evitar stale closure
+            if (authReadyRef.current) {
+              setSplash(false);
+            } else {
+              splashWaiting.current = true;
+            }
+          }}
+        />
+      )}
 
       {!splash && !authReady && (
         <div
