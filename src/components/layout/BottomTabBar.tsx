@@ -91,7 +91,7 @@ export function BottomTabBar({
         e.key === "ArrowRight"
           ? NAV_TAB_IDS[(idx + 1) % NAV_TAB_IDS.length]
           : NAV_TAB_IDS[(idx - 1 + NAV_TAB_IDS.length) % NAV_TAB_IDS.length];
-      navigate(next === "hoy" ? "/" : `/${next}`);
+      navigate(next === "hoy" ? "/" : `/${next}`, { replace: true });
     },
     [navigate],
   );
