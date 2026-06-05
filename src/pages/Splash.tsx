@@ -62,7 +62,7 @@ function Splash({ done }: SplashProps) {
     const fadeTimer = setTimeout(() => {
       setFade(true);
       setTimeout(() => doneRef.current(), 700);
-    }, 3200);
+    }, 2600);
 
     return () => {
       clearTimeout(showTimer);
