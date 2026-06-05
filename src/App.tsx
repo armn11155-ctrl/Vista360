@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
@@ -165,6 +165,13 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
 // ══════════════════════════════════════════════════════════════════
 function AppShell() {
   useViewportSetup();
+
+  // Remover el cover negro del HTML en el primer useLayoutEffect
+  // (antes del primer paint → el Splash ya está cubriendo todo con z-999)
+  useLayoutEffect(() => {
+    const cover = document.getElementById("app-cover");
+    if (cover) cover.remove();
+  }, []);
 
   const [splash, setSplash] = useState(true);
   const [user, setUser] = useState<User | null>(null);
