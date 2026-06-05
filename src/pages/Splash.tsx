@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
 import { isAudioReady, soundSplash, unlockAudio } from "../lib/sounds";
@@ -12,26 +12,25 @@ function Splash({ done }: SplashProps) {
   useEffect(() => { doneRef.current = done; }, [done]);
   const sf = useRef(false);
 
-  // ── Status bar negro para coincidir con el fondo de la imagen ──
-  useEffect(() => {
-    const setColor = (c: string) => {
-      let m = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-      if (!m) {
-        m = document.createElement("meta");
-        m.setAttribute("name", "theme-color");
-        document.head.appendChild(m);
-      }
-      m.setAttribute("content", c);
-      document.documentElement.style.background = c;
-      document.body.style.background = c;
-    };
-    // Negro puro = continuación exacta del cielo de la foto
-    // En iOS (black-translucent) la imagen se ve detrás del status bar
-    // En Android el negro coincide pixel a pixel con el top de la imagen
-    setColor("#000000");
+  // ── Status bar negro durante todo el Splash ─────────────────
+  // useLayoutEffect → corre ANTES del primer paint (no useEffect).
+  // data-splash en <html> señaliza a useHeaderShell que no toque
+  // el theme-color mientras el Splash esté activo.
+  useLayoutEffect(() => {
+    document.documentElement.dataset.splash = "true";
+
+    let m = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!m) {
+      m = document.createElement("meta");
+      m.setAttribute("name", "theme-color");
+      document.head.appendChild(m);
+    }
+    m.setAttribute("content", "#000000");
+    document.documentElement.style.background = "#000000";
+    document.body.style.background = "#000000";
+
     return () => {
-      // fix: usar color oscuro inicial en vez de T.bg (#F2F4F8)
-      // para evitar el destello blanco antes de que useHeaderShell tome el control
+      delete document.documentElement.dataset.splash;
       document.documentElement.style.background = "#0E1A3B";
       document.body.style.background = "#0E1A3B";
     };
