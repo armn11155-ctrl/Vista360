@@ -40,12 +40,8 @@ export function useHeaderShell(user: User, showProfile: boolean) {
   const headerDark = headerColor !== T.bg;
 
   // ── theme-color síncrono con useLayoutEffect ─────────────────────────
-  // Respeta data-splash="true": mientras el Splash está activo,
-  // no sobreescribir el negro que el Splash impone en el status bar.
+  // Corre antes del paint — status bar y header cambian en el mismo frame.
   useLayoutEffect(() => {
-    // Si el Splash está activo, él controla el theme-color — no interferir
-    if (document.documentElement.dataset.splash === "true") return;
-
     let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!meta) {
       meta = document.createElement("meta");
