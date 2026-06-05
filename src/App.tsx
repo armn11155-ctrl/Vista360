@@ -251,6 +251,8 @@ function AppShell() {
             setUser(u);
             if (u) {
               prefetchAllTabs();
+              // Calentar caché de Firestore durante el splash → sin flash de carga al montar
+              preloadData().catch(() => {});
               if ("Notification" in window && Notification.permission === "default") {
                 Notification.requestPermission().catch(() => {});
               }
