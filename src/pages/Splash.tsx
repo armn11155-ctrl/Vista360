@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
 import { isAudioReady, soundSplash, unlockAudio } from "../lib/sounds";
@@ -12,13 +12,8 @@ function Splash({ done }: SplashProps) {
   useEffect(() => { doneRef.current = done; }, [done]);
   const sf = useRef(false);
 
-  // ── Status bar negro durante todo el Splash ─────────────────
-  // useLayoutEffect → corre ANTES del primer paint (no useEffect).
-  // data-splash en <html> señaliza a useHeaderShell que no toque
-  // el theme-color mientras el Splash esté activo.
-  useLayoutEffect(() => {
-    document.documentElement.dataset.splash = "true";
-
+  // ── Status bar negro para coincidir con el fondo de la imagen ──
+  useEffect(() => {
     let m = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!m) {
       m = document.createElement("meta");
@@ -30,7 +25,6 @@ function Splash({ done }: SplashProps) {
     document.body.style.background = "#000000";
 
     return () => {
-      delete document.documentElement.dataset.splash;
       document.documentElement.style.background = "#0E1A3B";
       document.body.style.background = "#0E1A3B";
     };
