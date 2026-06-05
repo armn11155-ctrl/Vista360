@@ -155,28 +155,48 @@ export function BottomTabBar({
   // ── Estado de luminancia dinámica ──────────────────────────────────
   // Arranca con el valor por ruta y se actualiza en cada scroll frame.
   const [onDark, setOnDark] = useState<boolean>(headerDark);
+  // Ref para el debounce de detección «claro» en /contratos
+  const lightDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Función de muestreo estable (sin deps externas — lee el DOM en vivo)
   const sample = useCallback(() => {
-    // En /contratos los giro cards son blancos sobre fondo oscuro.
-    // Forzar siempre dark para que los íconos queden blancos.
-    if (pathname === "/contratos") {
-      setOnDark(true);
-      return;
-    }
     const result = sampleLuminanceBehindBar();
-    if (result !== null) setOnDark(result);
-  }, [pathname]);
+    if (result === null) return;
 
-  // Al cambiar de ruta: resetear al valor de ruta y muestrear el nuevo DOM
-  useEffect(() => {
     if (pathname === "/contratos") {
-      // Giro cards blancos siempre detectados como fondo oscuro
-      setOnDark(true);
+      // En /contratos: oscuro = aplicar YA, cancelar cualquier timer pendiente.
+      // Claro = esperar 400ms antes de cambiar (evita flicker por elementos
+      // blancos dentro de tarjetas oscuras que pasan brevemente por la barra).
+      // Solo el fondo blanco real — donde el usuario se detiene — dispara el cambio.
+      if (result === true) {
+        if (lightDebounce.current) {
+          clearTimeout(lightDebounce.current);
+          lightDebounce.current = null;
+        }
+        setOnDark(true);
+      } else {
+        if (!lightDebounce.current) {
+          lightDebounce.current = setTimeout(() => {
+            setOnDark(false);
+            lightDebounce.current = null;
+          }, 400);
+        }
+      }
       return;
     }
-    setOnDark(headerDark); // reset optimista inmediato
-    const raf = requestAnimationFrame(sample); // luego leer el DOM real
+
+    setOnDark(result);
+  }, [pathname, lightDebounce]);
+
+  // Al cambiar de ruta: limpiar debounce, resetear y muestrear
+  useEffect(() => {
+    // Limpiar el debounce de contratos al cambiar de ruta
+    if (lightDebounce.current) {
+      clearTimeout(lightDebounce.current);
+      lightDebounce.current = null;
+    }
+    setOnDark(headerDark);
+    const raf = requestAnimationFrame(sample);
     return () => cancelAnimationFrame(raf);
   }, [pathname, headerDark, sample]);
 
