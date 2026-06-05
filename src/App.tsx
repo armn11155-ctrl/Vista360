@@ -258,6 +258,20 @@ function AppShell() {
     <ToastProvider>
       {/* CSS global movido a src/index.css — ver refactor(styles) */}
 
+      {/* Cover negro z-998: tapa el appRoot blanco mientras el Splash
+           hace fade-out (opacity 1→0 expone lo que hay detrás) */}
+      {splash && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "#000000",
+            zIndex: 998,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
       {splash && (
         <Splash
           done={() => {
