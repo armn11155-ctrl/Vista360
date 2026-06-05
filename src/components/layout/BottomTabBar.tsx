@@ -158,13 +158,12 @@ export function BottomTabBar({
   // Ref para el debounce de detección «claro» en /contratos
   const lightDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // useLayoutEffect: corre ANTES del paint — garantiza íconos blancos
-  // en el primer frame al entrar a /contratos, sin importar de dónde venga el usuario
+  // useLayoutEffect: corre ANTES del paint — aplica el color correcto INMEDIATAMENTE
+  // para TODAS las rutas oscuras (no solo /contratos), evitando el flash de color
+  // incorrecto en el primer frame al navegar.
   useLayoutEffect(() => {
-    if (pathname === "/contratos") {
-      setOnDark(true);
-    }
-  }, [pathname]);
+    setOnDark(headerDark);
+  }, [pathname, headerDark]);
 
   // Función de muestreo estable (sin deps externas — lee el DOM en vivo)
   const sample = useCallback(() => {
@@ -196,7 +195,9 @@ export function BottomTabBar({
     setOnDark(result);
   }, [pathname, lightDebounce]);
 
-  // Al cambiar de ruta: limpiar debounce, resetear y muestrear
+  // Al cambiar de ruta: limpiar debounce y verificar DOM con delay
+  // El useLayoutEffect ya aplicó el color correcto antes del paint.
+  // Aquí solo verificamos el DOM real después de que el contenido lazy se renderice.
   useEffect(() => {
     // Limpiar el debounce de contratos al cambiar de ruta
     if (lightDebounce.current) {
@@ -204,16 +205,18 @@ export function BottomTabBar({
       lightDebounce.current = null;
     }
     if (pathname === "/contratos") {
-      // Entrar siempre oscuro — la zona KPI es oscura y está arriba.
-      // No samplear al entrar: el RAF puede correr antes de que el DOM esté listo
-      // y detectar algo claro. El scroll listener maneja el resto con debounce.
-      setOnDark(true);
+      // Contratos: ya manejado por layoutEffect. No samplear al entrar:
+      // el RAF puede correr antes de que el DOM esté listo.
+      // El scroll listener se encarga del resto con debounce.
       return;
     }
-    setOnDark(headerDark);
-    const raf = requestAnimationFrame(sample);
-    return () => cancelAnimationFrame(raf);
-  }, [pathname, headerDark, sample]);
+    // Para rutas no hardcodeadas (ej: /reportes con cards oscuras),
+    // esperar 280ms para que el contenido lazy cargue antes de samplear.
+    const timer = setTimeout(() => {
+      requestAnimationFrame(sample);
+    }, 280);
+    return () => clearTimeout(timer);
+  }, [pathname, sample]);
 
   // Listener de scroll con RAF throttle — activo toda la vida del componente
   useEffect(() => {
