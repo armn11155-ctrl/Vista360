@@ -223,6 +223,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
     try {
       await fb.del("contratos", modal.id, { hardDelete: true });
       setContratos(p => p.filter(x => x.id !== modal.id));
+      haptic("delete");
       closeModal();
     } catch (e) {
       toast.error("Error al eliminar: " + e.message);
