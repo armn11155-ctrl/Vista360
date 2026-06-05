@@ -282,3 +282,20 @@ async function comprimirImagen(file: File): Promise<File> {
     img.src = url;
   });
 }
+
+
+/**
+ * Precalienta la caché de Firestore durante el splash.
+ * Al llamar getDocs aquí, el SDK guarda los resultados en caché local.
+ * Cuando AuthenticatedShell monte y useCollection use onSnapshot,
+ * Firestore devuelve los datos inmediatamente desde caché → 0 parpadeo de carga.
+ */
+export async function preloadData(): Promise<void> {
+  await Promise.allSettled([
+    getDocs(snapQuery("paneles")),
+    getDocs(snapQuery("clientes")),
+    getDocs(snapQuery("contratos")),
+    getDocs(snapQuery("gastos")),
+    getDocs(snapQuery("proveedores")),
+  ]);
+}
