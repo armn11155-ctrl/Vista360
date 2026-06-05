@@ -5,7 +5,7 @@ import { T } from "../config/theme";
 
 export const HEADER_COLORS: Record<string, string> = {
   "/": "#0E1A3B",
-  "/capital": "#0E1A3B",
+  "/capital": "#0A1428",  // azul oscuro elegante — mismo tono que KPI cards de Capital
   "/contratos": "#0E1A3B",
   "/historico": "#0A0F1A",
   "/crm": T.accent,
