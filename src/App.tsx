@@ -328,7 +328,7 @@ function AppShell() {
         </>
       )}
 
-      {!!user && ( /* pre-render detrás del Splash: cuando termina, app ya lista */
+      {!splash && !!user && (
         <ShellErrorBoundary>
           <AuthenticatedShell user={user} onLogout={() => setUser(null)} />
         </ShellErrorBoundary>
