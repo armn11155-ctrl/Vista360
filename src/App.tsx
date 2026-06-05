@@ -181,7 +181,6 @@ function AppShell() {
 
   useEffect(() => {
     // ── Bloquear window.scroll solo si NO hay input activo ────────────
-    // (permite que el teclado virtual suba el contenido en iOS PWA)
     const lockScroll = () => {
       const el = document.activeElement as HTMLElement | null;
       const editing =
@@ -189,25 +188,81 @@ function AppShell() {
       if (!editing && window.scrollY !== 0) window.scrollTo(0, 0);
     };
 
-    // ── Teclado virtual: ajustar --keyboard-height ────────────────────
-    // El área de scroll reduce su bottom dinámicamente para no quedar
-    // tapada por el teclado. Funciona tanto en iOS (PWA) como Android.
     const vv = window.visualViewport;
+
+    // ── Sube el input enfocado para que sea visible por encima del teclado ──
+    // Funciona tanto para el área de scroll principal como para modales.
+    // Busca el contenedor scrollable más cercano y lo desplaza manualmente.
+    const scrollInputIntoView = (delay = 0) => {
+      const focused = document.activeElement as HTMLElement | null;
+      if (!focused) return;
+      if (
+        focused.tagName !== "INPUT" &&
+        focused.tagName !== "TEXTAREA" &&
+        !focused.isContentEditable
+      ) return;
+
+      const doScroll = () => {
+        const vvH = vv?.height ?? window.innerHeight;
+        const rect = focused.getBoundingClientRect();
+
+        // Si el campo ya es visible, no hacer nada
+        if (rect.bottom <= vvH - 8 && rect.top >= 56) return;
+
+        // 1. Intentar scrollIntoView (funciona en la mayoría de casos)
+        try {
+          focused.scrollIntoView({ block: "center", behavior: "smooth" });
+        } catch {/* silenciar */}
+
+        // 2. Fallback manual: buscar el contenedor overflow y desplazarlo
+        let parent = focused.parentElement;
+        while (parent && parent !== document.body) {
+          const style = window.getComputedStyle(parent);
+          const isScrollable =
+            style.overflow === "auto" || style.overflow === "scroll" ||
+            style.overflowY === "auto" || style.overflowY === "scroll";
+          if (isScrollable) {
+            const pRect = parent.getBoundingClientRect();
+            const visibleBottom = Math.min(vvH, pRect.bottom);
+            if (rect.bottom > visibleBottom - 8) {
+              parent.scrollTop += rect.bottom - visibleBottom + 80;
+            } else if (rect.top < pRect.top + 56) {
+              parent.scrollTop -= pRect.top + 56 - rect.top;
+            }
+            break;
+          }
+          parent = parent.parentElement;
+        }
+      };
+
+      if (delay > 0) setTimeout(doScroll, delay);
+      else doScroll();
+    };
+
+    // ── Teclado virtual: actualizar --keyboard-height y subir input ───
     const updateKbHeight = () => {
       const h = vv
         ? Math.max(0, window.innerHeight - vv.height - (vv.offsetTop ?? 0))
         : 0;
       document.documentElement.style.setProperty("--keyboard-height", `${h}px`);
+      // Cuando el teclado termina de aparecer (h > 100), subir el input
+      if (h > 100) scrollInputIntoView(80);
     };
 
-    // ── Scroll al input cuando el teclado aparece ─────────────────────
+    // ── Al enfocar un input: intentar subir en varios momentos ────────
+    // (el teclado puede tardar 300-600ms en terminar de abrirse en iOS)
     const onFocusin = (e: FocusEvent) => {
       const el = e.target as HTMLElement | null;
       if (!el) return;
-      if (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable) {
-        // Esperar a que el teclado termine de animarse (~300ms) antes de scroll
-        setTimeout(() => el.scrollIntoView({ block: "center", behavior: "smooth" }), 320);
-      }
+      if (
+        el.tagName !== "INPUT" &&
+        el.tagName !== "TEXTAREA" &&
+        !el.isContentEditable
+      ) return;
+      // Tres intentos escalonados para capturar el momento exacto
+      scrollInputIntoView(300);
+      scrollInputIntoView(500);
+      scrollInputIntoView(750);
     };
 
     const noop = () => {};
