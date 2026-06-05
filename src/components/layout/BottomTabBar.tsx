@@ -195,26 +195,35 @@ export function BottomTabBar({
     setOnDark(result);
   }, [pathname, lightDebounce]);
 
-  // Al cambiar de ruta: limpiar debounce y verificar DOM con delay
-  // El useLayoutEffect ya aplicó el color correcto antes del paint.
-  // Aquí solo verificamos el DOM real después de que el contenido lazy se renderice.
+  // Al cambiar de ruta: aplicar color correcto y verificar DOM solo cuando sea necesario.
+  //
+  // REGLA: para rutas con HEADER_COLORS conocido (dark), el useLayoutEffect ya aplicó
+  // el estado correcto ANTES del paint. Saltamos el sample en el montaje porque el
+  // contenido lazy puede tardar en renderizarse con datos y provocaría un falso "claro"
+  // (flip incorrecto de onDark) durante la primera visita.
+  // El listener de scroll se encarga de actualizaciones dinámicas posteriores.
   useEffect(() => {
     // Limpiar el debounce de contratos al cambiar de ruta
     if (lightDebounce.current) {
       clearTimeout(lightDebounce.current);
       lightDebounce.current = null;
     }
+
     if (pathname === "/contratos") {
-      // Contratos: ya manejado por layoutEffect. No samplear al entrar:
-      // el RAF puede correr antes de que el DOM esté listo.
-      // El scroll listener se encarga del resto con debounce.
+      // Contratos: el scroll listener maneja el cambio dark ↔ light al deslizar.
       return;
     }
-    // Para rutas no hardcodeadas (ej: /reportes con cards oscuras),
-    // esperar 280ms para que el contenido lazy cargue antes de samplear.
+
+    // Rutas con color oscuro conocido: useLayoutEffect ya fijó onDark correctamente.
+    // NO samplear en el montaje — evita el flip incorrecto cuando los datos tardan en cargar.
+    if (pathname in HEADER_COLORS && HEADER_COLORS[pathname] !== T.bg) {
+      return;
+    }
+
+    // Rutas sin color definido en HEADER_COLORS: samplear después de que cargue el contenido.
     const timer = setTimeout(() => {
       requestAnimationFrame(sample);
-    }, 280);
+    }, 350);
     return () => clearTimeout(timer);
   }, [pathname, sample]);
 
