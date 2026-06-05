@@ -158,12 +158,23 @@ export function BottomTabBar({
 
   // Función de muestreo estable (sin deps externas — lee el DOM en vivo)
   const sample = useCallback(() => {
+    // En /contratos los giro cards son blancos sobre fondo oscuro.
+    // Forzar siempre dark para que los íconos queden blancos.
+    if (pathname === "/contratos") {
+      setOnDark(true);
+      return;
+    }
     const result = sampleLuminanceBehindBar();
     if (result !== null) setOnDark(result);
-  }, []);
+  }, [pathname]);
 
   // Al cambiar de ruta: resetear al valor de ruta y muestrear el nuevo DOM
   useEffect(() => {
+    if (pathname === "/contratos") {
+      // Giro cards blancos siempre detectados como fondo oscuro
+      setOnDark(true);
+      return;
+    }
     setOnDark(headerDark); // reset optimista inmediato
     const raf = requestAnimationFrame(sample); // luego leer el DOM real
     return () => cancelAnimationFrame(raf);
