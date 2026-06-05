@@ -9,7 +9,10 @@
       antes de que React monte. El JS (useHeaderShell) tomará
       el control del theme-color en cuanto el usuario navegue.
     -->
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#0E1A3B" />
+
+    <!-- Preload crítico: splash-bg.jpg debe estar listo antes de que React monte -->
+    <link rel="preload" href="/splash-bg.jpg" as="image" />
     <style>
       html, body, #root { background: #000000 !important; min-height: 100dvh; }
     </style>
