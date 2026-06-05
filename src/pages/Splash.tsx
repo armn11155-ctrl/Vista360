@@ -82,20 +82,6 @@ function Splash({ done }: SplashProps) {
         transition: fade ? "opacity 0.7s ease" : "none",
       }}
     >
-      {/* Franja negra sobre el status bar — tapa cualquier color
-           de la imagen que se filtre en el safe-area-inset-top */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "env(safe-area-inset-top, 50px)",
-          background: "#000000",
-          zIndex: 2,
-        }}
-      />
-
       {/* Imagen de fondo — Tierra desde el espacio */}
       <img
         src="/splash-bg.jpg"
