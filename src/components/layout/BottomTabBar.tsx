@@ -195,6 +195,13 @@ export function BottomTabBar({
       clearTimeout(lightDebounce.current);
       lightDebounce.current = null;
     }
+    if (pathname === "/contratos") {
+      // Entrar siempre oscuro — la zona KPI es oscura y está arriba.
+      // No samplear al entrar: el RAF puede correr antes de que el DOM esté listo
+      // y detectar algo claro. El scroll listener maneja el resto con debounce.
+      setOnDark(true);
+      return;
+    }
     setOnDark(headerDark);
     const raf = requestAnimationFrame(sample);
     return () => cancelAnimationFrame(raf);
