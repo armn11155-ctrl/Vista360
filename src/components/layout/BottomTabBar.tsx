@@ -431,7 +431,7 @@ export function BottomTabBar({
                   gap: 3,
                   background: "transparent",
                   border: "none",
-                  color: active ? (onDark ? "#60A5FA" : "#1D4ED8") : iconColorMuted,
+                  color: active ? iconColor : iconColorMuted,
                   padding: "6px 4px",
                   minHeight: 48,
                   borderRadius: 18,
