@@ -10,6 +10,7 @@ export const HEADER_COLORS: Record<string, string> = {
   "/historico": "#0A0F1A",
   "/crm": T.accent,
   "/mapa": "#070D1C",
+  "/reportes": "#0E1A3B", // Reportes: cards KPI oscuras llenan la pantalla al entrar
 };
 
 export const TAB_TITLES: Record<string, string> = {
