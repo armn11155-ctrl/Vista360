@@ -53,6 +53,9 @@
     <title>Vista360</title>
   </head>
   <body style="background:#000;margin:0">
+    <!-- Cover negro: primer pixel que pinta el browser antes de React.
+         App.tsx lo elimina en useLayoutEffect (antes del primer paint de React). -->
+    <div id="app-cover" style="position:fixed;inset:0;background:#000000;z-index:99999;pointer-events:none;"></div>
     <div id="root"></div>
     <script>
       // Garantiza fondo oscuro al restaurar desde bfcache (iOS background→foreground)
