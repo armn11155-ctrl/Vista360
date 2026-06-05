@@ -631,12 +631,14 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
     else list.push(item);
     await saveData({ [collection]: list });
     setSaving(false);
+    haptic(editItem ? "save" : "create");
     closeModal();
   };
 
   const deleteItem = async (collection, id) => {
     const list = (data[collection] || []).filter(x => x.id !== id);
     await saveData({ [collection]: list });
+    haptic("delete");
   };
 
   const saveFondos = async () => {
@@ -645,6 +647,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
       fondos: data.fondos.map((f, i) => ({ ...f, pct: Number(form[`pct_${i}`] ?? f.pct) })),
     });
     setSaving(false);
+    haptic("save");
     closeModal();
   };
 
@@ -1878,6 +1881,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           setSaving(true);
           await saveData({ caja: Number(form.caja || 0) });
           setSaving(false);
+          haptic("save");
           closeModal();
         }}
         disabled={saving}
