@@ -5,12 +5,13 @@ import { T } from "../config/theme";
 
 export const HEADER_COLORS: Record<string, string> = {
   "/": "#0E1A3B",
-  "/capital": "#0A1428",  // azul oscuro elegante — mismo tono que KPI cards de Capital
+  "/capital": "#0A1428",       // azul oscuro elegante
   "/contratos": "#0E1A3B",
   "/historico": "#0A0F1A",
   "/crm": T.accent,
   "/mapa": "#070D1C",
-  "/reportes": "#0E1A3B", // Reportes: cards KPI oscuras llenan la pantalla al entrar
+  "/reportes": "#0E1A3B",      // Reportes + sub-tabs Estado de Resultados / Por Mes
+  "/facturacion": "#0E1A3B",   // Facturación: misma paleta oscura que el resto de la app
 };
 
 export const TAB_TITLES: Record<string, string> = {
