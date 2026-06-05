@@ -158,6 +158,14 @@ export function BottomTabBar({
   // Ref para el debounce de detección «claro» en /contratos
   const lightDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // useLayoutEffect: corre ANTES del paint — garantiza íconos blancos
+  // en el primer frame al entrar a /contratos, sin importar de dónde venga el usuario
+  useLayoutEffect(() => {
+    if (pathname === "/contratos") {
+      setOnDark(true);
+    }
+  }, [pathname]);
+
   // Función de muestreo estable (sin deps externas — lee el DOM en vivo)
   const sample = useCallback(() => {
     const result = sampleLuminanceBehindBar();
