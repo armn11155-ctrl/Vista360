@@ -11,6 +11,7 @@ import { AppProvider } from "./context/AppContext";
 import { useAppShell } from "./hooks/useAppShell";
 import { useViewportSetup } from "./hooks/useViewportSetup";
 import { prefetchAllTabs, AppRouter } from "./components/layout/AppRouter";
+import { preloadData } from "./services/firestore";
 import { ShellErrorBoundary } from "./components/shared/ShellErrorBoundary";
 import { AppHeader } from "./components/layout/AppHeader";
 import { BottomTabBar } from "./components/layout/BottomTabBar";
@@ -86,7 +87,10 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
               data-scroll
               style={{
                 position: "absolute",
-                inset: 0,
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: "var(--keyboard-height, 0px)",
                 overflowY: "scroll",
                 overflowX: "hidden",
                 overscrollBehavior: "none",
@@ -176,20 +180,49 @@ function AppShell() {
   const splashWaiting = useRef(false);
 
   useEffect(() => {
+    // ── Bloquear window.scroll solo si NO hay input activo ────────────
+    // (permite que el teclado virtual suba el contenido en iOS PWA)
     const lockScroll = () => {
-      if (window.scrollY !== 0) window.scrollTo(0, 0);
+      const el = document.activeElement as HTMLElement | null;
+      const editing =
+        el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
+      if (!editing && window.scrollY !== 0) window.scrollTo(0, 0);
     };
+
+    // ── Teclado virtual: ajustar --keyboard-height ────────────────────
+    // El área de scroll reduce su bottom dinámicamente para no quedar
+    // tapada por el teclado. Funciona tanto en iOS (PWA) como Android.
+    const vv = window.visualViewport;
+    const updateKbHeight = () => {
+      const h = vv
+        ? Math.max(0, window.innerHeight - vv.height - (vv.offsetTop ?? 0))
+        : 0;
+      document.documentElement.style.setProperty("--keyboard-height", `${h}px`);
+    };
+
+    // ── Scroll al input cuando el teclado aparece ─────────────────────
+    const onFocusin = (e: FocusEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (!el) return;
+      if (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable) {
+        // Esperar a que el teclado termine de animarse (~300ms) antes de scroll
+        setTimeout(() => el.scrollIntoView({ block: "center", behavior: "smooth" }), 320);
+      }
+    };
+
     const noop = () => {};
     document.addEventListener("touchstart", noop, { passive: true });
+    updateKbHeight();
     lockScroll();
     window.addEventListener("scroll", lockScroll, { passive: true });
-    window.visualViewport?.addEventListener("resize", lockScroll, { passive: true });
-    window.visualViewport?.addEventListener("scroll", lockScroll, { passive: true });
+    vv?.addEventListener("resize", updateKbHeight, { passive: true });
+    document.addEventListener("focusin", onFocusin as EventListener);
+
     return () => {
       document.removeEventListener("touchstart", noop);
       window.removeEventListener("scroll", lockScroll);
-      window.visualViewport?.removeEventListener("resize", lockScroll);
-      window.visualViewport?.removeEventListener("scroll", lockScroll);
+      vv?.removeEventListener("resize", updateKbHeight);
+      document.removeEventListener("focusin", onFocusin as EventListener);
     };
   }, []);
 
