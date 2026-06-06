@@ -284,18 +284,31 @@ async function comprimirImagen(file: File): Promise<File> {
 }
 
 
+// ── Caché de precarga en memoria ─────────────────────────────────────
+// Almacena datos del splash para que useCollection arrange con loading=false
+const _preloadCache = new Map<string, unknown[]>();
+
 /**
- * Precalienta la caché de Firestore durante el splash.
- * Al llamar getDocs aquí, el SDK guarda los resultados en caché local.
- * Cuando AuthenticatedShell monte y useCollection use onSnapshot,
- * Firestore devuelve los datos inmediatamente desde caché → 0 parpadeo de carga.
+ * Devuelve datos precargados si existen — useCollection los usa como
+ * estado inicial para que AuthenticatedShell monte sin flash de carga.
+ */
+export function getPreloaded<T>(col: string): T[] | null {
+  return (_preloadCache.get(col) as T[] | undefined) ?? null;
+}
+
+/**
+ * Precalienta la caché de Firestore durante el splash (≥3s disponibles).
+ * Guarda los docs en _preloadCache → useCollection arranca con loading=false.
  */
 export async function preloadData(): Promise<void> {
-  await Promise.allSettled([
-    getDocs(snapQuery("paneles")),
-    getDocs(snapQuery("clientes")),
-    getDocs(snapQuery("contratos")),
-    getDocs(snapQuery("gastos")),
-    getDocs(snapQuery("proveedores")),
-  ]);
+  const cols = ["paneles", "clientes", "contratos", "gastos", "proveedores"] as const;
+  const results = await Promise.allSettled(cols.map(c => getDocs(snapQuery(c))));
+  results.forEach((r, i) => {
+    if (r.status === "fulfilled") {
+      _preloadCache.set(
+        cols[i],
+        r.value.docs.map(d => ({ id: d.id, ...d.data() }))
+      );
+    }
+  });
 }
