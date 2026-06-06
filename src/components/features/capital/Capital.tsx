@@ -1453,12 +1453,16 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
     </div>
   );
 
-  // Colores seguros para fondos — nunca naranja ni ámbar
-  const FONDO_SAFE = ["#3B82F6","#60A5FA","#8B5CF6","#A78BFA","#2563EB","#818CF8","#38BDF8","#6366F1"];
-  const AMBER_HEX  = ["#F59E0B","#EF8C00","#FCD34D","#FBBF24","#D97706","#F97316","#FB923C","#FDBA74",
-                      "#F59E0B","#EF4444","#F59E0B"].map(h => h.toUpperCase());
-  const safeCol = (color: string, idx: number): string =>
-    AMBER_HEX.includes(color.toUpperCase()) ? (FONDO_SAFE[idx % FONDO_SAFE.length] ?? "#3B82F6") : color;
+  // Colores seguros para fondos — el naranja/ámbar se muestra en BLANCO
+  // (el usuario pidió "ponle blanco" para los fondos con color naranja)
+  const ORANGE_HEX = [
+    "#F59E0B","#EF8C00","#FCD34D","#FBBF24","#D97706","#F97316",
+    "#FB923C","#FDBA74","#F59E0B","#ED8936","#DD6B20","#C05621",
+    "#FFAB40","#FF9100","#FF6D00","#FF8F00","#FFA000","#FFB300",
+    "#FFC107","#FFD54F","#FFCA28","#FFA726","#FF7043","#FF5722",
+  ].map(h => h.toUpperCase());
+  const safeCol = (color: string, _idx: number): string =>
+    ORANGE_HEX.includes(color.toUpperCase()) ? "#ffffff" : color;
 
   const renderFondos = () => {
     const totalPct = data.fondos.reduce((s, f) => s + Number(f.pct || 0), 0);
