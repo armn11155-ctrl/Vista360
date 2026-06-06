@@ -134,7 +134,11 @@ function sampleLuminanceBehindBar(): boolean | null {
       const lum =
         (0.299 * Number(m[1]) + 0.587 * Number(m[2]) + 0.114 * Number(m[3])) /
         255;
-      return lum < 0.5; // true = oscuro
+      // Umbral asimétrico: para marcar como "claro" la luminancia debe
+      // superar 0.60 (no solo 0.50). Esto evita que sombras de tarjetas,
+      // bordes o degradados semi-transparentes provoquen un flip incorrecto
+      // en rutas que se sabe que son oscuras (Reportes, Inicio, etc.).
+      return lum < 0.60; // true = oscuro
     }
   }
 
@@ -223,16 +227,32 @@ export function BottomTabBar({
     return () => clearTimeout(timer);
   }, [pathname, sample]);
 
-  // Listener de scroll con RAF throttle — activo toda la vida del componente
+  // Listener de scroll — debounce 80ms al reposar + RAF final
+  //
+  // Bug anterior: el rAF disparaba MID-SCROLL, captando tarjetas blancas
+  // en tránsito incluso cuando el destino final era contenido oscuro.
+  // Con debounce, el sample solo corre cuando el scroll se DETIENE → siempre
+  // lee la posición real donde el usuario terminó, no un fotograma intermedio.
   useEffect(() => {
-    let rafId: number | null = null;
+    let rafId:      number | null = null;
+    let debounceId: ReturnType<typeof setTimeout> | null = null;
 
-    const onScroll = () => {
-      if (rafId !== null) return;
+    const doSample = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
         sample();
         rafId = null;
       });
+    };
+
+    const onScroll = () => {
+      // Cancelar el timer anterior y reiniciar: solo correr 80ms después del
+      // ÚLTIMO evento de scroll (es decir, cuando el scroll ya reposó).
+      if (debounceId !== null) clearTimeout(debounceId);
+      debounceId = setTimeout(() => {
+        doSample();
+        debounceId = null;
+      }, 80);
     };
 
     // capture:true → captura scroll de cualquier contenedor anidado
@@ -244,6 +264,7 @@ export function BottomTabBar({
     return () => {
       document.removeEventListener("scroll", onScroll, { capture: true });
       if (rafId !== null) cancelAnimationFrame(rafId);
+      if (debounceId !== null) clearTimeout(debounceId);
     };
   }, [sample]);
 
