@@ -161,6 +161,9 @@ export function BottomTabBar({
   const [onDark, setOnDark] = useState<boolean>(headerDark);
   // Ref para el debounce de detección «claro» en /contratos
   const lightDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Ref para headerDark — siempre fresco en la closure del scroll listener
+  const headerDarkRef = useRef<boolean>(headerDark);
+  headerDarkRef.current = headerDark;
 
   // useLayoutEffect: corre ANTES del paint — aplica el color correcto INMEDIATAMENTE
   // para TODAS las rutas oscuras (no solo /contratos), evitando el flash de color
@@ -227,12 +230,13 @@ export function BottomTabBar({
     return () => clearTimeout(timer);
   }, [pathname, sample]);
 
-  // Listener de scroll — debounce 80ms al reposar + RAF final
+  // Listener de scroll — debounce 120ms + protección "scroll al top"
   //
-  // Bug anterior: el rAF disparaba MID-SCROLL, captando tarjetas blancas
-  // en tránsito incluso cuando el destino final era contenido oscuro.
-  // Con debounce, el sample solo corre cuando el scroll se DETIENE → siempre
-  // lee la posición real donde el usuario terminó, no un fotograma intermedio.
+  // FIX v3: además del debounce, cuando el contenedor está cerca del tope
+  // (scrollTop ≤ 100px) Y la ruta es conocida como oscura, se aplica
+  // onDark=true DIRECTAMENTE sin samplear el DOM.
+  // Esto evita el caso: usuario sube rápido → inicia sample antes de que
+  // los KPI cards oscuros estén en viewport → sample lee algo claro → flip incorrecto.
   useEffect(() => {
     let rafId:      number | null = null;
     let debounceId: ReturnType<typeof setTimeout> | null = null;
@@ -240,6 +244,20 @@ export function BottomTabBar({
     const doSample = () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
+        // Si el scroll container está cerca del tope (≤ 100px) Y la ruta es
+        // una ruta con color oscuro conocido → confiar en el header color.
+        const scrollEl = document.querySelector("[data-scroll]") as HTMLElement | null;
+        const scrollTop = scrollEl?.scrollTop ?? 0;
+        if (
+          scrollTop <= 100 &&
+          headerDarkRef.current &&
+          pathname in HEADER_COLORS &&
+          HEADER_COLORS[pathname] !== T.bg
+        ) {
+          setOnDark(true);
+          rafId = null;
+          return;
+        }
         sample();
         rafId = null;
       });
