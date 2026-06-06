@@ -1278,7 +1278,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                   }}
                 >
                   {Object.entries(porCat).map(([cat, val], i) => {
-                    const cs = ["#3B82F6", "#3B82F6", "#8B5CF6", T.amber, T.red, "#EC4899"];
+                    const cs = ["#3B82F6", "#60A5FA", "#8B5CF6", "#38BDF8", T.red, "#EC4899"];
                     return (
                       <div
                         key={cat}
@@ -1289,7 +1289,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {Object.entries(porCat).map(([cat, val], i) => {
-                    const cs = ["#3B82F6", "#3B82F6", "#8B5CF6", T.amber, T.red, "#EC4899"];
+                    const cs = ["#3B82F6", "#60A5FA", "#8B5CF6", "#38BDF8", T.red, "#EC4899"];
                     return (
                       <span
                         key={cat}
@@ -1712,7 +1712,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                   </div>
                   <div style={{ textAlign: "right", flexShrink: 0 }}>
                     <div
-                      style={{ fontSize: 18, fontWeight: 900, color: done ? "#60A5FA" : "#FCD34D" }}
+                      style={{ fontSize: 18, fontWeight: 900, color: done ? "#60A5FA" : "#93C5FD" }}
                     >
                       {pct}%
                     </div>
@@ -1752,7 +1752,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                     </svg>
                   </button>
                 </div>
-                <ProgressBar pct={pct} color={done ? "#60A5FA" : T.amber} height={8} />
+                <ProgressBar pct={pct} color={done ? "#60A5FA" : "#8B5CF6"} height={8} />
                 {!done && (
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
                     <span style={{ fontSize: 10, color: "rgba(148,175,255,0.45)" }}>
@@ -2248,9 +2248,9 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                 borderRadius: 99,
                 whiteSpace: "nowrap",
                 flexShrink: 0,
-                background: section === t.id ? "rgba(10,20,40,0.75)" : "rgba(37,99,235,0.14)",
-                border: `1px solid ${section === t.id ? "rgba(59,130,246,0.55)" : "rgba(59,130,246,0.35)"}`,
-                color: section === t.id ? "#93C5FD" : "#60A5FA",
+                background: section === t.id ? "rgba(255,255,255,0.95)" : "rgba(37,99,235,0.10)",
+                border: `1px solid ${section === t.id ? "rgba(27,63,143,0.35)" : "rgba(59,130,246,0.28)"}`,
+                color: section === t.id ? "#1B3F8F" : "#93C5FD",
                 fontSize: 12,
                 fontWeight: section === t.id ? 700 : 500,
                 cursor: "pointer",
