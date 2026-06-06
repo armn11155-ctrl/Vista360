@@ -214,13 +214,9 @@ export function BottomTabBar({
       return;
     }
 
-    // Rutas con color oscuro conocido: useLayoutEffect ya fijó onDark correctamente.
-    // NO samplear en el montaje — evita el flip incorrecto cuando los datos tardan en cargar.
-    if (pathname in HEADER_COLORS && HEADER_COLORS[pathname] !== T.bg) {
-      return;
-    }
-
-    // Rutas sin color definido en HEADER_COLORS: samplear después de que cargue el contenido.
+    // Siempre samplear el fondo real detrás del nav después de que cargue el contenido.
+    // Algunas rutas (ej. Inicio) tienen header oscuro arriba pero fondo blanco abajo,
+    // por lo que el useLayoutEffect da el color inicial y el sample lo corrige.
     const timer = setTimeout(() => {
       requestAnimationFrame(sample);
     }, 350);
