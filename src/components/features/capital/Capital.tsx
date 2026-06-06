@@ -2232,15 +2232,16 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           Sistema financiero del negocio
         </div>
 
-        {/* Tabs de sección */}
+        {/* Tabs de sección — estilo Gastos: fondo oscuro elegante */}
         <div
           style={{
             display: "flex",
-            gap: 6,
-            overflowX: "auto",
-            paddingBottom: 4,
+            background: "linear-gradient(135deg,#131F38,#0E1829)",
+            border: "1px solid #1E3050",
+            borderRadius: 14,
+            padding: 4,
             marginBottom: 16,
-            scrollbarWidth: "none",
+            gap: 4,
           }}
         >
           {TABS.map(t => (
@@ -2248,30 +2249,29 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
               key={t.id}
               onClick={() => setSection(t.id)}
               style={{
+                flex: 1,
                 display: "inline-flex",
                 alignItems: "center",
+                justifyContent: "center",
                 gap: 5,
-                padding: "8px 14px",
-                borderRadius: 99,
-                whiteSpace: "nowrap",
-                flexShrink: 0,
-                background: section === t.id ? "rgba(255,255,255,0.95)" : "rgba(37,99,235,0.10)",
-                border: `1px solid ${section === t.id ? "rgba(27,63,143,0.35)" : "rgba(59,130,246,0.28)"}`,
-                color: section === t.id ? "#1B3F8F" : "#93C5FD",
-                fontSize: 12,
+                padding: "10px 0",
+                borderRadius: 11,
+                border: "none",
+                fontFamily: "inherit",
+                background: section === t.id ? T.accent : "transparent",
+                color: section === t.id ? "#fff" : "rgba(180,210,255,0.5)",
                 fontWeight: section === t.id ? 700 : 500,
+                fontSize: 13,
                 cursor: "pointer",
                 touchAction: "manipulation",
-                fontFamily: "inherit",
-                boxShadow: "none",
+                transition: "all .15s",
               }}
             >
-              <span style={{ fontSize: 13 }}>{t.icon}</span>
+              {t.icon && <span style={{ opacity: 0.85 }}>{t.icon}</span>}
               {t.label}
             </button>
           ))}
         </div>
-      </div>
 
       {/* ── Contenido de sección ── */}
       <div style={{ padding: "0 20px" }}>
