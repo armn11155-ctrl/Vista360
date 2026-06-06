@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, Dispatch, SetStateAction } from "react";
-import { fb } from "../services/firestore";
+import { fb, getPreloaded } from "../services/firestore";
 import type { FirestoreBase, ColName } from "../types";
 
 interface UseCollectionResult<T> {
@@ -23,8 +23,11 @@ interface UseCollectionResult<T> {
 const COLLECTION_TIMEOUT_MS = 8_000;
 
 export function useCollection<T extends FirestoreBase>(col: ColName): UseCollectionResult<T> {
-  const [data, setData] = useState<T[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Si preloadData() ya cargó esta colección durante el splash,
+  // arrancamos con datos y loading=false → sin flash de carga post-splash.
+  const preloaded = getPreloaded<T>(col);
+  const [data, setData] = useState<T[]>(preloaded ?? []);
+  const [loading, setLoading] = useState(preloaded === null);
   const [error, setError] = useState<string | null>(null);
 
   const refetch = useCallback(async () => {
