@@ -309,10 +309,10 @@ function DrawerMenu({
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div
               style={{
-                width: 56,
-                height: 56,
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 60%, #2A5BD9 100%)",
+                width: 52,
+                height: 52,
+                borderRadius: 14,
+                background: "linear-gradient(135deg, #081740 0%, #1B3F8F 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -321,7 +321,7 @@ function DrawerMenu({
                 fontSize: 17,
                 flexShrink: 0,
                 letterSpacing: "0.5px",
-                boxShadow: "0 10px 24px rgba(30,58,138,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
+                boxShadow: "0 6px 18px rgba(27,63,143,0.45), inset 0 1px 0 rgba(255,255,255,0.18)",
               }}
             >
               {userInitials}
