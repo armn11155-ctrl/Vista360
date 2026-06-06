@@ -1453,6 +1453,13 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
     </div>
   );
 
+  // Colores seguros para fondos — nunca naranja ni ámbar
+  const FONDO_SAFE = ["#3B82F6","#60A5FA","#8B5CF6","#A78BFA","#2563EB","#818CF8","#38BDF8","#6366F1"];
+  const AMBER_HEX  = ["#F59E0B","#EF8C00","#FCD34D","#FBBF24","#D97706","#F97316","#FB923C","#FDBA74",
+                      "#F59E0B","#EF4444","#F59E0B"].map(h => h.toUpperCase());
+  const safeCol = (color: string, idx: number): string =>
+    AMBER_HEX.includes(color.toUpperCase()) ? (FONDO_SAFE[idx % FONDO_SAFE.length] ?? "#3B82F6") : color;
+
   const renderFondos = () => {
     const totalPct = data.fondos.reduce((s, f) => s + Number(f.pct || 0), 0);
     return (
@@ -1498,8 +1505,8 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           >
             {data.fondos
               .filter(f => f.pct > 0)
-              .map(f => (
-                <div key={f.id} style={{ flex: f.pct, background: f.color, borderRadius: 99 }} />
+              .map((f, fi) => (
+                <div key={f.id} style={{ flex: f.pct, background: safeCol(f.color, fi), borderRadius: 99 }} />
               ))}
             {totalPct < 100 && (
               <div
