@@ -2273,6 +2273,8 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           ))}
         </div>
 
+      </div>
+
       {/* ── Contenido de sección ── */}
       <div style={{ padding: "0 20px" }}>
         {section === "patrimonio" && renderPatrimonio()}
