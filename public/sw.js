@@ -11,7 +11,7 @@
  * invalidar el caché anterior.
  */
 
-const CACHE_VERSION = "v360-v8";
+const CACHE_VERSION = "v360-v9";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -161,4 +161,5 @@ self.addEventListener("notificationclick", event => {
       }),
   );
 });
+
 
