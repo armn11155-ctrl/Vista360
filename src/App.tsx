@@ -344,6 +344,14 @@ function AppShell() {
     };
   }, []);
 
+  // ── Safety net: si splash no llama done() en 8s, forzar salida ──
+  useEffect(() => {
+    const emergency = setTimeout(() => {
+      setSplash(false);
+    }, 8000);
+    return () => clearTimeout(emergency);
+  }, []);
+
   return (
     <ToastProvider>
       {/* CSS global movido a src/index.css — ver refactor(styles) */}
@@ -431,4 +439,6 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+
 
