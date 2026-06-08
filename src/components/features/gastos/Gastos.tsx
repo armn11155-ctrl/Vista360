@@ -165,12 +165,19 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
   const [formSueldo, setFormSueldo] = useState({ nombre: "", cargo: "", monto: "" });
 
   useEffect(() => {
-    // one-time fetch intencional: los sueldos se editan poco frecuentemente
-    // y no requieren actualización en tiempo real. Si se necesita tiempo real,
-    // migrar a onSnapshot("sueldos", ...).
+    // Cache TTL: si los datos tienen < 2 min, no volver a pedir a Firestore.
+    // Gastos es lazy → se remonta en cada tab-switch; este cache lo hace instantáneo.
+    if (_sueldosCache.data && Date.now() - _sueldosCache.ts < _SUELDOS_TTL) {
+      setSueldos(_sueldosCache.data);
+      setLoadingSueldos(false);
+      return;
+    }
     fb.get("sueldos")
       .then(d => {
-        setSueldos(Array.isArray(d) ? d : []);
+        const data = Array.isArray(d) ? (d as Sueldo[]) : [];
+        _sueldosCache.data = data;
+        _sueldosCache.ts = Date.now();
+        setSueldos(data);
         setLoadingSueldos(false);
       })
       .catch(() => setLoadingSueldos(false));
@@ -197,10 +204,18 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
     };
     if (modalSueldo === "nuevo") {
       const r = await fb.post("sueldos", payload);
-      if (r) setSueldos(p => [...p, r]);
+      if (r) setSueldos(p => {
+        const updated = [...p, r as Sueldo];
+        _sueldosCache.data = updated; _sueldosCache.ts = Date.now();
+        return updated;
+      });
     } else {
       const r = await fb.patch("sueldos", modalSueldo.id, payload);
-      if (r) setSueldos(p => p.map(s => (s.id === modalSueldo.id ? r : s)));
+      if (r) setSueldos(p => {
+        const updated = p.map(s => (s.id === modalSueldo.id ? r as Sueldo : s));
+        _sueldosCache.data = updated; _sueldosCache.ts = Date.now();
+        return updated;
+      });
     }
     haptic(modalSueldo === "nuevo" ? "create" : "success");
     toast.success(modalSueldo === "nuevo" ? "Empleado agregado" : "Sueldo actualizado");
@@ -217,7 +232,11 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
     )
       return;
     await fb.del("sueldos", id, { hardDelete: true });
-    setSueldos(p => p.filter(s => s.id !== id));
+    setSueldos(p => {
+      const updated = p.filter(s => s.id !== id);
+      _sueldosCache.data = updated; _sueldosCache.ts = Date.now();
+      return updated;
+    });
   };
 
   const pagarSueldo = async id => {
@@ -3167,3 +3186,11 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
 // ══════════════════════════════════════════════════════════════════
 
 export default Gastos;
+// ── Cache module-level para sueldos (persiste entre tab-switches) ──────────────
+// Gastos es lazy → se desmonta/remonta en cada visita; este cache evita
+// un fetch a Firestore en cada regreso a la pestaña.
+interface Sueldo { id: string; nombre: string; cargo?: string; monto: number; pagos?: Record<string, boolean>; }
+const _SUELDOS_TTL = 2 * 60 * 1000; // 2 minutos
+const _sueldosCache: { data: Sueldo[] | null; ts: number } = { data: null, ts: 0 };
+
+
