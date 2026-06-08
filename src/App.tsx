@@ -336,7 +336,12 @@ function AppShell() {
       console.error("[Auth] Firebase init error:", err);
       clearTimeout(fallback);
       setFbDown(true);
+      authReadyRef.current = true;
       setAuthReady(true);
+      if (splashWaiting.current) {
+        splashWaiting.current = false;
+        setSplash(false);
+      }
     }
     return () => {
       clearTimeout(fallback);
@@ -373,10 +378,11 @@ function AppShell() {
       {splash && (
         <Splash
           done={() => {
-            // Usar ref en vez de estado para evitar stale closure
-            if (authReadyRef.current) {
-              setSplash(false);
-            } else {
+            // FIX: Siempre cerrar el splash — no esperar authReady.
+            // El cover "!splash && !authReady" muestra un spinner hasta
+            // que Firebase resuelva. Antes podía quedarse en negro infinito.
+            setSplash(false);
+            if (!authReadyRef.current) {
               splashWaiting.current = true;
             }
           }}
@@ -390,8 +396,21 @@ function AppShell() {
             inset: 0,
             background: T.dark,
             zIndex: 998,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-        />
+        >
+          {/* Spinner — indica que Firebase está respondiendo, no que la app está rota */}
+          <div style={{
+            width: 36, height: 36,
+            border: "3px solid rgba(255,255,255,0.15)",
+            borderTopColor: "rgba(255,255,255,0.8)",
+            borderRadius: "50%",
+            animation: "v360spin 0.8s linear infinite",
+          }} />
+          <style>{`@keyframes v360spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
       )}
 
       {!splash && authReady && !user && (
