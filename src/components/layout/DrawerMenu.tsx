@@ -142,16 +142,17 @@ const ARCHIVE_GLASS_CSS = `
     position: relative;
     background: linear-gradient(
       180deg,
-      rgba(37,99,235,0.22) 0%,
-      rgba(37,99,235,0.12) 100%
+      rgba(239,244,255,0.92) 0%,
+      rgba(219,234,254,0.88) 100%
     ) !important;
-    backdrop-filter: blur(6px) saturate(120%) !important;
-    -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
-    border: 1px solid rgba(37,99,235,0.45) !important;
+    backdrop-filter: blur(6px) saturate(140%) brightness(1.02) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(140%) brightness(1.02) !important;
+    border: 1px solid rgba(37,99,235,0.35) !important;
     box-shadow:
-      0 4px 16px rgba(6,13,37,0.5),
-      inset 0 1px 0 rgba(255,255,255,0.10),
-      inset 0 -1px 0 rgba(0,0,0,0.15) !important;
+      0 6px 20px rgba(37,99,235,0.18),
+      0 2px 6px rgba(37,99,235,0.10),
+      inset 0 1px 0 rgba(255,255,255,0.90),
+      inset 0 -1px 0 rgba(37,99,235,0.10) !important;
     overflow: hidden;
     isolation: isolate;
   }
@@ -160,7 +161,7 @@ const ARCHIVE_GLASS_CSS = `
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 55%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.0) 100%);
+    background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.0) 100%);
     border-radius: inherit;
     pointer-events: none;
     z-index: 0;
@@ -169,15 +170,16 @@ const ARCHIVE_GLASS_CSS = `
     content: "";
     position: absolute;
     top: 0; left: 10%; right: 10%;
-    height: 1px;
+    height: 1.5px;
     background: linear-gradient(
       to right,
       transparent 0%,
-      rgba(255,255,255,0.35) 35%,
-      rgba(255,255,255,0.5) 50%,
-      rgba(255,255,255,0.35) 65%,
+      rgba(255,255,255,0.95) 35%,
+      rgba(255,255,255,1) 50%,
+      rgba(255,255,255,0.95) 65%,
       transparent 100%
     );
+    filter: blur(0.3px);
     pointer-events: none;
     z-index: 0;
   }
@@ -276,11 +278,11 @@ function DrawerMenu({
           left: 0,
           bottom: 0,
           width: 300,
-          background: "linear-gradient(180deg, #060D25 0%, #0A1535 100%)",
+          background: T.white,
           zIndex: 2001,
           transform: open ? "translateX(0)" : "translateX(-100%)",
           transition: "transform 0.3s cubic-bezier(.4,0,.2,1)",
-          boxShadow: open ? "4px 0 40px rgba(6,13,37,0.7), 2px 0 0 rgba(37,99,235,0.15)" : "none",
+          boxShadow: open ? "4px 0 32px rgba(0,0,0,0.12)" : "none",
           display: "flex",
           flexDirection: "column",
           paddingTop: "max(20px, env(safe-area-inset-top))",
@@ -326,7 +328,7 @@ function DrawerMenu({
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
-                style={{ fontSize: 17, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.3px" }}
+                style={{ fontSize: 17, fontWeight: 800, color: T.text, letterSpacing: "-0.3px" }}
               >
                 {userName || "—"}
               </div>
@@ -375,7 +377,7 @@ function DrawerMenu({
                     margin: "2px 0",
                     borderRadius: 16,
                     background: active
-                      ? "linear-gradient(90deg, rgba(37,99,235,0.22) 0%, rgba(37,99,235,0.12) 100%)"
+                      ? "linear-gradient(90deg, #DBE7FF 0%, #ECF2FF 100%)"
                       : "transparent",
                     border: "none",
                     cursor: "pointer",
@@ -388,11 +390,11 @@ function DrawerMenu({
                       width: 42,
                       height: 42,
                       borderRadius: 12,
-                      background: active ? "rgba(37,99,235,0.25)" : "rgba(255,255,255,0.08)",
+                      background: active ? T.white : "#F5F7FB",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: active ? "#5A9BFF" : "rgba(255,255,255,0.7)",
+                      color: active ? T.accent : "#1E3A8A",
                       flexShrink: 0,
                       boxShadow: active
                         ? "0 4px 12px rgba(37,99,235,0.18), inset 0 0 0 1px rgba(37,99,235,0.10)"
@@ -405,7 +407,7 @@ function DrawerMenu({
                     style={{
                       fontSize: 16,
                       fontWeight: active ? 700 : 500,
-                      color: active ? "#5A9BFF" : "rgba(255,255,255,0.85)",
+                      color: active ? T.accent : "#0F1729",
                       flex: 1,
                       textAlign: "left",
                       letterSpacing: "-0.2px",
@@ -422,7 +424,7 @@ function DrawerMenu({
                   >
                     <path
                       d="M9 18l6-6-6-6"
-                      stroke={active ? "#5A9BFF" : "rgba(255,255,255,0.4)"}
+                      stroke={active ? T.accent : "#0F1729"}
                       strokeWidth="2.2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -430,7 +432,7 @@ function DrawerMenu({
                   </svg>
                 </button>
                 {showDivider && (
-                  <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "0 18px" }} />
+                  <div style={{ height: 1, background: "#F1F3F8", margin: "0 18px" }} />
                 )}
               </div>
             );
@@ -444,7 +446,7 @@ function DrawerMenu({
             padding: "8px 14px 18px",
             marginTop: "auto",
             flexShrink: 0,
-            borderTop: "1px solid rgba(255,255,255,0.08)",
+            borderTop: "1px solid #F1F3F8",
           }}
         >
           <button
@@ -460,8 +462,8 @@ function DrawerMenu({
               gap: 12,
               padding: "11px 14px",
               borderRadius: 14,
-              background: "rgba(37,99,235,0.18)",
-              border: "1px solid rgba(37,99,235,0.45)",
+              background: "#EFF4FF",
+              border: "1px solid #BFDBFE",
               cursor: "pointer",
               touchAction: "manipulation",
             }}
@@ -493,9 +495,9 @@ function DrawerMenu({
               </svg>
             </div>
             <div style={{ flex: 1, textAlign: "left" }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#7FAEFF" }}>Archivados</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#1D4ED8" }}>Archivados</div>
               {trashCount > 0 && (
-                <div style={{ fontSize: 11, color: "rgba(130,180,255,0.8)", marginTop: 1 }}>
+                <div style={{ fontSize: 11, color: "#3B82F6", marginTop: 1 }}>
                   {trashCount} elemento{trashCount !== 1 ? "s" : ""} archivados
                 </div>
               )}
