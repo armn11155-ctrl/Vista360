@@ -244,33 +244,27 @@ export function BottomTabBar({
     const doSample = () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
-        // Si el scroll container está cerca del tope (≤ 100px) Y la ruta es
-        // una ruta con color oscuro conocido → confiar en el header color.
-        const scrollEl = document.querySelector("[data-scroll]") as HTMLElement | null;
-        const scrollTop = scrollEl?.scrollTop ?? 0;
-        if (
-          scrollTop <= 100 &&
-          headerDarkRef.current &&
-          pathname in HEADER_COLORS &&
-          HEADER_COLORS[pathname] !== T.bg
-        ) {
-          setOnDark(true);
-          rafId = null;
-          return;
-        }
+        // BUG 2 FIX: Eliminado el guard "scrollTop <= 100 → forzar onDark=true".
+        // Ese guard causaba que los íconos quedasen BLANCOS al volver al tope,
+        // porque forzaba onDark=true sin leer el fondo real del nav.
+        // El useLayoutEffect ya aplica el estado correcto al cambiar de ruta.
+        // Aquí siempre sampleamos el contenido real detrás del nav bar.
         sample();
         rafId = null;
       });
     };
 
     const onScroll = () => {
-      // Cancelar el timer anterior y reiniciar: solo correr 80ms después del
-      // ÚLTIMO evento de scroll (es decir, cuando el scroll ya reposó).
       if (debounceId !== null) clearTimeout(debounceId);
+      // Cerca del tope: 200ms extra para que los elementos oscuros (KPI cards)
+      // estén en viewport antes de samplear — evita el flip falso "claro→oscuro".
+      // Scrolling normal hacia abajo: 80ms es suficiente.
+      const scrollEl2 = document.querySelector("[data-scroll]") as HTMLElement | null;
+      const nearTop = (scrollEl2?.scrollTop ?? 0) <= 120;
       debounceId = setTimeout(() => {
         doSample();
         debounceId = null;
-      }, 80);
+      }, nearTop ? 200 : 80);
     };
 
     // capture:true → captura scroll de cualquier contenedor anidado
