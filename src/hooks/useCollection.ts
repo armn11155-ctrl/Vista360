@@ -44,7 +44,9 @@ export function useCollection<T extends FirestoreBase>(col: ColName): UseCollect
   }, [col]);
 
   useEffect(() => {
-    setLoading(true);
+    // Si ya tenemos datos precargados, no mostrar spinner mientras Firestore confirma.
+    // El snapshot llega en background y actualiza silenciosamente sin flash de carga.
+    if (preloaded === null) setLoading(true);
 
     // Timeout de seguridad: si el snapshot no llega en 8s, liberamos la UI
     const timer = setTimeout(() => {
@@ -71,7 +73,7 @@ export function useCollection<T extends FirestoreBase>(col: ColName): UseCollect
       clearTimeout(timer);
       unsub();
     };
-  }, [col]);
+  }, [col]); // eslint-disable-line react-hooks/exhaustive-deps -- preloaded es constante al montar
 
   return { data, setData, loading, error, refetch };
 }
