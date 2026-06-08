@@ -371,12 +371,23 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
 
-  // ── Cargar de Firebase ──
+  // ── Cargar de Firebase (con cache module-level) ──
   useEffect(() => {
+    // Cache fresca → mostrar datos inmediatamente sin hit a Firestore
+    if (_capitalCache.data && Date.now() - _capitalCache.ts < _CAPITAL_TTL) {
+      setData(d => ({ ...d, ..._capitalCache.data }));
+      setLoaded(true);
+      return;
+    }
     (async () => {
       try {
         const snap = await getDoc(doc(db, "configuracion", "capitalv2"));
-        if (snap.exists()) setData(d => ({ ...d, ...snap.data() }));
+        if (snap.exists()) {
+          const snapData = snap.data() as Record<string, unknown>;
+          _capitalCache.data = snapData;
+          _capitalCache.ts = Date.now();
+          setData(d => ({ ...d, ...snapData }));
+        }
       } catch (e) {
         console.error("[Capital] Error cargando configuracion/capitalv2:", e);
       } finally {
@@ -388,6 +399,9 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
   const saveData = async patch => {
     const next = { ...data, ...patch };
     setData(next);
+    // Actualizar cache para que el próximo tab-switch no lea datos viejos
+    _capitalCache.data = next as Record<string, unknown>;
+    _capitalCache.ts = Date.now();
     try {
       await setDoc(doc(db, "configuracion", "capitalv2"), next, { merge: true });
     } catch (e) {
@@ -2303,3 +2317,10 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
 // ══════════════════════════════════════════════════════════════════
 
 export default Capital;
+// ── Cache module-level para configuracion/capitalv2 ────────────────────────────
+// Capital es lazy → se desmonta/remonta en cada visita. Este cache evita
+// un getDoc a Firestore en cada regreso, haciendo el tab-switch instantáneo.
+const _CAPITAL_TTL = 2 * 60 * 1000; // 2 minutos
+const _capitalCache: { data: Record<string, unknown> | null; ts: number } = { data: null, ts: 0 };
+
+
