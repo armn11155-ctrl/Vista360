@@ -1221,11 +1221,11 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
             style={{
               position: "relative",
               overflow: "hidden",
-              background: "linear-gradient(145deg,#0E1835 0%,#0A1228 100%)",
-              border: "1px solid rgba(79,124,255,0.18)",
+              background: "linear-gradient(145deg, #0E1A3B 0%, #152458 60%, #1A2E6E 100%)",
+              border: "1px solid rgba(37,99,235,0.28)",
               borderRadius: 18,
               padding: "16px 16px 18px",
-              boxShadow: "0 8px 24px rgba(8,12,28,0.45),inset 0 1px 0 rgba(255,255,255,0.04)",
+              boxShadow: "0 8px 24px rgba(8,18,40,0.5),inset 0 1px 0 rgba(255,255,255,0.06)",
               minHeight: 138,
             }}
           >
@@ -1764,12 +1764,12 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
                     style={{
                       position: "relative",
                       overflow: "hidden",
-                      background: "linear-gradient(145deg,#0E1835 0%,#0A1228 100%)",
+                      background: "linear-gradient(145deg, #0E1A3B 0%, #152458 60%, #1A2E6E 100%)",
                       border: `1px solid ${isVencida ? "rgba(239,68,68,0.35)" : "rgba(79,124,255,0.14)"}`,
                       borderRadius: 18,
                       padding: "14px 16px",
                       boxShadow:
-                        "0 6px 20px rgba(8,12,28,0.4),inset 0 1px 0 rgba(255,255,255,0.04)",
+                        "0 6px 20px rgba(8,18,40,0.5),inset 0 1px 0 rgba(255,255,255,0.06)",
                     }}
                   >
                     <WaveDeco color={isVencida ? T.red : isCobrada ? T.green : T.accent} />
@@ -2905,8 +2905,8 @@ function MesCard({
       style={{
         position: "relative",
         overflow: "hidden",
-        background: "linear-gradient(145deg,#0E1835 0%,#0A1228 100%)",
-        border: "1px solid rgba(79,124,255,0.14)",
+        background: "linear-gradient(145deg, #0E1A3B 0%, #152458 60%, #1A2E6E 100%)",
+        border: "1px solid rgba(37,99,235,0.25)",
         borderRadius: 18,
         padding: "14px 16px",
         boxShadow: "0 6px 20px rgba(8,12,28,0.4), inset 0 1px 0 rgba(255,255,255,0.04)",
@@ -3149,7 +3149,7 @@ function MesCard({
                   alignItems: "center",
                   justifyContent: "space-between",
                   background: "rgba(79,124,255,0.08)",
-                  border: "1px solid rgba(79,124,255,0.18)",
+                  border: "1px solid rgba(37,99,235,0.28)",
                   borderRadius: 10,
                   padding: "7px 12px",
                   cursor: "pointer",
