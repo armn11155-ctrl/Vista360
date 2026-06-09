@@ -472,12 +472,9 @@ function AppShell() {
 
       {!splash && !!user && (
         <ShellErrorBoundary>
-          <div style={{ animation: "shellFadeIn 0.35s ease-out both" }}>
-            <AuthenticatedShell user={user} onLogout={() => setUser(null)} />
-          </div>
+          <AuthenticatedShell user={user} onLogout={() => setUser(null)} />
         </ShellErrorBoundary>
       )}
-      <style>{`@keyframes shellFadeIn { from { opacity:0 } to { opacity:1 } }`}</style>
     </ToastProvider>
   );
 }
