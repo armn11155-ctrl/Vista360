@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { onAuthStateChanged, getRedirectResult, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
@@ -282,19 +282,16 @@ function AppShell() {
   }, []);
 
   useEffect(() => {
-    // ── Resultado de signInWithRedirect (iOS Safari) ──────────────────
-    // Debe llamarse antes de onAuthStateChanged para capturar errores
-    // del redirect que de otro modo se pierden silenciosamente.
-    getRedirectResult(auth).catch(err => {
-      const e = err as { code?: string };
-      // popup-closed / cancelled-popup-request son interacciones normales del usuario
-      if (
-        e.code !== "auth/popup-closed-by-user" &&
-        e.code !== "auth/cancelled-popup-request"
-      ) {
-        console.error("[Auth] getRedirectResult error:", err);
-      }
-    });
+    // ── Resultado de signInWithRedirect / Chrome Custom Tab (mobile) ──
+    //
+    // En Android, signInWithPopup abre un Chrome Custom Tab. Cuando el usuario
+    // autentica, Chrome recarga la app completa (actúa como redirect).
+    // getRedirectResult captura el resultado, pero DEBE ser awaited antes de
+    // suscribirse a onAuthStateChanged. Si no, onAuthStateChanged se dispara
+    // inmediatamente con null (race condition) → muestra Login → loop infinito.
+    //
+    // Solución: usar un async IIFE para await getRedirectResult primero,
+    // y solo DESPUÉS suscribirse a onAuthStateChanged.
 
     const fallback = setTimeout(() => {
       authReadyRef.current = true;
@@ -307,6 +304,23 @@ function AppShell() {
     }, 10_000); // 10s: en conexiones lentas / móvil Firebase puede tardar más de 2s
                // El spinner se mantiene visible hasta que auth resuelva o expire este plazo.
     let unsub: (() => void) | undefined;
+
+    (async () => {
+      // Procesar redirect result ANTES de suscribirse al auth state.
+      // Esto garantiza que cuando onAuthStateChanged dispare, el usuario
+      // ya esté en el estado correcto (autenticado), no null.
+      try {
+        await getRedirectResult(auth);
+      } catch (err) {
+        const e = err as { code?: string };
+        if (
+          e.code !== "auth/popup-closed-by-user" &&
+          e.code !== "auth/cancelled-popup-request"
+        ) {
+          console.error("[Auth] getRedirectResult error:", err);
+        }
+      }
+
     try {
       unsub = onAuthStateChanged(
         auth,
@@ -358,6 +372,8 @@ function AppShell() {
         setSplash(false);
       }
     }
+    })(); // end async IIFE
+
     return () => {
       clearTimeout(fallback);
       unsub?.();
@@ -488,6 +504,7 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
 
 
 
