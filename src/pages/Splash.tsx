@@ -48,14 +48,14 @@ function Splash({ done }: SplashProps) {
   useEffect(() => {
     if (isAudioReady() && !sf.current) { sf.current = true; soundSplash(); }
 
-    // Logo aparece tras 400ms
-    const showTimer = setTimeout(() => setShow(true), 400);
+    // Logo aparece tras 200ms
+    const showTimer = setTimeout(() => setShow(true), 200);
 
-    // Fade-out a los 3.2s → done()
+    // Fade-out a los 1.5s → done() — más rápido sin perder fluidez
     const fadeTimer = setTimeout(() => {
       setFade(true);
-      setTimeout(() => doneRef.current(), 700);
-    }, 2600);
+      setTimeout(() => doneRef.current(), 500);
+    }, 1400);
 
     return () => {
       clearTimeout(showTimer);
@@ -73,7 +73,7 @@ function Splash({ done }: SplashProps) {
         background: "#000",
         overflow: "hidden",
         opacity: fade ? 0 : 1,
-        transition: fade ? "opacity 0.7s ease" : "none",
+        transition: fade ? "opacity 0.5s ease" : "none",
       }}
     >
       {/* Imagen de fondo — Tierra desde el espacio */}

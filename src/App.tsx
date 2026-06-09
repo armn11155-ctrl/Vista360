@@ -42,7 +42,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
   return (
     <AppProvider data={shell.appData} setters={shell.appSetters} derived={shell.appDerived}>
       {!shell.isOnline && <OfflineBanner />}
-      <div className={styles.appRoot} style={{ background: T.bg, color: T.text }}>
+      <div className={styles.appRoot} style={{ background: T.dark, color: T.text }}>
         <AppHeader
           title={shell.showProfile ? "Perfil" : (shell.pageTitle ?? "Inicio")}
           user={user}
@@ -290,7 +290,7 @@ function AppShell() {
         splashWaiting.current = false;
         setSplash(false);
       }
-    }, 3000);
+    }, 2000); // Reducido 3000→2000ms: auth de Firebase cached llega en <300ms normalmente
     let unsub: (() => void) | undefined;
     try {
       unsub = onAuthStateChanged(
@@ -374,6 +374,21 @@ function AppShell() {
           }}
         />
       )}
+      {/* Micro-cover: stays 200ms after splash ends to mask the mount flash */}
+      {!splash && (
+        <div
+          key="post-splash-cover"
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "#000000",
+            zIndex: 997,
+            pointerEvents: "none",
+            animation: "coverFade 0.2s ease-out 0.05s both",
+          }}
+        />
+      )}
+      <style>{`@keyframes coverFade { from { opacity:1 } to { opacity:0 } }`}</style>
 
       {splash && (
         <Splash
