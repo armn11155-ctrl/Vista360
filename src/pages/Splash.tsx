@@ -52,11 +52,11 @@ function Splash({ done }: SplashProps) {
     // Logo aparece tras 200ms
     const showTimer = setTimeout(() => setShow(true), 200);
 
-    // Fade-out a los 1.5s → done() — más rápido sin perder fluidez
+    // Fade-out a los 2800ms → done() a los 3300ms (3.3 s total)
     const fadeTimer = setTimeout(() => {
       setFade(true);
       setTimeout(() => doneRef.current(), 500);
-    }, 1400);
+    }, 2800);
 
     return () => {
       clearTimeout(showTimer);
