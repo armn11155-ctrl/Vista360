@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { signInWithPopup, signInWithRedirect, signOut } from "firebase/auth";
+import { signInWithPopup, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth, googleProvider } from "../../../config/firebase";
 import { T } from "../../../config/theme";
@@ -12,30 +12,6 @@ const API_KEY_OK = !!(
   !import.meta.env.VITE_FIREBASE_API_KEY.startsWith("placeholder")
 );
 
-// signInWithPopup siempre se bloquea en iOS Safari (bug conocido de WebKit).
-// En ese entorno usamos signInWithRedirect; el resultado lo recoge
-// getRedirectResult() en App.tsx → onAuthStateChanged lo propaga normalmente.
-// shouldUseRedirect: detecta contextos donde signInWithPopup falla.
-// 1) iOS Safari — bloquea popups OAuth (bug conocido WebKit).
-// 2) PWA standalone (Android/iOS + Chrome/Samsung): el popup abre un
-//    navegador externo y al regresar la Promise queda colgada, causando
-//    que el login nunca resuelva y la app vuelva a la pantalla de login.
-function shouldUseRedirect(): boolean {
-  if (typeof navigator === "undefined") return false;
-  const ua = navigator.userAgent;
-
-  // iOS Safari
-  const isIOS = /iPad|iPhone|iPod/.test(ua);
-  const isSafariUA = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
-  if (isIOS && isSafariUA) return true;
-
-  // PWA instalada en modo standalone
-  if (window.matchMedia("(display-mode: standalone)").matches) return true;
-  if ((navigator as unknown as { standalone?: boolean }).standalone === true) return true;
-
-  return false;
-}
-
 interface LoginScreenProps {
   onLoginSuccess: (user: User) => void;
 }
@@ -47,23 +23,6 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError("");
-
-    // iOS Safari bloquea popups de OAuth → usar redirect en ese entorno.
-    if (shouldUseRedirect()) {
-      try {
-        // signInWithRedirect navega fuera de la app; el resultado llega en
-        // getRedirectResult() que se ejecuta en App.tsx al volver.
-        await signInWithRedirect(auth, googleProvider);
-        // La línea siguiente no se alcanza porque la página ya redirigió.
-        return;
-      } catch (err) {
-        const e = err as { code?: string; message?: string };
-        console.error("Error redirect login:", e);
-        setError("Error al iniciar sesión: " + (e.message || "inténtalo de nuevo."));
-        setLoading(false);
-        return;
-      }
-    }
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
