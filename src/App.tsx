@@ -379,8 +379,8 @@ function AppShell() {
           }}
         />
       )}
-      {/* Micro-cover: stays 200ms after splash ends to mask the mount flash */}
-      {!splash && (
+      {/* Micro-cover: stays opaque until auth resolves, then fades 300ms */}
+      {!splash && !authReady && (
         <div
           key="post-splash-cover"
           style={{
@@ -389,11 +389,23 @@ function AppShell() {
             background: "#000000",
             zIndex: 997,
             pointerEvents: "none",
-            animation: "coverFade 0.2s ease-out 0.05s both",
           }}
         />
       )}
-      <style>{`@keyframes coverFade { from { opacity:1 } to { opacity:0 } }`}</style>
+      {!splash && authReady && (
+        <div
+          key="post-auth-cover"
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "#000000",
+            zIndex: 997,
+            pointerEvents: "none",
+            animation: "coverFade 0.3s ease-out both",
+          }}
+        />
+      )}
+      <style>{`@keyframes coverFade { from { opacity:1 } to { opacity:0; pointer-events:none; } }`}</style>
 
       {splash && (
         <Splash
@@ -460,9 +472,12 @@ function AppShell() {
 
       {!splash && !!user && (
         <ShellErrorBoundary>
-          <AuthenticatedShell user={user} onLogout={() => setUser(null)} />
+          <div style={{ animation: "shellFadeIn 0.35s ease-out both" }}>
+            <AuthenticatedShell user={user} onLogout={() => setUser(null)} />
+          </div>
         </ShellErrorBoundary>
       )}
+      <style>{`@keyframes shellFadeIn { from { opacity:0 } to { opacity:1 } }`}</style>
     </ToastProvider>
   );
 }
