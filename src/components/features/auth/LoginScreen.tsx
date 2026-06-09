@@ -13,18 +13,12 @@ const API_KEY_OK = !!(
 );
 
 // En iOS PWA (guardada en pantalla de inicio / standalone), los popups no funcionan.
-// En iOS Safari browser y Android, signInWithPopup sí funciona si viene de un gesto
-// directo del usuario. Usamos popup como primer intento y redirect solo en iOS PWA
-// o si el popup es bloqueado.
-function isIOSPWA(): boolean {
-  if (typeof navigator === "undefined" || typeof window === "undefined") return false;
-  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const standalone =
-    window.matchMedia("(display-mode: standalone)").matches ||
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (navigator as any).standalone === true;
-  return isIOS && standalone;
-}
+// signInWithPopup es el método preferido en todos los entornos.
+// En iOS PWA (standalone) el popup se abre en Safari y comunica el resultado
+// de vuelta a la PWA via window.opener (funciona en iOS 16.4+).
+// signInWithRedirect se evita porque en iOS PWA el redirect abre la URL de retorno
+// en Safari (distinto contexto), la PWA nunca recibe el resultado → bucle infinito.
+
 
 interface LoginScreenProps {
   onLoginSuccess: (user: User) => void;
@@ -37,21 +31,6 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError("");
-
-    // iOS PWA (standalone) no permite popups → redirect directo.
-    // En todos los demás casos (iOS Safari browser, Android, desktop) intentamos
-    // popup primero: más confiable porque no recarga la página ni pierde estado.
-    if (isIOSPWA()) {
-      try {
-        await signInWithRedirect(auth, googleProvider);
-        return; // la página navega afuera; resultado en getRedirectResult() de App.tsx
-      } catch (err) {
-        const e = err as { code?: string; message?: string };
-        setError("Error al iniciar sesión: " + (e.message || "inténtalo de nuevo."));
-        setLoading(false);
-        return;
-      }
-    }
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -69,7 +48,7 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       const e = err as { code?: string; message?: string };
       console.error("Error login Google:", e);
 
-      // Popup bloqueado (in-app browser, algunos Android) → fallback redirect
+      // Popup bloqueado → fallback a redirect
       if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") {
         try {
           await signInWithRedirect(auth, googleProvider);
@@ -80,6 +59,23 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         }
         setLoading(false);
         return;
+      }
+
+      // En iOS PWA más antiguo (< 16.4), window.opener no comunica de vuelta.
+      // Le indicamos al usuario que abra en Safari para iniciar sesión.
+      if (e.code === "auth/cancelled-popup-request" || e.code === "auth/popup-closed-by-user") {
+        const isStandalone =
+          typeof window !== "undefined" &&
+          (window.matchMedia("(display-mode: standalone)").matches ||
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (navigator as any).standalone === true);
+        if (isStandalone) {
+          setError(
+            "El inicio de sesión fue cancelado. Si sigue fallando, abre la app en Safari y luego agrégala a la pantalla de inicio.",
+          );
+          setLoading(false);
+          return;
+        }
       }
 
       if (e.code === "auth/popup-closed-by-user") {
