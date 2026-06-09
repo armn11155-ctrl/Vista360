@@ -1,6 +1,6 @@
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged, getRedirectResult, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 
 import { auth } from "./config/firebase";
@@ -282,6 +282,20 @@ function AppShell() {
   }, []);
 
   useEffect(() => {
+    // ── Resultado de signInWithRedirect (iOS Safari) ──────────────────
+    // Debe llamarse antes de onAuthStateChanged para capturar errores
+    // del redirect que de otro modo se pierden silenciosamente.
+    getRedirectResult(auth).catch(err => {
+      const e = err as { code?: string };
+      // popup-closed / cancelled-popup-request son interacciones normales del usuario
+      if (
+        e.code !== "auth/popup-closed-by-user" &&
+        e.code !== "auth/cancelled-popup-request"
+      ) {
+        console.error("[Auth] getRedirectResult error:", err);
+      }
+    });
+
     const fallback = setTimeout(() => {
       authReadyRef.current = true;
       setAuthReady(true);
@@ -290,7 +304,8 @@ function AppShell() {
         splashWaiting.current = false;
         setSplash(false);
       }
-    }, 2000); // Reducido 3000→2000ms: auth de Firebase cached llega en <300ms normalmente
+    }, 10_000); // 10s: en conexiones lentas / móvil Firebase puede tardar más de 2s
+               // El spinner se mantiene visible hasta que auth resuelva o expire este plazo.
     let unsub: (() => void) | undefined;
     try {
       unsub = onAuthStateChanged(
