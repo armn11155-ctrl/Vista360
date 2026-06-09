@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { signInWithPopup, signOut } from "firebase/auth";
+import { signInWithPopup, signInWithRedirect, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth, googleProvider } from "../../../config/firebase";
 import { T } from "../../../config/theme";
@@ -12,6 +12,18 @@ const API_KEY_OK = !!(
   !import.meta.env.VITE_FIREBASE_API_KEY.startsWith("placeholder")
 );
 
+// signInWithPopup siempre se bloquea en iOS Safari (bug conocido de WebKit).
+// En ese entorno usamos signInWithRedirect; el resultado lo recoge
+// getRedirectResult() en App.tsx → onAuthStateChanged lo propaga normalmente.
+function isIOSSafari(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent;
+  const isIOS = /iPad|iPhone|iPod/.test(ua);
+  // Excluir Chrome/Firefox/Edge en iOS (que también incluyen "Safari" en su UA)
+  const isSafariUA = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+  return isIOS && isSafariUA;
+}
+
 interface LoginScreenProps {
   onLoginSuccess: (user: User) => void;
 }
@@ -23,6 +35,24 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError("");
+
+    // iOS Safari bloquea popups de OAuth → usar redirect en ese entorno.
+    if (isIOSSafari()) {
+      try {
+        // signInWithRedirect navega fuera de la app; el resultado llega en
+        // getRedirectResult() que se ejecuta en App.tsx al volver.
+        await signInWithRedirect(auth, googleProvider);
+        // La línea siguiente no se alcanza porque la página ya redirigió.
+        return;
+      } catch (err) {
+        const e = err as { code?: string; message?: string };
+        console.error("Error redirect login:", e);
+        setError("Error al iniciar sesión: " + (e.message || "inténtalo de nuevo."));
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
