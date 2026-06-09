@@ -12,13 +12,17 @@ const API_KEY_OK = !!(
   !import.meta.env.VITE_FIREBASE_API_KEY.startsWith("placeholder")
 );
 
-// En iOS PWA (guardada en pantalla de inicio / standalone), los popups no funcionan.
-// signInWithPopup es el método preferido en todos los entornos.
-// En iOS PWA (standalone) el popup se abre en Safari y comunica el resultado
-// de vuelta a la PWA via window.opener (funciona en iOS 16.4+).
-// signInWithRedirect se evita porque en iOS PWA el redirect abre la URL de retorno
-// en Safari (distinto contexto), la PWA nunca recibe el resultado → bucle infinito.
-
+// signInWithPopup siempre se bloquea en iOS Safari (bug conocido de WebKit).
+// En ese entorno usamos signInWithRedirect; el resultado lo recoge
+// getRedirectResult() en App.tsx → onAuthStateChanged lo propaga normalmente.
+function isIOSSafari(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent;
+  const isIOS = /iPad|iPhone|iPod/.test(ua);
+  // Excluir Chrome/Firefox/Edge en iOS (que también incluyen "Safari" en su UA)
+  const isSafariUA = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+  return isIOS && isSafariUA;
+}
 
 interface LoginScreenProps {
   onLoginSuccess: (user: User) => void;
@@ -32,10 +36,28 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     setLoading(true);
     setError("");
 
+    // iOS Safari bloquea popups de OAuth → usar redirect en ese entorno.
+    if (isIOSSafari()) {
+      try {
+        // signInWithRedirect navega fuera de la app; el resultado llega en
+        // getRedirectResult() que se ejecuta en App.tsx al volver.
+        await signInWithRedirect(auth, googleProvider);
+        // La línea siguiente no se alcanza porque la página ya redirigió.
+        return;
+      } catch (err) {
+        const e = err as { code?: string; message?: string };
+        console.error("Error redirect login:", e);
+        setError("Error al iniciar sesión: " + (e.message || "inténtalo de nuevo."));
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
+      // Whitelist check (solo si ALLOWED_EMAILS tiene elementos)
       if (ALLOWED_EMAILS.length > 0 && !ALLOWED_EMAILS.includes(user.email ?? "")) {
         await signOut(auth);
         setError(`Acceso denegado. El email ${user.email} no está autorizado.`);
@@ -47,43 +69,19 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     } catch (err) {
       const e = err as { code?: string; message?: string };
       console.error("Error login Google:", e);
-
-      // Popup bloqueado → fallback a redirect
-      if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") {
-        try {
-          await signInWithRedirect(auth, googleProvider);
-          return;
-        } catch (redirectErr) {
-          const re = redirectErr as { code?: string; message?: string };
-          setError("Error al iniciar sesión: " + (re.message || "inténtalo de nuevo."));
-        }
-        setLoading(false);
-        return;
-      }
-
-      // En iOS PWA más antiguo (< 16.4), window.opener no comunica de vuelta.
-      // Le indicamos al usuario que abra en Safari para iniciar sesión.
-      if (e.code === "auth/cancelled-popup-request" || e.code === "auth/popup-closed-by-user") {
-        const isStandalone =
-          typeof window !== "undefined" &&
-          (window.matchMedia("(display-mode: standalone)").matches ||
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (navigator as any).standalone === true);
-        if (isStandalone) {
-          setError(
-            "El inicio de sesión fue cancelado. Si sigue fallando, abre la app en Safari y luego agrégala a la pantalla de inicio.",
-          );
-          setLoading(false);
-          return;
-        }
-      }
-
       if (e.code === "auth/popup-closed-by-user") {
         setError("Cerraste la ventana de Google antes de terminar.");
+      } else if (e.code === "auth/popup-blocked") {
+        setError("Tu navegador bloqueó la ventana. Permite popups e intenta de nuevo.");
       } else if (e.code === "auth/operation-not-allowed") {
-        setError("Google Sign-In no está habilitado en Firebase. Activa el método en Firebase Console → Authentication.");
+        setError(
+          "Google Sign-In no está habilitado en Firebase. Activa el método en Firebase Console → Authentication.",
+        );
       } else if (e.code === "auth/api-key-not-valid" || e.code?.includes("api-key-not-valid")) {
-        setError("⚙️ Error de configuración: API key inválida. Verifica las variables de entorno en Cloudflare Pages.");
+        setError(
+          "⚙️ Error de configuración: la API key de Firebase no es válida. " +
+            "Verifica las Variables de Entorno en Cloudflare Pages y haz un nuevo deploy.",
+        );
       } else {
         setError("Error: " + (e.message || "no se pudo iniciar sesión"));
       }
