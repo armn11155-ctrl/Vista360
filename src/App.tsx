@@ -282,7 +282,7 @@ function AppShell() {
   }, []);
 
   useEffect(() => {
-    // ── Resultado de signInWithRedirect (iOS Safari) ──────────────────
+    // ── Resultado de signInWithRedirect (móvil: iOS y Android) ───────────
     // Debe llamarse antes de onAuthStateChanged para capturar errores
     // del redirect que de otro modo se pierden silenciosamente.
     getRedirectResult(auth).catch(err => {

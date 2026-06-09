@@ -12,16 +12,13 @@ const API_KEY_OK = !!(
   !import.meta.env.VITE_FIREBASE_API_KEY.startsWith("placeholder")
 );
 
-// signInWithPopup siempre se bloquea en iOS Safari (bug conocido de WebKit).
-// En ese entorno usamos signInWithRedirect; el resultado lo recoge
+// signInWithPopup se bloquea silenciosamente en móvil (iOS Safari, Android Chrome,
+// navegadores in-app como Instagram/WhatsApp, etc.).
+// En cualquier dispositivo móvil usamos signInWithRedirect; el resultado lo recoge
 // getRedirectResult() en App.tsx → onAuthStateChanged lo propaga normalmente.
-function isIOSSafari(): boolean {
+function isMobile(): boolean {
   if (typeof navigator === "undefined") return false;
-  const ua = navigator.userAgent;
-  const isIOS = /iPad|iPhone|iPod/.test(ua);
-  // Excluir Chrome/Firefox/Edge en iOS (que también incluyen "Safari" en su UA)
-  const isSafariUA = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
-  return isIOS && isSafariUA;
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
 interface LoginScreenProps {
@@ -36,8 +33,8 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     setLoading(true);
     setError("");
 
-    // iOS Safari bloquea popups de OAuth → usar redirect en ese entorno.
-    if (isIOSSafari()) {
+    // Móvil (iOS o Android) bloquea popups de OAuth → usar redirect.
+    if (isMobile()) {
       try {
         // signInWithRedirect navega fuera de la app; el resultado llega en
         // getRedirectResult() que se ejecuta en App.tsx al volver.
