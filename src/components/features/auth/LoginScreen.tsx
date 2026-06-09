@@ -12,13 +12,18 @@ const API_KEY_OK = !!(
   !import.meta.env.VITE_FIREBASE_API_KEY.startsWith("placeholder")
 );
 
-// signInWithPopup se bloquea silenciosamente en móvil (iOS Safari, Android Chrome,
-// navegadores in-app como Instagram/WhatsApp, etc.).
-// En cualquier dispositivo móvil usamos signInWithRedirect; el resultado lo recoge
-// getRedirectResult() en App.tsx → onAuthStateChanged lo propaga normalmente.
-function isMobile(): boolean {
-  if (typeof navigator === "undefined") return false;
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+// En iOS PWA (guardada en pantalla de inicio / standalone), los popups no funcionan.
+// En iOS Safari browser y Android, signInWithPopup sí funciona si viene de un gesto
+// directo del usuario. Usamos popup como primer intento y redirect solo en iOS PWA
+// o si el popup es bloqueado.
+function isIOSPWA(): boolean {
+  if (typeof navigator === "undefined" || typeof window === "undefined") return false;
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const standalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (navigator as any).standalone === true;
+  return isIOS && standalone;
 }
 
 interface LoginScreenProps {
@@ -33,17 +38,15 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     setLoading(true);
     setError("");
 
-    // Móvil (iOS o Android) bloquea popups de OAuth → usar redirect.
-    if (isMobile()) {
+    // iOS PWA (standalone) no permite popups → redirect directo.
+    // En todos los demás casos (iOS Safari browser, Android, desktop) intentamos
+    // popup primero: más confiable porque no recarga la página ni pierde estado.
+    if (isIOSPWA()) {
       try {
-        // signInWithRedirect navega fuera de la app; el resultado llega en
-        // getRedirectResult() que se ejecuta en App.tsx al volver.
         await signInWithRedirect(auth, googleProvider);
-        // La línea siguiente no se alcanza porque la página ya redirigió.
-        return;
+        return; // la página navega afuera; resultado en getRedirectResult() de App.tsx
       } catch (err) {
         const e = err as { code?: string; message?: string };
-        console.error("Error redirect login:", e);
         setError("Error al iniciar sesión: " + (e.message || "inténtalo de nuevo."));
         setLoading(false);
         return;
@@ -54,7 +57,6 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      // Whitelist check (solo si ALLOWED_EMAILS tiene elementos)
       if (ALLOWED_EMAILS.length > 0 && !ALLOWED_EMAILS.includes(user.email ?? "")) {
         await signOut(auth);
         setError(`Acceso denegado. El email ${user.email} no está autorizado.`);
@@ -66,19 +68,26 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     } catch (err) {
       const e = err as { code?: string; message?: string };
       console.error("Error login Google:", e);
+
+      // Popup bloqueado (in-app browser, algunos Android) → fallback redirect
+      if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") {
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        } catch (redirectErr) {
+          const re = redirectErr as { code?: string; message?: string };
+          setError("Error al iniciar sesión: " + (re.message || "inténtalo de nuevo."));
+        }
+        setLoading(false);
+        return;
+      }
+
       if (e.code === "auth/popup-closed-by-user") {
         setError("Cerraste la ventana de Google antes de terminar.");
-      } else if (e.code === "auth/popup-blocked") {
-        setError("Tu navegador bloqueó la ventana. Permite popups e intenta de nuevo.");
       } else if (e.code === "auth/operation-not-allowed") {
-        setError(
-          "Google Sign-In no está habilitado en Firebase. Activa el método en Firebase Console → Authentication.",
-        );
+        setError("Google Sign-In no está habilitado en Firebase. Activa el método en Firebase Console → Authentication.");
       } else if (e.code === "auth/api-key-not-valid" || e.code?.includes("api-key-not-valid")) {
-        setError(
-          "⚙️ Error de configuración: la API key de Firebase no es válida. " +
-            "Verifica las Variables de Entorno en Cloudflare Pages y haz un nuevo deploy.",
-        );
+        setError("⚙️ Error de configuración: API key inválida. Verifica las variables de entorno en Cloudflare Pages.");
       } else {
         setError("Error: " + (e.message || "no se pudo iniciar sesión"));
       }

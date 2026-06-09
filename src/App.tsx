@@ -282,19 +282,37 @@ function AppShell() {
   }, []);
 
   useEffect(() => {
-    // ── Resultado de signInWithRedirect (móvil: iOS y Android) ───────────
-    // Debe llamarse antes de onAuthStateChanged para capturar errores
-    // del redirect que de otro modo se pierden silenciosamente.
-    getRedirectResult(auth).catch(err => {
-      const e = err as { code?: string };
-      // popup-closed / cancelled-popup-request son interacciones normales del usuario
-      if (
-        e.code !== "auth/popup-closed-by-user" &&
-        e.code !== "auth/cancelled-popup-request"
-      ) {
-        console.error("[Auth] getRedirectResult error:", err);
-      }
-    });
+    // ── Resultado de signInWithRedirect (fallback móvil) ─────────────────
+    // En iOS, onAuthStateChanged puede disparar null ANTES de que el
+    // redirect result se procese, causando bucle splash→login→redirect→splash.
+    // Manejamos .then() explícitamente para forzar setUser() desde el resultado.
+    getRedirectResult(auth)
+      .then(result => {
+        if (result?.user) {
+          const u = result.user;
+          if (ALLOWED_EMAILS.length > 0 && !ALLOWED_EMAILS.includes(u.email ?? "")) {
+            signOut(auth);
+            setUser(null);
+          } else {
+            setUser(u);
+          }
+          authReadyRef.current = true;
+          setAuthReady(true);
+          if (splashWaiting.current) {
+            splashWaiting.current = false;
+            setSplash(false);
+          }
+        }
+      })
+      .catch(err => {
+        const e = err as { code?: string };
+        if (
+          e.code !== "auth/popup-closed-by-user" &&
+          e.code !== "auth/cancelled-popup-request"
+        ) {
+          console.error("[Auth] getRedirectResult error:", err);
+        }
+      });
 
     const fallback = setTimeout(() => {
       authReadyRef.current = true;
