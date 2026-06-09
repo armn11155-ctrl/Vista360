@@ -25,6 +25,7 @@ function Splash({ done }: SplashProps) {
     document.body.style.background = "#000000";
 
     return () => {
+      m.setAttribute("content", "#0E1A3B");
       document.documentElement.style.background = "#0E1A3B";
       document.body.style.background = "#0E1A3B";
     };
