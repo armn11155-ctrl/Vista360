@@ -74,7 +74,7 @@ const htmlResumen = `<!DOCTYPE html>
   <!-- HEADER -->
   <tr>
     <td style="background:linear-gradient(135deg,#0D1B3E 0%,#1A3066 60%,#1E4D9B 100%);padding:28px 32px 24px;" align="left">
-      <img src="${LOGO_URL}" width="160" height="auto" alt="8 Millas" style="display:block;border:0;"/>
+      <img src="cid:logo@vista360" width="160" height="auto" alt="8 Millas" style="display:block;border:0;"/>
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;">
         <tr>
           <td>
@@ -275,7 +275,18 @@ writeFileSync(pdfPath, pdfBuf);
 console.log('✅ PDF generado');
 
 const t = createTransport({ service: 'gmail', auth: { user: GMAIL_USER, pass: GMAIL_PASS } });
-await t.sendMail({ from:`"Vista360" <${GMAIL_USER}>`, to:EMAIL_DESTINO, subject:`📊 Vista360 · Resumen ${MESES[mesReporte]} ${anioReporte}`, html:htmlResumen });
+await t.sendMail({
+  from:`"Vista360" <${GMAIL_USER}>`,
+  to:EMAIL_DESTINO,
+  subject:`📊 Vista360 · Resumen ${MESES[mesReporte]} ${anioReporte}`,
+  html:htmlResumen,
+  attachments:[{
+    filename:'logo.png',
+    content: Buffer.from(LOGO_B64.replace('data:image/png;base64,',''), 'base64'),
+    cid:'logo@vista360',
+    contentType:'image/png'
+  }]
+});
 console.log('✅ Email 1 (resumen) enviado');
 await t.sendMail({ from:`"Vista360" <${GMAIL_USER}>`, to:EMAIL_DESTINO, subject:`📋 Vista360 · Reporte PDF ${MESES[mesReporte]} ${anioReporte}`, text:`Reporte mensual ${MESES[mesReporte]} ${anioReporte}.`, attachments:[{filename:`Reporte-Vista360-${MESES[mesReporte]}-${anioReporte}.pdf`,path:pdfPath,contentType:'application/pdf'}] });
 console.log('✅ Email 2 (PDF) enviado');
