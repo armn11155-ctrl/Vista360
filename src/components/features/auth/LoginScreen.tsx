@@ -46,27 +46,26 @@ async function registerWebAuthn(user: User): Promise<boolean> {
   } catch { return false; }
 }
 
-// ── Ícono Face ID — brackets cuadrados + ojos guión + nariz + sonrisa ──
+// ── Ícono Face ID — idéntico al de iOS/Interbank ──────────────────────────
 function FaceIDIcon({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-      {/* Bracket superior-izquierdo */}
-      <path d="M8.5 3H6A3 3 0 0 0 3 6v2.5"/>
-      {/* Bracket superior-derecho */}
-      <path d="M15.5 3H18a3 3 0 0 1 3 3v2.5"/>
-      {/* Bracket inferior-izquierdo */}
-      <path d="M3 15.5V18a3 3 0 0 0 3 3h2.5"/>
-      {/* Bracket inferior-derecho */}
-      <path d="M21 15.5V18a3 3 0 0 1-3 3h-2.5"/>
-      {/* Ojo izquierdo — línea horizontal */}
-      <line x1="8.2" y1="10.2" x2="9.8" y2="10.2" strokeWidth="2.2"/>
-      {/* Ojo derecho — línea horizontal */}
-      <line x1="14.2" y1="10.2" x2="15.8" y2="10.2" strokeWidth="2.2"/>
+         stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
+      {/* Brackets esquinas — marco escáner */}
+      <path d="M9 3H6a3 3 0 0 0-3 3v3"/>
+      <path d="M15 3h3a3 3 0 0 1 3 3v3"/>
+      <path d="M3 15v3a3 3 0 0 0 3 3h3"/>
+      <path d="M21 15v3a3 3 0 0 1-3 3h-3"/>
+      {/* Cejas */}
+      <path d="M8.5 9.2c.45-.65 1.2-.85 1.85-.45" strokeWidth="1.5"/>
+      <path d="M13.65 8.75c.65-.4 1.4-.2 1.85.45" strokeWidth="1.5"/>
+      {/* Ojos — arco cerrado (estilo Face ID) */}
+      <path d="M8.8 11.6c.3.45.72.68 1.2.68s.9-.23 1.2-.68"/>
+      <path d="M12.8 11.6c.3.45.72.68 1.2.68s.9-.23 1.2-.68"/>
       {/* Nariz */}
-      <path d="M12 10.2v2.4" strokeWidth="1.6"/>
+      <path d="M12 11.2v1.8l-.55.55h1.1" strokeWidth="1.5"/>
       {/* Sonrisa */}
-      <path d="M8.8 14.5c.85 1.35 2.05 2 3.2 2s2.35-.65 3.2-2" strokeWidth="1.9"/>
+      <path d="M8.8 15c.9 1.25 2.1 1.85 3.2 1.85s2.3-.6 3.2-1.85"/>
     </svg>
   );
 }
@@ -224,7 +223,7 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         position: "relative", overflow: "hidden",
       }}>
         {/* Halos */}
-        <div style={{position:"absolute",top:"18%",right:"-20%",width:"65%",height:"65%",
+        <div style={{position:"absolute",top:"21%",right:"-20%",width:"65%",height:"65%",
           background:"radial-gradient(ellipse,rgba(37,99,235,.18) 0%,transparent 70%)",pointerEvents:"none"}}/>
         <div style={{position:"absolute",bottom:"-20%",left:"-15%",width:"55%",height:"50%",
           background:"radial-gradient(ellipse,rgba(37,99,235,.13) 0%,transparent 70%)",pointerEvents:"none"}}/>
