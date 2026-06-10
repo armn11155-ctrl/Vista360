@@ -129,7 +129,16 @@ export const firmarXml = (xmlString, tipoDoc = '01') => {
   //   03 Boleta         → Invoice
   //   07 Nota Crédito   → CreditNote
   //   08 Nota Débito    → DebitNote
-  const rootMap = { '07': 'CreditNote', '08': 'DebitNote' }
+  const rootMap = {
+    '07': 'CreditNote',
+    '08': 'DebitNote',
+    // GRE — Guía de Remisión Electrónica
+    'GRE':        'DespatchAdvice',
+    // Retenciones (20) y Percepciones (40)
+    'RETENCION':  'Retention',
+    'PERCEPCION': 'Perception',
+    'ESPECIAL':   'Retention',
+  }
   const rootElement = rootMap[tipoDoc] || 'Invoice'
 
   const sig = new SignedXml({
@@ -365,3 +374,4 @@ export const consultarEstado = async (tipoDoc, serie, numero) => {
   )
   return data
 }
+
