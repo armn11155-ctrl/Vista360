@@ -1,9 +1,8 @@
 name: 📊 Reporte Mensual — Vista360
 
 on:
-  push:
   schedule:
-    - cron: "0 13 1 * *"
+    - cron: "0 13 1 * *"   # Cada día 1 del mes a las 13:00 UTC
   workflow_dispatch:
     inputs:
       mes:
