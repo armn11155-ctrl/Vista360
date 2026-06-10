@@ -65,13 +65,13 @@ const htmlResumen = `<!DOCTYPE html>
 <title>Vista360 · ${MESES[mesReporte]} ${anioReporte}</title></head>
 <body style="margin:0;padding:0;background-color:#f3f4f6;font-family:Arial,Helvetica,sans-serif;">
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f6;padding:32px 16px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;padding:32px 16px;">
 <tr><td align="center">
 <table width="580" cellpadding="0" cellspacing="0" border="0" style="max-width:580px;background-color:#ffffff;border-radius:12px;overflow:hidden;border:1px solid ${BORDER};">
 
   <!-- HEADER -->
   <tr>
-    <td style="background-color:#111827;padding:28px 32px 24px;" align="left">
+    <td style="background:linear-gradient(135deg,#0D1B3E 0%,#1A3066 60%,#1E4D9B 100%);padding:28px 32px 24px;" align="left">
       <img src="${LOGO_URL}" width="160" height="auto" alt="8 Millas" style="display:block;border:0;"/>
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;">
         <tr>
@@ -96,8 +96,8 @@ const htmlResumen = `<!DOCTYPE html>
       <div style="color:#6b7280;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-family:Arial,sans-serif;margin-bottom:14px;">Resumen Financiero</div>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td width="25%" style="padding-right:8px;">
-            <table width="100%" cellpadding="12" cellspacing="0" border="0" style="background-color:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
+          <td style="width:123px;padding-right:8px;">
+            <table width="123" cellpadding="12" cellspacing="0" border="0" style="background-color:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
               <tr><td align="center">
                 <div style="color:#16a34a;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;font-family:Arial,sans-serif;">Cobrado</div>
                 <div style="color:#16a34a;font-size:20px;font-weight:bold;margin-top:4px;font-family:Arial,sans-serif;">S/ ${fmtS(ingPagado)}</div>
@@ -105,8 +105,8 @@ const htmlResumen = `<!DOCTYPE html>
               </td></tr>
             </table>
           </td>
-          <td width="25%" style="padding-right:8px;">
-            <table width="100%" cellpadding="12" cellspacing="0" border="0" style="background-color:#fef2f2;border-radius:8px;border:1px solid #fecaca;">
+          <td style="width:123px;padding-right:8px;">
+            <table width="123" cellpadding="12" cellspacing="0" border="0" style="background-color:#fef2f2;border-radius:8px;border:1px solid #fecaca;">
               <tr><td align="center">
                 <div style="color:#dc2626;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;font-family:Arial,sans-serif;">Pendiente</div>
                 <div style="color:#dc2626;font-size:20px;font-weight:bold;margin-top:4px;font-family:Arial,sans-serif;">S/ ${fmtS(pendiente)}</div>
@@ -114,8 +114,8 @@ const htmlResumen = `<!DOCTYPE html>
               </td></tr>
             </table>
           </td>
-          <td width="25%" style="padding-right:8px;">
-            <table width="100%" cellpadding="12" cellspacing="0" border="0" style="background-color:#fef2f2;border-radius:8px;border:1px solid #fecaca;">
+          <td style="width:123px;padding-right:8px;">
+            <table width="123" cellpadding="12" cellspacing="0" border="0" style="background-color:#fef2f2;border-radius:8px;border:1px solid #fecaca;">
               <tr><td align="center">
                 <div style="color:#dc2626;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;font-family:Arial,sans-serif;">Gastos</div>
                 <div style="color:#dc2626;font-size:20px;font-weight:bold;margin-top:4px;font-family:Arial,sans-serif;">S/ ${fmtS(gastosMes)}</div>
@@ -123,8 +123,8 @@ const htmlResumen = `<!DOCTYPE html>
               </td></tr>
             </table>
           </td>
-          <td width="25%">
-            <table width="100%" cellpadding="12" cellspacing="0" border="0" style="background-color:${utilidad>=0?'#f0fdf4':'#fef2f2'};border-radius:8px;border:1px solid ${utilidad>=0?'#bbf7d0':'#fecaca'};">
+          <td style="width:123px;">
+            <table width="123" cellpadding="12" cellspacing="0" border="0" style="background-color:${utilidad>=0?'#f0fdf4':'#fef2f2'};border-radius:8px;border:1px solid ${utilidad>=0?'#bbf7d0':'#fecaca'};">
               <tr><td align="center">
                 <div style="color:${utilidad>=0?GREEN:RED};font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;font-family:Arial,sans-serif;">Utilidad</div>
                 <div style="color:${utilidad>=0?GREEN:RED};font-size:20px;font-weight:bold;margin-top:4px;font-family:Arial,sans-serif;">S/ ${fmtS(utilidad)}</div>
