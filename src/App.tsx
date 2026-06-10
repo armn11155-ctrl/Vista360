@@ -362,6 +362,22 @@ function AppShell() {
     return () => clearTimeout(emergency);
   }, []);
 
+  // ── Sincronizar theme-color y fondo del documento al salir del splash ──
+  // Splash.tsx ya hace esto en su cleanup, pero si el cleanup falla
+  // (error en el componente, StrictMode, race condition) el status bar
+  // se queda negro. Este useEffect actúa como respaldo definitivo:
+  // corre SIEMPRE que splash pase de true → false.
+  useEffect(() => {
+    if (splash) return;
+    const APP_COLOR = "#0E1A3B";
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", APP_COLOR);
+    document.documentElement.style.background = APP_COLOR;
+    document.body.style.background = APP_COLOR;
+    // useHeaderShell (dentro de AuthenticatedShell) sobreescribirá esto
+    // por ruta una vez que el usuario esté autenticado.
+  }, [splash]);
+
   return (
     <ToastProvider>
       {/* CSS global movido a src/index.css — ver refactor(styles) */}
@@ -398,7 +414,11 @@ function AppShell() {
           style={{
             position: "fixed",
             inset: 0,
-            background: "#000000",
+            // FIX: era #000000 → status bar negro 300ms en iOS (la capa fixed
+            // cubre el área del safe-area-inset-top durante el fade-out).
+            // Usar el color base de la app para que el status bar sea correcto
+            // incluso mientras el cover se desvanece.
+            background: "#0E1A3B",
             zIndex: 997,
             pointerEvents: "none",
             animation: "coverFade 0.3s ease-out both",
