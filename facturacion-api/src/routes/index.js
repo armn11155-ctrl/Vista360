@@ -10,6 +10,9 @@ import * as cliCtrl   from '../controllers/clientes.js'
 import { analizarImagen }  from '../controllers/ocr.js'
 import { eliminarImagen }  from '../controllers/cloudinary.js'
 import { getFirebaseUsage } from '../controllers/firebaseUsage.js'
+import * as guiasCtrl   from '../controllers/guias.js'
+import * as retPercCtrl from '../controllers/retenciones_percepciones.js'
+import * as sireCtrl    from '../controllers/sire.js'
 
 const router = Router()
 
@@ -124,4 +127,82 @@ router.get('/health', (req, res) => {
   res.json({ ok: true, service: 'Facturación 8 Millas', version: '1.0.1', timestamp: new Date() })
 })
 
+// ── GUÍAS DE REMISIÓN (GRE) ──────────────────────────────────────
+router.get   ('/guias',              auth,    guiasCtrl.listar)
+router.get   ('/guias/:id',          auth,    guiasCtrl.obtener)
+router.post  ('/guias',              authJWT, guiasCtrl.crear)
+router.post  ('/guias/:id/emitir',   authJWT, guiasCtrl.emitir)
+router.delete('/guias/:id',          authJWT, guiasCtrl.eliminar)
+
+// ── RETENCIONES (tipo 20) ─────────────────────────────────────────
+router.get ('/retenciones',              auth,    retPercCtrl.listarRetenciones)
+router.post('/retenciones',              authJWT, retPercCtrl.crearRetencion)
+router.post('/retenciones/:id/emitir',   authJWT, retPercCtrl.emitirRetencion)
+
+// ── PERCEPCIONES (tipo 40) ────────────────────────────────────────
+router.get ('/percepciones',             auth,    retPercCtrl.listarPercepciones)
+router.post('/percepciones',             authJWT, retPercCtrl.crearPercepcion)
+router.post('/percepciones/:id/emitir',  authJWT, retPercCtrl.emitirPercepcion)
+
+// ── SIRE / PLE ────────────────────────────────────────────────────
+router.get('/sire/resumen',  auth, sireCtrl.resumenSIRE)
+router.get('/sire/ventas',   auth, sireCtrl.exportarRegistroVentas)
+router.get('/sire/compras',  auth, sireCtrl.exportarRegistroCompras)
+
+// ── PORTAL PÚBLICO — Búsqueda de comprobantes (sin autenticación) ─
+router.get('/public/comprobante', async (req, res) => {
+  try {
+    const { ruc, tipo, serie, numero } = req.query
+    if (!ruc || !tipo || !serie || !numero) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Parámetros requeridos: ruc, tipo, serie, numero',
+      })
+    }
+    const { rows: [f] } = await query(
+      `SELECT
+        tipo_doc, serie, numero, numero_fmt,
+        fecha_emision, emisor_ruc, emisor_razon,
+        cliente_tipo_doc, cliente_doc, cliente_nombre,
+        moneda, subtotal, igv, total,
+        estado, sunat_estado, sunat_codigo, sunat_mensaje,
+        hash, cdr_url, pdf_url
+       FROM facturas
+       WHERE emisor_ruc = $1
+         AND tipo_doc   = $2
+         AND serie      = $3
+         AND numero     = $4
+         AND deleted    = false`,
+      [ruc, tipo, serie, parseInt(numero)]
+    )
+    if (!f) {
+      return res.status(404).json({ ok: false, existe: false, mensaje: 'Comprobante no encontrado' })
+    }
+    const esValido = ['Emitida', 'Aceptada', 'Cobrada', 'Pagada'].includes(f.estado)
+      && f.sunat_estado === 'Aceptado'
+    res.json({
+      ok: true, existe: true, valido: esValido,
+      comprobante: {
+        numero_fmt:    f.numero_fmt,
+        tipo_doc:      f.tipo_doc,
+        fecha_emision: f.fecha_emision,
+        emisor_ruc:    f.emisor_ruc,
+        emisor_razon:  f.emisor_razon,
+        cliente_nombre: f.cliente_nombre,
+        total:         f.total,
+        moneda:        f.moneda,
+        estado_sunat:  f.sunat_estado,
+        codigo_sunat:  f.sunat_codigo,
+        mensaje_sunat: f.sunat_mensaje,
+        hash:          f.hash,
+        cdr_url:       esValido ? f.cdr_url : null,
+        pdf_url:       esValido ? f.pdf_url : null,
+      },
+    })
+  } catch (err) {
+    res.status(500).json({ ok: false, error: 'Error interno del servidor' })
+  }
+})
+
 export default router
+
