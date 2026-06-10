@@ -2,7 +2,6 @@ name: 📊 Reporte Mensual — Vista360
 
 on:
   schedule:
-    # Corre el día 1 de cada mes a las 8:00 AM Lima (UTC-5 = 13:00 UTC)
     - cron: "0 13 1 * *"
   workflow_dispatch:
     inputs:
@@ -18,7 +17,7 @@ env:
 
 jobs:
   reporte:
-    name: Generar y enviar reporte mensual
+    name: Generar PDF y enviar por email
     runs-on: ubuntu-latest
 
     steps:
@@ -30,13 +29,13 @@ jobs:
         with:
           node-version: 22
 
-      - name: Instalar dependencias del script
+      - name: Instalar dependencias
         run: |
           cd scripts
           npm init -y
-          npm install firebase-admin nodemailer
+          npm install firebase-admin nodemailer puppeteer
 
-      - name: Generar y enviar reporte
+      - name: Generar PDF y enviar reporte
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
