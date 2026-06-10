@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <!-- Fondo inicial del documento: Splash.tsx lo sobrescribe a #000000 al montarse
-         y su cleanup lo restaura a #0E1A3B al desmontarse. Usar #0E1A3B aqui evita
-         que el status bar se quede negro si el JS tarda en ejecutarse. -->
+    <!-- Fondo inicial: Splash.tsx sobreescribe a #000000 al montarse y restaura
+         #0E1A3B en su cleanup. Usar #0E1A3B aqui evita que el status bar se
+         quede negro si el JS tarda o si el cleanup del Splash no se ejecuta. -->
     <style>html,body{background:#0E1A3B}#root{background:transparent}</style>
 
     <meta name="theme-color" content="#0E1A3B" />
 
-    <!-- Preload crítico: splash-bg.jpg listo antes de que React monte -->
+    <!-- Preload critico: splash-bg.jpg listo antes de que React monte -->
     <link rel="preload" href="/splash-bg.jpg" as="image" />
 
     <!-- PWA Manifest -->
@@ -42,4 +42,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
