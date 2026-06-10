@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { T } from "../config/theme";
 import { Logo360 } from "../components/layout/Logo360";
 import { isAudioReady, soundSplash, unlockAudio } from "../lib/sounds";
 
