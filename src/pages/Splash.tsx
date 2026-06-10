@@ -11,8 +11,12 @@ function Splash({ done }: SplashProps) {
   useEffect(() => { doneRef.current = done; }, [done]);
   const sf = useRef(false);
 
-  // ── Status bar negro para coincidir con el fondo de la imagen ──
+  // ── Status bar negro + elimina el pre-splash del HTML estático ──
   useEffect(() => {
+    // Quitar el pre-splash inmediatamente — React toma el control
+    const pre = document.getElementById("pre-splash");
+    if (pre) pre.remove();
+
     let m = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!m) {
       m = document.createElement("meta");
@@ -48,8 +52,8 @@ function Splash({ done }: SplashProps) {
   useEffect(() => {
     if (isAudioReady() && !sf.current) { sf.current = true; soundSplash(); }
 
-    // Logo aparece tras 200ms
-    const showTimer = setTimeout(() => setShow(true), 200);
+    // Logo aparece inmediatamente (sin delay — ya no hace falta esperar)
+    const showTimer = setTimeout(() => setShow(true), 50);
 
     // Fade-out a los 2800ms → done() a los 3300ms (3.3 s total)
     const fadeTimer = setTimeout(() => {
@@ -106,8 +110,8 @@ function Splash({ done }: SplashProps) {
           // Subir ligeramente para quedar en la zona negra de la imagen
           paddingBottom: "38%",
           opacity: show ? 1 : 0,
-          transform: show ? "scale(1)" : "scale(0.78)",
-          transition: "opacity 1s ease, transform 1s cubic-bezier(0.2,1,0.4,1)",
+          transform: show ? "scale(1)" : "scale(0.92)",
+          transition: "opacity 0.4s ease, transform 0.4s cubic-bezier(0.2,1,0.4,1)",
         }}
       >
         <Logo360 width={310} />
