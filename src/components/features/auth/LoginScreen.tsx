@@ -46,26 +46,18 @@ async function registerWebAuthn(user: User): Promise<boolean> {
   } catch { return false; }
 }
 
-// ── Ícono Face ID — idéntico al de iOS/Interbank ──────────────────────────
+// ── Ícono Face ID — SVG exacto ────────────────────────────────────────────
 function FaceIDIcon({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
-      {/* Brackets esquinas — marco escáner */}
-      <path d="M9 3H6a3 3 0 0 0-3 3v3"/>
-      <path d="M15 3h3a3 3 0 0 1 3 3v3"/>
-      <path d="M3 15v3a3 3 0 0 0 3 3h3"/>
-      <path d="M21 15v3a3 3 0 0 1-3 3h-3"/>
-      {/* Cejas */}
-      <path d="M8.5 9.2c.45-.65 1.2-.85 1.85-.45" strokeWidth="1.5"/>
-      <path d="M13.65 8.75c.65-.4 1.4-.2 1.85.45" strokeWidth="1.5"/>
-      {/* Ojos — arco cerrado (estilo Face ID) */}
-      <path d="M8.8 11.6c.3.45.72.68 1.2.68s.9-.23 1.2-.68"/>
-      <path d="M12.8 11.6c.3.45.72.68 1.2.68s.9-.23 1.2-.68"/>
-      {/* Nariz */}
-      <path d="M12 11.2v1.8l-.55.55h1.1" strokeWidth="1.5"/>
-      {/* Sonrisa */}
-      <path d="M8.8 15c.9 1.25 2.1 1.85 3.2 1.85s2.3-.6 3.2-1.85"/>
+         xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M8 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V8M8 21H7.8C6.11984 21 5.27976 21 4.63803 20.673C4.07354 20.3854 3.6146 19.9265 3.32698 19.362C3 18.7202 3 17.8802 3 16.2V16M21 8V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H16M21 16V16.2C21 17.8802 21 18.7202 20.673 19.362C20.3854 19.9265 19.9265 20.3854 19.362 20.673C18.7202 21 17.8802 21 16.2 21H16M7.5 8V9.5M16.5 8V9.5M11 12.6001C11.8 12.6001 12.5 11.9001 12.5 11.1001V8M15.2002 15.2C13.4002 17 10.5002 17 8.7002 15.2"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -223,7 +215,7 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         position: "relative", overflow: "hidden",
       }}>
         {/* Halos */}
-        <div style={{position:"absolute",top:"21%",right:"-20%",width:"65%",height:"65%",
+        <div style={{position:"absolute",top:"12%",right:"-20%",width:"65%",height:"65%",
           background:"radial-gradient(ellipse,rgba(37,99,235,.18) 0%,transparent 70%)",pointerEvents:"none"}}/>
         <div style={{position:"absolute",bottom:"-20%",left:"-15%",width:"55%",height:"50%",
           background:"radial-gradient(ellipse,rgba(37,99,235,.13) 0%,transparent 70%)",pointerEvents:"none"}}/>
