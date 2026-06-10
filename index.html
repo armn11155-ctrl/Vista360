@@ -4,7 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <style>html,body,#root{background:#000}#pre-splash{position:fixed;inset:0;background:#000 url('/splash-bg.jpg') center bottom / cover no-repeat;display:flex;align-items:center;justify-content:center;padding-top:env(safe-area-inset-top,0px);padding-bottom:38%;z-index:999;pointer-events:none}#pre-splash img{display:block;object-fit:contain;width:310px;max-width:80vw}</style>
+    <style>
+      html,body,#root{background:#000}
+      #pre-splash{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;padding-top:env(safe-area-inset-top,0px);padding-bottom:38%;z-index:999;overflow:hidden;pointer-events:none}
+      #pre-splash-bg{position:absolute;top:calc(-1 * env(safe-area-inset-top,0px));left:0;width:100%;height:calc(100% + env(safe-area-inset-top,0px));object-fit:cover;object-position:center bottom;pointer-events:none;user-select:none}
+      #pre-splash-logo{display:block;width:310px;max-width:80vw;object-fit:contain;position:relative;z-index:1}
+    </style>
 
     <meta name="theme-color" content="#000000" />
 
@@ -36,9 +41,12 @@
     <title>Vista360</title>
   </head>
   <body style="background:#000;margin:0">
-    <!-- Pre-splash: aparece ANTES de que React cargue — logo instantáneo -->
+    <!-- Pre-splash: aparece ANTES de que React cargue.
+         Usa <img> (no CSS background-image) para aprovechar el <link rel=preload as=image>
+         y que splash-bg.jpg esté lista en caché desde el primer frame. -->
     <div id="pre-splash">
-      <img src="/logo.png" alt="Vista360" />
+      <img id="pre-splash-bg" src="/splash-bg.jpg" alt="" aria-hidden="true" />
+      <img id="pre-splash-logo" src="/logo.png" alt="Vista360" />
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
