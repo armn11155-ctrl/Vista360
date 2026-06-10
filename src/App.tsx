@@ -375,13 +375,15 @@ function AppShell() {
   // Esto garantiza que el status bar nunca quede en negro post-splash.
   useEffect(() => {
     if (!splash) {
-      setCoverDone(false); // Reset por si el usuario pasa por splash de nuevo
+      setCoverDone(false);
+      // Si el login está visible usa el azul del login; si ya entró al app usa el del header
+      const color = (!user || locked) ? "#07101F" : INITIAL_HEADER_COLOR;
       const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-      if (meta) meta.setAttribute("content", INITIAL_HEADER_COLOR);
-      document.documentElement.style.background = INITIAL_HEADER_COLOR;
-      document.body.style.background = INITIAL_HEADER_COLOR;
+      if (meta) meta.setAttribute("content", color);
+      document.documentElement.style.background = color;
+      document.body.style.background = color;
     }
-  }, [splash]);
+  }, [splash, user, locked]);
 
   return (
     <ToastProvider>
@@ -400,15 +402,14 @@ function AppShell() {
           }}
         />
       )}
-      {/* Post-splash cover: usa INITIAL_HEADER_COLOR (no negro) para que el
-           status bar nunca quede negro después del splash */}
+      {/* Post-splash cover: color dinámico según si va a login o al app */}
       {!splash && !authReady && (
         <div
           key="post-splash-cover"
           style={{
             position: "fixed",
             inset: 0,
-            background: INITIAL_HEADER_COLOR,
+            background: "#07101F",
             zIndex: 997,
             pointerEvents: "none",
           }}
