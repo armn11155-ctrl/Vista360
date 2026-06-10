@@ -15,11 +15,12 @@ import { getFirestore, Timestamp } from "firebase-admin/firestore";
 
 // ── Configuración ────────────────────────────────────────────────────────────
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const GMAIL_USER = process.env.GMAIL_USER;
+const GMAIL_PASS = process.env.GMAIL_PASS;
 const EMAIL_DESTINO  = process.env.EMAIL_DESTINO  || "armn.101@hotmail.com";
 const EMAIL_FROM     = process.env.EMAIL_FROM     || "Vista360 <reportes@tu-dominio.com>";
 
-if (!RESEND_API_KEY) throw new Error("Falta RESEND_API_KEY en los secrets de GitHub.");
+if (!GMAIL_USER || !GMAIL_PASS) throw new Error("Faltan GMAIL_USER o GMAIL_PASS en los secrets de GitHub.");
 if (!process.env.FIREBASE_SERVICE_ACCOUNT) throw new Error("Falta FIREBASE_SERVICE_ACCOUNT.");
 
 // ── Período a reportar ───────────────────────────────────────────────────────
@@ -273,26 +274,20 @@ const html = `<!DOCTYPE html>
 </body>
 </html>`;
 
-// ── Envío con Resend ─────────────────────────────────────────────────────────
+// ── Envío con Gmail SMTP (Nodemailer) ───────────────────────────────────────
 
-const res = await fetch("https://api.resend.com/emails", {
-  method: "POST",
-  headers: {
-    "Authorization": `Bearer ${RESEND_API_KEY}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    from: EMAIL_FROM,
-    to: [EMAIL_DESTINO],
-    subject: `📊 Vista360 — Reporte ${MESES_ES[mesReporte]} ${anioReporte}`,
-    html,
-  }),
+const { createTransport } = await import("nodemailer");
+
+const transporter = createTransport({
+  service: "gmail",
+  auth: { user: GMAIL_USER, pass: GMAIL_PASS },
 });
 
-const resData = await res.json();
-if (!res.ok) {
-  console.error("❌ Error Resend:", JSON.stringify(resData));
-  process.exit(1);
-}
+const info = await transporter.sendMail({
+  from: `"8 Millas Reports" <${GMAIL_USER}>`,
+  to: EMAIL_DESTINO,
+  subject: `📊 Vista360 — Reporte ${MESES_ES[mesReporte]} ${anioReporte}`,
+  html,
+});
 
-console.log(`✅ Email enviado a ${EMAIL_DESTINO} (id: ${resData.id})`);
+console.log(`✅ Email enviado a ${EMAIL_DESTINO} (id: ${info.messageId})`);
