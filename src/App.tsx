@@ -167,6 +167,9 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
 // ══════════════════════════════════════════════════════════════════
 // AppShell — gestiona splash y ciclo de auth de Firebase
 // ══════════════════════════════════════════════════════════════════
+// Color del header de inicio — sincronizado con HEADER_COLORS["/"] en useHeaderShell.ts
+const INITIAL_HEADER_COLOR = "#0E1A3B";
+
 function AppShell() {
   useViewportSetup();
 
@@ -174,6 +177,8 @@ function AppShell() {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [firebaseDown, setFbDown] = useState(false);
+  // Controla si el post-auth-cover ya terminó su animación y debe salir del DOM
+  const [coverDone, setCoverDone] = useState(false);
   // Ref para evitar stale closure en el done() del splash
   const authReadyRef = useRef(false);
   // true cuando la animación del splash terminó pero auth aún no llegó
@@ -362,6 +367,20 @@ function AppShell() {
     return () => clearTimeout(emergency);
   }, []);
 
+  // ── Al salir del splash: fijar theme-color y fondo inmediatamente ──
+  // No se puede depender sólo del cleanup de Splash.tsx (efecto asíncrono)
+  // ni de useHeaderShell (solo corre cuando AuthenticatedShell está montado).
+  // Esto garantiza que el status bar nunca quede en negro post-splash.
+  useEffect(() => {
+    if (!splash) {
+      setCoverDone(false); // Reset por si el usuario pasa por splash de nuevo
+      const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", INITIAL_HEADER_COLOR);
+      document.documentElement.style.background = INITIAL_HEADER_COLOR;
+      document.body.style.background = INITIAL_HEADER_COLOR;
+    }
+  }, [splash]);
+
   return (
     <ToastProvider>
       {/* CSS global movido a src/index.css — ver refactor(styles) */}
@@ -379,33 +398,38 @@ function AppShell() {
           }}
         />
       )}
-      {/* Micro-cover: stays opaque until auth resolves, then fades 300ms */}
+      {/* Post-splash cover: usa INITIAL_HEADER_COLOR (no negro) para que el
+           status bar nunca quede negro después del splash */}
       {!splash && !authReady && (
         <div
           key="post-splash-cover"
           style={{
             position: "fixed",
             inset: 0,
-            background: "#000000",
+            background: INITIAL_HEADER_COLOR,
             zIndex: 997,
             pointerEvents: "none",
           }}
         />
       )}
-      {!splash && authReady && (
+      {/* Post-auth cover: funde en 300ms y luego SE ELIMINA DEL DOM via
+           onAnimationEnd — evita que la capa negra persista sobre el AppHeader
+           y ensucie el status bar en iOS black-translucent */}
+      {!splash && authReady && !coverDone && (
         <div
           key="post-auth-cover"
           style={{
             position: "fixed",
             inset: 0,
-            background: "#000000",
+            background: INITIAL_HEADER_COLOR,
             zIndex: 997,
             pointerEvents: "none",
-            animation: "coverFade 0.3s ease-out both",
+            animation: "coverFade 0.3s ease-out forwards",
           }}
+          onAnimationEnd={() => setCoverDone(true)}
         />
       )}
-      <style>{`@keyframes coverFade { from { opacity:1 } to { opacity:0; pointer-events:none; } }`}</style>
+      <style>{`@keyframes coverFade { from { opacity:1 } to { opacity:0; } }`}</style>
 
       {splash && (
         <Splash
@@ -426,11 +450,12 @@ function AppShell() {
           style={{
             position: "fixed",
             inset: 0,
-            background: T.dark,
+            background: INITIAL_HEADER_COLOR,
             zIndex: 998,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            paddingTop: "env(safe-area-inset-top)",
           }}
         >
           {/* Spinner — indica que Firebase está respondiendo, no que la app está rota */}
