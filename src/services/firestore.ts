@@ -306,7 +306,7 @@ export async function preloadData(): Promise<void> {
   results.forEach((r, i) => {
     if (r.status === "fulfilled") {
       _preloadCache.set(
-        cols[i],
+        cols[i]!,
         r.value.docs.map(d => ({ id: d.id, ...d.data() }))
       );
     }
