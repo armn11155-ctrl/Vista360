@@ -173,6 +173,13 @@ const INITIAL_HEADER_COLOR = "#0E1A3B";
 function AppShell() {
   useViewportSetup();
 
+  // ── Forzar re-login en cada apertura nueva de la app (sessionStorage se borra al cerrar) ──
+  useEffect(() => {
+    if (!sessionStorage.getItem("v360-session")) {
+      signOut(auth).catch(() => {});
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [splash, setSplash] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
