@@ -88,7 +88,7 @@ const htmlResumen = `<!DOCTYPE html>
   </tr>
 
   <!-- SEPARADOR -->
-  <tr><td style="background-color:#16a34a;height:3px;font-size:0;line-height:0;">&nbsp;</td></tr>
+  <tr><td style="background-color:#0EA5E9;height:3px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
   <!-- KPIs FINANCIEROS -->
   <tr>
