@@ -224,8 +224,8 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         position: "relative", overflow: "hidden",
       }}>
         {/* Halos */}
-        <div style={{position:"absolute",top:"-25%",right:"-20%",width:"65%",height:"65%",
-          background:"radial-gradient(ellipse,rgba(37,99,235,.22) 0%,transparent 70%)",pointerEvents:"none"}}/>
+        <div style={{position:"absolute",top:"18%",right:"-20%",width:"65%",height:"65%",
+          background:"radial-gradient(ellipse,rgba(37,99,235,.18) 0%,transparent 70%)",pointerEvents:"none"}}/>
         <div style={{position:"absolute",bottom:"-20%",left:"-15%",width:"55%",height:"50%",
           background:"radial-gradient(ellipse,rgba(37,99,235,.13) 0%,transparent 70%)",pointerEvents:"none"}}/>
 
