@@ -18,6 +18,7 @@ const Facturacion = lazy(() => import("../features/facturacion/Facturacion"));
 const Reportes = lazy(() => import("../features/reportes/Reportes"));
 const Capital = lazy(() => import("../features/capital/Capital"));
 const Mapa = lazy(() => import("../features/mapa/Mapa"));
+const BuscarComprobante = lazy(() => import("../features/facturacion/BuscarComprobante"));
 
 /**
  * Prefetch de todos los chunks en segundo plano una vez que el usuario está
@@ -44,6 +45,7 @@ export function prefetchAllTabs() {
     import("../features/historico/Historico");
     import("../features/capital/Capital");
     import("../features/mapa/Mapa");
+    import("../features/facturacion/BuscarComprobante");
   });
 }
 
@@ -300,6 +302,14 @@ export function AppRouter({ userName, autoScan, setAutoScan, onModalChange }: Ap
                 <Mapa paneles={paneles} clientes={clientesActive} contratos={contractsActive} />
               </ErrorBoundary>
             </div>
+          }
+        />
+        <Route
+          path="/buscar"
+          element={
+            <ErrorBoundary label="Buscar Comprobante">
+              <BuscarComprobante />
+            </ErrorBoundary>
           }
         />
       </Routes>
