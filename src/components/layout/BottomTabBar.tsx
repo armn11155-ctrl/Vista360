@@ -345,6 +345,7 @@ export function BottomTabBar({
 
     prevIdxRef.current = currentIdx;
     requestAnimationFrame(() => setPillReady(true));
+    return;
   }, [pathname, showProfile, tabs, pillReady]);
 
   return (
