@@ -173,13 +173,8 @@ const INITIAL_HEADER_COLOR = "#0E1A3B";
 function AppShell() {
   useViewportSetup();
 
-  // ── Forzar re-login en cada apertura nueva de la app (sessionStorage se borra al cerrar) ──
-  useEffect(() => {
-    if (!sessionStorage.getItem("v360-session")) {
-      signOut(auth).catch(() => {});
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
+  // Bloqueo de pantalla por sesión: true = mostrar login aunque Firebase tenga usuario
+  const [locked, setLocked] = useState(!sessionStorage.getItem("v360-session"));
   const [splash, setSplash] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
@@ -477,7 +472,7 @@ function AppShell() {
         </div>
       )}
 
-      {!splash && authReady && !user && (
+      {!splash && authReady && (!user || locked) && (
         <>
           {firebaseDown && (
             <div
@@ -498,13 +493,13 @@ function AppShell() {
               ⚠️ Sin conexión a Firebase — verifica tu red o intenta más tarde
             </div>
           )}
-          <LoginScreen onLoginSuccess={(u: User) => setUser(u)} />
+          <LoginScreen onLoginSuccess={(u: User) => { setUser(u); setLocked(false); }} />
         </>
       )}
 
-      {!splash && !!user && (
+      {!splash && !!user && !locked && (
         <ShellErrorBoundary>
-          <AuthenticatedShell user={user} onLogout={() => setUser(null)} />
+          <AuthenticatedShell user={user} onLogout={() => { signOut(auth).catch(()=>{}); setUser(null); setLocked(true); sessionStorage.removeItem("v360-session"); }} />
         </ShellErrorBoundary>
       )}
     </ToastProvider>
