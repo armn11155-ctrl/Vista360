@@ -34,14 +34,14 @@ jobs:
         run: |
           cd scripts
           npm init -y
-          npm install firebase-admin
+          npm install firebase-admin nodemailer
 
       - name: Generar y enviar reporte
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
           EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
-          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
           MES_INPUT: ${{ github.event.inputs.mes }}
           ANIO_INPUT: ${{ github.event.inputs.anio }}
         run: node scripts/reporte-mensual-vista360.mjs
