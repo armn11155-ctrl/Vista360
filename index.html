@@ -1,14 +1,17 @@
 <!DOCTYPE html>
-<html lang="es" style="background:#000000;color-scheme:dark">
+<html lang="es" style="background:#0E1A3B;color-scheme:dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <style>html,body,#root{background:#000000}</style>
+    <!-- Fondo inicial: Splash.tsx sobreescribe a #000000 al montarse y restaura
+         #0E1A3B en su cleanup. Usar #0E1A3B aqui evita que el status bar se
+         quede negro si el JS tarda o si el cleanup del Splash no se ejecuta. -->
+    <style>html,body{background:#0E1A3B}#root{background:transparent}</style>
 
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#0E1A3B" />
 
-    <!-- Preload crítico: splash-bg.jpg listo antes de que React monte -->
+    <!-- Preload critico: splash-bg.jpg listo antes de que React monte -->
     <link rel="preload" href="/splash-bg.jpg" as="image" />
 
     <!-- PWA Manifest -->
@@ -34,7 +37,7 @@
 
     <title>Vista360</title>
   </head>
-  <body style="background:#000000;margin:0">
+  <body style="background:#0E1A3B;margin:0">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
