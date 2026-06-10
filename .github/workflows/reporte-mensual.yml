@@ -1,0 +1,47 @@
+name: 📊 Reporte Mensual — Vista360
+
+on:
+  schedule:
+    # Corre el día 1 de cada mes a las 8:00 AM Lima (UTC-5 = 13:00 UTC)
+    - cron: "0 13 1 * *"
+  workflow_dispatch:
+    inputs:
+      mes:
+        description: "Mes a reportar (1-12). Vacío = mes anterior."
+        required: false
+      anio:
+        description: "Año (ej: 2026). Vacío = año actual."
+        required: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  reporte:
+    name: Generar y enviar reporte mensual
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar dependencias del script
+        run: |
+          cd scripts
+          npm init -y
+          npm install firebase-admin
+
+      - name: Generar y enviar reporte
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          MES_INPUT: ${{ github.event.inputs.mes }}
+          ANIO_INPUT: ${{ github.event.inputs.anio }}
+        run: node scripts/reporte-mensual-vista360.mjs
