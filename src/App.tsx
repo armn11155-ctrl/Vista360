@@ -44,7 +44,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
       {!shell.isOnline && <OfflineBanner />}
       <div className={styles.appRoot} style={{ background: T.bg, color: T.text }}>
         <AppHeader
-          title={shell.showProfile ? "Perfil" : (shell.pageTitle ?? "Inicio")}
+          title={shell.showProfile ? "Perfil" : (shell.pageTitle === "Inicio" ? "Inicio" : "")}
           user={user}
           userName={shell.userName}
           onProfileClick={() => shell.handleTabClick("/perfil")}
