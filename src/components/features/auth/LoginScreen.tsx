@@ -72,14 +72,12 @@ function LoginScreen({ onLoginSuccess, splashActive = false }: LoginScreenProps)
 
   // Controla cuándo arrancan las animaciones de entrada del login.
   // Si splashActive=false desde el inicio (carga directa sin splash), entered=true ya.
-  // Si splashActive=true (normal: detrás del splash), entered pasa a true cuando el splash termina.
+  // Si splashActive=true (normal: detrás del splash), entered pasa a true cuando el splash
+  // llama onReveal — sin delay adicional para sincronizar con el cross-fade.
   const [entered, setEntered] = useState(!splashActive);
   useEffect(() => {
     if (!splashActive && !entered) {
-      // Pequeño delay para que la transición de opacidad del contenedor
-      // arranque antes que las animaciones internas
-      const t = setTimeout(() => setEntered(true), 30);
-      return () => clearTimeout(t);
+      setEntered(true);
     }
   }, [splashActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -200,9 +198,11 @@ function LoginScreen({ onLoginSuccess, splashActive = false }: LoginScreenProps)
       display: "flex", flexDirection: "column",
       zIndex: 998,
       background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
-      // Invisible mientras el splash está encima; se revela con micro-fade al terminar
+      // Transition siempre definida para que el browser interpole correctamente
+      // cuando splashActive pasa de true→false (onReveal del Splash).
+      // 200ms coincide con el fade-out del Splash → cross-fade sin frame vacío.
       opacity: splashActive ? 0 : 1,
-      transition: splashActive ? "none" : "opacity 0.12s ease-out",
+      transition: "opacity 0.2s ease-out",
       pointerEvents: splashActive ? "none" : "auto",
     }}>
       <style>{`
