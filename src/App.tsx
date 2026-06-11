@@ -473,9 +473,9 @@ function AppShell() {
         </div>
       )}
 
-      {!splash && authReady && (!user || locked) && (
+      {authReady && (!user || locked) && (
         <>
-          {firebaseDown && (
+          {!splash && firebaseDown && (
             <div
               style={{
                 position: "fixed",
@@ -494,7 +494,10 @@ function AppShell() {
               ⚠️ Sin conexión a Firebase — verifica tu red o intenta más tarde
             </div>
           )}
-          <LoginScreen onLoginSuccess={(u: User) => { setCoverDone(false); setUser(u); setLocked(false); }} />
+          <LoginScreen
+            splashActive={splash}
+            onLoginSuccess={(u: User) => { setCoverDone(false); setUser(u); setLocked(false); }}
+          />
         </>
       )}
 
