@@ -88,16 +88,14 @@ function Splash({ done }: SplashProps) {
         pointerEvents: "none",
       }} />
 
-      {/* ── Zona superior 62%: logo centrado, igual que LoginScreen ── */}
+      {/* ── Logo centrado en pantalla completa ── */}
       <div style={{
-        flex: "0 0 62%",
+        flex: 1,
         display: "flex",
-        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         paddingTop: "env(safe-area-inset-top, 0px)",
         position: "relative",
-        overflow: "hidden",
       }}>
         <div style={{
           filter: "drop-shadow(0 0 28px rgba(37,99,235,.32))",
@@ -108,9 +106,6 @@ function Splash({ done }: SplashProps) {
           <Logo360 width={310} />
         </div>
       </div>
-
-      {/* ── Zona inferior 38%: oscura (sin tarjeta blanca) ── */}
-      <div style={{ flex: 1 }} />
     </div>
   );
 }
