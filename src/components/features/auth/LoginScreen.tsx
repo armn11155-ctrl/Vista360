@@ -14,6 +14,7 @@ const APP_VERSION: string =
 
 interface LoginScreenProps {
   onLoginSuccess: (user: User) => void;
+  splashActive?: boolean;
 }
 
 async function registerWebAuthn(user: User): Promise<boolean> {
@@ -62,12 +63,25 @@ function FaceIDIcon({ size = 24 }: { size?: number }) {
   );
 }
 
-function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
+function LoginScreen({ onLoginSuccess, splashActive = false }: LoginScreenProps) {
   const [loading, setLoading]         = useState(false);
   const [loadingFace, setLoadingFace] = useState(false);
   const [error, setError]             = useState("");
   const [credentialStored, setCredentialStored]   = useState(false);
   const [webAuthnSupported, setWebAuthnSupported] = useState(false);
+
+  // Controla cuándo arrancan las animaciones de entrada del login.
+  // Si splashActive=false desde el inicio (carga directa sin splash), entered=true ya.
+  // Si splashActive=true (normal: detrás del splash), entered pasa a true cuando el splash termina.
+  const [entered, setEntered] = useState(!splashActive);
+  useEffect(() => {
+    if (!splashActive && !entered) {
+      // Pequeño delay para que la transición de opacidad del contenedor
+      // arranque antes que las animaciones internas
+      const t = setTimeout(() => setEntered(true), 30);
+      return () => clearTimeout(t);
+    }
+  }, [splashActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Status bar: azul marino desde el arranque ──
   useEffect(() => {
@@ -186,20 +200,12 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       display: "flex", flexDirection: "column",
       zIndex: 998,
       background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
+      // Invisible mientras el splash está encima; se revela con micro-fade al terminar
+      opacity: splashActive ? 0 : 1,
+      transition: splashActive ? "none" : "opacity 0.12s ease-out",
+      pointerEvents: splashActive ? "none" : "auto",
     }}>
       <style>{`
-        @keyframes loginCardUp {
-          from { opacity:0; transform:translateY(28px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes loginGreetIn {
-          from { opacity:0; transform:translateY(10px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes loginLogoIn {
-          from { opacity:0; }
-          to   { opacity:1; }
-        }
         @keyframes pulseRing {
           0%  {box-shadow:0 0 0 0    rgba(37,99,235,.45);}
           70% {box-shadow:0 0 0 14px rgba(37,99,235,0);}
@@ -228,15 +234,16 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         <div style={{position:"absolute",bottom:"-20%",left:"-15%",width:"55%",height:"50%",
           background:"radial-gradient(ellipse,rgba(37,99,235,.13) 0%,transparent 70%)",pointerEvents:"none"}}/>
 
-        {/* Logo: fade-in de 120ms sincronizado con el micro-fade del splash */}
-        <div style={{marginBottom:44,filter:"drop-shadow(0 0 28px rgba(37,99,235,.32))",position:"relative",zIndex:1,
-          opacity:0, animation:"loginLogoIn 0.12s linear forwards"}}>
+        {/* Logo: sin animación propia — aparece con el contenedor */}
+        <div style={{marginBottom:44,filter:"drop-shadow(0 0 28px rgba(37,99,235,.32))",position:"relative",zIndex:1}}>
           <Logo360 width={220}/>
         </div>
 
         {/* Saludo */}
         <div style={{position:"relative",zIndex:1,textAlign:"center",
-          opacity:0, animation:"loginGreetIn 0.4s ease-out 0.15s forwards"}}>
+          opacity: entered ? 1 : 0,
+          transform: entered ? "translateY(0)" : "translateY(10px)",
+          transition: entered ? "opacity 0.35s ease-out 0.05s, transform 0.35s ease-out 0.05s" : "none"}}>
           <div style={{fontSize:16,color:"rgba(255,255,255,.72)",fontWeight:400,marginBottom:6}}>Hola,</div>
           <div style={{fontSize:33,fontWeight:800,color:"#FFF",letterSpacing:"-0.6px",textShadow:"0 2px 18px rgba(0,0,0,.45)"}}>
             Alan Martínez
@@ -257,8 +264,9 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         paddingTop: 34,
         paddingBottom: "max(20px, env(safe-area-inset-bottom))",
         boxShadow: "0 -6px 36px rgba(0,0,0,.14)",
-        opacity: 0,
-        animation: "loginCardUp 0.45s ease-out 0.25s forwards",
+        opacity: entered ? 1 : 0,
+        transform: entered ? "translateY(0)" : "translateY(28px)",
+        transition: entered ? "opacity 0.45s ease-out 0.15s, transform 0.45s ease-out 0.15s" : "none",
       }}>
 
         {!API_KEY_OK && (
