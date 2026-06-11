@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { signInWithPopup, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth, googleProvider } from "../../../config/firebase";
@@ -15,6 +15,8 @@ const APP_VERSION: string =
 interface LoginScreenProps {
   onLoginSuccess: (user: User) => void;
   splashActive?: boolean;
+  /** Callback con el DOMRect del logo — Splash lo usa para alinear su animación al píxel */
+  onLogoReady?: (rect: DOMRect) => void;
 }
 
 async function registerWebAuthn(user: User): Promise<boolean> {
@@ -47,7 +49,6 @@ async function registerWebAuthn(user: User): Promise<boolean> {
   } catch { return false; }
 }
 
-// ── Ícono Face ID — SVG exacto ────────────────────────────────────────────
 function FaceIDIcon({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
@@ -63,25 +64,32 @@ function FaceIDIcon({ size = 24 }: { size?: number }) {
   );
 }
 
-function LoginScreen({ onLoginSuccess, splashActive = false }: LoginScreenProps) {
+function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: LoginScreenProps) {
   const [loading, setLoading]         = useState(false);
   const [loadingFace, setLoadingFace] = useState(false);
   const [error, setError]             = useState("");
   const [credentialStored, setCredentialStored]   = useState(false);
   const [webAuthnSupported, setWebAuthnSupported] = useState(false);
 
-  // Controla cuándo arrancan las animaciones de entrada del login.
-  // Si splashActive=false desde el inicio (carga directa sin splash), entered=true ya.
-  // Si splashActive=true (normal: detrás del splash), entered pasa a true cuando el splash
-  // llama onReveal — sin delay adicional para sincronizar con el cross-fade.
+  // entered: controla sub-animaciones (saludo, tarjeta blanca)
+  // Se activa inmediatamente cuando el splash señala que va a desaparecer
   const [entered, setEntered] = useState(!splashActive);
   useEffect(() => {
-    if (!splashActive && !entered) {
-      setEntered(true);
-    }
+    if (!splashActive && !entered) setEntered(true);
   }, [splashActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Status bar: azul marino desde el arranque ──
+  // ── Ref del logo: se mide en cuanto el DOM existe y se reporta al Splash ──
+  // useCallback-ref: se llama una vez cuando el nodo se monta, sin re-renders
+  const logoRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node || !onLogoReady) return;
+    // Forzar un frame de layout antes de medir para evitar rect vacío en iOS
+    requestAnimationFrame(() => {
+      const rect = node.getBoundingClientRect();
+      if (rect.width > 0) onLogoReady(rect);
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Status bar ──
   useEffect(() => {
     const BG = "#07101F";
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
@@ -123,17 +131,13 @@ function LoginScreen({ onLoginSuccess, splashActive = false }: LoginScreenProps)
         },
       });
       if (assertion) {
-        // Esperar a que Firebase restaure el usuario desde localStorage
         const currentUser = await new Promise<User | null>((resolve) => {
-          // auth.currentUser puede estar disponible ya
           if (auth.currentUser) { resolve(auth.currentUser); return; }
-          // Si no, esperar el primer disparo de onAuthStateChanged
           let resolved = false;
           const { onAuthStateChanged } = require("firebase/auth") as typeof import("firebase/auth");
           const unsub = onAuthStateChanged(auth, (u) => {
             if (!resolved) { resolved = true; unsub(); resolve(u); }
           });
-          // Timeout de seguridad 3s
           setTimeout(() => { if (!resolved) { resolved = true; unsub(); resolve(null); } }, 3000);
         });
 
@@ -141,7 +145,6 @@ function LoginScreen({ onLoginSuccess, splashActive = false }: LoginScreenProps)
           sessionStorage.setItem("v360-session", "1");
           onLoginSuccess(currentUser);
         } else {
-          // Sesión expirada (logout explícito previo) — limpiar credencial
           localStorage.removeItem("v360-webauthn-credential");
           localStorage.removeItem("v360-webauthn-uid");
           setCredentialStored(false);
@@ -150,11 +153,8 @@ function LoginScreen({ onLoginSuccess, splashActive = false }: LoginScreenProps)
       }
     } catch (e) {
       const err = e as { name?: string };
-      if (err.name === "NotAllowedError") {
-        setError("Verificación cancelada.");
-      } else {
-        setError("Face ID no pudo verificarte. Intenta con Google.");
-      }
+      if (err.name === "NotAllowedError") setError("Verificación cancelada.");
+      else setError("Face ID no pudo verificarte. Intenta con Google.");
     } finally {
       setLoadingFace(false);
     }
@@ -198,11 +198,11 @@ function LoginScreen({ onLoginSuccess, splashActive = false }: LoginScreenProps)
       display: "flex", flexDirection: "column",
       zIndex: 998,
       background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
-      // Transition siempre definida para que el browser interpole correctamente
-      // cuando splashActive pasa de true→false (onReveal del Splash).
-      // 200ms coincide con el fade-out del Splash → cross-fade sin frame vacío.
+      // Sin transición de opacidad en el contenedor raíz.
+      // El Login se revela instantáneamente cuando onReveal dispara —
+      // el Splash hace un fade de 30ms encima. Dado que ambos fondos son
+      // idénticos y el logo aterriza en el píxel exacto, el swap es invisible.
       opacity: splashActive ? 0 : 1,
-      transition: "opacity 0.2s ease-out",
       pointerEvents: splashActive ? "none" : "auto",
     }}>
       <style>{`
@@ -215,35 +215,54 @@ function LoginScreen({ onLoginSuccess, splashActive = false }: LoginScreenProps)
         .v360-google:active { opacity:.55!important; }
       `}</style>
 
+      {/* ── Halos — posicionados respecto al root (position:fixed) para coincidir
+           con los halos del Splash y evitar un salto visual al hacer el swap ── */}
+      <div style={{
+        position: "absolute", top: "12%", right: "-20%",
+        width: "65%", height: "65%",
+        background: "radial-gradient(ellipse, rgba(37,99,235,.18) 0%, transparent 70%)",
+        pointerEvents: "none",
+        zIndex: 0,
+      }} />
+      <div style={{
+        position: "absolute", bottom: "-20%", left: "-15%",
+        width: "55%", height: "50%",
+        background: "radial-gradient(ellipse, rgba(37,99,235,.13) 0%, transparent 70%)",
+        pointerEvents: "none",
+        zIndex: 0,
+      }} />
+
       {/* ══════════════════════════════════
           ZONA AZUL — 62% superior
-          paddingTop = safe-area para el notch
-          El fondo ya está en el div raíz,
-          así que el status bar hereda el color
       ══════════════════════════════════ */}
       <div style={{
         flex: "0 0 62%",
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
         paddingTop: "env(safe-area-inset-top)",
-        position: "relative", overflow: "hidden",
+        position: "relative",
+        // Sin overflow:hidden — los halos viven en el root y no se deben recortar aquí
       }}>
-        {/* Halos */}
-        <div style={{position:"absolute",top:"12%",right:"-20%",width:"65%",height:"65%",
-          background:"radial-gradient(ellipse,rgba(37,99,235,.18) 0%,transparent 70%)",pointerEvents:"none"}}/>
-        <div style={{position:"absolute",bottom:"-20%",left:"-15%",width:"55%",height:"50%",
-          background:"radial-gradient(ellipse,rgba(37,99,235,.13) 0%,transparent 70%)",pointerEvents:"none"}}/>
-
-        {/* Logo: sin animación propia — aparece con el contenedor */}
-        <div style={{marginBottom:44,filter:"drop-shadow(0 0 28px rgba(37,99,235,.32))",position:"relative",zIndex:1}}>
+        {/* Logo — se mide con logoRef para que Splash aterrice aquí al píxel exacto */}
+        <div
+          ref={logoRef}
+          style={{
+            marginBottom: 44,
+            filter: "drop-shadow(0 0 28px rgba(37,99,235,.32))",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
           <Logo360 width={220}/>
         </div>
 
         {/* Saludo */}
-        <div style={{position:"relative",zIndex:1,textAlign:"center",
+        <div style={{
+          position: "relative", zIndex: 1, textAlign: "center",
           opacity: entered ? 1 : 0,
           transform: entered ? "translateY(0)" : "translateY(10px)",
-          transition: entered ? "opacity 0.35s ease-out 0.05s, transform 0.35s ease-out 0.05s" : "none"}}>
+          transition: entered ? "opacity 0.35s ease-out 0.05s, transform 0.35s ease-out 0.05s" : "none",
+        }}>
           <div style={{fontSize:16,color:"rgba(255,255,255,.72)",fontWeight:400,marginBottom:6}}>Hola,</div>
           <div style={{fontSize:33,fontWeight:800,color:"#FFF",letterSpacing:"-0.6px",textShadow:"0 2px 18px rgba(0,0,0,.45)"}}>
             Alan Martínez
@@ -264,6 +283,7 @@ function LoginScreen({ onLoginSuccess, splashActive = false }: LoginScreenProps)
         paddingTop: 34,
         paddingBottom: "max(20px, env(safe-area-inset-bottom))",
         boxShadow: "0 -6px 36px rgba(0,0,0,.14)",
+        position: "relative", zIndex: 1,
         opacity: entered ? 1 : 0,
         transform: entered ? "translateY(0)" : "translateY(28px)",
         transition: entered ? "opacity 0.45s ease-out 0.15s, transform 0.45s ease-out 0.15s" : "none",
