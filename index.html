@@ -1,21 +1,41 @@
 <!DOCTYPE html>
-<html lang="es" style="background:#000;color-scheme:dark">
+<html lang="es" style="background:#07101F;color-scheme:dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
     <style>
-      html,body,#root{background:#000}
-      #pre-splash{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;padding-top:env(safe-area-inset-top,0px);padding-bottom:38%;z-index:999;overflow:hidden;pointer-events:none}
-      #pre-splash-bg{position:absolute;top:calc(-1 * env(safe-area-inset-top,0px));left:0;width:100%;height:calc(100% + env(safe-area-inset-top,0px));object-fit:cover;object-position:center bottom;pointer-events:none;user-select:none}
-      #pre-splash-logo{display:block;width:310px;max-width:80vw;object-fit:contain;position:relative;z-index:1}
+      html,body,#root{background:#07101F}
+      #pre-splash{
+        position:fixed;inset:0;
+        background:linear-gradient(170deg,#07101F 0%,#0D1629 55%,#111E35 100%);
+        display:flex;align-items:center;justify-content:center;
+        padding-top:env(safe-area-inset-top,0px);padding-bottom:38%;
+        z-index:999;overflow:hidden;pointer-events:none
+      }
+      #pre-splash::before{
+        content:"";position:absolute;top:8%;right:-18%;
+        width:70%;height:55%;
+        background:radial-gradient(ellipse,rgba(37,99,235,.22) 0%,transparent 70%);
+        pointer-events:none
+      }
+      #pre-splash::after{
+        content:"";position:absolute;bottom:-15%;left:-12%;
+        width:60%;height:50%;
+        background:radial-gradient(ellipse,rgba(37,99,235,.15) 0%,transparent 70%);
+        pointer-events:none
+      }
+      #pre-splash-logo{
+        display:block;width:310px;max-width:80vw;object-fit:contain;
+        position:relative;z-index:1;
+        filter:drop-shadow(0 0 32px rgba(37,99,235,.38))
+      }
     </style>
 
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#07101F" />
 
-    <!-- Preload crítico: logo y splash-bg listos antes de que React monte -->
+    <!-- Preload crítico: logo listo antes de que React monte -->
     <link rel="preload" href="/logo.png" as="image" />
-    <link rel="preload" href="/splash-bg.jpg" as="image" />
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
@@ -40,12 +60,10 @@
 
     <title>Vista360</title>
   </head>
-  <body style="background:#000;margin:0">
+  <body style="background:#07101F;margin:0">
     <!-- Pre-splash: aparece ANTES de que React cargue.
-         Usa <img> (no CSS background-image) para aprovechar el <link rel=preload as=image>
-         y que splash-bg.jpg esté lista en caché desde el primer frame. -->
+         Fondo azul + halos via CSS, igual que LoginScreen. -->
     <div id="pre-splash">
-      <img id="pre-splash-bg" src="/splash-bg.jpg" alt="" aria-hidden="true" />
       <img id="pre-splash-logo" src="/logo.png" alt="Vista360" />
     </div>
     <div id="root"></div>
