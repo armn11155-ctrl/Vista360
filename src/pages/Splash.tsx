@@ -4,18 +4,28 @@ import { isAudioReady, soundSplash, unlockAudio } from "../lib/sounds";
 
 interface SplashProps {
   done: () => void;
-  onReveal?: () => void; // llamado al inicio del fade-out → dispara el fade-in del Login simultáneamente
+  onReveal?: () => void;
+  /** Devuelve el DOMRect del logo del LoginScreen para alinear el aterrizaje al píxel exacto */
+  getLoginLogoRect?: () => DOMRect | null;
 }
 
 const BG = "#07101F";
 
-function Splash({ done, onReveal }: SplashProps) {
-  const [animating, setAnimating] = useState(false);
-  const [closing,   setClosing]   = useState(false); // fade-out 200ms
-  const doneRef    = useRef(done);
-  const onRevealRef = useRef(onReveal);
-  useEffect(() => { doneRef.current    = done;     }, [done]);
-  useEffect(() => { onRevealRef.current = onReveal; }, [onReveal]);
+// Transform fallback (CSS puro) si la medición no está lista aún
+const FALLBACK_TRANSFORM =
+  "translate(-50%, calc(-50% - 7vh + env(safe-area-inset-top, 0px) / 2 - 56px)) scale(0.71)";
+
+function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
+  const [animating,       setAnimating]       = useState(false);
+  const [closing,         setClosing]         = useState(false);
+  const [targetTransform, setTargetTransform] = useState(FALLBACK_TRANSFORM);
+
+  const doneRef          = useRef(done);
+  const onRevealRef      = useRef(onReveal);
+  const getLogoRectRef   = useRef(getLoginLogoRect);
+  useEffect(() => { doneRef.current        = done;             }, [done]);
+  useEffect(() => { onRevealRef.current    = onReveal;         }, [onReveal]);
+  useEffect(() => { getLogoRectRef.current = getLoginLogoRect; }, [getLoginLogoRect]);
   const sf = useRef(false);
 
   useLayoutEffect(() => {
@@ -55,20 +65,38 @@ function Splash({ done, onReveal }: SplashProps) {
   useEffect(() => {
     if (isAudioReady() && !sf.current) { sf.current = true; soundSplash(); }
 
-    // 1600ms → arranca la animación del logo hacia la posición del login
-    const t1 = setTimeout(() => setAnimating(true), 1600);
+    // ── t=1600ms: calcular posición EXACTA del logo del login y animar ──
+    const t1 = setTimeout(() => {
+      const rect = getLogoRectRef.current?.();
+      if (rect && rect.width > 0) {
+        // Centro del logo del login en coordenadas de viewport
+        const targetCX = rect.left + rect.width  / 2;
+        const targetCY = rect.top  + rect.height / 2;
+        // Centro actual del splash logo: top=38%vh, left=50%vw
+        const splashCX = window.innerWidth  * 0.5;
+        const splashCY = window.innerHeight * 0.38;
+        // Delta en píxeles que hay que añadir al translate(-50%,-50%)
+        const dx = targetCX - splashCX;
+        const dy = targetCY - splashCY;
+        setTargetTransform(
+          `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0.71)`,
+        );
+      }
+      // Si la medición no llegó, setTargetTransform ya tiene FALLBACK_TRANSFORM
+      setAnimating(true);
+    }, 1600);
 
-    // 2500ms → empieza el cross-fade:
-    //   · Splash: fade-out 200ms (opacity 1→0)
-    //   · Login:  fade-in 200ms (vía onReveal, simultáneo)
-    // Así no hay ningún frame vacío entre pantallas.
+    // ── t=2500ms: revelar login AL MISMO TIEMPO que el splash se cierra ──
+    // El Login ya tiene opacity:1 antes de que el splash desaparezca (onReveal).
+    // La transición del splash es solo 30ms — sub-umbral de percepción (~2 frames).
+    // Como el fondo y el logo son visualmente idénticos, el resultado es imperceptible.
     const t2 = setTimeout(() => {
-      setClosing(true);
-      onRevealRef.current?.();
+      onRevealRef.current?.();  // Login: opacity 0→1 instantáneo
+      setClosing(true);          // Splash: opacity 1→0 en 30ms
     }, 2500);
 
-    // 2700ms → splash completamente transparente; se desmonta
-    const t3 = setTimeout(() => doneRef.current(), 2700);
+    // ── t=2530ms: splash completamente transparente, desmontar ──
+    const t3 = setTimeout(() => doneRef.current(), 2530);
 
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -82,18 +110,19 @@ function Splash({ done, onReveal }: SplashProps) {
         zIndex: 999,
         background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
         overflow: "hidden",
-        // Cross-fade 200ms: suficiente para que el Login ya esté visible al desmontar
+        // 30ms ≈ 2 frames: imperceptible, pero oculta cualquier diferencia sub-pixel
         opacity: closing ? 0 : 1,
-        transition: closing ? "opacity 0.2s linear" : "none",
+        transition: closing ? "opacity 0.03s linear" : "none",
       }}
     >
-      {/* Halos */}
+      {/* Halo superior — mismo que LoginScreen para continuidad visual */}
       <div style={{
         position: "absolute", top: "12%", right: "-20%",
         width: "65%", height: "65%",
         background: "radial-gradient(ellipse, rgba(37,99,235,.18) 0%, transparent 70%)",
         pointerEvents: "none",
       }} />
+      {/* Halo inferior */}
       <div style={{
         position: "absolute", bottom: "-20%", left: "-15%",
         width: "55%", height: "50%",
@@ -107,9 +136,7 @@ function Splash({ done, onReveal }: SplashProps) {
           position: "absolute",
           top: "38%", left: "50%",
           transformOrigin: "50% 50%",
-          transform: animating
-            ? "translate(-50%, calc(-50% - 7vh + env(safe-area-inset-top, 0px) / 2 - 56px)) scale(0.71)"
-            : "translate(-50%, -50%) scale(1)",
+          transform: animating ? targetTransform : "translate(-50%, -50%) scale(1)",
           transition: animating
             ? "transform 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
             : "none",
