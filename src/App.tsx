@@ -179,8 +179,9 @@ function AppShell() {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [firebaseDown, setFbDown] = useState(false);
-  // Controla si el post-auth-cover ya terminó su animación y debe salir del DOM
-  const [coverDone, setCoverDone] = useState(false);
+  // Arranca en TRUE: el cover NO se muestra en splash→login.
+  // Solo se resetea a false en onLoginSuccess (login→app), donde sí es necesario.
+  const [coverDone, setCoverDone] = useState(true);
   // Ref para evitar stale closure en el done() del splash
   const authReadyRef = useRef(false);
   // true cuando la animación del splash terminó pero auth aún no llegó
@@ -375,8 +376,7 @@ function AppShell() {
   // Esto garantiza que el status bar nunca quede en negro post-splash.
   useEffect(() => {
     if (!splash) {
-      setCoverDone(false);
-      // Si el login está visible usa el azul del login; si ya entró al app usa el del header
+      // Solo actualizar theme-color y fondo; el cover lo maneja onLoginSuccess
       const color = (!user || locked) ? "#07101F" : INITIAL_HEADER_COLOR;
       const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
       if (meta) meta.setAttribute("content", color);
