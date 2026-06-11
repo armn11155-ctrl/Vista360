@@ -396,7 +396,7 @@ function AppShell() {
           style={{
             position: "fixed",
             inset: 0,
-            background: "#000000",
+            background: "#07101F",
             zIndex: 998,
             pointerEvents: "none",
           }}
