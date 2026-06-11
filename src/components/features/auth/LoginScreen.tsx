@@ -196,6 +196,10 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           from { opacity:0; transform:translateY(10px); }
           to   { opacity:1; transform:translateY(0); }
         }
+        @keyframes loginLogoIn {
+          from { opacity:0; }
+          to   { opacity:1; }
+        }
         @keyframes pulseRing {
           0%  {box-shadow:0 0 0 0    rgba(37,99,235,.45);}
           70% {box-shadow:0 0 0 14px rgba(37,99,235,0);}
@@ -224,8 +228,9 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         <div style={{position:"absolute",bottom:"-20%",left:"-15%",width:"55%",height:"50%",
           background:"radial-gradient(ellipse,rgba(37,99,235,.13) 0%,transparent 70%)",pointerEvents:"none"}}/>
 
-        {/* Logo */}
-        <div style={{marginBottom:44,filter:"drop-shadow(0 0 28px rgba(37,99,235,.32))",position:"relative",zIndex:1}}>
+        {/* Logo: fade-in de 120ms sincronizado con el micro-fade del splash */}
+        <div style={{marginBottom:44,filter:"drop-shadow(0 0 28px rgba(37,99,235,.32))",position:"relative",zIndex:1,
+          opacity:0, animation:"loginLogoIn 0.12s linear forwards"}}>
           <Logo360 width={220}/>
         </div>
 
