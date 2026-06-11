@@ -494,7 +494,7 @@ function AppShell() {
               ⚠️ Sin conexión a Firebase — verifica tu red o intenta más tarde
             </div>
           )}
-          <LoginScreen onLoginSuccess={(u: User) => { setUser(u); setLocked(false); }} />
+          <LoginScreen onLoginSuccess={(u: User) => { setCoverDone(false); setUser(u); setLocked(false); }} />
         </>
       )}
 
