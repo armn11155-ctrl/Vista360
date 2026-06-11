@@ -185,13 +185,17 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
       display: "flex", flexDirection: "column",
       zIndex: 998,
-      /* El fondo cubre el área del status bar desde el px 0 */
       background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
-      opacity: 0,
-      animation: "loginAppear 0.45s ease-out 0.05s forwards",
     }}>
       <style>{`
-        @keyframes loginAppear { from{opacity:0} to{opacity:1} }
+        @keyframes loginCardUp {
+          from { opacity:0; transform:translateY(28px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+        @keyframes loginGreetIn {
+          from { opacity:0; transform:translateY(10px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
         @keyframes pulseRing {
           0%  {box-shadow:0 0 0 0    rgba(37,99,235,.45);}
           70% {box-shadow:0 0 0 14px rgba(37,99,235,0);}
@@ -226,7 +230,8 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         </div>
 
         {/* Saludo */}
-        <div style={{position:"relative",zIndex:1,textAlign:"center"}}>
+        <div style={{position:"relative",zIndex:1,textAlign:"center",
+          opacity:0, animation:"loginGreetIn 0.4s ease-out 0.15s forwards"}}>
           <div style={{fontSize:16,color:"rgba(255,255,255,.72)",fontWeight:400,marginBottom:6}}>Hola,</div>
           <div style={{fontSize:33,fontWeight:800,color:"#FFF",letterSpacing:"-0.6px",textShadow:"0 2px 18px rgba(0,0,0,.45)"}}>
             Alan Martínez
@@ -247,6 +252,8 @@ function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         paddingTop: 34,
         paddingBottom: "max(20px, env(safe-area-inset-bottom))",
         boxShadow: "0 -6px 36px rgba(0,0,0,.14)",
+        opacity: 0,
+        animation: "loginCardUp 0.45s ease-out 0.25s forwards",
       }}>
 
         {!API_KEY_OK && (
