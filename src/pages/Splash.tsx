@@ -8,6 +8,7 @@ const BG = "#07101F";
 
 function Splash({ done }: SplashProps) {
   const [animating, setAnimating] = useState(false);
+  const [closing,   setClosing]   = useState(false); // micro-fade 100ms
   const doneRef = useRef(done);
   useEffect(() => { doneRef.current = done; }, [done]);
   const sf = useRef(false);
@@ -49,17 +50,18 @@ function Splash({ done }: SplashProps) {
   useEffect(() => {
     if (isAudioReady() && !sf.current) { sf.current = true; soundSplash(); }
 
-    // 1600ms: arranca la animación del logo hacia la posición del login
-    const animTimer = setTimeout(() => setAnimating(true), 1600);
+    // 1600ms → arranca la animación del logo hacia el login
+    const t1 = setTimeout(() => setAnimating(true), 1600);
 
-    // 2500ms: animación completa → desaparece el splash SIN fade
-    // El login ya está renderizado debajo con el mismo fondo → transición invisible
-    const doneTimer = setTimeout(() => doneRef.current(), 2500);
+    // 2500ms → animación completa; inicia micro-fade de 100ms
+    // A 100ms el cerebro no percibe "pantalla en negro/azul", pero
+    // oculta el salto de 1 frame entre la posición del splash y la del login.
+    const t2 = setTimeout(() => setClosing(true), 2500);
 
-    return () => {
-      clearTimeout(animTimer);
-      clearTimeout(doneTimer);
-    };
+    // 2600ms → splash en opacity:0, se desmonta y monta el login
+    const t3 = setTimeout(() => doneRef.current(), 2600);
+
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -71,39 +73,31 @@ function Splash({ done }: SplashProps) {
         zIndex: 999,
         background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
         overflow: "hidden",
-        // Sin opacity/transition: el splash desaparece instantáneamente
-        // cuando done() se llama, sin dejar pantalla azul visible
+        // Micro-fade: 100ms es imperceptible como "pantalla azul"
+        // pero elimina el corte de 1 frame del logo
+        opacity: closing ? 0 : 1,
+        transition: closing ? "opacity 0.1s linear" : "none",
       }}
     >
-      {/* ── Halos ── */}
+      {/* Halos */}
       <div style={{
-        position: "absolute",
-        top: "12%", right: "-20%",
+        position: "absolute", top: "12%", right: "-20%",
         width: "65%", height: "65%",
         background: "radial-gradient(ellipse, rgba(37,99,235,.18) 0%, transparent 70%)",
         pointerEvents: "none",
       }} />
       <div style={{
-        position: "absolute",
-        bottom: "-20%", left: "-15%",
+        position: "absolute", bottom: "-20%", left: "-15%",
         width: "55%", height: "50%",
         background: "radial-gradient(ellipse, rgba(37,99,235,.13) 0%, transparent 70%)",
         pointerEvents: "none",
       }} />
 
-      {/*
-        Logo: arranca al 38% del top, centrado.
-        Animación al login:
-          • translateY: se mueve exactamente a donde está el logo en LoginScreen.
-            Fórmula: -(7vh - safe-area-inset-top/2 + 56px)
-            Los 56px compensan el centrado del contenido (logo+saludo) dentro del 62%.
-          • scale(0.71): 310px → 220px, el width exacto del logo en login.
-      */}
+      {/* Logo */}
       <div
         style={{
           position: "absolute",
-          top: "38%",
-          left: "50%",
+          top: "38%", left: "50%",
           transformOrigin: "50% 50%",
           transform: animating
             ? "translate(-50%, calc(-50% - 7vh + env(safe-area-inset-top, 0px) / 2 - 56px)) scale(0.71)"
