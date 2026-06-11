@@ -176,6 +176,10 @@ function AppShell() {
   // Bloqueo de pantalla por sesión: true = mostrar login aunque Firebase tenga usuario
   const [locked, setLocked] = useState(!sessionStorage.getItem("v360-session"));
   const [splash, setSplash] = useState(true);
+  // loginRevealing: true durante el cross-fade splash→login (t=2500-2700ms)
+  // Hace que splashActive=false en LoginScreen ANTES de que el Splash se desmonte,
+  // así ambas transiciones corren en paralelo sin frame vacío.
+  const [loginRevealing, setLoginRevealing] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [firebaseDown, setFbDown] = useState(false);
@@ -436,11 +440,13 @@ function AppShell() {
 
       {splash && (
         <Splash
+          onReveal={() => setLoginRevealing(true)}
           done={() => {
             // FIX: Siempre cerrar el splash — no esperar authReady.
             // El cover "!splash && !authReady" muestra un spinner hasta
             // que Firebase resuelva. Antes podía quedarse en negro infinito.
             setSplash(false);
+            setLoginRevealing(false);
             if (!authReadyRef.current) {
               splashWaiting.current = true;
             }
@@ -495,7 +501,7 @@ function AppShell() {
             </div>
           )}
           <LoginScreen
-            splashActive={splash}
+            splashActive={!loginRevealing && splash}
             onLoginSuccess={(u: User) => { setCoverDone(false); setUser(u); setLocked(false); }}
           />
         </>
