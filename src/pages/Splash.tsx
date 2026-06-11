@@ -4,9 +4,9 @@ import { isAudioReady, soundSplash, unlockAudio } from "../lib/sounds";
 
 interface SplashProps { done: () => void; }
 
+const BG = "#07101F";
+
 function Splash({ done }: SplashProps) {
-  // Arranca en true: el logo ya está visible desde el primer frame,
-  // sin hueco respecto al pre-splash del HTML estático.
   const [show, setShow] = useState(true);
   const [fade, setFade] = useState(false);
   const doneRef = useRef(done);
@@ -14,9 +14,7 @@ function Splash({ done }: SplashProps) {
   const sf = useRef(false);
 
   // ── useLayoutEffect: corre ANTES de que el browser pinte ──────
-  // Elimina el pre-splash y fija colores sin ningún frame de diferencia.
   useLayoutEffect(() => {
-    // Quitar el pre-splash del HTML estático — React ya toma el control
     const pre = document.getElementById("pre-splash");
     if (pre) pre.remove();
 
@@ -26,9 +24,9 @@ function Splash({ done }: SplashProps) {
       m.setAttribute("name", "theme-color");
       document.head.appendChild(m);
     }
-    m.setAttribute("content", "#000000");
-    document.documentElement.style.background = "#000000";
-    document.body.style.background = "#000000";
+    m.setAttribute("content", BG);
+    document.documentElement.style.background = BG;
+    document.body.style.background = BG;
 
     return () => {
       m.setAttribute("content", "#0E1A3B");
@@ -55,7 +53,6 @@ function Splash({ done }: SplashProps) {
   useEffect(() => {
     if (isAudioReady() && !sf.current) { sf.current = true; soundSplash(); }
 
-    // Fade-out a los 2800ms → done() a los 3300ms
     const fadeTimer = setTimeout(() => {
       setFade(true);
       setTimeout(() => doneRef.current(), 500);
@@ -71,40 +68,51 @@ function Splash({ done }: SplashProps) {
         top: 0, left: 0, right: 0, bottom: 0,
         marginTop: "calc(-1 * env(safe-area-inset-top, 0px))",
         zIndex: 999,
-        background: "#000",
+        background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
         overflow: "hidden",
         opacity: fade ? 0 : 1,
         transition: fade ? "opacity 0.5s ease" : "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
-      {/* Imagen de fondo — Tierra desde el espacio */}
-      <img
-        src="/splash-bg.jpg"
-        alt=""
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          top: "calc(-1 * env(safe-area-inset-top, 0px))",
-          left: 0,
-          width: "100%",
-          height: "calc(100% + env(safe-area-inset-top, 0px))",
-          objectFit: "cover",
-          objectPosition: "center bottom",
-          pointerEvents: "none",
-          userSelect: "none",
-        }}
-      />
+      {/* Halo superior-derecho */}
+      <div style={{
+        position: "absolute",
+        top: "8%", right: "-18%",
+        width: "70%", height: "55%",
+        background: "radial-gradient(ellipse, rgba(37,99,235,.22) 0%, transparent 70%)",
+        pointerEvents: "none",
+      }} />
 
-      {/* Logo — visible desde el primer frame, sin animación de entrada */}
+      {/* Halo inferior-izquierdo */}
+      <div style={{
+        position: "absolute",
+        bottom: "-15%", left: "-12%",
+        width: "60%", height: "50%",
+        background: "radial-gradient(ellipse, rgba(37,99,235,.15) 0%, transparent 70%)",
+        pointerEvents: "none",
+      }} />
+
+      {/* Halo central suave */}
+      <div style={{
+        position: "absolute",
+        top: "30%", left: "50%",
+        transform: "translateX(-50%)",
+        width: "80%", height: "40%",
+        background: "radial-gradient(ellipse, rgba(37,99,235,.10) 0%, transparent 65%)",
+        pointerEvents: "none",
+      }} />
+
+      {/* Logo */}
       <div
         style={{
-          position: "absolute",
-          inset: 0,
+          position: "relative",
+          zIndex: 1,
           paddingTop: "env(safe-area-inset-top, 0px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          paddingBottom: "38%",
+          marginBottom: "38%",
+          filter: "drop-shadow(0 0 32px rgba(37,99,235,.38))",
           opacity: show ? 1 : 0,
         }}
       >
