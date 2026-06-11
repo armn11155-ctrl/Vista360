@@ -11,7 +11,7 @@
  * invalidar el caché anterior.
  */
 
-const CACHE_VERSION = "v360-v11";
+const CACHE_VERSION = "v360-v12";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -38,13 +38,25 @@ const NETWORK_ONLY_ORIGINS = [
 ];
 
 // ── Instalación: precachear recursos estáticos ────────────────────
+// IMPORTANTE: NO llamar self.skipWaiting() aquí de forma automática.
+// Si el SW se activa en medio de una sesión activa, borra los cachés
+// viejos y los dynamic imports del bundle en curso fallan con 404.
+// El skip se hace solo cuando el usuario lo acepta explícitamente
+// (mensaje SKIP_WAITING desde useServiceWorker.ts).
 self.addEventListener("install", event => {
   event.waitUntil(
     caches
       .open(STATIC_CACHE)
-      .then(cache => cache.addAll(PRECACHE_URLS))
-      .then(() => self.skipWaiting()),
+      .then(cache => cache.addAll(PRECACHE_URLS)),
+    // ← sin .then(() => self.skipWaiting())
   );
+});
+
+// ── Mensaje desde la app: activar nueva versión cuando el usuario lo acepta ──
+self.addEventListener("message", event => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 // ── Activación: limpiar cachés obsoletos ──────────────────────────
