@@ -13,7 +13,6 @@ function Splash({ done }: SplashProps) {
   useEffect(() => { doneRef.current = done; }, [done]);
   const sf = useRef(false);
 
-  // ── useLayoutEffect: corre ANTES de que el browser pinte ──────
   useLayoutEffect(() => {
     const pre = document.getElementById("pre-splash");
     if (pre) pre.remove();
@@ -35,7 +34,6 @@ function Splash({ done }: SplashProps) {
     };
   }, []);
 
-  // ── Audio unlock ──────────────────────────────────────────────
   useEffect(() => {
     const go = () =>
       unlockAudio()
@@ -49,15 +47,12 @@ function Splash({ done }: SplashProps) {
     };
   }, []);
 
-  // ── Timer de salida ───────────────────────────────────────────
   useEffect(() => {
     if (isAudioReady() && !sf.current) { sf.current = true; soundSplash(); }
-
     const fadeTimer = setTimeout(() => {
       setFade(true);
       setTimeout(() => doneRef.current(), 500);
     }, 2800);
-
     return () => clearTimeout(fadeTimer);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -68,56 +63,54 @@ function Splash({ done }: SplashProps) {
         top: 0, left: 0, right: 0, bottom: 0,
         marginTop: "calc(-1 * env(safe-area-inset-top, 0px))",
         zIndex: 999,
+        /* Mismo gradiente exacto que LoginScreen */
         background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
         overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
         opacity: fade ? 0 : 1,
         transition: fade ? "opacity 0.5s ease" : "none",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
       }}
     >
-      {/* Halo superior-derecho */}
+      {/* ── Halos: mismas posiciones/tamaños/opacidades que LoginScreen ── */}
       <div style={{
         position: "absolute",
-        top: "8%", right: "-18%",
-        width: "70%", height: "55%",
-        background: "radial-gradient(ellipse, rgba(37,99,235,.22) 0%, transparent 70%)",
+        top: "12%", right: "-20%",
+        width: "65%", height: "65%",
+        background: "radial-gradient(ellipse, rgba(37,99,235,.18) 0%, transparent 70%)",
+        pointerEvents: "none",
+      }} />
+      <div style={{
+        position: "absolute",
+        bottom: "-20%", left: "-15%",
+        width: "55%", height: "50%",
+        background: "radial-gradient(ellipse, rgba(37,99,235,.13) 0%, transparent 70%)",
         pointerEvents: "none",
       }} />
 
-      {/* Halo inferior-izquierdo */}
+      {/* ── Zona superior 62%: logo centrado, igual que LoginScreen ── */}
       <div style={{
-        position: "absolute",
-        bottom: "-15%", left: "-12%",
-        width: "60%", height: "50%",
-        background: "radial-gradient(ellipse, rgba(37,99,235,.15) 0%, transparent 70%)",
-        pointerEvents: "none",
-      }} />
-
-      {/* Halo central suave */}
-      <div style={{
-        position: "absolute",
-        top: "30%", left: "50%",
-        transform: "translateX(-50%)",
-        width: "80%", height: "40%",
-        background: "radial-gradient(ellipse, rgba(37,99,235,.10) 0%, transparent 65%)",
-        pointerEvents: "none",
-      }} />
-
-      {/* Logo */}
-      <div
-        style={{
+        flex: "0 0 62%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingTop: "env(safe-area-inset-top, 0px)",
+        position: "relative",
+        overflow: "hidden",
+      }}>
+        <div style={{
+          filter: "drop-shadow(0 0 28px rgba(37,99,235,.32))",
           position: "relative",
           zIndex: 1,
-          paddingTop: "env(safe-area-inset-top, 0px)",
-          marginBottom: "38%",
-          filter: "drop-shadow(0 0 32px rgba(37,99,235,.38))",
           opacity: show ? 1 : 0,
-        }}
-      >
-        <Logo360 width={310} />
+        }}>
+          <Logo360 width={310} />
+        </div>
       </div>
+
+      {/* ── Zona inferior 38%: oscura (sin tarjeta blanca) ── */}
+      <div style={{ flex: 1 }} />
     </div>
   );
 }
