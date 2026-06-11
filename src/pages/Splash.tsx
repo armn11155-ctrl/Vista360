@@ -2,15 +2,20 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Logo360 } from "../components/layout/Logo360";
 import { isAudioReady, soundSplash, unlockAudio } from "../lib/sounds";
 
-interface SplashProps { done: () => void; }
+interface SplashProps {
+  done: () => void;
+  onReveal?: () => void; // llamado al inicio del fade-out → dispara el fade-in del Login simultáneamente
+}
 
 const BG = "#07101F";
 
-function Splash({ done }: SplashProps) {
+function Splash({ done, onReveal }: SplashProps) {
   const [animating, setAnimating] = useState(false);
-  const [closing,   setClosing]   = useState(false); // micro-fade 100ms
-  const doneRef = useRef(done);
-  useEffect(() => { doneRef.current = done; }, [done]);
+  const [closing,   setClosing]   = useState(false); // fade-out 200ms
+  const doneRef    = useRef(done);
+  const onRevealRef = useRef(onReveal);
+  useEffect(() => { doneRef.current    = done;     }, [done]);
+  useEffect(() => { onRevealRef.current = onReveal; }, [onReveal]);
   const sf = useRef(false);
 
   useLayoutEffect(() => {
@@ -50,16 +55,20 @@ function Splash({ done }: SplashProps) {
   useEffect(() => {
     if (isAudioReady() && !sf.current) { sf.current = true; soundSplash(); }
 
-    // 1600ms → arranca la animación del logo hacia el login
+    // 1600ms → arranca la animación del logo hacia la posición del login
     const t1 = setTimeout(() => setAnimating(true), 1600);
 
-    // 2500ms → animación completa; inicia micro-fade de 100ms
-    // A 100ms el cerebro no percibe "pantalla en negro/azul", pero
-    // oculta el salto de 1 frame entre la posición del splash y la del login.
-    const t2 = setTimeout(() => setClosing(true), 2500);
+    // 2500ms → empieza el cross-fade:
+    //   · Splash: fade-out 200ms (opacity 1→0)
+    //   · Login:  fade-in 200ms (vía onReveal, simultáneo)
+    // Así no hay ningún frame vacío entre pantallas.
+    const t2 = setTimeout(() => {
+      setClosing(true);
+      onRevealRef.current?.();
+    }, 2500);
 
-    // 2600ms → splash en opacity:0, se desmonta y monta el login
-    const t3 = setTimeout(() => doneRef.current(), 2600);
+    // 2700ms → splash completamente transparente; se desmonta
+    const t3 = setTimeout(() => doneRef.current(), 2700);
 
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -73,10 +82,9 @@ function Splash({ done }: SplashProps) {
         zIndex: 999,
         background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
         overflow: "hidden",
-        // Micro-fade: 100ms es imperceptible como "pantalla azul"
-        // pero elimina el corte de 1 frame del logo
+        // Cross-fade 200ms: suficiente para que el Login ya esté visible al desmontar
         opacity: closing ? 0 : 1,
-        transition: closing ? "opacity 0.1s linear" : "none",
+        transition: closing ? "opacity 0.2s linear" : "none",
       }}
     >
       {/* Halos */}
