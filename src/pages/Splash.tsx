@@ -29,6 +29,10 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
   const sf = useRef(false);
 
   useLayoutEffect(() => {
+    // Eliminar pre-splash — este componente es visualmente idéntico en t=0,
+    // el swap ocurre en useLayoutEffect (antes del paint) → 0 frames de diferencia.
+    document.getElementById("pre-splash")?.remove();
+
     let m = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!m) {
       m = document.createElement("meta");
