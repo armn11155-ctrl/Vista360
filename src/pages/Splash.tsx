@@ -29,17 +29,6 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
   const sf = useRef(false);
 
   useLayoutEffect(() => {
-    // Eliminar #pre-splash ANTES del primer paint (useLayoutEffect = pre-paint).
-    // #root no tiene z-index explícito → el browser lo trata como auto (nivel 0),
-    // lo que deja #pre-splash (z-index:999) ENCIMA del React Splash.
-    // Si lo eliminamos en useEffect (post-paint), el user ve el logo del pre-splash
-    // en la posición incorrecta hasta que se elimina → salto visible.
-    // Con useLayoutEffect: #pre-splash desaparece antes del primer paint,
-    // el user solo ve el React Splash con Logo360 (imagen /logo.png ya decodificada
-    // del pre-splash → decoding="sync" en Logo360 garantiza render inmediato).
-    const pre = document.getElementById("pre-splash");
-    if (pre) pre.remove();
-
     let m = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!m) {
       m = document.createElement("meta");
@@ -138,12 +127,10 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
         pointerEvents: "none",
       }} />
 
-      {/* Logo — position:fixed para referenciar el viewport directamente.
-           Evita que la altura del contenedor padre (que iOS puede calcular
-           diferente dentro de #root) afecte top:38% */}
+      {/* Logo */}
       <div
         style={{
-          position: "fixed",
+          position: "absolute",
           top: "38%", left: "50%",
           transformOrigin: "50% 50%",
           transform: animating ? targetTransform : "translate(-50%, -50%) scale(1)",
