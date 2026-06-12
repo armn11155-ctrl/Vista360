@@ -42,16 +42,11 @@
     <title>Vista360</title>
   </head>
   <body style="background:#07101F;margin:0">
-    <!-- Pre-splash: estructura IDÉNTICA al componente React <Splash> en t=0.
-         - height:100dvh en el container (igual que Splash.tsx, no solo inset:0)
-         - div wrapper para el logo con transform (igual que en React, NO en el img)
-         Eliminado en Splash.tsx useLayoutEffect antes del primer paint. -->
-    <div id="pre-splash" style="position:fixed;inset:0;height:100dvh;z-index:9999;overflow:hidden;background:linear-gradient(170deg,#07101F 0%,#0D1629 55%,#111E35 100%);">
+    <!-- Pre-splash: solo gradiente (sin logo) — el fondo es idéntico al React Splash,
+         el logo aparece con fade-in al montar React. Sin logo estático = sin desajuste. -->
+    <div id="pre-splash" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(170deg,#07101F 0%,#0D1629 55%,#111E35 100%);">
       <div style="position:absolute;top:12%;right:-20%;width:65%;height:65%;background:radial-gradient(ellipse,rgba(37,99,235,.18) 0%,transparent 70%);pointer-events:none;"></div>
       <div style="position:absolute;bottom:-20%;left:-15%;width:55%;height:50%;background:radial-gradient(ellipse,rgba(37,99,235,.13) 0%,transparent 70%);pointer-events:none;"></div>
-      <div style="position:absolute;top:38%;left:50%;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 0 28px rgba(37,99,235,.32));">
-        <img src="/logo.png" width="310" decoding="sync" fetchpriority="high" style="display:block;object-fit:contain;" />
-      </div>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
