@@ -173,7 +173,39 @@ const INITIAL_HEADER_COLOR = "#0E1A3B";
 function AppShell() {
   useViewportSetup();
 
-  // Bloqueo de pantalla por sesión: true = mostrar login aunque Firebase tenga usuario
+  // ── Snapshot cover: evita que iOS capture la pantalla blanca/gris ──
+  // Cuando el app va al background, iOS toma un snapshot para mostrar
+  // durante el launch animation. Sin esto, captura el lock screen (blanco)
+  // y al abrir se ve la tarjeta gris expandiéndose.
+  // Con esto: cubrimos con #07101F antes del snapshot → iOS ve navy oscuro.
+  useEffect(() => {
+    const cover = document.createElement("div");
+    cover.setAttribute("aria-hidden", "true");
+    cover.style.cssText =
+      "position:fixed;inset:0;background:#07101F;z-index:9998;" +
+      "opacity:0;pointer-events:none;transition:none;";
+    document.body.appendChild(cover);
+    const onVisibility = () => {
+      if (document.hidden) {
+        // App yendo al background → cubrir inmediatamente antes del snapshot
+        cover.style.transition = "none";
+        cover.style.opacity = "1";
+      } else {
+        // App volviendo al foreground → remover cover suavemente (1 frame)
+        requestAnimationFrame(() => {
+          cover.style.transition = "opacity 0.15s ease-out";
+          cover.style.opacity = "0";
+        });
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      cover.remove();
+    };
+  }, []);
+
+
   const [locked, setLocked] = useState(!sessionStorage.getItem("v360-session"));
   const [splash, setSplash] = useState(true);
   // loginRevealing: true cuando el Splash dispara onReveal (t=2500ms)
