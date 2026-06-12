@@ -12,6 +12,7 @@ export function Logo360({ width = 200 }: { width?: number }) {
       src="/logo.png"
       alt="Vista360"
       width={width}
+      decoding="sync"
       style={{ display: "block", objectFit: "contain" }}
     />
   );

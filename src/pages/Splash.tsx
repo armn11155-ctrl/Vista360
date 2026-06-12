@@ -29,7 +29,16 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
   const sf = useRef(false);
 
   useLayoutEffect(() => {
-    // #pre-splash se elimina en useEffect (post-paint) — ver comentario allí.
+    // Eliminar #pre-splash ANTES del primer paint (useLayoutEffect = pre-paint).
+    // #root no tiene z-index explícito → el browser lo trata como auto (nivel 0),
+    // lo que deja #pre-splash (z-index:999) ENCIMA del React Splash.
+    // Si lo eliminamos en useEffect (post-paint), el user ve el logo del pre-splash
+    // en la posición incorrecta hasta que se elimina → salto visible.
+    // Con useLayoutEffect: #pre-splash desaparece antes del primer paint,
+    // el user solo ve el React Splash con Logo360 (imagen /logo.png ya decodificada
+    // del pre-splash → decoding="sync" en Logo360 garantiza render inmediato).
+    const pre = document.getElementById("pre-splash");
+    if (pre) pre.remove();
 
     let m = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!m) {
@@ -46,15 +55,6 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
       document.documentElement.style.background = "#0E1A3B";
       document.body.style.background = "#0E1A3B";
     };
-  }, []);
-
-  // Eliminar #pre-splash DESPUÉS del primer paint de React.
-  // useLayoutEffect (pre-paint) mantiene ambos <img src="/logo.png"> en el DOM
-  // simultáneamente → browser reutiliza imagen decodificada sin gap de 1 frame.
-  // useEffect corre post-paint → para ese momento Logo360 ya está pintado.
-  useEffect(() => {
-    const pre = document.getElementById("pre-splash");
-    if (pre) pre.remove();
   }, []);
 
   useEffect(() => {
