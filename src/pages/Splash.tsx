@@ -138,10 +138,12 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
         pointerEvents: "none",
       }} />
 
-      {/* Logo */}
+      {/* Logo — position:fixed para referenciar el viewport directamente.
+           Evita que la altura del contenedor padre (que iOS puede calcular
+           diferente dentro de #root) afecte top:38% */}
       <div
         style={{
-          position: "absolute",
+          position: "fixed",
           top: "38%", left: "50%",
           transformOrigin: "50% 50%",
           transform: animating ? targetTransform : "translate(-50%, -50%) scale(1)",
