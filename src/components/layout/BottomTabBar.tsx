@@ -202,13 +202,17 @@ export function BottomTabBar({
     setOnDark(result);
   }, [pathname, lightDebounce]);
 
-  // Al cambiar de ruta: aplicar color correcto y verificar DOM solo cuando sea necesario.
+  // Al cambiar de ruta: aplicar color correcto y verificar DOM cuando sea necesario.
   //
-  // REGLA: para rutas con HEADER_COLORS conocido (dark), el useLayoutEffect ya aplicó
-  // el estado correcto ANTES del paint. Saltamos el sample en el montaje porque el
-  // contenido lazy puede tardar en renderizarse con datos y provocaría un falso "claro"
-  // (flip incorrecto de onDark) durante la primera visita.
-  // El listener de scroll se encarga de actualizaciones dinámicas posteriores.
+  // ESTRATEGIA DUAL-SAMPLE:
+  //   t1 = 80ms  → visitas de retorno: el contenido ya está en caché y el DOM
+  //                está listo en 1-2 frames (ej. volver a /inicio desde otra pestaña).
+  //   t2 = 380ms → primera visita: el contenido lazy aún no ha renderizado a los 80ms;
+  //                este segundo sample lo captura cuando ya está en viewport.
+  //
+  // Esto elimina el delay visible (~350ms) al volver a rutas con fondo claro detrás
+  // del nav (ej. Inicio), donde useLayoutEffect pone onDark=true pero el área real
+  // detrás de la barra es blanca → los íconos deben cambiar a azul rápidamente.
   useEffect(() => {
     // Limpiar el debounce de contratos al cambiar de ruta
     if (lightDebounce.current) {
@@ -221,13 +225,15 @@ export function BottomTabBar({
       return;
     }
 
-    // Siempre samplear el fondo real detrás del nav después de que cargue el contenido.
-    // Algunas rutas (ej. Inicio) tienen header oscuro arriba pero fondo blanco abajo,
-    // por lo que el useLayoutEffect da el color inicial y el sample lo corrige.
-    const timer = setTimeout(() => {
-      requestAnimationFrame(sample);
-    }, 350);
-    return () => clearTimeout(timer);
+    // Sample rápido: cubre el caso de retorno con contenido ya cacheado.
+    const t1 = setTimeout(() => requestAnimationFrame(sample), 80);
+    // Sample de confirmación: cubre primera visita con carga lazy.
+    const t2 = setTimeout(() => requestAnimationFrame(sample), 380);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, [pathname, sample]);
 
   // Listener de scroll — debounce 120ms + protección "scroll al top"
@@ -256,15 +262,15 @@ export function BottomTabBar({
 
     const onScroll = () => {
       if (debounceId !== null) clearTimeout(debounceId);
-      // Cerca del tope: 200ms extra para que los elementos oscuros (KPI cards)
-      // estén en viewport antes de samplear — evita el flip falso "claro→oscuro".
+      // Cerca del tope: 100ms para que los KPI cards oscuros estén en viewport
+      // antes de samplear — balance entre evitar flip falso y respuesta rápida.
       // Scrolling normal hacia abajo: 80ms es suficiente.
       const scrollEl2 = document.querySelector("[data-scroll]") as HTMLElement | null;
       const nearTop = (scrollEl2?.scrollTop ?? 0) <= 120;
       debounceId = setTimeout(() => {
         doSample();
         debounceId = null;
-      }, nearTop ? 200 : 80);
+      }, nearTop ? 100 : 80);
     };
 
     // capture:true → captura scroll de cualquier contenedor anidado
