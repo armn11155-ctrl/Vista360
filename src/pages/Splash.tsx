@@ -19,6 +19,8 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
   const [animating,       setAnimating]       = useState(false);
   const [closing,         setClosing]         = useState(false);
   const [targetTransform, setTargetTransform] = useState(FALLBACK_TRANSFORM);
+  // fade-in del logo/halos al montar — elimina el "corte" visual
+  const [logoVisible,     setLogoVisible]     = useState(false);
 
   const doneRef          = useRef(done);
   const onRevealRef      = useRef(onReveal);
@@ -55,6 +57,13 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
       document.documentElement.style.background = "#0E1A3B";
       document.body.style.background = "#0E1A3B";
     };
+  }, []);
+
+  // Logo fade-in: dispara tras el primer paint para que la transición
+  // startup-image → React Splash sea dark→dark→logo-aparece (sin corte).
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setLogoVisible(true));
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   useEffect(() => {
@@ -122,12 +131,14 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
         transition: closing ? "opacity 0.03s linear" : "none",
       }}
     >
-      {/* Halo superior — mismo que LoginScreen para continuidad visual */}
+      {/* Halo superior */}
       <div style={{
         position: "absolute", top: "12%", right: "-20%",
         width: "65%", height: "65%",
         background: "radial-gradient(ellipse, rgba(37,99,235,.18) 0%, transparent 70%)",
         pointerEvents: "none",
+        opacity: logoVisible ? 1 : 0,
+        transition: logoVisible ? "opacity 0.25s ease-out" : "none",
       }} />
       {/* Halo inferior */}
       <div style={{
@@ -135,6 +146,8 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
         width: "55%", height: "50%",
         background: "radial-gradient(ellipse, rgba(37,99,235,.13) 0%, transparent 70%)",
         pointerEvents: "none",
+        opacity: logoVisible ? 1 : 0,
+        transition: logoVisible ? "opacity 0.25s ease-out" : "none",
       }} />
 
       {/* Logo */}
@@ -146,9 +159,10 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
           transform: animating ? targetTransform : "translate(-50%, -50%) scale(1)",
           transition: animating
             ? "transform 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
-            : "none",
+            : logoVisible ? "opacity 0.25s ease-out" : "none",
           filter: "drop-shadow(0 0 28px rgba(37,99,235,.32))",
           zIndex: 1,
+          opacity: logoVisible ? 1 : 0,
         }}
       >
         <Logo360 width={310} />

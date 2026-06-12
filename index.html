@@ -79,16 +79,7 @@
     <!-- Pre-splash: visible ANTES de que React cargue.
          CSS idéntico al componente <Splash> en t=0 para evitar cualquier
          diferencia visual al montar React (1 frame = flash perceptible). -->
-    <div id="pre-splash">
-      <div id="pre-splash-halo-top"></div>
-      <div id="pre-splash-halo-bot"></div>
-      <img
-        id="pre-splash-logo"
-        src="/logo.png"
-        alt="Vista360"
-        fetchpriority="high"
-      />
-    </div>
+    <div id="pre-splash"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
