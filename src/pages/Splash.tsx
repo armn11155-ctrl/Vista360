@@ -113,8 +113,7 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
     <div
       style={{
         position: "fixed",
-        top: 0, left: 0, right: 0, bottom: 0,
-        marginTop: "calc(-1 * env(safe-area-inset-top, 0px))",
+        inset: 0,
         zIndex: 999,
         background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
         overflow: "hidden",
