@@ -114,6 +114,7 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
       style={{
         position: "fixed",
         inset: 0,
+        height: "100dvh",   // explícito: evita que iOS calcule altura diferente dentro de #root
         zIndex: 999,
         background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
         overflow: "hidden",
@@ -141,7 +142,7 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
       <div
         style={{
           position: "absolute",
-          top: "var(--pst, 38%)", left: "50%",
+          top: "38%", left: "50%",
           transformOrigin: "50% 50%",
           transform: animating ? targetTransform : "translate(-50%, -50%) scale(1)",
           transition: animating
