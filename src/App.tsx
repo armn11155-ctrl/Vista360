@@ -173,25 +173,34 @@ const INITIAL_HEADER_COLOR = "#0E1A3B";
 function AppShell() {
   useViewportSetup();
 
-  // ── Snapshot cover: evita que iOS capture la pantalla blanca/gris ──
-  // Cuando el app va al background, iOS toma un snapshot para mostrar
-  // durante el launch animation. Sin esto, captura el lock screen (blanco)
-  // y al abrir se ve la tarjeta gris expandiéndose.
-  // Con esto: cubrimos con #07101F antes del snapshot → iOS ve navy oscuro.
+  // ── Snapshot cover: iOS muestra este "screenshot" en el app switcher ──
+  // BCP muestra su logo en el switcher porque captura SU pantalla branded.
+  // Nosotros hacemos lo mismo: cuando el app va al background, mostramos
+  // el splash completo (gradiente + logo) antes de que iOS tome el snapshot.
   useEffect(() => {
     const cover = document.createElement("div");
     cover.setAttribute("aria-hidden", "true");
     cover.style.cssText =
-      "position:fixed;inset:0;background:#07101F;z-index:9998;" +
-      "opacity:0;pointer-events:none;transition:none;";
+      "position:fixed;inset:0;z-index:9998;opacity:0;pointer-events:none;" +
+      "transition:none;overflow:hidden;" +
+      "background:linear-gradient(170deg,#07101F 0%,#0D1629 55%,#111E35 100%);";
+    // Logo centrado al 38% — idéntico al React Splash
+    const img = document.createElement("img");
+    img.src = "/logo.png";
+    img.decoding = "sync";
+    img.setAttribute("aria-hidden", "true");
+    img.style.cssText =
+      "position:absolute;top:38%;left:50%;width:310px;display:block;" +
+      "transform:translate(-50%,-50%);" +
+      "filter:drop-shadow(0 0 28px rgba(37,99,235,.32));";
+    cover.appendChild(img);
     document.body.appendChild(cover);
+
     const onVisibility = () => {
       if (document.hidden) {
-        // App yendo al background → cubrir inmediatamente antes del snapshot
         cover.style.transition = "none";
         cover.style.opacity = "1";
       } else {
-        // App volviendo al foreground → remover cover suavemente (1 frame)
         requestAnimationFrame(() => {
           cover.style.transition = "opacity 0.15s ease-out";
           cover.style.opacity = "0";

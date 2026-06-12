@@ -11,7 +11,7 @@
  * invalidar el caché anterior.
  */
 
-const CACHE_VERSION = "v360-v13";
+const CACHE_VERSION = "v360-v14";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -26,6 +26,7 @@ const PRECACHE_URLS = [
   // Assets críticos del splash — pre-cacheados para carga instantánea
   "/splash-bg.jpg",
   "/logo.png",
+  "/splash/splash-universal.png",
 ];
 
 // Dominios que NUNCA se cachean (Firebase, Cloudinary, APIs)
