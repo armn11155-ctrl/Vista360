@@ -29,6 +29,11 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
   const sf = useRef(false);
 
   useLayoutEffect(() => {
+    // Eliminar pre-splash del DOM — React Splash es visualmente idéntico en t=0,
+    // así que el swap es imperceptible (0 frames de diferencia visual).
+    const preSplash = document.getElementById("pre-splash");
+    if (preSplash) preSplash.remove();
+
     let m = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!m) {
       m = document.createElement("meta");
