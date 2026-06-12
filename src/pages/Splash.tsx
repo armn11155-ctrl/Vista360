@@ -141,7 +141,7 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
       <div
         style={{
           position: "absolute",
-          top: "38%", left: "50%",
+          top: "var(--pst, 38%)", left: "50%",
           transformOrigin: "50% 50%",
           transform: animating ? targetTransform : "translate(-50%, -50%) scale(1)",
           transition: animating
