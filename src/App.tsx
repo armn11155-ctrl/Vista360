@@ -503,7 +503,10 @@ function AppShell() {
           style={{
             position: "fixed",
             inset: 0,
-            background: INITIAL_HEADER_COLOR,
+            // Fix: mismo color que el splash (#07101F) — evita el corte visual
+            // de color cuando Firebase tarda en resolver en conexiones lentas.
+            // INITIAL_HEADER_COLOR (#0E1A3B) era perceptiblemente diferente.
+            background: "#07101F",
             zIndex: 998,
             display: "flex",
             alignItems: "center",
