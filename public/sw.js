@@ -5,13 +5,17 @@
  *   • Assets estáticos (JS, CSS, imágenes, fuentes): Cache-First
  *     → Carga instantánea sin red; se actualiza en background.
  *   • Navegación (HTML): Network-First con fallback offline.
+ *     IMPORTANTE: NO usar Stale-While-Revalidate para HTML.
+ *     Al activar un nuevo SW, los caches viejos se borran; si el reload
+ *     sirve HTML cacheado (viejo) con hashes de JS que ya no existen,
+ *     los bundles no cargan y la app se congela. Network-First evita esto.
  *   • API calls (Firebase, Cloudinary): Network-Only (sin caché).
  *
  * Versión: actualizar CACHE_VERSION al hacer deploy para
  * invalidar el caché anterior.
  */
 
-const CACHE_VERSION = "v360-v15";
+const CACHE_VERSION = "v360-v16";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -40,17 +44,11 @@ const NETWORK_ONLY_ORIGINS = [
 ];
 
 // ── Instalación: precachear recursos estáticos ────────────────────
-// IMPORTANTE: NO llamar self.skipWaiting() aquí de forma automática.
-// Si el SW se activa en medio de una sesión activa, borra los cachés
-// viejos y los dynamic imports del bundle en curso fallan con 404.
-// El skip se hace solo cuando el usuario lo acepta explícitamente
-// (mensaje SKIP_WAITING desde useServiceWorker.ts).
 self.addEventListener("install", event => {
   event.waitUntil(
     caches
       .open(STATIC_CACHE)
       .then(cache => cache.addAll(PRECACHE_URLS)),
-    // ← sin .then(() => self.skipWaiting())
   );
 });
 
@@ -100,11 +98,14 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // 4. Stale-While-Revalidate: navegación HTML
-  // Sirve el HTML cacheado INMEDIATAMENTE (sin esperar red) → elimina
-  // la pantalla blanca al abrir la app. Actualiza el caché en background.
+  // 4. Network-First: navegación HTML
+  // CRÍTICO: NO usar Stale-While-Revalidate aquí.
+  // Si el SW activa y borra caches viejos, el HTML cacheado referencia
+  // JS bundles con hashes viejos que ya no existen → app congelada.
+  // Network-First garantiza que el HTML siempre tenga los hashes correctos.
+  // El fondo oscuro del <html> en index.html evita el flash blanco sin caché.
   if (request.mode === "navigate") {
-    event.respondWith(staleWhileRevalidateHTML(request));
+    event.respondWith(networkFirstHTML(request));
     return;
   }
 
@@ -131,24 +132,21 @@ async function cacheFirst(request, cacheName) {
   }
 }
 
-// HTML: Stale-While-Revalidate
-// 1. Devuelve el HTML cacheado inmediatamente (primer paint = dark, sin flash blanco)
-// 2. Actualiza el caché en background para tener siempre la versión fresca
-async function staleWhileRevalidateHTML(request) {
+// HTML: Network-First con fallback a caché
+// Siempre intenta la red primero → HTML fresco con hashes correctos.
+// Si la red falla (offline), sirve el caché como fallback.
+async function networkFirstHTML(request) {
   const cache = await caches.open(STATIC_CACHE);
-  const cached = await cache.match(request) || await cache.match("/index.html");
-
-  // Actualización en background — no bloquea la respuesta
-  const networkPromise = fetch(request)
-    .then(response => {
-      if (response.ok) cache.put(request, response.clone());
-      return response;
-    })
-    .catch(() => null);
-
-  // Si hay caché: servir inmediatamente (cero espera = cero flash blanco)
-  // Si no hay caché (primera visita): esperar la red
-  return cached || networkPromise;
+  try {
+    const response = await fetch(request);
+    if (response.ok) cache.put(request, response.clone());
+    return response;
+  } catch {
+    // Offline: intentar caché (puede tener HTML viejo, pero algo es mejor que nada)
+    const cached = await cache.match(request) || await cache.match("/index.html");
+    if (cached) return cached;
+    return new Response("Sin conexión", { status: 503 });
+  }
 }
 
 async function staleWhileRevalidate(request, cacheName) {
@@ -175,5 +173,3 @@ self.addEventListener("notificationclick", event => {
       }),
   );
 });
-
-
