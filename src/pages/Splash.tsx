@@ -19,7 +19,6 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
   const [animating,       setAnimating]       = useState(false);
   const [closing,         setClosing]         = useState(false);
   const [targetTransform, setTargetTransform] = useState(FALLBACK_TRANSFORM);
-  const [logoVisible,     setLogoVisible]     = useState(false);
 
   const doneRef          = useRef(done);
   const onRevealRef      = useRef(onReveal);
@@ -30,10 +29,7 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
   const sf = useRef(false);
 
   useLayoutEffect(() => {
-    // Eliminar pre-splash — el gradiente es idéntico, el logo aparece con fade-in.
     document.getElementById("pre-splash")?.remove();
-    // Un frame después para que el fade-in sea visible (no instantáneo)
-    requestAnimationFrame(() => setLogoVisible(true));
 
     let m = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!m) {
@@ -142,12 +138,9 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
           transform: animating ? targetTransform : "translate(-50%, -50%) scale(1)",
           transition: animating
             ? "transform 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
-            : logoVisible
-              ? "opacity 0.15s ease-out"
-              : "none",
+            : "none",
           filter: "drop-shadow(0 0 28px rgba(37,99,235,.32))",
           zIndex: 1,
-          opacity: logoVisible ? 1 : 0,
         }}
       >
         <Logo360 width={310} />
