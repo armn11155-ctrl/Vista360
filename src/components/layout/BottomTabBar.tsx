@@ -109,6 +109,16 @@ const BAR_BOX_SHADOW = [
   "0px 8px 24px rgba(0,0,0,0.28)",
 ].join(", ");
 
+// ── Estado inicial correcto del nav por ruta ──────────────────────
+// headerDark describe el status bar / header superior, pero NO siempre
+// refleja el contenido real detrás del nav bar inferior.
+// Ejemplo: "/" tiene header oscuro (#0E1A3B) pero contenido claro (#F2F4F8).
+// Este mapa sobreescribe el valor inicial para esas rutas, evitando el
+// flash de ícono blanco → azul al navegar a Inicio.
+const NAV_INITIAL_DARK: Partial<Record<string, boolean>> = {
+  "/": false,  // Inicio: contenido detrás del nav es claro (F2F4F8)
+};
+
 // ── Lee la luminancia real del contenido justo detrás de la barra ──
 // Usa elementsFromPoint en el centro superior de la zona de la barra,
 // ignora la barra misma y los nodos raíz, y devuelve true si es oscuro.
@@ -168,8 +178,12 @@ export function BottomTabBar({
   // useLayoutEffect: corre ANTES del paint — aplica el color correcto INMEDIATAMENTE
   // para TODAS las rutas oscuras (no solo /contratos), evitando el flash de color
   // incorrecto en el primer frame al navegar.
+  // NAV_INITIAL_DARK sobreescribe headerDark para rutas donde el status bar es oscuro
+  // pero el contenido detrás del nav bar es claro (ej. "/": header oscuro, fondo F2F4F8).
   useLayoutEffect(() => {
-    setOnDark(headerDark);
+    const initial =
+      pathname in NAV_INITIAL_DARK ? NAV_INITIAL_DARK[pathname]! : headerDark;
+    setOnDark(initial);
   }, [pathname, headerDark]);
 
   // Función de muestreo estable (sin deps externas — lee el DOM en vivo)
