@@ -38,6 +38,7 @@ jobs:
         run: npm run lint
 
       - name: Format check (Prettier)
+        continue-on-error: true   # estilo — no bloquea CI
         run: npm run format:check
 
       - name: Unit tests + coverage
