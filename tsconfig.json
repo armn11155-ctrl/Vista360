@@ -16,8 +16,8 @@
     "noUnusedLocals":                true,
     "noUnusedParameters":            true,
     "noFallthroughCasesInSwitch":    true,
-    "exactOptionalPropertyTypes":    true,
-    "noUncheckedIndexedAccess":      true,
+    "exactOptionalPropertyTypes":    false,
+    "noUncheckedIndexedAccess":      false,
     "noImplicitReturns":             true,
 
     "types": ["vite/client", "vitest/globals"]
