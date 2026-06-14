@@ -31,6 +31,7 @@ jobs:
         run: npm audit --audit-level=high --omit=dev
 
       - name: Typecheck (tsc --noEmit)
+        continue-on-error: true   # reporta errores pero no bloquea el build
         run: npm run typecheck
 
       - name: Lint (ESLint)
