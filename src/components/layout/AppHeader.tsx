@@ -13,6 +13,7 @@ interface AppHeaderProps {
   headerColor?: string;
   headerDark?: boolean;
   showProfile?: boolean;
+  isDesktop?: boolean;
 }
 
 // ── Liquid glass — solo el borde, interior transparente ──────────
@@ -52,6 +53,7 @@ export function AppHeader({
   headerColor = T.bg,
   headerDark = false,
   showProfile = false,
+  isDesktop = false,
 }: AppHeaderProps) {
   void user; // photo URL available for future use
 
@@ -80,8 +82,8 @@ export function AppHeader({
           gap: 10,
         }}
       >
-        {/* ── Drawer / Inicio ── liquid glass border, interior transparente */}
-        <button
+        {/* ── Drawer / Inicio ── oculto en desktop (sidebar siempre visible) ── */}
+        {!isDesktop && <button
           onClick={onDrawerClick}
           aria-label="Abrir menú"
           className="v360-icon-glass"
