@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
@@ -31,7 +31,7 @@ import LoginScreen from "./components/features/auth/LoginScreen";
 import styles from "./App.module.css";
 
 // ══════════════════════════════════════════════════════════════════
-// AuthenticatedShell — renderizador puro; toda la lógica en useAppShell
+// AuthenticatedShell
 // ══════════════════════════════════════════════════════════════════
 interface AuthenticatedShellProps {
   user: User;
@@ -42,7 +42,38 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
   const shell = useAppShell(user, onLogout);
   const isDesktop = useIsDesktop();
 
-  // ── Paneles y modales compartidos (móvil y escritorio) ──────────
+  // ── CLAVE: cuando es desktop, liberamos #root del position:fixed móvil ──
+  // useLayoutEffect corre ANTES del primer paint → sin parpadeo.
+  useLayoutEffect(() => {
+    const root = document.getElementById("root");
+    if (isDesktop) {
+      document.documentElement.style.overflow = "auto";
+      document.documentElement.style.height = "auto";
+      document.body.style.overflow = "auto";
+      document.body.style.height = "auto";
+      if (root) {
+        root.style.position = "relative";
+        root.style.top = "auto";
+        root.style.left = "auto";
+        root.style.right = "auto";
+        root.style.bottom = "auto";
+        root.style.height = "auto";
+        root.style.minHeight = "100vh";
+        root.style.overflow = "visible";
+      }
+    } else {
+      // Restaurar comportamiento móvil si el viewport cambia de tamaño
+      document.documentElement.style.overflow = "";
+      document.documentElement.style.height = "";
+      document.body.style.overflow = "";
+      document.body.style.height = "";
+      if (root) {
+        root.style.cssText = "";
+      }
+    }
+  }, [isDesktop]);
+
+  // ── Overlays compartidos (notif, búsqueda, trash) ──────────────
   const overlays = (
     <>
       <NotifPanel
@@ -83,16 +114,18 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
     return (
       <AppProvider data={shell.appData} setters={shell.appSetters} derived={shell.appDerived}>
         {!shell.isOnline && <OfflineBanner />}
+        {/* Este div NO usa .appRoot — tiene su propia estructura para escritorio */}
         <div
           style={{
             display: "flex",
             minHeight: "100vh",
             background: T.bg,
             color: T.text,
-            fontFamily: "\"DM Sans\", sans-serif",
+            fontFamily: "'DM Sans', sans-serif",
+            position: "relative",
           }}
         >
-          {/* ── Sidebar fija ── */}
+          {/* ── Sidebar fija a la izquierda ── */}
           <DesktopSidebar
             onTabClick={shell.handleTabClick}
             onTrashOpen={() => shell.setTrashOpen(true)}
@@ -102,7 +135,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
             showProfile={shell.showProfile}
           />
 
-          {/* ── Columna principal ── */}
+          {/* ── Columna principal (header + contenido scrollable) ── */}
           <div className={styles.desktopMain}>
             <AppHeader
               title={shell.showProfile ? "Perfil" : (shell.pageTitle === "Inicio" ? "Inicio" : "")}
@@ -118,7 +151,6 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
               showProfile={shell.showProfile}
               isDesktop={true}
             />
-
             <div className={styles.desktopContent}>
               {shell.showProfile ? (
                 <div style={{ padding: "0 0 40px" }}>
@@ -148,7 +180,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
   }
 
   // ══════════════════════════════════════════════════════════════
-  // MOBILE LAYOUT (sin cambios)
+  // MOBILE LAYOUT (sin cambios — exactamente igual que antes)
   // ══════════════════════════════════════════════════════════════
   return (
     <AppProvider data={shell.appData} setters={shell.appSetters} derived={shell.appDerived}>
@@ -168,7 +200,6 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           showProfile={shell.showProfile}
         />
 
-        {/* ── Perfil ── */}
         {shell.showProfile && (
           <main
             ref={shell.scrollRef}
@@ -190,7 +221,6 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           </main>
         )}
 
-        {/* ── Tabs ── */}
         {!shell.showProfile && (
           <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
             <div
@@ -249,7 +279,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// AppShell — gestiona splash y ciclo de auth de Firebase
+// AppShell
 // ══════════════════════════════════════════════════════════════════
 const INITIAL_HEADER_COLOR = "#0E1A3B";
 
@@ -273,7 +303,6 @@ function AppShell() {
       "filter:drop-shadow(0 0 28px rgba(37,99,235,.32));";
     cover.appendChild(img);
     document.body.appendChild(cover);
-
     const onVisibility = () => {
       if (document.hidden) {
         cover.style.transition = "none";
@@ -306,33 +335,23 @@ function AppShell() {
   useEffect(() => {
     const lockScroll = () => {
       const el = document.activeElement as HTMLElement | null;
-      const editing =
-        el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
+      const editing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
       if (!editing && window.scrollY !== 0) window.scrollTo(0, 0);
     };
-
     const vv = window.visualViewport;
-
     const scrollInputIntoView = (delay = 0) => {
       const focused = document.activeElement as HTMLElement | null;
       if (!focused) return;
-      if (
-        focused.tagName !== "INPUT" &&
-        focused.tagName !== "TEXTAREA" &&
-        !focused.isContentEditable
-      ) return;
-
+      if (focused.tagName !== "INPUT" && focused.tagName !== "TEXTAREA" && !focused.isContentEditable) return;
       const doScroll = () => {
         const vvH = vv?.height ?? window.innerHeight;
         const rect = focused.getBoundingClientRect();
         if (rect.bottom <= vvH - 8 && rect.top >= 56) return;
-        try { focused.scrollIntoView({ block: "center", behavior: "smooth" }); } catch {/* */ }
+        try { focused.scrollIntoView({ block: "center", behavior: "smooth" }); } catch {/* */}
         let parent = focused.parentElement;
         while (parent && parent !== document.body) {
           const style = window.getComputedStyle(parent);
-          const isScrollable =
-            style.overflow === "auto" || style.overflow === "scroll" ||
-            style.overflowY === "auto" || style.overflowY === "scroll";
+          const isScrollable = style.overflow === "auto" || style.overflow === "scroll" || style.overflowY === "auto" || style.overflowY === "scroll";
           if (isScrollable) {
             const pRect = parent.getBoundingClientRect();
             const visibleBottom = Math.min(vvH, pRect.bottom);
@@ -346,13 +365,11 @@ function AppShell() {
       if (delay > 0) setTimeout(doScroll, delay);
       else doScroll();
     };
-
     const updateKbHeight = () => {
       const h = vv ? Math.max(0, window.innerHeight - vv.height - (vv.offsetTop ?? 0)) : 0;
       document.documentElement.style.setProperty("--keyboard-height", `${h}px`);
       if (h > 100) scrollInputIntoView(80);
     };
-
     const onFocusin = (e: FocusEvent) => {
       const el = e.target as HTMLElement | null;
       if (!el) return;
@@ -361,7 +378,6 @@ function AppShell() {
       scrollInputIntoView(500);
       scrollInputIntoView(750);
     };
-
     const noop = () => {};
     document.addEventListener("touchstart", noop, { passive: true });
     updateKbHeight();
@@ -369,7 +385,6 @@ function AppShell() {
     window.addEventListener("scroll", lockScroll, { passive: true });
     vv?.addEventListener("resize", updateKbHeight, { passive: true });
     document.addEventListener("focusin", onFocusin as EventListener);
-
     return () => {
       document.removeEventListener("touchstart", noop);
       window.removeEventListener("scroll", lockScroll);
@@ -380,54 +395,31 @@ function AppShell() {
 
   useEffect(() => {
     const fallback = setTimeout(() => {
-      authReadyRef.current = true;
-      setAuthReady(true);
-      setFbDown(true);
+      authReadyRef.current = true; setAuthReady(true); setFbDown(true);
       if (splashWaiting.current) { splashWaiting.current = false; setSplash(false); }
     }, 10_000);
     let unsub: (() => void) | undefined;
-
     try {
-      unsub = onAuthStateChanged(
-        auth,
-        u => {
-          clearTimeout(fallback);
-          setFbDown(false);
-          if (u && ALLOWED_EMAILS.length > 0 && !ALLOWED_EMAILS.includes(u.email ?? "")) {
-            signOut(auth);
-            setUser(null);
-          } else {
-            setUser(u);
-            if (u) {
-              prefetchAllTabs();
-              preloadData().catch(() => {});
-              if ("Notification" in window && Notification.permission === "default") {
-                Notification.requestPermission().catch(() => {});
-              }
-            }
-          }
-          authReadyRef.current = true;
-          setAuthReady(true);
-          if (splashWaiting.current) { splashWaiting.current = false; setSplash(false); }
-        },
-        err => {
-          console.error("[Auth] error:", err);
-          clearTimeout(fallback);
-          setFbDown(true);
-          authReadyRef.current = true;
-          setAuthReady(true);
-          if (splashWaiting.current) { splashWaiting.current = false; setSplash(false); }
-        },
-      );
+      unsub = onAuthStateChanged(auth, u => {
+        clearTimeout(fallback); setFbDown(false);
+        if (u && ALLOWED_EMAILS.length > 0 && !ALLOWED_EMAILS.includes(u.email ?? "")) {
+          signOut(auth); setUser(null);
+        } else {
+          setUser(u);
+          if (u) { prefetchAllTabs(); preloadData().catch(() => {}); if ("Notification" in window && Notification.permission === "default") Notification.requestPermission().catch(() => {}); }
+        }
+        authReadyRef.current = true; setAuthReady(true);
+        if (splashWaiting.current) { splashWaiting.current = false; setSplash(false); }
+      }, err => {
+        console.error("[Auth] error:", err); clearTimeout(fallback); setFbDown(true);
+        authReadyRef.current = true; setAuthReady(true);
+        if (splashWaiting.current) { splashWaiting.current = false; setSplash(false); }
+      });
     } catch (err) {
-      console.error("[Auth] Firebase init error:", err);
-      clearTimeout(fallback);
-      setFbDown(true);
-      authReadyRef.current = true;
-      setAuthReady(true);
+      console.error("[Auth] Firebase init error:", err); clearTimeout(fallback); setFbDown(true);
+      authReadyRef.current = true; setAuthReady(true);
       if (splashWaiting.current) { splashWaiting.current = false; setSplash(false); }
     }
-
     return () => { clearTimeout(fallback); unsub?.(); };
   }, []);
 
@@ -448,18 +440,10 @@ function AppShell() {
 
   return (
     <ToastProvider>
-      {splash && (
-        <div style={{ position: "fixed", inset: 0, background: "#07101F", zIndex: 998, pointerEvents: "none" }} />
-      )}
-      {!splash && !authReady && (
-        <div key="post-splash-cover" style={{ position: "fixed", inset: 0, background: "#07101F", zIndex: 997, pointerEvents: "none" }} />
-      )}
+      {splash && <div style={{ position: "fixed", inset: 0, background: "#07101F", zIndex: 998, pointerEvents: "none" }} />}
+      {!splash && !authReady && <div key="post-splash-cover" style={{ position: "fixed", inset: 0, background: "#07101F", zIndex: 997, pointerEvents: "none" }} />}
       {!splash && authReady && !coverDone && (
-        <div
-          key="post-auth-cover"
-          style={{ position: "fixed", inset: 0, background: INITIAL_HEADER_COLOR, zIndex: 997, pointerEvents: "none", animation: "coverFade 0.3s ease-out forwards" }}
-          onAnimationEnd={() => setCoverDone(true)}
-        />
+        <div key="post-auth-cover" style={{ position: "fixed", inset: 0, background: INITIAL_HEADER_COLOR, zIndex: 997, pointerEvents: "none", animation: "coverFade 0.3s ease-out forwards" }} onAnimationEnd={() => setCoverDone(true)} />
       )}
       <style>{`@keyframes coverFade { from { opacity:1 } to { opacity:0; } }`}</style>
 
@@ -467,11 +451,7 @@ function AppShell() {
         <Splash
           getLoginLogoRect={() => loginLogoRectRef.current}
           onReveal={() => setLoginRevealing(true)}
-          done={() => {
-            setSplash(false);
-            setLoginRevealing(false);
-            if (!authReadyRef.current) splashWaiting.current = true;
-          }}
+          done={() => { setSplash(false); setLoginRevealing(false); if (!authReadyRef.current) splashWaiting.current = true; }}
         />
       )}
 
