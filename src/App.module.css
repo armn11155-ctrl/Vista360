@@ -142,3 +142,29 @@
     background-position: -200% 0;
   }
 }
+
+/* ── Desktop shell ─────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  .appRoot {
+    position: relative !important;
+    min-height: 100vh !important;
+    overflow: visible !important;
+    flex-direction: row !important;
+  }
+}
+
+.desktopMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.desktopContent {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
