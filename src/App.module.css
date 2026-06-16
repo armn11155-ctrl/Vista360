@@ -144,14 +144,8 @@
 }
 
 /* ── Desktop shell ─────────────────────────────────────────────── */
-@media (min-width: 1024px) {
-  .appRoot {
-    position: relative !important;
-    min-height: 100vh !important;
-    overflow: visible !important;
-    flex-direction: row !important;
-  }
-}
+/* NOTA: .appRoot NO se usa en desktop — el layout de escritorio usa
+   un div propio. Solo dejamos las clases de columna aquí. */
 
 .desktopMain {
   flex: 1;
