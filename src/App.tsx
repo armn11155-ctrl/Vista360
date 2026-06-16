@@ -10,11 +10,13 @@ import { ToastProvider } from "./context/UIContext";
 import { AppProvider } from "./context/AppContext";
 import { useAppShell } from "./hooks/useAppShell";
 import { useViewportSetup } from "./hooks/useViewportSetup";
+import { useIsDesktop } from "./hooks/useIsDesktop";
 import { prefetchAllTabs, AppRouter } from "./components/layout/AppRouter";
 import { preloadData } from "./services/firestore";
 import { ShellErrorBoundary } from "./components/shared/ShellErrorBoundary";
 import { AppHeader } from "./components/layout/AppHeader";
 import { BottomTabBar } from "./components/layout/BottomTabBar";
+import { DesktopSidebar } from "./components/layout/DesktopSidebar";
 import { OfflineBanner } from "./components/ui";
 import { BTM_ICONS } from "./components/layout/BottomTabIcons";
 import { BOTTOM_TABS_LIST } from "./config/constants";
@@ -38,7 +40,116 @@ interface AuthenticatedShellProps {
 
 function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
   const shell = useAppShell(user, onLogout);
+  const isDesktop = useIsDesktop();
 
+  // ── Paneles y modales compartidos (móvil y escritorio) ──────────
+  const overlays = (
+    <>
+      <NotifPanel
+        open={shell.notifOpen}
+        onClose={() => shell.setNotifOpen(false)}
+        contratos={shell.appData.contratos}
+        clientes={shell.appDerived.clientesActive}
+        paneles={shell.appData.paneles}
+        gastos={shell.appData.gastos}
+      />
+      <BusquedaGlobal
+        open={shell.globalSearch}
+        onClose={() => shell.setGlobalSearch(false)}
+        paneles={shell.appData.paneles}
+        clientes={shell.appDerived.clientesActive}
+        contratos={shell.appData.contratos}
+        onNavigate={(id: string) => shell.handleTabClick(id === "hoy" ? "/" : `/${id}`)}
+      />
+      <TrashModal
+        open={shell.trashOpen}
+        onClose={() => shell.setTrashOpen(false)}
+        contratos={shell.appData.contratos}
+        clientes={shell.appData.clientes}
+        paneles={shell.appData.paneles}
+        proveedores={shell.appData.proveedores}
+        setContratos={shell.appSetters.setContratos}
+        setClientes={shell.appSetters.setClientes}
+        setPaneles={shell.appSetters.setPaneles}
+        setProveedores={shell.appSetters.setProveedores}
+      />
+    </>
+  );
+
+  // ══════════════════════════════════════════════════════════════
+  // DESKTOP LAYOUT
+  // ══════════════════════════════════════════════════════════════
+  if (isDesktop) {
+    return (
+      <AppProvider data={shell.appData} setters={shell.appSetters} derived={shell.appDerived}>
+        {!shell.isOnline && <OfflineBanner />}
+        <div
+          style={{
+            display: "flex",
+            minHeight: "100vh",
+            background: T.bg,
+            color: T.text,
+            fontFamily: "\"DM Sans\", sans-serif",
+          }}
+        >
+          {/* ── Sidebar fija ── */}
+          <DesktopSidebar
+            onTabClick={shell.handleTabClick}
+            onTrashOpen={() => shell.setTrashOpen(true)}
+            userName={shell.userName}
+            userInitials={shell.userInitials}
+            trashCount={shell.trashCount}
+            showProfile={shell.showProfile}
+          />
+
+          {/* ── Columna principal ── */}
+          <div className={styles.desktopMain}>
+            <AppHeader
+              title={shell.showProfile ? "Perfil" : (shell.pageTitle === "Inicio" ? "Inicio" : "")}
+              user={user}
+              userName={shell.userName}
+              onProfileClick={() => shell.handleTabClick("/perfil")}
+              onSearchClick={() => shell.setGlobalSearch(true)}
+              onNotifClick={() => shell.setNotifOpen(v => !v)}
+              notifCount={shell.notifCount}
+              headerColor={shell.headerColor}
+              headerDark={shell.headerDark}
+              onDrawerClick={() => {}}
+              showProfile={shell.showProfile}
+              isDesktop={true}
+            />
+
+            <div className={styles.desktopContent}>
+              {shell.showProfile ? (
+                <div style={{ padding: "0 0 40px" }}>
+                  <ProfileView
+                    user={user}
+                    userName={shell.userName}
+                    gastos={shell.appData.gastos}
+                    confirmLogout={shell.confirmLogout}
+                    setConfirmLogout={shell.setConfirmLogout}
+                    onLogout={shell.handleLogout}
+                  />
+                </div>
+              ) : (
+                <AppRouter
+                  userName={shell.userName}
+                  autoScan={shell.autoScan}
+                  setAutoScan={shell.setAutoScan}
+                  onModalChange={shell.setAnyModalOpen}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+        {overlays}
+      </AppProvider>
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // MOBILE LAYOUT (sin cambios)
+  // ══════════════════════════════════════════════════════════════
   return (
     <AppProvider data={shell.appData} setters={shell.appSetters} derived={shell.appDerived}>
       {!shell.isOnline && <OfflineBanner />}
@@ -121,22 +232,6 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           />
         )}
 
-        <NotifPanel
-          open={shell.notifOpen}
-          onClose={() => shell.setNotifOpen(false)}
-          contratos={shell.appData.contratos}
-          clientes={shell.appDerived.clientesActive}
-          paneles={shell.appData.paneles}
-          gastos={shell.appData.gastos}
-        />
-        <BusquedaGlobal
-          open={shell.globalSearch}
-          onClose={() => shell.setGlobalSearch(false)}
-          paneles={shell.appData.paneles}
-          clientes={shell.appDerived.clientesActive}
-          contratos={shell.appData.contratos}
-          onNavigate={(id: string) => shell.handleTabClick(id === "hoy" ? "/" : `/${id}`)}
-        />
         <DrawerMenu
           open={shell.drawerOpen}
           onClose={() => shell.setDrawerOpen(false)}
@@ -147,19 +242,8 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           userName={shell.userName}
           userInitials={shell.userInitials}
         />
-        <TrashModal
-          open={shell.trashOpen}
-          onClose={() => shell.setTrashOpen(false)}
-          contratos={shell.appData.contratos}
-          clientes={shell.appData.clientes}
-          paneles={shell.appData.paneles}
-          proveedores={shell.appData.proveedores}
-          setContratos={shell.appSetters.setContratos}
-          setClientes={shell.appSetters.setClientes}
-          setPaneles={shell.appSetters.setPaneles}
-          setProveedores={shell.appSetters.setProveedores}
-        />
       </div>
+      {overlays}
     </AppProvider>
   );
 }
@@ -167,16 +251,11 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
 // ══════════════════════════════════════════════════════════════════
 // AppShell — gestiona splash y ciclo de auth de Firebase
 // ══════════════════════════════════════════════════════════════════
-// Color del header de inicio — sincronizado con HEADER_COLORS["/"] en useHeaderShell.ts
 const INITIAL_HEADER_COLOR = "#0E1A3B";
 
 function AppShell() {
   useViewportSetup();
 
-  // ── Snapshot cover: iOS muestra este "screenshot" en el app switcher ──
-  // BCP muestra su logo en el switcher porque captura SU pantalla branded.
-  // Nosotros hacemos lo mismo: cuando el app va al background, mostramos
-  // el splash completo (gradiente + logo) antes de que iOS tome el snapshot.
   useEffect(() => {
     const cover = document.createElement("div");
     cover.setAttribute("aria-hidden", "true");
@@ -184,7 +263,6 @@ function AppShell() {
       "position:fixed;inset:0;z-index:9998;opacity:0;pointer-events:none;" +
       "transition:none;overflow:hidden;" +
       "background:linear-gradient(170deg,#07101F 0%,#0D1629 55%,#111E35 100%);";
-    // Logo centrado al 38% — idéntico al React Splash
     const img = document.createElement("img");
     img.src = "/logo.png";
     img.decoding = "sync";
@@ -214,28 +292,18 @@ function AppShell() {
     };
   }, []);
 
-
   const [locked, setLocked] = useState(!sessionStorage.getItem("v360-session"));
   const [splash, setSplash] = useState(true);
-  // loginRevealing: true cuando el Splash dispara onReveal (t=2500ms)
-  // → splashActive=false en LoginScreen → se revela instantáneamente.
   const [loginRevealing, setLoginRevealing] = useState(false);
-  // Ref con el DOMRect del logo del LoginScreen.
-  // Lo usa Splash.getLoginLogoRect() para animar al píxel exacto.
   const loginLogoRectRef = useRef<DOMRect | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [firebaseDown, setFbDown] = useState(false);
-  // Arranca en TRUE: el cover NO se muestra en splash→login.
-  // Solo se resetea a false en onLoginSuccess (login→app), donde sí es necesario.
   const [coverDone, setCoverDone] = useState(true);
-  // Ref para evitar stale closure en el done() del splash
   const authReadyRef = useRef(false);
-  // true cuando la animación del splash terminó pero auth aún no llegó
   const splashWaiting = useRef(false);
 
   useEffect(() => {
-    // ── Bloquear window.scroll solo si NO hay input activo ────────────
     const lockScroll = () => {
       const el = document.activeElement as HTMLElement | null;
       const editing =
@@ -245,9 +313,6 @@ function AppShell() {
 
     const vv = window.visualViewport;
 
-    // ── Sube el input enfocado para que sea visible por encima del teclado ──
-    // Funciona tanto para el área de scroll principal como para modales.
-    // Busca el contenedor scrollable más cercano y lo desplaza manualmente.
     const scrollInputIntoView = (delay = 0) => {
       const focused = document.activeElement as HTMLElement | null;
       if (!focused) return;
@@ -260,16 +325,8 @@ function AppShell() {
       const doScroll = () => {
         const vvH = vv?.height ?? window.innerHeight;
         const rect = focused.getBoundingClientRect();
-
-        // Si el campo ya es visible, no hacer nada
         if (rect.bottom <= vvH - 8 && rect.top >= 56) return;
-
-        // 1. Intentar scrollIntoView (funciona en la mayoría de casos)
-        try {
-          focused.scrollIntoView({ block: "center", behavior: "smooth" });
-        } catch {/* silenciar */}
-
-        // 2. Fallback manual: buscar el contenedor overflow y desplazarlo
+        try { focused.scrollIntoView({ block: "center", behavior: "smooth" }); } catch {/* */ }
         let parent = focused.parentElement;
         while (parent && parent !== document.body) {
           const style = window.getComputedStyle(parent);
@@ -279,42 +336,27 @@ function AppShell() {
           if (isScrollable) {
             const pRect = parent.getBoundingClientRect();
             const visibleBottom = Math.min(vvH, pRect.bottom);
-            if (rect.bottom > visibleBottom - 8) {
-              parent.scrollTop += rect.bottom - visibleBottom + 80;
-            } else if (rect.top < pRect.top + 56) {
-              parent.scrollTop -= pRect.top + 56 - rect.top;
-            }
+            if (rect.bottom > visibleBottom - 8) parent.scrollTop += rect.bottom - visibleBottom + 80;
+            else if (rect.top < pRect.top + 56) parent.scrollTop -= pRect.top + 56 - rect.top;
             break;
           }
           parent = parent.parentElement;
         }
       };
-
       if (delay > 0) setTimeout(doScroll, delay);
       else doScroll();
     };
 
-    // ── Teclado virtual: actualizar --keyboard-height y subir input ───
     const updateKbHeight = () => {
-      const h = vv
-        ? Math.max(0, window.innerHeight - vv.height - (vv.offsetTop ?? 0))
-        : 0;
+      const h = vv ? Math.max(0, window.innerHeight - vv.height - (vv.offsetTop ?? 0)) : 0;
       document.documentElement.style.setProperty("--keyboard-height", `${h}px`);
-      // Cuando el teclado termina de aparecer (h > 100), subir el input
       if (h > 100) scrollInputIntoView(80);
     };
 
-    // ── Al enfocar un input: intentar subir en varios momentos ────────
-    // (el teclado puede tardar 300-600ms en terminar de abrirse en iOS)
     const onFocusin = (e: FocusEvent) => {
       const el = e.target as HTMLElement | null;
       if (!el) return;
-      if (
-        el.tagName !== "INPUT" &&
-        el.tagName !== "TEXTAREA" &&
-        !el.isContentEditable
-      ) return;
-      // Tres intentos escalonados para capturar el momento exacto
+      if (el.tagName !== "INPUT" && el.tagName !== "TEXTAREA" && !el.isContentEditable) return;
       scrollInputIntoView(300);
       scrollInputIntoView(500);
       scrollInputIntoView(750);
@@ -337,18 +379,12 @@ function AppShell() {
   }, []);
 
   useEffect(() => {
-    // ── Inicializar listener de autenticación ──
-
     const fallback = setTimeout(() => {
       authReadyRef.current = true;
       setAuthReady(true);
       setFbDown(true);
-      if (splashWaiting.current) {
-        splashWaiting.current = false;
-        setSplash(false);
-      }
-    }, 10_000); // 10s: en conexiones lentas / móvil Firebase puede tardar más de 2s
-               // El spinner se mantiene visible hasta que auth resuelva o expire este plazo.
+      if (splashWaiting.current) { splashWaiting.current = false; setSplash(false); }
+    }, 10_000);
     let unsub: (() => void) | undefined;
 
     try {
@@ -358,14 +394,12 @@ function AppShell() {
           clearTimeout(fallback);
           setFbDown(false);
           if (u && ALLOWED_EMAILS.length > 0 && !ALLOWED_EMAILS.includes(u.email ?? "")) {
-            // La whitelist del cliente es solo UX — las Firestore Rules son la barrera real
             signOut(auth);
             setUser(null);
           } else {
             setUser(u);
             if (u) {
               prefetchAllTabs();
-              // Calentar caché de Firestore durante el splash → sin flash de carga al montar
               preloadData().catch(() => {});
               if ("Notification" in window && Notification.permission === "default") {
                 Notification.requestPermission().catch(() => {});
@@ -374,10 +408,7 @@ function AppShell() {
           }
           authReadyRef.current = true;
           setAuthReady(true);
-          if (splashWaiting.current) {
-            splashWaiting.current = false;
-            setSplash(false);
-          }
+          if (splashWaiting.current) { splashWaiting.current = false; setSplash(false); }
         },
         err => {
           console.error("[Auth] error:", err);
@@ -385,10 +416,7 @@ function AppShell() {
           setFbDown(true);
           authReadyRef.current = true;
           setAuthReady(true);
-          if (splashWaiting.current) {
-            splashWaiting.current = false;
-            setSplash(false);
-          }
+          if (splashWaiting.current) { splashWaiting.current = false; setSplash(false); }
         },
       );
     } catch (err) {
@@ -397,33 +425,19 @@ function AppShell() {
       setFbDown(true);
       authReadyRef.current = true;
       setAuthReady(true);
-      if (splashWaiting.current) {
-        splashWaiting.current = false;
-        setSplash(false);
-      }
+      if (splashWaiting.current) { splashWaiting.current = false; setSplash(false); }
     }
 
-    return () => {
-      clearTimeout(fallback);
-      unsub?.();
-    };
+    return () => { clearTimeout(fallback); unsub?.(); };
   }, []);
 
-  // ── Safety net: si splash no llama done() en 8s, forzar salida ──
   useEffect(() => {
-    const emergency = setTimeout(() => {
-      setSplash(false);
-    }, 8000);
+    const emergency = setTimeout(() => { setSplash(false); }, 8000);
     return () => clearTimeout(emergency);
   }, []);
 
-  // ── Al salir del splash: fijar theme-color y fondo inmediatamente ──
-  // No se puede depender sólo del cleanup de Splash.tsx (efecto asíncrono)
-  // ni de useHeaderShell (solo corre cuando AuthenticatedShell está montado).
-  // Esto garantiza que el status bar nunca quede en negro post-splash.
   useEffect(() => {
     if (!splash) {
-      // Solo actualizar theme-color y fondo; el cover lo maneja onLoginSuccess
       const color = (!user || locked) ? "#07101F" : INITIAL_HEADER_COLOR;
       const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
       if (meta) meta.setAttribute("content", color);
@@ -434,48 +448,16 @@ function AppShell() {
 
   return (
     <ToastProvider>
-      {/* CSS global movido a src/index.css — ver refactor(styles) */}
-
-      {/* Cover negro z-998: tapa el appRoot blanco mientras el Splash
-           hace fade-out (opacity 1→0 expone lo que hay detrás) */}
       {splash && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "#07101F",
-            zIndex: 998,
-            pointerEvents: "none",
-          }}
-        />
+        <div style={{ position: "fixed", inset: 0, background: "#07101F", zIndex: 998, pointerEvents: "none" }} />
       )}
-      {/* Post-splash cover: color dinámico según si va a login o al app */}
       {!splash && !authReady && (
-        <div
-          key="post-splash-cover"
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "#07101F",
-            zIndex: 997,
-            pointerEvents: "none",
-          }}
-        />
+        <div key="post-splash-cover" style={{ position: "fixed", inset: 0, background: "#07101F", zIndex: 997, pointerEvents: "none" }} />
       )}
-      {/* Post-auth cover: funde en 300ms y luego SE ELIMINA DEL DOM via
-           onAnimationEnd — evita que la capa negra persista sobre el AppHeader
-           y ensucie el status bar en iOS black-translucent */}
       {!splash && authReady && !coverDone && (
         <div
           key="post-auth-cover"
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: INITIAL_HEADER_COLOR,
-            zIndex: 997,
-            pointerEvents: "none",
-            animation: "coverFade 0.3s ease-out forwards",
-          }}
+          style={{ position: "fixed", inset: 0, background: INITIAL_HEADER_COLOR, zIndex: 997, pointerEvents: "none", animation: "coverFade 0.3s ease-out forwards" }}
           onAnimationEnd={() => setCoverDone(true)}
         />
       )}
@@ -486,42 +468,16 @@ function AppShell() {
           getLoginLogoRect={() => loginLogoRectRef.current}
           onReveal={() => setLoginRevealing(true)}
           done={() => {
-            // FIX: Siempre cerrar el splash — no esperar authReady.
-            // El cover "!splash && !authReady" muestra un spinner hasta
-            // que Firebase resuelva. Antes podía quedarse en negro infinito.
             setSplash(false);
             setLoginRevealing(false);
-            if (!authReadyRef.current) {
-              splashWaiting.current = true;
-            }
+            if (!authReadyRef.current) splashWaiting.current = true;
           }}
         />
       )}
 
       {!splash && !authReady && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            // Fix: mismo color que el splash (#07101F) — evita el corte visual
-            // de color cuando Firebase tarda en resolver en conexiones lentas.
-            // INITIAL_HEADER_COLOR (#0E1A3B) era perceptiblemente diferente.
-            background: "#07101F",
-            zIndex: 998,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            paddingTop: "env(safe-area-inset-top)",
-          }}
-        >
-          {/* Spinner — indica que Firebase está respondiendo, no que la app está rota */}
-          <div style={{
-            width: 36, height: 36,
-            border: "3px solid rgba(255,255,255,0.15)",
-            borderTopColor: "rgba(255,255,255,0.8)",
-            borderRadius: "50%",
-            animation: "v360spin 0.8s linear infinite",
-          }} />
+        <div style={{ position: "fixed", inset: 0, background: "#07101F", zIndex: 998, display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "env(safe-area-inset-top)" }}>
+          <div style={{ width: 36, height: 36, border: "3px solid rgba(255,255,255,0.15)", borderTopColor: "rgba(255,255,255,0.8)", borderRadius: "50%", animation: "v360spin 0.8s linear infinite" }} />
           <style>{`@keyframes v360spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       )}
@@ -529,21 +485,7 @@ function AppShell() {
       {authReady && (!user || locked) && (
         <>
           {!splash && firebaseDown && (
-            <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                zIndex: 9999,
-                background: "#7f1d1d",
-                color: "#fecaca",
-                padding: "10px 20px",
-                fontSize: 13,
-                textAlign: "center",
-                fontWeight: 600,
-              }}
-            >
+            <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, background: "#7f1d1d", color: "#fecaca", padding: "10px 20px", fontSize: 13, textAlign: "center", fontWeight: 600 }}>
               ⚠️ Sin conexión a Firebase — verifica tu red o intenta más tarde
             </div>
           )}
@@ -564,10 +506,6 @@ function AppShell() {
   );
 }
 
-// ── Root ─────────────────────────────────────────────────────────
-// BrowserRouter (fix: reemplaza HashRouter)
-// Requiere public/_redirects con "/* /index.html 200" para Cloudflare Pages SPA.
-// Las URLs pasan de /#/gastos → /gastos — más limpias y compatibles con PWA.
 export default function App() {
   return (
     <BrowserRouter>
@@ -575,7 +513,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
-
-
-
