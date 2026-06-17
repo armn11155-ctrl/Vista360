@@ -136,7 +136,7 @@ export function DesktopSidebar({
           style={{
             borderRadius: 10,
             background: "linear-gradient(135deg, #07101F, #112260)",
-            padding: "7px 10px",
+            padding: "4px 10px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
