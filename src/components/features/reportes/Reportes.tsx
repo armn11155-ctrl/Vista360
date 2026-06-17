@@ -530,6 +530,21 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
 
   const DARK = "#0E1A3B";
   const col = (v: number) => (v >= 0 ? T.green : T.red);
+  const MESES_LARGO = Array.from({ length: 12 }, (_, idx) =>
+    new Date(2000, idx, 2).toLocaleDateString("es-PE", { month: "long" }),
+  ).map(m => m.charAt(0).toUpperCase() + m.slice(1));
+  const [mesPickerOpen, setMesPickerOpen] = useState(false);
+  const mesPickerRef = useRef(null);
+  useEffect(() => {
+    if (!mesPickerOpen) return;
+    const handler = e => {
+      if (mesPickerRef.current && !mesPickerRef.current.contains(e.target)) {
+        setMesPickerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [mesPickerOpen]);
 
   if (loading)
     return <div style={{ padding: 24, color: T.muted, textAlign: "center" }}>Cargando…</div>;
@@ -606,31 +621,109 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
           >
             Período
           </span>
-          <input
-            type="month"
-            value={mesFilter}
-            onChange={e => {
-              setMesFilter(e.target.value);
-              setFechaDesde("");
-              setFechaHasta("");
-            }}
-            title="Mes específico"
-            style={{
-              padding: "10px 14px",
-              borderRadius: 12,
-              border: mesFilter ? "1.5px solid rgba(37,99,235,0.45)" : "1.5px solid #E2E8F0",
-              background: mesFilter ? "rgba(37,99,235,0.08)" : "#F8FAFC",
-              color: mesFilter ? "#1E40AF" : "#475569",
-              fontSize: 13,
-              fontWeight: 700,
-              outline: "none",
-              cursor: "pointer",
-              fontFamily: "inherit",
-              flex: "1 1 130px",
-              minWidth: 120,
-              transition: "all .15s",
-            }}
-          />
+          <div
+            ref={mesPickerRef}
+            style={{ position: "relative", flex: "1 1 150px", minWidth: 140 }}
+          >
+            <button
+              type="button"
+              onClick={() => setMesPickerOpen(o => !o)}
+              title="Mes específico"
+              style={{
+                width: "100%",
+                padding: "10px 14px",
+                borderRadius: 12,
+                border: mesFilter ? "1.5px solid rgba(37,99,235,0.45)" : "1.5px solid #E2E8F0",
+                background: mesFilter ? "rgba(37,99,235,0.08)" : "#F8FAFC",
+                color: mesFilter ? "#1E40AF" : "#475569",
+                fontSize: 13,
+                fontWeight: 700,
+                outline: "none",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 8,
+                transition: "all .15s",
+              }}
+            >
+              <span>
+                {mesFilter
+                  ? `${MESES_LARGO[parseInt(mesFilter.slice(5, 7), 10) - 1]} ${mesFilter.slice(0, 4)}`
+                  : "Seleccionar mes"}
+              </span>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  flexShrink: 0,
+                  transform: mesPickerOpen ? "rotate(180deg)" : "none",
+                  transition: "transform .15s",
+                }}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            {mesPickerOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 6px)",
+                  left: 0,
+                  zIndex: 30,
+                  background: "#fff",
+                  border: "1px solid #E2E8F0",
+                  borderRadius: 14,
+                  boxShadow: "0 10px 30px rgba(15,23,41,0.18)",
+                  padding: 8,
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 4,
+                  minWidth: 230,
+                }}
+              >
+                {MESES_LARGO.map((m, idx) => {
+                  const value = `${anio}-${String(idx + 1).padStart(2, "0")}`;
+                  const active = mesFilter === value;
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => {
+                        setMesFilter(value);
+                        setFechaDesde("");
+                        setFechaHasta("");
+                        setMesPickerOpen(false);
+                      }}
+                      style={{
+                        padding: "8px 10px",
+                        borderRadius: 10,
+                        border: "none",
+                        background: active
+                          ? "linear-gradient(135deg,#0F1729,#1E3A8A)"
+                          : "transparent",
+                        color: active ? "#fff" : "#334155",
+                        fontSize: 12.5,
+                        fontWeight: active ? 700 : 600,
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        textAlign: "left",
+                      }}
+                    >
+                      {m}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
           <span
             style={{
               fontSize: 11,
