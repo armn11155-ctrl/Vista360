@@ -883,7 +883,7 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
                   border: "1px solid rgba(59,130,246,0.18)",
                 }}
               >
-                <span style={{ fontSize: 18, flexShrink: 0 }}>{ins.icon}</span>
+                <span style={{ fontSize: 18, flexShrink: 0, color: "#fff" }}>{ins.icon}</span>
                 <span
                   style={{
                     fontSize: 13,
@@ -1201,42 +1201,96 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
   };
   const catSVG: Record<string, React.ReactNode> = {
     panel: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="3" width="20" height="13" rx="2"/>
-        <line x1="12" y1="16" x2="12" y2="21"/>
-        <line x1="8" y1="21" x2="16" y2="21"/>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#60A5FA"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="2" y="3" width="20" height="13" rx="2" />
+        <line x1="12" y1="16" x2="12" y2="21" />
+        <line x1="8" y1="21" x2="16" y2="21" />
       </svg>
     ),
     equipo: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#60A5FA"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
       </svg>
     ),
     vehiculo: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M5 17H3a2 2 0 01-2-2V9l3-6h14l3 6v6a2 2 0 01-2 2h-2"/>
-        <circle cx="7.5" cy="17.5" r="2.5"/>
-        <circle cx="16.5" cy="17.5" r="2.5"/>
-        <line x1="10" y1="17" x2="14" y2="17"/>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#60A5FA"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M5 17H3a2 2 0 01-2-2V9l3-6h14l3 6v6a2 2 0 01-2 2h-2" />
+        <circle cx="7.5" cy="17.5" r="2.5" />
+        <circle cx="16.5" cy="17.5" r="2.5" />
+        <line x1="10" y1="17" x2="14" y2="17" />
       </svg>
     ),
     inmueble: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#60A5FA"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
       </svg>
     ),
     herramienta: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#60A5FA"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
       </svg>
     ),
     otro: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
-        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-        <line x1="12" y1="22.08" x2="12" y2="12"/>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#60A5FA"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+        <line x1="12" y1="22.08" x2="12" y2="12" />
       </svg>
     ),
   };
@@ -1470,10 +1524,30 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
   // Colores seguros para fondos — el naranja/ámbar se muestra en BLANCO
   // (el usuario pidió "ponle blanco" para los fondos con color naranja)
   const ORANGE_HEX = [
-    "#F59E0B","#EF8C00","#FCD34D","#FBBF24","#D97706","#F97316",
-    "#FB923C","#FDBA74","#F59E0B","#ED8936","#DD6B20","#C05621",
-    "#FFAB40","#FF9100","#FF6D00","#FF8F00","#FFA000","#FFB300",
-    "#FFC107","#FFD54F","#FFCA28","#FFA726","#FF7043","#FF5722",
+    "#F59E0B",
+    "#EF8C00",
+    "#FCD34D",
+    "#FBBF24",
+    "#D97706",
+    "#F97316",
+    "#FB923C",
+    "#FDBA74",
+    "#F59E0B",
+    "#ED8936",
+    "#DD6B20",
+    "#C05621",
+    "#FFAB40",
+    "#FF9100",
+    "#FF6D00",
+    "#FF8F00",
+    "#FFA000",
+    "#FFB300",
+    "#FFC107",
+    "#FFD54F",
+    "#FFCA28",
+    "#FFA726",
+    "#FF7043",
+    "#FF5722",
   ].map(h => h.toUpperCase());
   const safeCol = (color: string, _idx: number): string =>
     ORANGE_HEX.includes(color.toUpperCase()) ? "#ffffff" : color;
@@ -1524,7 +1598,10 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             {data.fondos
               .filter(f => f.pct > 0)
               .map((f, fi) => (
-                <div key={f.id} style={{ flex: f.pct, background: safeCol(f.color, fi), borderRadius: 99 }} />
+                <div
+                  key={f.id}
+                  style={{ flex: f.pct, background: safeCol(f.color, fi), borderRadius: 99 }}
+                />
               ))}
             {totalPct < 100 && (
               <div
@@ -2290,7 +2367,6 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             </button>
           ))}
         </div>
-
       </div>
 
       {/* ── Contenido de sección ── */}
@@ -2322,5 +2398,3 @@ export default Capital;
 // un getDoc a Firestore en cada regreso, haciendo el tab-switch instantáneo.
 const _CAPITAL_TTL = 2 * 60 * 1000; // 2 minutos
 const _capitalCache: { data: Record<string, unknown> | null; ts: number } = { data: null, ts: 0 };
-
-
