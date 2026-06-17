@@ -147,7 +147,7 @@ export function DesktopSidebar({
             src="/logo.png"
             alt="Vista360 logo"
             style={{
-              width: 138,
+              width: 100,
               height: "auto",
               display: "block",
               objectFit: "contain",
