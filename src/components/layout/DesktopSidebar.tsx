@@ -108,7 +108,7 @@ export function DesktopSidebar({
   return (
     <aside
       style={{
-        width: 220,
+        width: 200,
         flexShrink: 0,
         height: "100vh",
         position: "sticky",
@@ -145,8 +145,8 @@ export function DesktopSidebar({
             src="/logo.png"
             alt="Vista360 logo"
             style={{
-              width: 176,
-              height: 48,
+              width: 192,
+              height: 54,
               display: "block",
               objectFit: "contain",
               margin: "0 auto",
