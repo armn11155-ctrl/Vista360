@@ -204,3 +204,15 @@ textarea {
     padding-bottom: 32px !important;
   }
 }
+
+/* ── Desktop sidebar: quitar highlight amarillo al hacer clic ── */
+@media (min-width: 1024px) {
+  aside button:focus,
+  aside button:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  aside button::-moz-focus-inner {
+    border: 0;
+  }
+}

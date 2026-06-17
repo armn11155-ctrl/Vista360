@@ -187,6 +187,8 @@ export function DesktopSidebar({
                 cursor: "pointer",
                 transition: "background 0.15s ease",
                 textAlign: "left",
+                outline: "none",
+                WebkitTapHighlightColor: "transparent",
               }}
             >
               <div
