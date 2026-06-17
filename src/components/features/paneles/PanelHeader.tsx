@@ -18,11 +18,11 @@ export function PanelHeader({ total, libres, ocupados, onNew }: PanelHeaderProps
         display: "flex",
         alignItems: "center",
         gap: 14,
-        background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 60%, #2563EB 100%)",
+        background: "linear-gradient(135deg, #07101F 0%, #0d1f4e 50%, #112260 100%)",
         borderRadius: 18,
         padding: "16px 20px",
         marginBottom: 18,
-        boxShadow: "0 4px 18px rgba(30,58,138,0.45)",
+        boxShadow: "0 4px 18px rgba(7,16,31,0.55)",
         position: "relative",
         overflow: "hidden",
       }}
