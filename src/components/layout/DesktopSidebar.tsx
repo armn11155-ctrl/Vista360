@@ -129,24 +129,9 @@ export function DesktopSidebar({
           borderBottom: "1px solid rgba(15,23,41,0.06)",
         }}
       >
+        {/* PNG del logo con fondo oscuro */}
         <div
           style={{
-            fontSize: 19,
-            fontWeight: 900,
-            color: T.accent,
-            letterSpacing: "-0.5px",
-          }}
-        >
-          Vista<span style={{ color: T.text }}>360</span>
-        </div>
-        <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2, fontWeight: 500 }}>
-          8 Millas
-        </div>
-
-        {/* ── PNG del logo con fondo oscuro ── */}
-        <div
-          style={{
-            marginTop: 14,
             borderRadius: 12,
             background: "linear-gradient(135deg, #07101F, #112260)",
             padding: "10px 12px",
@@ -166,6 +151,9 @@ export function DesktopSidebar({
               objectFit: "contain",
             }}
           />
+        </div>
+        <div style={{ fontSize: 10, color: "#94A3B8", marginTop: 8, fontWeight: 500, textAlign: "center", letterSpacing: "0.3px" }}>
+          by 8 Millas
         </div>
       </div>
 
