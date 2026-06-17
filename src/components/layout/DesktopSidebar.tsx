@@ -125,37 +125,23 @@ export function DesktopSidebar({
       {/* ── Logo / Marca ── */}
       <div
         style={{
-          padding: "16px 12px 14px",
-          borderBottom: "1px solid rgba(15,23,41,0.06)",
+          padding: "20px 16px 16px",
+          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        {/* PNG del logo con fondo oscuro */}
-        <div
+        <img
+          src="/logo.png"
+          alt="Vista360 logo"
           style={{
-            borderRadius: 8,
-            background: "linear-gradient(135deg, #07101F, #112260)",
-            padding: "14px 0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
+            width: 160,
+            height: "auto",
+            display: "block",
+            objectFit: "contain",
           }}
-        >
-          <img
-            src="/logo.png"
-            alt="Vista360 logo"
-            style={{
-              width: 192,
-              height: 54,
-              display: "block",
-              objectFit: "contain",
-              margin: "0 auto",
-            }}
-          />
-        </div>
-        <div style={{ fontSize: 10, color: "#94A3B8", marginTop: 8, fontWeight: 500, textAlign: "center", letterSpacing: "0.3px" }}>
-          by 8 Millas
-        </div>
+        />
       </div>
 
       {/* ── Navegación ── */}
