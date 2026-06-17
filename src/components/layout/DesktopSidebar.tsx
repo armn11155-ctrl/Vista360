@@ -132,10 +132,10 @@ export function DesktopSidebar({
         {/* PNG del logo con fondo oscuro */}
         <div
           style={{
-            borderRadius: 10,
+            borderRadius: 8,
             background: "linear-gradient(135deg, #07101F, #112260)",
-            padding: "5px 10px",
-            display: "flex",
+            padding: "3px 8px",
+            display: "inline-flex",
             alignItems: "center",
             justifyContent: "center",
           }}
@@ -144,9 +144,8 @@ export function DesktopSidebar({
             src="/logo.png"
             alt="Vista360 logo"
             style={{
-              width: "100%",
-              maxWidth: 160,
-              height: "auto",
+              width: 100,
+              height: 28,
               display: "block",
               objectFit: "contain",
             }}
