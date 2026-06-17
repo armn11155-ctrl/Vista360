@@ -538,13 +538,22 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
     <div style={{ padding: "0 0 32px" }}>
       {/* Selector de año */}
       {/* Filtros de fecha */}
-      <div style={{ marginBottom: 16 }}>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #E2E8F0",
+          borderRadius: 16,
+          padding: "16px 18px",
+          marginBottom: 16,
+          boxShadow: "0 1px 6px rgba(15,23,41,0.06)",
+        }}
+      >
         <div
           style={{
             display: "flex",
-            gap: 8,
+            gap: 10,
             alignItems: "center",
-            marginBottom: 8,
+            marginBottom: 14,
             flexWrap: "wrap",
           }}
         >
@@ -555,6 +564,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
               color: "#64748B",
               textTransform: "uppercase",
               letterSpacing: "0.06em",
+              flex: "0 0 auto",
             }}
           >
             Año
@@ -570,8 +580,8 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             }}
             style={{
               width: 86,
-              padding: "5px 10px",
-              borderRadius: 10,
+              padding: "8px 10px",
+              borderRadius: 12,
               border: "1.5px solid rgba(37,99,235,0.35)",
               background: "rgba(37,99,235,0.08)",
               color: "#1E40AF",
@@ -583,7 +593,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             }}
           />
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
           <span
             style={{
               fontSize: 11,
@@ -591,6 +601,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
               color: "#64748B",
               textTransform: "uppercase",
               letterSpacing: "0.06em",
+              flex: "0 0 auto",
             }}
           >
             Período
@@ -605,19 +616,32 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             }}
             title="Mes específico"
             style={{
-              padding: "9px 14px",
-              borderRadius: 10,
-              border: "1.5px solid rgba(37,99,235,0.45)",
-              background: "#94A3B8",
-              color: mesFilter ? "#1E40AF" : "#334155",
+              padding: "10px 14px",
+              borderRadius: 12,
+              border: mesFilter ? "1.5px solid rgba(37,99,235,0.45)" : "1.5px solid #E2E8F0",
+              background: mesFilter ? "rgba(37,99,235,0.08)" : "#F8FAFC",
+              color: mesFilter ? "#1E40AF" : "#475569",
               fontSize: 13,
-              fontWeight: 600,
+              fontWeight: 700,
               outline: "none",
               cursor: "pointer",
               fontFamily: "inherit",
+              flex: "1 1 130px",
+              minWidth: 120,
+              transition: "all .15s",
             }}
           />
-          <span style={{ fontSize: 11, color: "#94A3B8" }}>o rango</span>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "#94A3B8",
+              flex: "0 0 auto",
+              whiteSpace: "nowrap",
+            }}
+          >
+            o rango
+          </span>
           <input
             type="date"
             value={fechaDesde}
@@ -627,16 +651,19 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             }}
             title="Desde"
             style={{
-              padding: "9px 14px",
-              borderRadius: 10,
-              border: "1.5px solid rgba(37,99,235,0.45)",
-              background: "#94A3B8",
-              color: fechaDesde ? "#1E40AF" : "#334155",
+              padding: "10px 14px",
+              borderRadius: 12,
+              border: fechaDesde ? "1.5px solid rgba(37,99,235,0.45)" : "1.5px solid #E2E8F0",
+              background: fechaDesde ? "rgba(37,99,235,0.08)" : "#F8FAFC",
+              color: fechaDesde ? "#1E40AF" : "#475569",
               fontSize: 13,
-              fontWeight: 600,
+              fontWeight: 700,
               outline: "none",
               cursor: "pointer",
               fontFamily: "inherit",
+              flex: "1 1 130px",
+              minWidth: 120,
+              transition: "all .15s",
             }}
           />
           <input
@@ -648,16 +675,19 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             }}
             title="Hasta"
             style={{
-              padding: "9px 14px",
-              borderRadius: 10,
-              border: "1.5px solid rgba(37,99,235,0.45)",
-              background: "#94A3B8",
-              color: fechaHasta ? "#1E40AF" : "#334155",
+              padding: "10px 14px",
+              borderRadius: 12,
+              border: fechaHasta ? "1.5px solid rgba(37,99,235,0.45)" : "1.5px solid #E2E8F0",
+              background: fechaHasta ? "rgba(37,99,235,0.08)" : "#F8FAFC",
+              color: fechaHasta ? "#1E40AF" : "#475569",
               fontSize: 13,
-              fontWeight: 600,
+              fontWeight: 700,
               outline: "none",
               cursor: "pointer",
               fontFamily: "inherit",
+              flex: "1 1 130px",
+              minWidth: 120,
+              transition: "all .15s",
             }}
           />
           {tieneFiltroDeFecha && (
@@ -668,14 +698,17 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
                 setFechaHasta("");
               }}
               style={{
-                padding: "5px 14px",
-                borderRadius: 20,
-                border: "1px solid rgba(239,68,68,0.4)",
-                background: "rgba(239,68,68,0.12)",
-                color: "#FCA5A5",
+                padding: "9px 16px",
+                borderRadius: 12,
+                border: "1px solid rgba(239,68,68,0.35)",
+                background: "rgba(239,68,68,0.08)",
+                color: "#DC2626",
                 fontWeight: 700,
-                fontSize: 11,
+                fontSize: 12,
                 cursor: "pointer",
+                fontFamily: "inherit",
+                flex: "0 0 auto",
+                whiteSpace: "nowrap",
               }}
             >
               Limpiar ×
