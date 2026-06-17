@@ -132,9 +132,9 @@ export function DesktopSidebar({
         {/* PNG del logo con fondo oscuro */}
         <div
           style={{
-            borderRadius: 12,
+            borderRadius: 10,
             background: "linear-gradient(135deg, #07101F, #112260)",
-            padding: "10px 12px",
+            padding: "5px 10px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
