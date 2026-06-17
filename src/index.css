@@ -207,12 +207,19 @@ textarea {
 
 /* ── Desktop sidebar: quitar highlight amarillo al hacer clic ── */
 @media (min-width: 1024px) {
+  aside button,
   aside button:focus,
-  aside button:focus-visible {
-    outline: none;
-    box-shadow: none;
+  aside button:focus-visible,
+  aside button:active,
+  aside a,
+  aside a:focus,
+  aside a:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
   aside button::-moz-focus-inner {
     border: 0;
+    padding: 0;
   }
 }
