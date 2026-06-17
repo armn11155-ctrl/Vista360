@@ -15,7 +15,7 @@
  * invalidar el caché anterior.
  */
 
-const CACHE_VERSION = "v360-v17";
+const CACHE_VERSION = "v360-v18";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -30,6 +30,7 @@ const PRECACHE_URLS = [
   // Assets críticos del splash — pre-cacheados para carga instantánea
   "/splash-bg.jpg",
   "/logo.png",
+  "/favicon.ico",
   "/splash/splash-universal.png",
 ];
 
