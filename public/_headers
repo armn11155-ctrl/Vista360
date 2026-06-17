@@ -1,3 +1,12 @@
+/favicon.ico
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/icon-192.png
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/icon-512.png
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
 /sw.js
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
   Pragma: no-cache
