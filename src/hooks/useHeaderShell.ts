@@ -5,7 +5,6 @@ import { T } from "../config/theme";
 
 export const HEADER_COLORS: Record<string, string> = {
   "/": "#0E1A3B",
-  "/paneles": "#07101F",       // azul navy oscuro — igual que el header del PanelHeader
   "/capital": "#0A1428",       // azul oscuro elegante
   "/contratos": "#0E1A3B",
   "/historico": "#0A0F1A",
