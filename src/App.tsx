@@ -334,6 +334,7 @@ function AppShell() {
 
   useEffect(() => {
     const lockScroll = () => {
+      if (window.innerWidth >= 1024) return; // escritorio: no bloquear scroll
       const el = document.activeElement as HTMLElement | null;
       const editing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
       if (!editing && window.scrollY !== 0) window.scrollTo(0, 0);
