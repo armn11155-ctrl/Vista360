@@ -238,6 +238,8 @@ export function DesktopSidebar({
             background: "#EFF4FF",
             border: "1px solid #BFDBFE",
             cursor: "pointer",
+            position: "relative",
+            overflow: "visible",
           }}
         >
           <div
@@ -268,12 +270,22 @@ export function DesktopSidebar({
           {trashCount > 0 && (
             <span
               style={{
+                position: "absolute",
+                top: -6,
+                right: -6,
                 background: T.accent,
                 color: "#fff",
                 borderRadius: 99,
-                padding: "2px 8px",
-                fontSize: 11,
-                fontWeight: 700,
+                minWidth: 18,
+                height: 18,
+                padding: "0 5px",
+                fontSize: 10,
+                fontWeight: 800,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 1px 4px rgba(37,99,235,0.4)",
+                border: "2px solid #fff",
               }}
             >
               {trashCount}
