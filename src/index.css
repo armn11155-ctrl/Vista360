@@ -54,6 +54,8 @@ select,
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   font-family: inherit;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 button:active {
