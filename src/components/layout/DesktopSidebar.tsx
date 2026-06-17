@@ -99,8 +99,6 @@ const ICONS: Record<string, React.ReactNode> = {
 export function DesktopSidebar({
   onTabClick,
   onTrashOpen,
-  userName,
-  userInitials,
   trashCount,
   showProfile,
 }: DesktopSidebarProps) {
@@ -110,7 +108,7 @@ export function DesktopSidebar({
   return (
     <aside
       style={{
-        width: 260,
+        width: 220,
         flexShrink: 0,
         height: "100vh",
         position: "sticky",
@@ -127,13 +125,13 @@ export function DesktopSidebar({
       {/* ── Logo / Marca ── */}
       <div
         style={{
-          padding: "24px 20px 16px",
+          padding: "20px 16px 16px",
           borderBottom: "1px solid rgba(15,23,41,0.06)",
         }}
       >
         <div
           style={{
-            fontSize: 20,
+            fontSize: 19,
             fontWeight: 900,
             color: T.accent,
             letterSpacing: "-0.5px",
@@ -144,54 +142,35 @@ export function DesktopSidebar({
         <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2, fontWeight: 500 }}>
           8 Millas
         </div>
-      </div>
 
-      {/* ── Avatar de usuario ── */}
-      <button
-        onClick={() => onTabClick("/perfil")}
-        style={{
-          padding: "14px 18px",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          textAlign: "left",
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          borderBottom: "1px solid rgba(15,23,41,0.06)",
-        }}
-      >
+        {/* ── PNG del logo con fondo oscuro ── */}
         <div
           style={{
-            width: 40,
-            height: 40,
+            marginTop: 14,
             borderRadius: 12,
-            background: activePath === "/perfil"
-              ? "linear-gradient(135deg,#081740,#1558D6)"
-              : "linear-gradient(135deg,#081740,#1B3F8F)",
+            background: "linear-gradient(135deg, #07101F, #112260)",
+            padding: "10px 12px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#fff",
-            fontWeight: 800,
-            fontSize: 14,
-            flexShrink: 0,
-            boxShadow: "0 4px 12px rgba(27,63,143,0.35)",
           }}
         >
-          {userInitials}
+          <img
+            src="/logo.png"
+            alt="Vista360 logo"
+            style={{
+              width: "100%",
+              maxWidth: 160,
+              height: "auto",
+              display: "block",
+              objectFit: "contain",
+            }}
+          />
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: T.text, letterSpacing: "-0.2px" }}>
-            {userName || "—"}
-          </div>
-          <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 1 }}>Ver perfil</div>
-        </div>
-      </button>
+      </div>
 
       {/* ── Navegación ── */}
-      <nav style={{ flex: 1, padding: "10px 12px", overflowY: "auto" }}>
+      <nav style={{ flex: 1, padding: "10px 10px", overflowY: "auto" }}>
         {NAV_ITEMS.map((item, idx) => {
           if (item === null) {
             return (
@@ -210,8 +189,8 @@ export function DesktopSidebar({
                 width: "100%",
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
-                padding: "9px 12px",
+                gap: 10,
+                padding: "8px 10px",
                 marginBottom: 2,
                 borderRadius: 14,
                 background: active
@@ -225,8 +204,8 @@ export function DesktopSidebar({
             >
               <div
                 style={{
-                  width: 36,
-                  height: 36,
+                  width: 34,
+                  height: 34,
                   borderRadius: 10,
                   background: active ? T.white : "#F5F7FB",
                   display: "flex",
@@ -243,7 +222,7 @@ export function DesktopSidebar({
               </div>
               <span
                 style={{
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: active ? 700 : 500,
                   color: active ? T.accent : "#0F1729",
                   letterSpacing: "-0.2px",
@@ -257,15 +236,15 @@ export function DesktopSidebar({
       </nav>
 
       {/* ── Archivados ── */}
-      <div style={{ padding: "10px 12px 20px", borderTop: "1px solid #F1F3F8" }}>
+      <div style={{ padding: "10px 10px 20px", borderTop: "1px solid #F1F3F8" }}>
         <button
           onClick={onTrashOpen}
           style={{
             width: "100%",
             display: "flex",
             alignItems: "center",
-            gap: 12,
-            padding: "10px 14px",
+            gap: 10,
+            padding: "10px 12px",
             borderRadius: 14,
             background: "#EFF4FF",
             border: "1px solid #BFDBFE",
@@ -274,8 +253,8 @@ export function DesktopSidebar({
         >
           <div
             style={{
-              width: 36,
-              height: 36,
+              width: 34,
+              height: 34,
               borderRadius: 10,
               background: T.accent,
               display: "flex",
