@@ -105,7 +105,7 @@ export function AppHeader({
             <rect x="3"  y="13" width="8" height="8" rx="2" fill={headerDark ? "white" : T.text} />
             <rect x="13" y="13" width="8" height="8" rx="2" fill={headerDark ? "white" : T.text} />
           </svg>
-        </button>
+        </button>}
 
         {/* Title */}
         <div style={{ flex: 1, minWidth: 0 }}>
