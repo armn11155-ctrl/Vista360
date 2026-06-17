@@ -125,7 +125,7 @@ export function DesktopSidebar({
       {/* ── Logo / Marca ── */}
       <div
         style={{
-          padding: "20px 16px 16px",
+          padding: "16px 12px 14px",
           borderBottom: "1px solid rgba(15,23,41,0.06)",
         }}
       >
@@ -134,20 +134,22 @@ export function DesktopSidebar({
           style={{
             borderRadius: 8,
             background: "linear-gradient(135deg, #07101F, #112260)",
-            padding: "8px 12px",
+            padding: "10px 0",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            width: "100%",
           }}
         >
           <img
             src="/logo.png"
             alt="Vista360 logo"
             style={{
-              width: 148,
-              height: 38,
+              width: 162,
+              height: 42,
               display: "block",
               objectFit: "contain",
+              margin: "0 auto",
             }}
           />
         </div>
