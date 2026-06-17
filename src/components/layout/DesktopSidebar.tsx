@@ -15,7 +15,6 @@ const NAV_ITEMS: ({ id: string; path: string; label: string } | null)[] = [
   { id: "paneles",   path: "/paneles",     label: "Paneles"     },
   { id: "contratos", path: "/contratos",   label: "Contratos"   },
   { id: "crm",       path: "/crm",         label: "Clientes"    },
-  null,
   { id: "gastos",      path: "/gastos",      label: "Gastos"      },
   { id: "proveedores", path: "/proveedores", label: "Proveedores" },
   { id: "mapa",        path: "/mapa",        label: "Mapa"        },
