@@ -108,7 +108,7 @@ export function DesktopSidebar({
   return (
     <aside
       style={{
-        width: 200,
+        width: 175,
         flexShrink: 0,
         height: "100vh",
         position: "sticky",
@@ -125,23 +125,35 @@ export function DesktopSidebar({
       {/* ── Logo / Marca ── */}
       <div
         style={{
-          padding: "20px 16px 16px",
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          padding: "16px 12px",
+          borderBottom: "1px solid rgba(15,23,41,0.06)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <img
-          src="/logo.png"
-          alt="Vista360 logo"
+        <div
           style={{
-            width: 160,
-            height: "auto",
-            display: "block",
-            objectFit: "contain",
+            borderRadius: 10,
+            background: "linear-gradient(135deg, #07101F, #112260)",
+            padding: "12px 10px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
           }}
-        />
+        >
+          <img
+            src="/logo.png"
+            alt="Vista360 logo"
+            style={{
+              width: 138,
+              height: "auto",
+              display: "block",
+              objectFit: "contain",
+            }}
+          />
+        </div>
       </div>
 
       {/* ── Navegación ── */}
