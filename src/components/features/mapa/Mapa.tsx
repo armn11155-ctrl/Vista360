@@ -124,7 +124,7 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
       wheelPxPerZoomLevel: 80,
     });
     L.control.zoom({ position: "bottomright" }).addTo(map);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
       attribution:
         '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
       subdomains: "abcd",
