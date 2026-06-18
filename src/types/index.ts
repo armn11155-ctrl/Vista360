@@ -74,6 +74,9 @@ export interface Cliente {
   ciudad?: string;
   estado: ClienteEstado;
   tipo?: ClienteTipo;
+  panelInteres?: string;
+  notas?: string;
+  origen?: string;
   deleted?: boolean;
   createdAt?: Timestamp | null;
 }
