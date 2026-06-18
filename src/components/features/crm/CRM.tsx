@@ -151,6 +151,59 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
   };
   const [form, setForm] = useState(emptyC);
 
+  // ── Solicitudes web: cola de revisión antes de pasar a Clientes ────
+  // El formulario público del sitio web escribe en "solicitudesWeb",
+  // NUNCA directo en "clientes". Aquí el admin revisa cada una y decide.
+  const [solicitudes, setSolicitudes] = useState<any[]>([]);
+  const [showSolicitudes, setShowSolicitudes] = useState(false);
+  const [procesando, setProcesando] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsub = fb.subscribe("solicitudesWeb", (items: any[]) => setSolicitudes(items));
+    return () => unsub();
+  }, []);
+
+  const aceptarSolicitud = async (s: any) => {
+    setProcesando(s.id);
+    haptic("create");
+    const payload = {
+      tipo: "Prospecto",
+      empresa: s.empresa,
+      contacto: s.contacto,
+      celular: s.celular,
+      email: s.email,
+      ciudad: "Lima",
+      sector: "",
+      estado: "En contacto",
+      notas: s.notas || "",
+      panelInteres: s.panelInteres || "",
+      origen: "web",
+    };
+    const r = await fb.post("clientes", payload as any);
+    if (r) setClientes(p => [...p, r]);
+    await fb.del("solicitudesWeb", s.id, { hardDelete: true });
+    setSolicitudes(p => p.filter(x => x.id !== s.id));
+    setProcesando(null);
+    haptic("success");
+    toast.success("Agregado a Clientes");
+  };
+
+  const rechazarSolicitud = async (s: any) => {
+    if (
+      !(await confirmAsync("Esta solicitud se eliminará permanentemente.", {
+        title: "¿Rechazar solicitud?",
+        danger: true,
+        ok: "Sí, rechazar",
+      }))
+    )
+      return;
+    setProcesando(s.id);
+    haptic("delete");
+    await fb.del("solicitudesWeb", s.id, { hardDelete: true });
+    setSolicitudes(p => p.filter(x => x.id !== s.id));
+    setProcesando(null);
+  };
+
   const openNew = () => {
     setForm(emptyC);
     setModal("nuevo");
@@ -576,6 +629,178 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
           ))}
         </div>
       </div>
+
+      {/* ── SOLICITUDES WEB (cola de revisión) ── */}
+      {solicitudes.length > 0 && (
+        <div style={{ padding: "14px 20px 0", background: T.bg }}>
+          <div
+            style={{
+              background: "#FFF7ED",
+              border: "1px solid #FDBA74",
+              borderRadius: 14,
+              overflow: "hidden",
+            }}
+          >
+            <button
+              onClick={() => setShowSolicitudes(s => !s)}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 10,
+                padding: "13px 16px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                touchAction: "manipulation",
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    background: "#F97316",
+                    color: "#fff",
+                    fontSize: 12,
+                    fontWeight: 800,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {solicitudes.length}
+                </span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#9A3412" }}>
+                  {solicitudes.length === 1
+                    ? "Solicitud nueva de la web"
+                    : "Solicitudes nuevas de la web"}
+                </span>
+              </span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#9A3412"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  transform: showSolicitudes ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform .2s",
+                }}
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            {showSolicitudes && (
+              <div style={{ padding: "0 12px 12px", display: "flex", flexDirection: "column", gap: 8 }}>
+                {solicitudes.map(s => (
+                  <div
+                    key={s.id}
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #FED7AA",
+                      borderRadius: 12,
+                      padding: 12,
+                      opacity: procesando === s.id ? 0.5 : 1,
+                    }}
+                  >
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#1E293B" }}>
+                      {s.contacto} · {s.empresa}
+                    </div>
+                    <div style={{ fontSize: 12.5, color: "#64748B", marginTop: 3 }}>
+                      {s.celular} · {s.email}
+                    </div>
+                    {s.panelInteres && (
+                      <div style={{ marginTop: 6 }}>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: "#1C6FE8",
+                            background: "#E8F0FE",
+                            borderRadius: 999,
+                            padding: "3px 10px",
+                          }}
+                        >
+                          {s.panelInteres}
+                        </span>
+                      </div>
+                    )}
+                    {s.notas && (
+                      <div
+                        style={{
+                          fontSize: 12.5,
+                          color: "#475569",
+                          marginTop: 6,
+                          fontStyle: "italic",
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        "{s.notas}"
+                      </div>
+                    )}
+                    <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                      <button
+                        disabled={procesando === s.id}
+                        onClick={() => aceptarSolicitud(s)}
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6,
+                          padding: "9px 0",
+                          background: "#16A34A",
+                          border: "none",
+                          borderRadius: 9,
+                          color: "#fff",
+                          fontSize: 13,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          fontFamily: "inherit",
+                          touchAction: "manipulation",
+                        }}
+                      >
+                        ✓ Aceptar
+                      </button>
+                      <button
+                        disabled={procesando === s.id}
+                        onClick={() => rechazarSolicitud(s)}
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6,
+                          padding: "9px 0",
+                          background: "#fff",
+                          border: "1px solid #E2E8F0",
+                          borderRadius: 9,
+                          color: "#64748B",
+                          fontSize: 13,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          fontFamily: "inherit",
+                          touchAction: "manipulation",
+                        }}
+                      >
+                        ✗ Rechazar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── SEARCH ── */}
       <div style={{ padding: "14px 20px 10px", background: T.bg }}>

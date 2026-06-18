@@ -164,6 +164,26 @@ export interface Sueldo {
   createdAt?: Timestamp | null;
 }
 
+/**
+ * Solicitud enviada desde el formulario público de la página web.
+ * Llega sin validar (cualquiera la puede crear, ver reglas de Firestore).
+ * El admin la revisa en la app y la Acepta (se convierte en Cliente) o
+ * la Rechaza (se borra). Nunca se usa directamente como Cliente.
+ */
+export interface SolicitudWeb {
+  id: string;
+  contacto: string;
+  empresa: string;
+  celular: string;
+  email: string;
+  panelInteres?: string;
+  notas?: string;
+  tipo: "Prospecto";
+  estado: "En contacto";
+  origen: "web";
+  createdAt?: Timestamp | null;
+}
+
 // ── Utility types ─────────────────────────────────────────────────
 export type ColName =
   | "paneles"
@@ -172,7 +192,8 @@ export type ColName =
   | "gastos"
   | "proveedores"
   | "facturas"
-  | "sueldos";
+  | "sueldos"
+  | "solicitudesWeb";
 
 // ── App state types ───────────────────────────────────────────────
 export interface AppData {

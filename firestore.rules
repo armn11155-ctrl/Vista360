@@ -55,6 +55,34 @@ service cloud.firestore {
       allow write: if isAllowed();
     }
 
+    // ── Solicitudes desde la web pública (sin login) ───────────────────────
+    // El formulario de contacto del sitio web escribe aquí directamente.
+    // Solo permite CREAR, con datos validados estrictamente. Nadie puede
+    // leer, editar ni borrar sin ser admin — así un atacante no puede ver
+    // ni alterar solicitudes ajenas, solo "tirar" documentos nuevos (y la
+    // validación de campos + tamaños limita el daño de eso).
+    function esSolicitudValida(d) {
+      return d.keys().hasOnly(
+              ['contacto','empresa','celular','email','panelInteres','notas',
+               'tipo','estado','origen','createdAt','hp']
+            )
+        && d.contacto is string    && d.contacto.size()  > 0 && d.contacto.size()  <= 80
+        && d.empresa  is string    && d.empresa.size()   > 0 && d.empresa.size()   <= 80
+        && d.celular  is string    && d.celular.size()   > 0 && d.celular.size()   <= 25
+        && d.email    is string    && d.email.size()     > 0 && d.email.size()     <= 100
+        && d.panelInteres is string && d.panelInteres.size() <= 40
+        && d.notas    is string    && d.notas.size()     <= 500
+        && d.tipo     == 'Prospecto'
+        && d.estado   == 'En contacto'
+        && d.origen   == 'web'
+        && (!('hp' in d) || d.hp == '');  // honeypot: si un bot llena este campo oculto, se rechaza
+    }
+
+    match /solicitudesWeb/{id} {
+      allow read, update, delete: if isAllowed();
+      allow create: if esSolicitudValida(request.resource.data);
+    }
+
     // ── Bloqueo por defecto (deny-all) ─────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
