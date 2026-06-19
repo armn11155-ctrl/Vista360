@@ -1653,140 +1653,205 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
         {/* ── SOLICITUDES WEB PENDIENTES ── */}
         {solicitudes.length > 0 && (
           <div style={{ marginTop: 28 }}>
+            {/* Header */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
+                justifyContent: "space-between",
                 marginBottom: 12,
-                padding: "0 4px",
+                padding: "0 2px",
               }}
             >
-              <div
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: "#F97316",
-                  flexShrink: 0,
-                }}
-              />
               <span
                 style={{
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: 700,
-                  color: "#F97316",
+                  color: T.muted,
                   textTransform: "uppercase",
                   letterSpacing: 1,
                 }}
               >
-                Pendientes de verificación ({solicitudes.length})
+                Pendientes de verificación
+              </span>
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "#F97316",
+                  background: "rgba(249,115,22,0.12)",
+                  borderRadius: 999,
+                  padding: "2px 10px",
+                }}
+              >
+                {solicitudes.length}
               </span>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {solicitudes.map(s => (
+            {/* Lista estilo actividad reciente */}
+            <div
+              style={{
+                background: T.dark,
+                borderRadius: 16,
+                overflow: "hidden",
+              }}
+            >
+              {solicitudes.map((s, idx) => (
                 <div
                   key={s.id}
                   style={{
-                    background: T.surface,
-                    border: "1.5px solid #FED7AA",
-                    borderRadius: 16,
-                    padding: 14,
-                    opacity: procesando === s.id ? 0.5 : 1,
+                    opacity: procesando === s.id ? 0.4 : 1,
                     transition: "opacity 0.2s",
                   }}
                 >
-                  {/* Info del prospecto */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 3, marginBottom: 10 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: T.text }}>
-                      {s.contacto}
-                      {s.empresa ? ` · ${s.empresa}` : ""}
+                  {/* Fila principal */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      padding: "14px 16px",
+                    }}
+                  >
+                    {/* Ícono */}
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 12,
+                        background: "rgba(59,130,246,0.15)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                        fontSize: 18,
+                      }}
+                    >
+                      👤
                     </div>
-                    <div style={{ fontSize: 12.5, color: T.muted }}>
-                      {[s.celular, s.email].filter(Boolean).join(" · ")}
-                    </div>
-                    {s.panelInteres && (
-                      <span
+
+                    {/* Texto */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
                         style={{
-                          display: "inline-block",
-                          marginTop: 4,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: "#1C6FE8",
-                          background: "#E8F0FE",
-                          borderRadius: 999,
-                          padding: "3px 10px",
-                          alignSelf: "flex-start",
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: T.text,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
-                        {s.panelInteres}
-                      </span>
-                    )}
-                    {s.notas && (
+                        {s.contacto || "Sin nombre"}
+                      </div>
                       <div
                         style={{
                           fontSize: 12,
                           color: T.muted,
-                          fontStyle: "italic",
-                          marginTop: 4,
-                          lineHeight: 1.4,
+                          marginTop: 2,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
-                        "{s.notas}"
+                        {s.empresa || s.email || s.celular || "Solicitud web"}
                       </div>
-                    )}
+                    </div>
+
+                    {/* Botones ✓ ✗ */}
+                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                      <button
+                        disabled={procesando === s.id}
+                        onClick={() => aceptarSolicitud(s)}
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 10,
+                          background: "rgba(22,163,74,0.15)",
+                          border: "1px solid rgba(22,163,74,0.3)",
+                          color: "#4ADE80",
+                          fontSize: 16,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          touchAction: "manipulation",
+                          fontFamily: "inherit",
+                        }}
+                        title="Aceptar"
+                      >
+                        ✓
+                      </button>
+                      <button
+                        disabled={procesando === s.id}
+                        onClick={() => rechazarSolicitud(s)}
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 10,
+                          background: "rgba(239,68,68,0.1)",
+                          border: "1px solid rgba(239,68,68,0.25)",
+                          color: "#F87171",
+                          fontSize: 16,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          touchAction: "manipulation",
+                          fontFamily: "inherit",
+                        }}
+                        title="Rechazar"
+                      >
+                        ✗
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Botones verificación */}
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      disabled={procesando === s.id}
-                      onClick={() => aceptarSolicitud(s)}
+                  {/* Info extra (panel, notas) */}
+                  {(s.panelInteres || s.notas) && (
+                    <div
                       style={{
-                        flex: 1,
+                        padding: "0 16px 12px 70px",
                         display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 6,
-                        padding: "10px 0",
-                        background: "#16A34A",
-                        border: "none",
-                        borderRadius: 10,
-                        color: "#fff",
-                        fontSize: 13,
-                        fontWeight: 700,
-                        cursor: "pointer",
-                        fontFamily: "inherit",
-                        touchAction: "manipulation",
+                        flexDirection: "column",
+                        gap: 4,
                       }}
                     >
-                      ✓ Aceptar
-                    </button>
-                    <button
-                      disabled={procesando === s.id}
-                      onClick={() => rechazarSolicitud(s)}
+                      {s.panelInteres && (
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: "#60A5FA",
+                            background: "rgba(59,130,246,0.12)",
+                            borderRadius: 999,
+                            padding: "2px 9px",
+                            alignSelf: "flex-start",
+                          }}
+                        >
+                          {s.panelInteres}
+                        </span>
+                      )}
+                      {s.notas && (
+                        <div style={{ fontSize: 12, color: T.muted, fontStyle: "italic", lineHeight: 1.4 }}>
+                          "{s.notas}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Separador */}
+                  {idx < solicitudes.length - 1 && (
+                    <div
                       style={{
-                        flex: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 6,
-                        padding: "10px 0",
-                        background: "transparent",
-                        border: `1.5px solid ${T.border}`,
-                        borderRadius: 10,
-                        color: T.muted,
-                        fontSize: 13,
-                        fontWeight: 700,
-                        cursor: "pointer",
-                        fontFamily: "inherit",
-                        touchAction: "manipulation",
+                        height: 1,
+                        background: "rgba(255,255,255,0.05)",
+                        margin: "0 16px",
                       }}
-                    >
-                      ✗ Rechazar
-                    </button>
-                  </div>
+                    />
+                  )}
                 </div>
               ))}
             </div>
