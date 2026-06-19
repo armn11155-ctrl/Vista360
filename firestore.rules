@@ -2,17 +2,22 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── FIX SEGURIDAD: usar Custom Claims en lugar de allowlist hardcodeada ──
+    // ── Permisos ────────────────────────────────────────────────────────────
+    // NOTA: la version anterior de esto exigia un Custom Claim
+    // (request.auth.token.role == 'admin') que nunca se activo para tu
+    // usuario real -> por eso se rompio "Agregar prospecto" y la lectura
+    // de solicitudesWeb ("Missing or insufficient permissions"). Mientras
+    // uses una sola cuenta para administrar todo, isAllowed() == estar
+    // logueado es exactamente el mismo nivel de seguridad que ya tenias
+    // (la regla original era "if request.auth != null" para todo).
     //
-    // Para autorizar un usuario desde Firebase Admin SDK:
+    // Si en el futuro agregas mas usuarios y quieres separar permisos
+    // (ej: un vendedor que solo lee, sin poder borrar), ahi si conviene
+    // volver a Custom Claims, pero hay que activarlos primero desde un
+    // backend con el Admin SDK:
     //   await admin.auth().setCustomUserClaims(uid, { role: 'admin' });
-    //
-    // El claim se propaga en el siguiente token refresh (~1h) o forzando:
-    //   await firebase.auth().currentUser.getIdToken(true);
-    //
     function isAllowed() {
-      return request.auth != null
-        && request.auth.token.role == 'admin';
+      return request.auth != null;
     }
 
     function isSignedIn() {
