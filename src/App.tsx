@@ -208,6 +208,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
               flex: 1, minHeight: 0,
               overflowY: "scroll", overflowX: "hidden",
               overscrollBehavior: "none",
+              background: "var(--app-bg)",
             }}
           >
             <ProfileView
@@ -222,7 +223,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
         )}
 
         {!shell.showProfile && (
-          <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
+          <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden", background: "var(--app-bg)" }}>
             <div
               ref={shell.scrollRef}
               data-scroll
