@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
+import { useEdgeScrollLock } from "./useEdgeScrollLock";
 
 /**
  * useUIShell — estado de UI de la shell autenticada.
@@ -13,6 +14,11 @@ import { auth } from "../config/firebase";
 export function useUIShell(onLogout: () => void) {
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Evita que el contenido se desplace de más al llegar al borde
+  // (rebote/overscroll), tanto en el layout de escritorio como en el
+  // de móvil — ambos reusan este mismo scrollRef.
+  useEdgeScrollLock(scrollRef);
 
   // ── UI toggles ─────────────────────────────────────────────────────
   const [showProfile, setShowProfile] = useState(false);

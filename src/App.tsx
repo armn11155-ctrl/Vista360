@@ -151,7 +151,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
               showProfile={shell.showProfile}
               isDesktop={true}
             />
-            <div className={styles.desktopContent}>
+            <div className={styles.desktopContent} ref={shell.scrollRef}>
               {shell.showProfile ? (
                 <div style={{ padding: "0 0 40px" }}>
                   <ProfileView
