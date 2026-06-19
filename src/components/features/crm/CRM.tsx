@@ -15,8 +15,6 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-  orderBy,
-  query,
   serverTimestamp,
   onSnapshot,
   Timestamp,
@@ -148,27 +146,24 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
   useEffect(() => {
     let unsub: (() => void) | undefined;
     import("../../../config/firebase").then(({ db }) => {
-      const tryWithOrder = () => {
-        unsub = onSnapshot(
-          query(collection(db, "solicitudesWeb"), orderBy("createdAt", "desc")),
-          snap => {
-            setSolicitudes(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-            setLoadingSol(false);
-          },
-          () => {
-            // Fallback sin orderBy si falta el índice
-            unsub = onSnapshot(
-              collection(db, "solicitudesWeb"),
-              snap => {
-                setSolicitudes(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-                setLoadingSol(false);
-              },
-              () => setLoadingSol(false)
-            );
-          }
-        );
-      };
-      tryWithOrder();
+      // Sin orderBy: un orderBy("createdAt") EXCLUYE silenciosamente los
+      // documentos que no tengan ese campo (no es un error, Firestore
+      // simplemente no los devuelve). Como el formulario de la web no
+      // siempre lo manda, ordenamos en el cliente para no perder ninguno.
+      unsub = onSnapshot(
+        collection(db, "solicitudesWeb"),
+        snap => {
+          const items = snap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
+          items.sort((a, b) => {
+            const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return tb - ta;
+          });
+          setSolicitudes(items);
+          setLoadingSol(false);
+        },
+        () => setLoadingSol(false)
+      );
     });
     return () => unsub?.();
   }, []);
