@@ -124,9 +124,10 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
       wheelPxPerZoomLevel: 80,
     });
     L.control.zoom({ position: "bottomright" }).addTo(map);
-    L.tileLayer("https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=54YBv1J2O0KOKSyeZlK2", {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
       attribution:
-        '© <a href="https://www.maptiler.com/copyright/">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+      subdomains: "abcd",
       maxZoom: 20,
     }).addTo(map);
     leafletRef.current = map;
