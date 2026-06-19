@@ -1299,125 +1299,6 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
         </Modal>
       )}
 
-      {/* ── SOLICITUDES WEB (formulario de contacto) ── */}
-      {(loadingSol || solPendientes.length > 0) && (
-        <div style={{ margin: "0 16px 20px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-            <div
-              style={{
-                width: 8, height: 8, borderRadius: "50%",
-                background: "#F59E0B",
-                boxShadow: "0 0 0 3px rgba(245,158,11,0.2)",
-              }}
-            />
-            <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
-              Solicitudes del sitio web
-            </div>
-            {solPendientes.length > 0 && (
-              <span
-                style={{
-                  background: "#FEF3C7",
-                  color: "#92400E",
-                  border: "1px solid #FDE68A",
-                  fontSize: 10,
-                  fontWeight: 700,
-                  padding: "2px 7px",
-                  borderRadius: 99,
-                }}
-              >
-                {solPendientes.length} nueva{solPendientes.length !== 1 ? "s" : ""}
-              </span>
-            )}
-          </div>
-
-          {loadingSol ? (
-            <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 14, padding: 16, textAlign: "center", fontSize: 12, color: "#92400E" }}>
-              Cargando solicitudes…
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {solPendientes.map(sol => (
-                <div
-                  key={sol.id}
-                  style={{
-                    background: "#FFFBEB",
-                    border: "1px solid #FDE68A",
-                    borderRadius: 16,
-                    padding: "14px 16px",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
-                    <div
-                      style={{
-                        width: 38, height: 38, borderRadius: 11, flexShrink: 0,
-                        background: "linear-gradient(135deg,#F59E0B,#D97706)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        color: "#fff", fontWeight: 800, fontSize: 15,
-                      }}
-                    >
-                      {(sol.empresa || sol.contacto || "?")[0].toUpperCase()}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "#78350F", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {sol.empresa || "Sin empresa"}
-                      </div>
-                      <div style={{ fontSize: 12, color: "#92400E", marginTop: 1 }}>
-                        {sol.contacto || "—"} · {sol.celular || "—"}
-                      </div>
-                      {sol.email && (
-                        <div style={{ fontSize: 11, color: "#B45309", marginTop: 2 }}>
-                          {sol.email}
-                        </div>
-                      )}
-                      {sol.panelInteres && (
-                        <div style={{ fontSize: 11, color: "#92400E", marginTop: 4, fontStyle: "italic" }}>
-                          Interés: {sol.panelInteres}
-                        </div>
-                      )}
-                      {sol.notas && (
-                        <div style={{ fontSize: 11, color: "#92400E", marginTop: 2, fontStyle: "italic" }}>
-                          {sol.notas}
-                        </div>
-                      )}
-                      <div style={{ fontSize: 10, color: "#B45309", marginTop: 4, fontWeight: 500 }}>
-                        🌐 Formulario web · {sol.createdAt?.toDate ? sol.createdAt.toDate().toLocaleDateString("es-PE") : "—"}
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      onClick={() => importarSolicitud(sol)}
-                      disabled={importando === sol.id}
-                      style={{
-                        flex: 1,
-                        background: importando === sol.id ? "#D97706" : "#F59E0B",
-                        border: "none", borderRadius: 10, padding: "9px 12px",
-                        color: "#fff", fontSize: 12, fontWeight: 700,
-                        cursor: importando === sol.id ? "not-allowed" : "pointer",
-                        touchAction: "manipulation", fontFamily: "inherit",
-                      }}
-                    >
-                      {importando === sol.id ? "Importando…" : "✓ Importar al CRM"}
-                    </button>
-                    <button
-                      onClick={() => rechazarSolicitud(sol)}
-                      style={{
-                        background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.25)",
-                        borderRadius: 10, padding: "9px 14px",
-                        color: "#DC2626", fontSize: 12, fontWeight: 700,
-                        cursor: "pointer", touchAction: "manipulation", fontFamily: "inherit",
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* ── LEADS / PROSPECTOS SECTION ── */}
       <div style={{ margin: "0 16px 8px" }}>
         {/* Header leads */}
@@ -1634,6 +1515,125 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
             >
               + Agregar prospecto
             </button>
+          </div>
+        )}
+
+        {/* ── SOLICITUDES WEB (formulario de contacto) ── */}
+        {(loadingSol || solPendientes.length > 0) && (
+          <div style={{ marginTop: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <div
+                style={{
+                  width: 8, height: 8, borderRadius: "50%",
+                  background: "#3B82F6",
+                  boxShadow: "0 0 0 3px rgba(59,130,246,0.2)",
+                }}
+              />
+              <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
+                Solicitudes del sitio web
+              </div>
+              {solPendientes.length > 0 && (
+                <span
+                  style={{
+                    background: "#EFF6FF",
+                    color: "#3B82F6",
+                    border: "1px solid #BFDBFE",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: "2px 7px",
+                    borderRadius: 99,
+                  }}
+                >
+                  {solPendientes.length} nueva{solPendientes.length !== 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+
+            {loadingSol ? (
+              <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 14, padding: 16, textAlign: "center", fontSize: 12, color: "#3B82F6" }}>
+                Cargando solicitudes…
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {solPendientes.map(sol => (
+                  <div
+                    key={sol.id}
+                    style={{
+                      background: "#EFF6FF",
+                      border: "1px solid #BFDBFE",
+                      borderRadius: 16,
+                      padding: "14px 16px",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
+                      <div
+                        style={{
+                          width: 38, height: 38, borderRadius: 11, flexShrink: 0,
+                          background: T.dark,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          color: "#fff", fontWeight: 800, fontSize: 15,
+                        }}
+                      >
+                        {(sol.empresa || sol.contacto || "?")[0].toUpperCase()}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: T.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {sol.empresa || "Sin empresa"}
+                        </div>
+                        <div style={{ fontSize: 12, color: "#3B82F6", marginTop: 1, fontWeight: 600 }}>
+                          {sol.contacto || "—"} · {sol.celular || "—"}
+                        </div>
+                        {sol.email && (
+                          <div style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>
+                            {sol.email}
+                          </div>
+                        )}
+                        {sol.panelInteres && (
+                          <div style={{ fontSize: 11, color: "#3B82F6", marginTop: 4, fontStyle: "italic" }}>
+                            Interés: {sol.panelInteres}
+                          </div>
+                        )}
+                        {sol.notas && (
+                          <div style={{ fontSize: 11, color: T.muted, marginTop: 2, fontStyle: "italic" }}>
+                            {sol.notas}
+                          </div>
+                        )}
+                        <div style={{ fontSize: 10, color: T.muted, marginTop: 4, fontWeight: 500 }}>
+                          🌐 Formulario web · {sol.createdAt?.toDate ? sol.createdAt.toDate().toLocaleDateString("es-PE") : "—"}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={() => importarSolicitud(sol)}
+                        disabled={importando === sol.id}
+                        style={{
+                          flex: 1,
+                          background: importando === sol.id ? "#1E293B" : T.dark,
+                          border: "none", borderRadius: 10, padding: "9px 12px",
+                          color: "#fff", fontSize: 12, fontWeight: 700,
+                          cursor: importando === sol.id ? "not-allowed" : "pointer",
+                          touchAction: "manipulation", fontFamily: "inherit",
+                        }}
+                      >
+                        {importando === sol.id ? "Importando…" : "✓ Importar al CRM"}
+                      </button>
+                      <button
+                        onClick={() => rechazarSolicitud(sol)}
+                        style={{
+                          background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.25)",
+                          borderRadius: 10, padding: "9px 14px",
+                          color: "#DC2626", fontSize: 12, fontWeight: 700,
+                          cursor: "pointer", touchAction: "manipulation", fontFamily: "inherit",
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
