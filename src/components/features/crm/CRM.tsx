@@ -1649,6 +1649,149 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
             </button>
           </div>
         )}
+
+        {/* ── SOLICITUDES WEB PENDIENTES ── */}
+        {solicitudes.length > 0 && (
+          <div style={{ marginTop: 28 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 12,
+                padding: "0 4px",
+              }}
+            >
+              <div
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "#F97316",
+                  flexShrink: 0,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "#F97316",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}
+              >
+                Pendientes de verificación ({solicitudes.length})
+              </span>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {solicitudes.map(s => (
+                <div
+                  key={s.id}
+                  style={{
+                    background: T.surface,
+                    border: "1.5px solid #FED7AA",
+                    borderRadius: 16,
+                    padding: 14,
+                    opacity: procesando === s.id ? 0.5 : 1,
+                    transition: "opacity 0.2s",
+                  }}
+                >
+                  {/* Info del prospecto */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3, marginBottom: 10 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: T.text }}>
+                      {s.contacto}
+                      {s.empresa ? ` · ${s.empresa}` : ""}
+                    </div>
+                    <div style={{ fontSize: 12.5, color: T.muted }}>
+                      {[s.celular, s.email].filter(Boolean).join(" · ")}
+                    </div>
+                    {s.panelInteres && (
+                      <span
+                        style={{
+                          display: "inline-block",
+                          marginTop: 4,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: "#1C6FE8",
+                          background: "#E8F0FE",
+                          borderRadius: 999,
+                          padding: "3px 10px",
+                          alignSelf: "flex-start",
+                        }}
+                      >
+                        {s.panelInteres}
+                      </span>
+                    )}
+                    {s.notas && (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: T.muted,
+                          fontStyle: "italic",
+                          marginTop: 4,
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        "{s.notas}"
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Botones verificación */}
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      disabled={procesando === s.id}
+                      onClick={() => aceptarSolicitud(s)}
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6,
+                        padding: "10px 0",
+                        background: "#16A34A",
+                        border: "none",
+                        borderRadius: 10,
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        touchAction: "manipulation",
+                      }}
+                    >
+                      ✓ Aceptar
+                    </button>
+                    <button
+                      disabled={procesando === s.id}
+                      onClick={() => rechazarSolicitud(s)}
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6,
+                        padding: "10px 0",
+                        background: "transparent",
+                        border: `1.5px solid ${T.border}`,
+                        borderRadius: 10,
+                        color: T.muted,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        touchAction: "manipulation",
+                      }}
+                    >
+                      ✗ Rechazar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
