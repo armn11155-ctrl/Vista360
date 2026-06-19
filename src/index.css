@@ -203,7 +203,14 @@ textarea {
 
   /* Eliminar el padding de bottom bar en vistas de escritorio */
   .tabPanel {
-    padding-bottom: 32px !important;
+    padding-bottom: 40px !important;
+  }
+
+  /* Más espacio horizontal y vertical en escritorio */
+  .tabPadded {
+    padding-left: 48px !important;
+    padding-right: 48px !important;
+    padding-top: 32px !important;
   }
 }
 

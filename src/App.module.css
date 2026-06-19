@@ -161,4 +161,6 @@
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: none;
+  max-width: 1280px;
+  width: 100%;
 }

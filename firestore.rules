@@ -64,7 +64,7 @@ service cloud.firestore {
     function esSolicitudValida(d) {
       return d.keys().hasOnly(
               ['contacto','empresa','celular','email','panelInteres','notas',
-               'tipo','estado','origen','createdAt','hp']
+               'tipo','estado','origen','createdAt','hp','importado']
             )
         && d.contacto is string    && d.contacto.size()  > 0 && d.contacto.size()  <= 80
         && d.empresa  is string    && d.empresa.size()   > 0 && d.empresa.size()   <= 80
