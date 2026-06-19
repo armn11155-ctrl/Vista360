@@ -44,6 +44,13 @@ export function useServiceWorker(): React.RefObject<ServiceWorkerRegistration | 
       .then(reg => {
         swRef.current = reg;
 
+        // Forzar chequeo INMEDIATO de actualización, sin esperar al timing
+        // por defecto del navegador (que puede tardar horas en notar que
+        // sw.js cambió). Esto es lo que garantiza que un deploy nuevo se
+        // detecte la próxima vez que se abre la app, no "cuando el
+        // navegador decida revisar".
+        reg.update().catch(() => {});
+
         // Helper: enviar SKIP_WAITING al SW en espera
         const skipWaiting = (sw: ServiceWorker) => {
           sw.postMessage({ type: "SKIP_WAITING" });

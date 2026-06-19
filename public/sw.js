@@ -15,7 +15,7 @@
  * invalidar el caché anterior.
  */
 
-const CACHE_VERSION = "v360-v18";
+const CACHE_VERSION = "v360-v19";
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -139,7 +139,12 @@ async function cacheFirst(request, cacheName) {
 async function networkFirstHTML(request) {
   const cache = await caches.open(STATIC_CACHE);
   try {
-    const response = await fetch(request);
+    // cache: "no-store" es CRÍTICO: sin esto, fetch() puede ser
+    // satisfecho por la caché HTTP del navegador (una capa por DEBAJO
+    // del Service Worker), devolviendo HTML viejo aunque la estrategia
+    // diga "network-first". Eso fue lo que causó que varios deploys
+    // seguidos nunca se vieran reflejados en el navegador.
+    const response = await fetch(request, { cache: "no-store" });
     if (response.ok) cache.put(request, response.clone());
     return response;
   } catch {
