@@ -1519,45 +1519,58 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
         )}
 
         {/* ── SOLICITUDES WEB (formulario de contacto) ── */}
-        {(loadingSol || solPendientes.length > 0) && (
-          <div style={{ marginTop: 20 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-              <div
-                style={{
-                  width: 8, height: 8, borderRadius: "50%",
-                  background: "#3B82F6",
-                  boxShadow: "0 0 0 3px rgba(59,130,246,0.2)",
-                }}
-              />
-              <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
-                Solicitudes del sitio web
-              </div>
-              {solPendientes.length > 0 && (
-                <span
-                  style={{
-                    background: "#EFF6FF",
-                    color: "#3B82F6",
-                    border: "1px solid #BFDBFE",
-                    fontSize: 10,
-                    fontWeight: 700,
-                    padding: "2px 7px",
-                    borderRadius: 99,
-                  }}
-                >
-                  {solPendientes.length} nueva{solPendientes.length !== 1 ? "s" : ""}
-                </span>
-              )}
+        <div style={{ marginTop: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <div
+              style={{
+                width: 8, height: 8, borderRadius: "50%",
+                background: "#3B82F6",
+                boxShadow: "0 0 0 3px rgba(59,130,246,0.2)",
+              }}
+            />
+            <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
+              Solicitudes del sitio web
             </div>
+            {solPendientes.length > 0 && (
+              <span
+                style={{
+                  background: "#EFF6FF",
+                  color: "#3B82F6",
+                  border: "1px solid #BFDBFE",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  padding: "2px 7px",
+                  borderRadius: 99,
+                }}
+              >
+                {solPendientes.length} nueva{solPendientes.length !== 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
 
-            {loadingSol ? (
-              <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 14, padding: 16, textAlign: "center", fontSize: 12, color: "#3B82F6" }}>
-                Cargando solicitudes…
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {solPendientes.map(sol => (
-                  <div
-                    key={sol.id}
+          {loadingSol ? (
+            <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 14, padding: 16, textAlign: "center", fontSize: 12, color: "#3B82F6" }}>
+              Cargando solicitudes…
+            </div>
+          ) : solPendientes.length === 0 ? (
+            <div
+              style={{
+                background: "#F8FAFC",
+                border: "1px solid #E2E8F0",
+                borderRadius: 14,
+                padding: "18px 16px",
+                textAlign: "center",
+                fontSize: 12.5,
+                color: T.muted,
+              }}
+            >
+              Sin solicitudes nuevas
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {solPendientes.map(sol => (
+                <div
+                  key={sol.id}
                     style={{
                       background: "#EFF6FF",
                       border: "1px solid #BFDBFE",
@@ -1635,7 +1648,6 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
               </div>
             )}
           </div>
-        )}
       </div>
     </div>
   );
