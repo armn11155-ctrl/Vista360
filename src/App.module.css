@@ -154,7 +154,7 @@
   height: 100vh;
   overflow: hidden;
   min-width: 0;
-  background: var(--app-bg);
+  background: #F2F4F8;
 }
 
 .desktopContent {
@@ -164,5 +164,5 @@
   overscroll-behavior: none;
   max-width: 1280px;
   width: 100%;
-  background: var(--app-bg);
+  background: #F2F4F8;
 }
