@@ -8,6 +8,7 @@ import { validate, haptic } from "../../../lib/utils";
 import { CIUDADES, EMOJIS, TIPOS_PANEL, getCarasPanel } from "../../../config/constants";
 import { Modal, Pagination } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
+import { useIsDesktop } from "../../../hooks/useIsDesktop";
 
 // ── Sub-componentes extraídos ─────────────────────────────────────
 import { MiniMapaPanel } from "./MiniMapaPanel";
@@ -313,6 +314,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
 
   const libres = paneles.filter(p => !carasMap.has(p.id)).length;
   const ocupados = paneles.filter(p => carasMap.has(p.id)).length;
+  const isDesktop = useIsDesktop();
   const { paginated, page, setPage, totalPages, total, pageSize } = usePagination(paneles, 12);
 
   return (
@@ -321,7 +323,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
       {loading ? (
         <SkeletonPaneles />
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "repeat(2, 1fr)" : "1fr", gap: 14 }}>
           {paginated.map(p => (
             <PanelCard
               key={p.id}

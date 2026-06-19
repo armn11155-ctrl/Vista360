@@ -68,6 +68,7 @@ import {
 } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
 import { useVirtualList } from "../../../hooks/useVirtualList";
+import { useIsDesktop } from "../../../hooks/useIsDesktop";
 
 function Contratos({
   contratos,
@@ -78,6 +79,7 @@ function Contratos({
   setTab,
   onModalChange,
 }: ContratosProps) {
+  const isDesktop = useIsDesktop();
   const [filtro, setFiltro] = useState("Activos");
   const [modal, setModal] = useState<Partial<Contrato> | null>(null);
   const [saving, setSaving] = useState(false);
@@ -901,7 +903,7 @@ function Contratos({
       {loading ? (
         <SkeletonContratos />
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 18, padding: "0 16px 32px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "repeat(2, 1fr)" : "1fr", gap: 18, padding: "0 16px 32px" }}>
           {/* Banner de papelera */}
 
           {filPaged.map(c => {

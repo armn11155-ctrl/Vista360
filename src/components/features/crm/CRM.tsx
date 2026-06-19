@@ -67,6 +67,7 @@ import {
 } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
 import { useVirtualList } from "../../../hooks/useVirtualList";
+import { useIsDesktop } from "../../../hooks/useIsDesktop";
 
 // ── Helper de campo de formulario (igual que en Paneles.tsx) ──────
 function inp(label: string, key: string, form: any, setForm: any, opts: any = {}) {
@@ -131,6 +132,7 @@ function inp(label: string, key: string, form: any, setForm: any, opts: any = {}
 }
 
 function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMProps) {
+  const isDesktop = useIsDesktop();
   const [modal, setModal] = useState<Partial<Cliente> | null>(null);
   const [buscar, setBuscar] = useState("");
   const [activeFilter, setActiveFilter] = useState("Todos");
@@ -231,19 +233,40 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
       estado: form.estado,
       notas: form.notas,
     };
-    if (modal === "nuevo") {
-      haptic("create");
-      const r = await fb.post("clientes", payload);
-      if (r) setClientes(p => [...p, r]);
-    } else {
-      const r = await fb.patch("clientes", modal.id, payload);
-      if (r) setClientes(p => p.map(x => (x.id === modal.id ? r : x)));
+    try {
+      if (modal === "nuevo") {
+        haptic("create");
+        const r = await fb.post("clientes", payload);
+        if (r?.id) {
+          setClientes(p => {
+            // Evitar duplicados si el snapshot de Firestore ya llegó
+            if (p.some(x => x.id === r.id)) return p;
+            return [...p, r];
+          });
+        } else {
+          // Fallback: refrescar desde Firestore
+          const fresh = await fb.get("clientes");
+          setClientes(fresh);
+        }
+      } else {
+        const r = await fb.patch("clientes", modal.id, payload);
+        if (r?.id) {
+          setClientes(p => p.map(x => (x.id === modal.id ? { ...x, ...r } : x)));
+        } else {
+          const fresh = await fb.get("clientes");
+          setClientes(fresh);
+        }
+      }
+      haptic("success");
+      toast.success("Guardado correctamente");
+      setModal(null);
+      onModalChange?.(false);
+    } catch (e: any) {
+      haptic("error");
+      toast.error("Error al guardar: " + (e?.message ?? "intenta de nuevo"));
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    haptic("success");
-    toast.success("Guardado correctamente");
-    setModal(null);
-    onModalChange?.(false);
   };
 
   const eliminar = async id => {
@@ -966,7 +989,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
           Cargando...
         </div>
       ) : (
-        <div style={{ padding: "10px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ padding: "10px 20px", display: "grid", gridTemplateColumns: isDesktop ? "repeat(2, 1fr)" : "1fr", gap: 8 }}>
           {paginated.length === 0 ? (
             <div
               style={{
