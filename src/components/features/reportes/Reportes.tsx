@@ -29,7 +29,7 @@ import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from
 import { fb } from "../../../services/firestore";
 import { T, tCol, catCol } from "../../../config/theme";
 import { toast, confirmAsync } from "../../../context/UIContext";
-import { fmt, fmtF, dias, mesHoy, mesLabel, hoy, validate, haptic } from "../../../lib/utils";
+import { fmt, fmtK, fmtF, dias, mesHoy, mesLabel, hoy, validate, haptic } from "../../../lib/utils";
 import { toNumber, toDate } from "../../../lib/converters";
 import {
   CIUDADES,
@@ -528,6 +528,51 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
     [meses],
   );
 
+  // ── KPIs operativos (no solo plata: ocupación, ticket, renovación) ──
+  const kpisOperativos = useMemo(() => {
+    const hoyStr = new Date().toISOString().slice(0, 10);
+    const panelesValidos = (paneles || []).filter(p => !p.deleted);
+    const contratosValidos = (contratos || []).filter(c => !c.deleted);
+
+    // 1) % de ocupación — paneles con un contrato vigente hoy
+    const panelesOcupadosIds = new Set(
+      contratosValidos
+        .filter(c => c.inicio <= hoyStr && c.fin >= hoyStr)
+        .map(c => c.panel_id),
+    );
+    const ocupacionPct =
+      panelesValidos.length > 0
+        ? Math.round((panelesOcupadosIds.size / panelesValidos.length) * 100)
+        : null;
+
+    // 2) Ticket promedio — monto mensual promedio de los contratos vigentes hoy
+    const contratosVigentes = contratosValidos.filter(c => c.inicio <= hoyStr && c.fin >= hoyStr);
+    const ticketPromedio =
+      contratosVigentes.length > 0
+        ? contratosVigentes.reduce((a, c) => a + (Number(c.monto) || 0), 0) / contratosVigentes.length
+        : null;
+
+    // 3) Tasa de renovación — de los contratos ya vencidos, ¿cuántos clientes
+    // volvieron a firmar otro contrato (cualquier panel) después de ese vencimiento?
+    const vencidos = contratosValidos.filter(c => c.fin < hoyStr);
+    const renovados = vencidos.filter(v =>
+      contratosValidos.some(
+        otro => otro.id !== v.id && otro.cliente_id === v.cliente_id && otro.inicio > v.fin,
+      ),
+    );
+    const tasaRenovacion =
+      vencidos.length > 0 ? Math.round((renovados.length / vencidos.length) * 100) : null;
+
+    return {
+      ocupacionPct,
+      ticketPromedio,
+      tasaRenovacion,
+      panelesOcupados: panelesOcupadosIds.size,
+      panelesTotal: panelesValidos.length,
+      vencidosCount: vencidos.length,
+    };
+  }, [paneles, contratos]);
+
   const DARK = "#0E1A3B";
   const col = (v: number) => (v >= 0 ? T.green : T.red);
   const MESES_LARGO = Array.from({ length: 12 }, (_, idx) =>
@@ -838,6 +883,103 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
               {label}
             </div>
             <div style={{ fontSize: 20, fontWeight: 800, color }}>{fmt(val)}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Indicadores operativos (no solo plata) ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, marginTop: 4 }}>
+        <div
+          style={{
+            width: 22,
+            height: 22,
+            borderRadius: 7,
+            background: "rgba(124,58,237,0.12)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 3v18h18" />
+            <path d="M18.7 8l-5.1 5.2-3-3L7 13.6" />
+          </svg>
+        </div>
+        <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>Indicadores operativos</div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
+        {[
+          {
+            label: "Ocupación",
+            sub:
+              kpisOperativos.ocupacionPct != null
+                ? `${kpisOperativos.panelesOcupados}/${kpisOperativos.panelesTotal} paneles`
+                : "Sin paneles",
+            val: kpisOperativos.ocupacionPct,
+            color: "#3B82F6",
+            suffix: "%",
+          },
+          {
+            label: "Ticket promedio",
+            sub: "por contrato vigente",
+            val: kpisOperativos.ticketPromedio != null ? Math.round(kpisOperativos.ticketPromedio) : null,
+            color: "#16A34A",
+            money: true,
+          },
+          {
+            label: "Renovación",
+            sub:
+              kpisOperativos.vencidosCount > 0
+                ? `de ${kpisOperativos.vencidosCount} vencidos`
+                : "Sin vencidos aún",
+            val: kpisOperativos.tasaRenovacion,
+            color: "#F59E0B",
+            suffix: "%",
+          },
+        ].map(({ label, sub, val, color, suffix, money }) => (
+          <div
+            key={label}
+            style={{
+              background: "#fff",
+              border: "1px solid #E2E8F0",
+              borderRadius: 16,
+              padding: "14px 12px",
+              textAlign: "center",
+              boxShadow: "0 1px 6px rgba(15,23,41,0.05)",
+            }}
+          >
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                margin: "0 auto 8px",
+                borderRadius: "50%",
+                background: `conic-gradient(${color} ${val != null ? Math.min(val, 100) * 3.6 : 0}deg, #F1F5F9 0deg)`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  background: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: money ? 10.5 : 14,
+                  fontWeight: 800,
+                  color: val != null ? T.text : T.muted,
+                }}
+              >
+                {val == null ? "—" : money ? fmtK(val) : `${val}${suffix}`}
+              </div>
+            </div>
+            <div style={{ fontSize: 11.5, fontWeight: 700, color: T.text }}>{label}</div>
+            <div style={{ fontSize: 9.5, color: T.muted, marginTop: 1 }}>{sub}</div>
           </div>
         ))}
       </div>

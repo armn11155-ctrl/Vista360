@@ -1,5 +1,5 @@
 export const ESTADOS_CLI = ["Activo", "Por vencer", "Inactivo"];
-export const ESTADOS_PRO = ["En contacto", "Propuesta enviada", "Frío", "Perdido"];
+export const ESTADOS_PRO = ["En contacto", "Propuesta enviada", "Ganado", "Frío", "Perdido"];
 export const SECTORES = [
   "Alimentación",
   "Finanzas",

@@ -9,6 +9,7 @@ export type ClienteEstado =
   | "Inactivo"
   | "En contacto"
   | "Propuesta enviada"
+  | "Ganado"
   | "Frío"
   | "Perdido";
 export type ClienteTipo = "Cliente" | "Prospecto";

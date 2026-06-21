@@ -129,7 +129,15 @@ function inp(label: string, key: string, form: any, setForm: any, opts: any = {}
   );
 }
 
-function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMProps) {
+function CRM({
+  clientes,
+  setClientes,
+  contratos,
+  paneles,
+  setContratos,
+  loading,
+  onModalChange,
+}: CRMProps) {
   const isDesktop = useIsDesktop();
   const [modal, setModal] = useState<Partial<Cliente> | null>(null);
   const [buscar, setBuscar] = useState("");
@@ -137,6 +145,72 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
   const perPage = 10;
+
+  // ── Crear contrato al marcar un prospecto como "Ganado" ────────────
+  const [contratoProspecto, setContratoProspecto] = useState<Cliente | null>(null);
+  const [cForm, setCForm] = useState({ panel_id: "", cara: "", inicio: "", fin: "", monto: "" });
+  const [creandoContrato, setCreandoContrato] = useState(false);
+
+  const abrirCrearContrato = (p: Cliente) => {
+    const hoyStr = new Date().toISOString().slice(0, 10);
+    const enUnMes = new Date();
+    enUnMes.setMonth(enUnMes.getMonth() + 1);
+    // Intenta calzar el panel de interés que el prospecto dejó en el formulario web
+    const panelMatch =
+      p.panelInteres &&
+      (paneles || []).find(pa => pa.nombre?.toLowerCase().includes(p.panelInteres!.toLowerCase()));
+    setCForm({
+      panel_id: panelMatch?.id || "",
+      cara: "",
+      inicio: hoyStr,
+      fin: enUnMes.toISOString().slice(0, 10),
+      monto: "",
+    });
+    setContratoProspecto(p);
+  };
+
+  const confirmarCrearContrato = async () => {
+    if (!contratoProspecto) return;
+    if (!cForm.panel_id || !cForm.monto || !cForm.inicio || !cForm.fin) {
+      toast.warn("Completa panel, monto y fechas para crear el contrato.");
+      return;
+    }
+    setCreandoContrato(true);
+    try {
+      const payload = {
+        panel_id: cForm.panel_id,
+        cliente_id: contratoProspecto.id,
+        cara: cForm.cara || null,
+        inicio: cForm.inicio,
+        fin: cForm.fin,
+        monto: Number(cForm.monto),
+        pagado: false,
+        pagosMeses: {},
+      };
+      const nuevo = await fb.post<Contrato>("contratos", payload as any);
+      setContratos?.(p => [...p, nuevo]);
+
+      // El prospecto pasa a ser Cliente activo — ya cerró
+      await fb.patch("clientes", contratoProspecto.id, { tipo: "Cliente", estado: "Activo" });
+      setClientes(cs =>
+        cs.map(c => (c.id === contratoProspecto.id ? { ...c, tipo: "Cliente", estado: "Activo" } : c)),
+      );
+
+      // Si el contrato ya está vigente hoy, el panel pasa a Ocupado
+      const hoyStr = new Date().toISOString().slice(0, 10);
+      if (cForm.inicio <= hoyStr && cForm.fin >= hoyStr) {
+        fb.patch("paneles", cForm.panel_id, { estado: "Ocupado" }).catch(() => {});
+      }
+
+      haptic("create");
+      toast.success?.(`Contrato creado · ${contratoProspecto.empresa} ahora es Cliente`);
+      setContratoProspecto(null);
+    } catch (e: any) {
+      toast.error("No se pudo crear el contrato: " + (e?.message ?? "intenta de nuevo"));
+    } finally {
+      setCreandoContrato(false);
+    }
+  };
 
   // ── Solicitudes web (leads del formulario público) ────────────────
   const [solicitudes, setSolicitudes] = useState<any[]>([]);
@@ -314,6 +388,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
   const clis = clientes.filter(d => d.tipo === "Cliente");
   const pros = clientes.filter(d => d.tipo === "Prospecto");
   const propuestas = pros.filter(p => p.estado === "Propuesta enviada");
+  const ganados = pros.filter(p => p.estado === "Ganado");
 
   const filters = ["Todos", "Clientes", "Prospectos", "Activos", "En riesgo"];
   const filtrado = useMemo(
@@ -550,6 +625,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
       Inactivo: T.muted,
       "En contacto": T.accent,
       "Propuesta enviada": T.accent,
+      Ganado: T.green,
       Frío: T.muted,
       Perdido: T.red,
     })[e] || T.white;
@@ -1299,6 +1375,82 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
         </Modal>
       )}
 
+      {/* ── MODAL: Crear contrato (al marcar un prospecto como Ganado) ── */}
+      {contratoProspecto && (
+        <Modal
+          title={`🎉 ${contratoProspecto.empresa} — Crear contrato`}
+          onClose={() => setContratoProspecto(null)}
+          onSave={confirmarCrearContrato}
+          saveLabel={creandoContrato ? "Creando..." : "Crear contrato"}
+        >
+          <div
+            style={{
+              background: "#F0FDF4",
+              border: "1px solid rgba(22,163,74,0.25)",
+              borderRadius: 12,
+              padding: "10px 14px",
+              marginBottom: 16,
+              fontSize: 12.5,
+              color: "#166534",
+            }}
+          >
+            Al crear el contrato, <b>{contratoProspecto.empresa}</b> pasará automáticamente de
+            prospecto a <b>Cliente activo</b>.
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12 }}>
+            <label
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: T.muted,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              Panel *
+            </label>
+            <select
+              value={cForm.panel_id}
+              onChange={e => setCForm(f => ({ ...f, panel_id: e.target.value }))}
+              style={{
+                width: "100%",
+                background: T.surface,
+                border: `1px solid ${T.border}`,
+                borderRadius: 10,
+                padding: "10px 13px",
+                color: T.text,
+                fontSize: 14,
+                outline: "none",
+                fontFamily: "inherit",
+                boxSizing: "border-box",
+                cursor: "pointer",
+              }}
+            >
+              <option value="">— Selecciona un panel —</option>
+              {(paneles || []).map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.nombre} · {p.ciudad} · {p.estado}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            {inp("Cara (si aplica)", "cara", cForm, setCForm, {
+              type: "select",
+              options: ["", "A", "B"],
+            })}
+            {inp("Monto mensual (S/) *", "monto", cForm, setCForm, {
+              type: "number",
+              ph: "1200",
+            })}
+            {inp("Fecha inicio *", "inicio", cForm, setCForm, { type: "date" })}
+            {inp("Fecha fin *", "fin", cForm, setCForm, { type: "date" })}
+          </div>
+        </Modal>
+      )}
+
       {/* ── LEADS / PROSPECTOS SECTION ── */}
       <div style={{ margin: "0 16px 8px" }}>
         {/* Header leads */}
@@ -1314,7 +1466,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
             <div style={{ fontSize: 15, fontWeight: 800, color: T.text }}>Leads</div>
             <div style={{ fontSize: 11, color: T.muted, fontWeight: 500 }}>
               {pros.length} prospecto{pros.length !== 1 ? "s" : ""} · {propuestas.length} con
-              propuesta
+              propuesta{ganados.length > 0 ? ` · 🎉 ${ganados.length} ganado${ganados.length !== 1 ? "s" : ""}` : ""}
             </div>
           </div>
           <button
@@ -1360,6 +1512,7 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
             color: "#8B5CF6",
             bg: "#F5F3FF",
           },
+          { label: "🎉 Ganado", estado: "Ganado", color: "#16A34A", bg: "#F0FDF4" },
           { label: "Frío", estado: "Frío", color: "#94A3B8", bg: "#F8FAFC" },
           { label: "Perdido", estado: "Perdido", color: T.red, bg: "#FEF2F2" },
         ].map(({ label, estado, color, bg }) => {
@@ -1467,6 +1620,47 @@ function CRM({ clientes, setClientes, contratos, loading, onModalChange }: CRMPr
                           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
                           <path d="M11.998 0C5.374 0 0 5.373 0 11.998c0 2.117.554 4.1 1.523 5.82L.057 23.52a.5.5 0 0 0 .598.641l5.882-1.542a11.943 11.943 0 0 0 5.46 1.319c6.625 0 12-5.374 12-12S18.623 0 11.998 0zm0 21.94a9.94 9.94 0 0 1-5.065-1.381l-.363-.215-3.758.985.999-3.649-.236-.374A9.943 9.943 0 0 1 2.06 11.998c0-5.479 4.46-9.94 9.939-9.94 5.478 0 9.939 4.461 9.939 9.94 0 5.478-4.461 9.94-9.94 9.94z" />
                         </svg>
+                      </button>
+                    )}
+                    {estado === "Ganado" && (
+                      <button
+                        onClick={e => {
+                          e.stopPropagation();
+                          abrirCrearContrato(p);
+                        }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 5,
+                          height: 34,
+                          padding: "0 12px",
+                          borderRadius: 10,
+                          background: "linear-gradient(135deg,#16A34A,#22C55E)",
+                          border: "none",
+                          color: "#fff",
+                          fontWeight: 700,
+                          fontSize: 11.5,
+                          cursor: "pointer",
+                          touchAction: "manipulation",
+                          fontFamily: "inherit",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+                          <path d="M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          <path d="M9 14l2 2 4-4" />
+                        </svg>
+                        Crear contrato
                       </button>
                     )}
                     <div

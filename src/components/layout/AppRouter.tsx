@@ -194,6 +194,8 @@ export function AppRouter({ userName, autoScan, setAutoScan, onModalChange }: Ap
                   clientes={clientesActive}
                   setClientes={setClientes}
                   contratos={contractsActive}
+                  paneles={paneles}
+                  setContratos={setContratos}
                   loading={loading}
                   onModalChange={onModalChange}
                 />
