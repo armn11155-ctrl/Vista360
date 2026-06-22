@@ -151,6 +151,74 @@ function CRM({
   const [cForm, setCForm] = useState({ panel_id: "", cara: "", inicio: "", fin: "", monto: "" });
   const [creandoContrato, setCreandoContrato] = useState(false);
 
+  // ── Enviar cotización con precio real (PDF + correo) ────────────────
+  const [cotizacionProspecto, setCotizacionProspecto] = useState<Cliente | null>(null);
+  const [qForm, setQForm] = useState({ panel_id: "", cara: "", precioMensual: "", meses: "1", notas: "" });
+  const [enviandoCotizacion, setEnviandoCotizacion] = useState(false);
+
+  const abrirCotizacion = (p: Cliente) => {
+    const panelMatch =
+      p.panelInteres &&
+      (paneles || []).find(pa => pa.nombre?.toLowerCase().includes(p.panelInteres!.toLowerCase()));
+    setQForm({ panel_id: panelMatch?.id || "", cara: "", precioMensual: "", meses: "1", notas: "" });
+    setCotizacionProspecto(p);
+  };
+
+  const confirmarEnviarCotizacion = async () => {
+    if (!cotizacionProspecto) return;
+    if (!cotizacionProspecto.email) {
+      toast.warn("Este prospecto no tiene correo registrado.");
+      return;
+    }
+    const panel = (paneles || []).find(pa => pa.id === qForm.panel_id);
+    if (!panel || !qForm.precioMensual) {
+      toast.warn("Completa el panel y el precio mensual.");
+      return;
+    }
+    setEnviandoCotizacion(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL ?? "";
+      const API_KEY = import.meta.env.VITE_API_KEY ?? "";
+      if (!API_URL) throw new Error("VITE_API_URL no configurado");
+
+      const res = await fetch(`${API_URL}/api/propuestas/enviar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
+        body: JSON.stringify({
+          email: cotizacionProspecto.email,
+          contacto: cotizacionProspecto.contacto,
+          empresa: cotizacionProspecto.empresa,
+          panelNombre: panel.nombre,
+          panelCiudad: panel.ciudad,
+          panelTipo: panel.tipo,
+          cara: qForm.cara || null,
+          precioMensual: Number(qForm.precioMensual),
+          meses: Number(qForm.meses) || 1,
+          notas: qForm.notas || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error ?? `Error del servidor (${res.status})`);
+
+      // Si el prospecto seguía "En contacto", avanza a "Propuesta enviada"
+      if (cotizacionProspecto.estado === "En contacto") {
+        await fb.patch("clientes", cotizacionProspecto.id, { estado: "Propuesta enviada" });
+        setClientes(cs =>
+          cs.map(c => (c.id === cotizacionProspecto.id ? { ...c, estado: "Propuesta enviada" } : c)),
+        );
+      }
+
+      haptic("success");
+      toast.success?.(`Cotización enviada a ${cotizacionProspecto.contacto || cotizacionProspecto.empresa}`);
+      setCotizacionProspecto(null);
+    } catch (e: any) {
+      haptic("error");
+      toast.error("No se pudo enviar la cotización: " + (e?.message ?? "intenta de nuevo"));
+    } finally {
+      setEnviandoCotizacion(false);
+    }
+  };
+
   const abrirCrearContrato = (p: Cliente) => {
     const hoyStr = new Date().toISOString().slice(0, 10);
     const enUnMes = new Date();
@@ -1451,6 +1519,85 @@ function CRM({
         </Modal>
       )}
 
+      {/* ── MODAL: Enviar cotización con precio real ── */}
+      {cotizacionProspecto && (
+        <Modal
+          title={`💬 Cotización para ${cotizacionProspecto.empresa}`}
+          onClose={() => setCotizacionProspecto(null)}
+          onSave={confirmarEnviarCotizacion}
+          saveLabel={enviandoCotizacion ? "Enviando..." : "Enviar cotización"}
+        >
+          <div
+            style={{
+              background: "#EFF6FF",
+              border: "1px solid rgba(29,78,216,0.2)",
+              borderRadius: 12,
+              padding: "10px 14px",
+              marginBottom: 16,
+              fontSize: 12.5,
+              color: "#1E40AF",
+            }}
+          >
+            Se enviará un PDF con el precio al correo de <b>{cotizacionProspecto.contacto || cotizacionProspecto.empresa}</b>
+            {cotizacionProspecto.email ? ` (${cotizacionProspecto.email})` : " — ⚠️ sin correo registrado"}.
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12 }}>
+            <label
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: T.muted,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              Panel *
+            </label>
+            <select
+              value={qForm.panel_id}
+              onChange={e => setQForm(f => ({ ...f, panel_id: e.target.value }))}
+              style={{
+                width: "100%",
+                background: T.surface,
+                border: `1px solid ${T.border}`,
+                borderRadius: 10,
+                padding: "10px 13px",
+                color: T.text,
+                fontSize: 14,
+                outline: "none",
+                fontFamily: "inherit",
+                boxSizing: "border-box",
+                cursor: "pointer",
+              }}
+            >
+              <option value="">— Selecciona un panel —</option>
+              {(paneles || []).map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.nombre} · {p.ciudad} · {p.estado}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+            {inp("Precio mensual (S/) *", "precioMensual", qForm, setQForm, {
+              type: "number",
+              ph: "1200",
+            })}
+            {inp("Meses", "meses", qForm, setQForm, { type: "number", ph: "1" })}
+          </div>
+          {inp("Cara (si aplica)", "cara", qForm, setQForm, {
+            type: "select",
+            options: ["", "A", "B"],
+          })}
+          {inp("Notas / condiciones (opcional)", "notas", qForm, setQForm, {
+            type: "textarea",
+            ph: "Ej: incluye instalación, descuento por pago adelantado...",
+          })}
+        </Modal>
+      )}
+
       {/* ── LEADS / PROSPECTOS SECTION ── */}
       <div style={{ margin: "0 16px 8px" }}>
         {/* Header leads */}
@@ -1593,6 +1740,44 @@ function CRM({
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    {estado !== "Perdido" && (
+                      <button
+                        onClick={e => {
+                          e.stopPropagation();
+                          abrirCotizacion(p);
+                        }}
+                        title="Enviar cotización con precio"
+                        style={{
+                          width: 34,
+                          height: 34,
+                          borderRadius: 10,
+                          background: "rgba(29,78,216,0.15)",
+                          border: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          touchAction: "manipulation",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#1D4ED8"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="9" y1="13" x2="15" y2="13" />
+                          <line x1="9" y1="17" x2="13" y2="17" />
+                        </svg>
+                      </button>
+                    )}
                     {p.celular && (
                       <button
                         onClick={e => {
