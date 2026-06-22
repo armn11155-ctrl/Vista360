@@ -153,14 +153,14 @@ function CRM({
 
   // ── Enviar cotización con precio real (PDF + correo) ────────────────
   const [cotizacionProspecto, setCotizacionProspecto] = useState<Cliente | null>(null);
-  const [qForm, setQForm] = useState({ panel_id: "", cara: "", precioMensual: "", meses: "1", notas: "" });
+  const [qForm, setQForm] = useState({ panel_id: "", cara: "", precioMensual: "", meses: "1", costoInstalacion: "", notas: "" });
   const [enviandoCotizacion, setEnviandoCotizacion] = useState(false);
 
   const abrirCotizacion = (p: Cliente) => {
     const panelMatch =
       p.panelInteres &&
       (paneles || []).find(pa => pa.nombre?.toLowerCase().includes(p.panelInteres!.toLowerCase()));
-    setQForm({ panel_id: panelMatch?.id || "", cara: "", precioMensual: "", meses: "1", notas: "" });
+    setQForm({ panel_id: panelMatch?.id || "", cara: "", precioMensual: "", meses: "1", costoInstalacion: "", notas: "" });
     setCotizacionProspecto(p);
   };
 
@@ -194,6 +194,7 @@ function CRM({
           cara: qForm.cara || null,
           precioMensual: Number(qForm.precioMensual),
           meses: Number(qForm.meses) || 1,
+          costoInstalacion: Number(qForm.costoInstalacion) || 0,
           notas: qForm.notas || null,
         }),
       });
@@ -1587,10 +1588,16 @@ function CRM({
             })}
             {inp("Meses", "meses", qForm, setQForm, { type: "number", ph: "1" })}
           </div>
-          {inp("Cara (si aplica)", "cara", qForm, setQForm, {
-            type: "select",
-            options: ["", "A", "B"],
-          })}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+            {inp("Cara (si aplica)", "cara", qForm, setQForm, {
+              type: "select",
+              options: ["", "A", "B"],
+            })}
+            {inp("Instalación (S/, opcional)", "costoInstalacion", qForm, setQForm, {
+              type: "number",
+              ph: "0 = incluida sin costo",
+            })}
+          </div>
           {inp("Notas / condiciones (opcional)", "notas", qForm, setQForm, {
             type: "textarea",
             ph: "Ej: incluye instalación, descuento por pago adelantado...",
