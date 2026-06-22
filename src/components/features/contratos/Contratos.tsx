@@ -97,6 +97,30 @@ function Contratos({
   };
   const [form, setForm] = useState(emptyC);
 
+  // ── Foto de campaña (con fecha) ─────────────────────────────────
+  const fotoCampaniaRef = useRef<HTMLInputElement>(null);
+  const [subiendoFotoId, setSubiendoFotoId] = useState<string | null>(null);
+
+  const subirFotoCampania = async (contrato: Contrato, file: File) => {
+    setSubiendoFotoId(contrato.id);
+    try {
+      const url = await fb.uploadImagen(file);
+      const hoyISO = new Date().toISOString().split("T")[0];
+      const fotos = [...(contrato.fotos_campania || []), { url, fecha: hoyISO }];
+      const r = await fb.patch("contratos", contrato.id, { fotos_campania: fotos });
+      setContratos(prev =>
+        prev.map(c => (c.id === contrato.id ? { ...c, fotos_campania: (r as any)?.fotos_campania ?? fotos } : c)),
+      );
+      haptic("success");
+      toast.success?.("Foto de campaña guardada");
+    } catch (e: any) {
+      haptic("error");
+      toast.error("No se pudo subir la foto: " + (e?.message ?? "intenta de nuevo"));
+    } finally {
+      setSubiendoFotoId(null);
+    }
+  };
+
   // Generar lista de meses entre dos fechas
   const generarMeses = (inicio, fin) => {
     if (!inicio || !fin) return [];
@@ -330,6 +354,20 @@ function Contratos({
 
   return (
     <div>
+      <input
+        ref={fotoCampaniaRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        style={{ display: "none" }}
+        onChange={e => {
+          const file = e.target.files?.[0];
+          const id = fotoCampaniaRef.current?.getAttribute("data-contrato-id");
+          const contrato = contratos.find(c => c.id === id);
+          if (file && contrato) subirFotoCampania(contrato, file);
+          if (fotoCampaniaRef.current) fotoCampaniaRef.current.value = "";
+        }}
+      />
       {modal && (
         <div
           style={{
@@ -1172,6 +1210,49 @@ function Contratos({
 
                   {/* Botones acción */}
                   <>
+                    {/* Foto de campaña */}
+                    <button
+                      onClick={() => {
+                        fotoCampaniaRef.current?.setAttribute("data-contrato-id", c.id);
+                        fotoCampaniaRef.current?.click();
+                      }}
+                      disabled={subiendoFotoId === c.id}
+                      title="Subir foto de la campaña instalada"
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 10,
+                        border: "1px solid rgba(124,58,237,0.35)",
+                        background: "rgba(124,58,237,0.13)",
+                        cursor: subiendoFotoId === c.id ? "default" : "pointer",
+                        touchAction: "manipulation",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#A78BFA",
+                        position: "relative",
+                      }}
+                    >
+                      {subiendoFotoId === c.id ? (
+                        <div style={{ width: 14, height: 14, border: "2px solid rgba(167,139,250,0.3)", borderTopColor: "#A78BFA", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+                      ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                          <circle cx="12" cy="13" r="4" />
+                        </svg>
+                      )}
+                      {(c.fotos_campania?.length ?? 0) > 0 && (
+                        <span
+                          style={{
+                            position: "absolute", top: -4, right: -4, background: "#16A34A", color: "#fff",
+                            borderRadius: "50%", width: 15, height: 15, fontSize: 9, fontWeight: 800,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                          }}
+                        >
+                          {c.fotos_campania?.length}
+                        </span>
+                      )}
+                    </button>
                     {/* Editar */}
                     <button
                       onClick={() => openEdit(c)}

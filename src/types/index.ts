@@ -78,6 +78,10 @@ export interface Cliente {
   panelInteres?: string;
   notas?: string;
   origen?: string;
+  /** Última cotización enviada desde el CRM (para avisar si no hay respuesta) */
+  ultima_cotizacion_at?: string;
+  ultima_cotizacion_monto?: number;
+  ultima_cotizacion_panel?: string;
   deleted?: boolean;
   createdAt?: Timestamp | null;
 }
@@ -99,6 +103,8 @@ export interface Contrato {
   factura_numero?: string;
   /** Estado de la factura vinculada. Si es Emitida/Cobrada, los meses están bloqueados. */
   factura_estado?: string;
+  /** Fotos de la campaña instalada, con fecha — evidencia para el cliente */
+  fotos_campania?: { url: string; fecha: string }[];
   /** Meses bloqueados por factura SUNAT. key: "YYYY-MM", value: "Emitida"|"Cobrada" */
   mesesFacturados?: Record<string, string>;
   deleted?: boolean;
@@ -117,6 +123,11 @@ export interface Gasto {
   subtotal?: number;
   moneda?: Moneda;
   foto_texto?: string;
+  /** Plantilla recurrente — se vuelve a crear sola cada mes (ver cron en facturacion-api) */
+  recurrente?: boolean;
+  recurrente_dia?: number;
+  /** Presente solo en los gastos generados automáticamente: apunta a la plantilla que los originó */
+  recurrente_origen_id?: string;
   deleted?: boolean;
   createdAt?: Timestamp | null;
 }

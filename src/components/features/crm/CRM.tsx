@@ -185,6 +185,7 @@ function CRM({
         method: "POST",
         headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
         body: JSON.stringify({
+          clienteId: cotizacionProspecto.id,
           email: cotizacionProspecto.email,
           contacto: cotizacionProspecto.contacto,
           empresa: cotizacionProspecto.empresa,

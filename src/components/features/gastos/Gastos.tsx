@@ -682,6 +682,8 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
       foto_texto: (form.foto_texto || "").substring(0, 500),
       fotoUrl,
       moneda: form.moneda || "PEN",
+      recurrente: !!form.recurrente,
+      ...(form.recurrente ? { recurrente_dia: new Date((form.fecha || new Date().toISOString().split("T")[0]) + "T00:00:00").getDate() } : {}),
     };
     try {
       if (modal === "nuevo") {
@@ -3124,6 +3126,60 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                       setForm={setForm}
                     />
                     <GastosKInp label="RUC (11 dígitos)" keyN="ruc" form={form} setForm={setForm} />
+                  </div>
+
+                  {/* ── Gasto recurrente ── */}
+                  <div
+                    style={{
+                      background: form.recurrente ? "#7C3AED18" : "#060E1A",
+                      border: `1px solid ${form.recurrente ? "#7C3AED50" : "#1E3050"}`,
+                      borderRadius: 12,
+                      padding: "12px 14px",
+                      marginBottom: 18,
+                    }}
+                  >
+                    <div
+                      onClick={() => setForm((f: any) => ({ ...f, recurrente: !f.recurrente }))}
+                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", touchAction: "manipulation" }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ fontSize: 18 }}>🔁</span>
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: T.white }}>Gasto recurrente</div>
+                          <div style={{ fontSize: 10.5, color: T.muted }}>Se vuelve a crear solo cada mes</div>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          width: 42,
+                          height: 24,
+                          borderRadius: 12,
+                          background: form.recurrente ? "#7C3AED" : "#1E3050",
+                          position: "relative",
+                          flexShrink: 0,
+                          transition: "background .15s",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 18,
+                            height: 18,
+                            borderRadius: "50%",
+                            background: "#fff",
+                            position: "absolute",
+                            top: 3,
+                            left: form.recurrente ? 21 : 3,
+                            transition: "left .15s",
+                          }}
+                        />
+                      </div>
+                    </div>
+                    {form.recurrente && (
+                      <div style={{ marginTop: 10, fontSize: 11, color: "#C4B5FD", lineHeight: 1.5 }}>
+                        Se creará automáticamente un gasto igual a este (mismo monto, categoría y proveedor) el día{" "}
+                        <b>{form.fecha ? new Date(form.fecha + "T00:00:00").getDate() : new Date().getDate()}</b> de cada mes, sin que tengas que volver a escribirlo.
+                      </div>
+                    )}
                   </div>
 
                   {/* Botones guardar */}
