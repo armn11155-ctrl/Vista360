@@ -21,10 +21,18 @@ export function useEdgeScrollLock(ref: RefObject<HTMLElement | null>) {
       if ((el as any).__edgeLockAttached) return;
       (el as any).__edgeLockAttached = true;
 
+      // BUG FIX: cuando el contenido no excede el alto del contenedor
+      // (página corta, o datos aún cargando) `atTop()` y `atBottom()` daban
+      // `true` AL MISMO TIEMPO. Eso hacía que CUALQUIER gesto de touch/wheel,
+      // sin importar la dirección, cayera en preventDefault() — el usuario
+      // sentía que la página "no bajaba" o se quedaba pegada arriba.
+      // Si no hay overflow real, no hay borde que frenar: no interceptar nada.
+      const hasOverflow = () => el.scrollHeight > el.clientHeight + 1;
       const atTop = () => el.scrollTop <= 0;
       const atBottom = () => el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
 
       const onWheel = (e: WheelEvent) => {
+        if (!hasOverflow()) return;
         if ((atTop() && e.deltaY < 0) || (atBottom() && e.deltaY > 0)) {
           e.preventDefault();
         }
@@ -35,6 +43,7 @@ export function useEdgeScrollLock(ref: RefObject<HTMLElement | null>) {
         touchStartY = e.touches[0]?.clientY ?? 0;
       };
       const onTouchMove = (e: TouchEvent) => {
+        if (!hasOverflow()) return;
         const currentY = e.touches[0]?.clientY ?? touchStartY;
         const deltaY = touchStartY - currentY; // positivo = dedo sube = contenido baja
         if ((atTop() && deltaY < 0) || (atBottom() && deltaY > 0)) {
