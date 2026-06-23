@@ -44,14 +44,21 @@ export function useHeaderShell(user: User, showProfile: boolean) {
 
   // ── theme-color síncrono con useLayoutEffect ─────────────────────────
   // Corre antes del paint — status bar y header cambian en el mismo frame.
+  //
+  // BUG FIX: Chrome Android no siempre repinta el status bar nativo solo
+  // porque cambiamos el atributo `content` de un <meta> que ya existía en
+  // el DOM — en la práctica, muchas veces no lo aplica hasta el próximo
+  // scroll/gesto, dejando el status bar con el color viejo (se ve "negro")
+  // hasta que el usuario desliza una vez. Forzar a Chrome a tratar el meta
+  // como nuevo (quitarlo y volver a insertarlo) hace que lo recoja de
+  // inmediato, sin depender de que el usuario haga scroll primero.
   useLayoutEffect(() => {
-    let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.setAttribute("name", "theme-color");
-      document.head.appendChild(meta);
-    }
+    const old = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (old) old.remove();
+    const meta = document.createElement("meta");
+    meta.setAttribute("name", "theme-color");
     meta.setAttribute("content", headerColor);
+    document.head.appendChild(meta);
     document.documentElement.style.background = headerColor;
     document.body.style.background = headerColor;
     document.documentElement.style.setProperty("--app-bg", headerColor);

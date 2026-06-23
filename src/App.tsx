@@ -334,8 +334,17 @@ function AppShell() {
   const splashWaiting = useRef(false);
 
   useEffect(() => {
+    // BUG FIX: con un swipe rápido, el scroll del WINDOW se movía unos px
+    // (rebote/chaining en algunos navegadores) y este lock lo corregía
+    // de inmediato con scrollTo(0,0) — pero si el dedo seguía tocando la
+    // pantalla, esa corrección "peleaba" contra el gesto en curso y se veía
+    // como si la página saltara de vuelta al inicio sola. Por eso ahora NO
+    // corrige mientras `touching` es true; corrige recién al soltar
+    // (touchend/touchcancel) o en el próximo scroll una vez liberado el dedo.
+    let touching = false;
     const lockScroll = () => {
       if (window.innerWidth >= 1024) return; // escritorio: no bloquear scroll
+      if (touching) return;
       const el = document.activeElement as HTMLElement | null;
       const editing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
       if (!editing && window.scrollY !== 0) window.scrollTo(0, 0);
@@ -380,15 +389,25 @@ function AppShell() {
       scrollInputIntoView(500);
       scrollInputIntoView(750);
     };
-    const noop = () => {};
-    document.addEventListener("touchstart", noop, { passive: true });
+    const onTouchStart = () => { touching = true; };
+    const onTouchEnd = () => {
+      touching = false;
+      // El gesto terminó: corrige cualquier resto de scroll AHORA (no a
+      // mitad del swipe), sin esperar a que llegue otro evento "scroll".
+      lockScroll();
+    };
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchend", onTouchEnd, { passive: true });
+    document.addEventListener("touchcancel", onTouchEnd, { passive: true });
     updateKbHeight();
     lockScroll();
     window.addEventListener("scroll", lockScroll, { passive: true });
     vv?.addEventListener("resize", updateKbHeight, { passive: true });
     document.addEventListener("focusin", onFocusin as EventListener);
     return () => {
-      document.removeEventListener("touchstart", noop);
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener("touchcancel", onTouchEnd);
       window.removeEventListener("scroll", lockScroll);
       vv?.removeEventListener("resize", updateKbHeight);
       document.removeEventListener("focusin", onFocusin as EventListener);
