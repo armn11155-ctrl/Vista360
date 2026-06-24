@@ -417,7 +417,7 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
               ph: "Panel Norte – Av. Principal",
             })}
             {inp("Ciudad", "ciudad", form, setForm, { type: "select", options: CIUDADES })}
-            {inp("Tipo", "tipo", form, setForm, { type: "select", options: [...TIPOS_PANEL] })}
+            {inp("Tipo", "tipo", form, setForm, { type: "select", options: ["LED", "Lona"] })}
             {inp("Precio mensual (S/)", "precio", form, setForm, { type: "number" })}
             {inp("Estado", "estado", form, setForm, {
               type: "select",
