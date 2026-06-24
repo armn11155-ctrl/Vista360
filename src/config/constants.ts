@@ -45,7 +45,7 @@ export const CAT_PROVE = [
 ];
 // ── Tipos de panel y número de caras ──────────────────────────────────
 /** Tipos de panel disponibles */
-export const TIPOS_PANEL = ["Unipolar", "Mural", "Valla", "Led", "Tótem", "360 Classic", "Otro"] as const;
+export const TIPOS_PANEL = ["Unipolar", "Mural", "Valla", "Led", "Tótem", "Otro"] as const;
 
 export type TipoPanel = (typeof TIPOS_PANEL)[number] | string;
 
@@ -58,11 +58,6 @@ export const getCarasPanel = (tipo: string): 1 | 2 =>
 
 // ── Íconos para paneles — reemplazados de P1-P10 a emojis visuales ──
 export const EMOJIS = ["🏙️", "🌆", "🏢", "🏬", "🛣️", "🌉", "🏗️", "🗼", "🌃", "🏪"];
-
-/** Imagen de referencia para cada tipo de panel */
-export const TIPO_PANEL_IMG: Record<string, string> = {
-  "360 Classic": "/360classic.png",
-};
 
 export const EMISOR = {
   razonSocial: import.meta.env.VITE_EMISOR_RAZON_SOCIAL ?? "",
