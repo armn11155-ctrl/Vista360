@@ -1,6 +1,6 @@
 // @ts-nocheck — se migrará a strict TS junto con Paneles.tsx
 import { T } from "../../../config/theme";
-import { getCarasPanel } from "../../../config/constants";
+import { getCarasPanel, TIPO_PANEL_IMG } from "../../../config/constants";
 import { fmt } from "../../../lib/utils";
 import type { Panel } from "../../../types";
 
@@ -69,23 +69,43 @@ export function PanelCard({ panel: p, carasOcupadas, onEdit, onDelete }: PanelCa
       <div style={{ position: "relative" }}>
         {/* Fila superior: ícono + nombre + badge estado */}
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 14 }}>
-          <div
-            style={{
-              width: 54,
-              height: 54,
-              borderRadius: 14,
-              flexShrink: 0,
-              background: "linear-gradient(135deg,#5B8DEF,#243F8C)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1.5px solid rgba(255,255,255,0.18)",
-              boxShadow: "0 6px 18px rgba(0,0,0,0.4)",
-              fontSize: 28,
-            }}
-          >
-            {p.foto || ""}
-          </div>
+          {TIPO_PANEL_IMG[p.tipo] ? (
+            <div
+              style={{
+                width: 54,
+                height: 54,
+                borderRadius: 14,
+                flexShrink: 0,
+                overflow: "hidden",
+                border: "1.5px solid rgba(255,255,255,0.18)",
+                boxShadow: "0 6px 18px rgba(0,0,0,0.4)",
+              }}
+            >
+              <img
+                src={TIPO_PANEL_IMG[p.tipo]}
+                alt={p.tipo}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </div>
+          ) : (
+            <div
+              style={{
+                width: 54,
+                height: 54,
+                borderRadius: 14,
+                flexShrink: 0,
+                background: "linear-gradient(135deg,#5B8DEF,#243F8C)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1.5px solid rgba(255,255,255,0.18)",
+                boxShadow: "0 6px 18px rgba(0,0,0,0.4)",
+                fontSize: 28,
+              }}
+            >
+              {p.foto || ""}
+            </div>
+          )}
           <div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
             <div
               style={{
@@ -168,6 +188,26 @@ export function PanelCard({ panel: p, carasOcupadas, onEdit, onDelete }: PanelCa
             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {p.direccion}
             </span>
+          </div>
+        )}
+
+        {/* Imagen de producto 360 Classic */}
+        {TIPO_PANEL_IMG[p.tipo] && (
+          <div
+            style={{
+              borderRadius: 14,
+              overflow: "hidden",
+              marginBottom: 14,
+              border: "1px solid rgba(255,255,255,0.08)",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+              height: 160,
+            }}
+          >
+            <img
+              src={TIPO_PANEL_IMG[p.tipo]}
+              alt={`Vista ${p.tipo}`}
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
+            />
           </div>
         )}
 
