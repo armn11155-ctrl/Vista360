@@ -94,7 +94,6 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
   const [loadingG, setLoadingG] = useState(false);
   const [error, setError]       = useState("");
 
-  // Fondo global siempre oscuro, sin fugas de color
   useEffect(() => {
     const prev = document.body.style.background;
     document.body.style.background = "#07101F";
@@ -177,7 +176,6 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
     if (e.key === "Enter" && !loading && !loadingG) handleLogin();
   };
 
-  // ── Estilos reutilizables ──
   const inp: React.CSSProperties = {
     width: "100%",
     padding: "13px 16px",
@@ -244,9 +242,7 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
         overflow: "hidden",
       }}>
 
-        {/* ════════════════════════════════
-            PANEL IZQUIERDO — Branding
-        ════════════════════════════════ */}
+        {/* ════════ PANEL IZQUIERDO — Branding ════════ */}
         <div style={{
           flex: "0 0 45%",
           minWidth: 0,
@@ -273,21 +269,9 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
             pointerEvents: "none",
           }} />
           {/* Puntos decorativos */}
-          <div style={{
-            position: "absolute", top: "12%", left: "8%",
-            width: 6, height: 6, borderRadius: "50%",
-            background: "rgba(255,255,255,.18)",
-          }} />
-          <div style={{
-            position: "absolute", top: "28%", left: "14%",
-            width: 4, height: 4, borderRadius: "50%",
-            background: "rgba(255,255,255,.12)",
-          }} />
-          <div style={{
-            position: "absolute", bottom: "18%", right: "10%",
-            width: 5, height: 5, borderRadius: "50%",
-            background: "rgba(255,255,255,.15)",
-          }} />
+          <div style={{ position: "absolute", top: "12%", left: "8%", width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,.18)" }} />
+          <div style={{ position: "absolute", top: "28%", left: "14%", width: 4, height: 4, borderRadius: "50%", background: "rgba(255,255,255,.12)" }} />
+          <div style={{ position: "absolute", bottom: "18%", right: "10%", width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,.15)" }} />
 
           {/* Contenido branding */}
           <div style={{
@@ -310,24 +294,24 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
               Plataforma de gestión empresarial integral
             </p>
 
-            {/* Tarjetas de características */}
             {[
-              { icon: "📊", label: "Reportes en tiempo real" },
-              { icon: "🗺️", label: "Gestión de paneles y mapas" },
-              { icon: "🔒", label: "Acceso seguro y controlado" },
+              { icon: "📊", label: "Reportes en tiempo real",       sub: "Toma decisiones basadas en datos actuales." },
+              { icon: "🗺️", label: "Gestión de paneles y mapas",    sub: "Visualiza y administra tu información." },
+              { icon: "🔒", label: "Acceso seguro y controlado",     sub: "Protegemos tu información y la de tu empresa." },
             ].map((f) => (
               <div key={f.label} style={{
-                display: "flex", alignItems: "center", gap: 12,
+                display: "flex", alignItems: "flex-start", gap: 12,
                 marginBottom: 14,
                 background: "rgba(255,255,255,.06)",
                 border: "1px solid rgba(255,255,255,.09)",
                 borderRadius: 12, padding: "11px 16px",
                 textAlign: "left",
               }}>
-                <span style={{ fontSize: 18 }}>{f.icon}</span>
-                <span style={{ fontSize: 13, color: "rgba(255,255,255,.72)", fontWeight: 500 }}>
-                  {f.label}
-                </span>
+                <span style={{ fontSize: 18, marginTop: 2 }}>{f.icon}</span>
+                <div>
+                  <div style={{ fontSize: 13, color: "rgba(255,255,255,.82)", fontWeight: 700, marginBottom: 2 }}>{f.label}</div>
+                  <div style={{ fontSize: 11.5, color: "rgba(255,255,255,.42)", lineHeight: 1.4 }}>{f.sub}</div>
+                </div>
               </div>
             ))}
           </div>
@@ -341,9 +325,7 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
           </div>
         </div>
 
-        {/* ════════════════════════════════
-            PANEL DERECHO — Formulario
-        ════════════════════════════════ */}
+        {/* ════════ PANEL DERECHO — Formulario ════════ */}
         <div style={{
           flex: 1,
           minWidth: 0,
@@ -369,6 +351,8 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
             }}>
               Bienvenido
             </h1>
+            {/* Línea azul de acento */}
+            <div style={{ width: 36, height: 3, background: "#2563EB", borderRadius: 2, marginBottom: 12 }} />
             <p style={{ margin: "0 0 32px", fontSize: 14, color: "#6B7280" }}>
               Ingresa tus credenciales para continuar
             </p>
@@ -387,34 +371,42 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
 
             {/* Usuario */}
             <div style={{ marginBottom: 18 }}>
-              <label style={{
-                display: "block", marginBottom: 7,
-                fontSize: 13, fontWeight: 600, color: "#374151",
-              }}>
+              <label style={{ display: "block", marginBottom: 7, fontSize: 13, fontWeight: 600, color: "#374151" }}>
                 Usuario
               </label>
-              <input
-                className="v360d-inp"
-                type="email"
-                placeholder="correo@empresa.com"
-                value={email}
-                onChange={e => { setEmail(e.target.value); setError(""); }}
-                onKeyDown={onKey}
-                disabled={busy}
-                autoComplete="email"
-                style={{ ...inp, opacity: busy ? .6 : 1 }}
-              />
+              <div style={{ position: "relative" }}>
+                <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#9CA3AF", display: "flex", alignItems: "center", pointerEvents: "none" }}>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
+                  </svg>
+                </span>
+                <input
+                  className="v360d-inp"
+                  type="email"
+                  placeholder="correo@empresa.com"
+                  value={email}
+                  onChange={e => { setEmail(e.target.value); setError(""); }}
+                  onKeyDown={onKey}
+                  disabled={busy}
+                  autoComplete="email"
+                  style={{ ...inp, paddingLeft: 42, opacity: busy ? .6 : 1 }}
+                />
+              </div>
             </div>
 
             {/* Contraseña */}
             <div style={{ marginBottom: 20 }}>
-              <label style={{
-                display: "block", marginBottom: 7,
-                fontSize: 13, fontWeight: 600, color: "#374151",
-              }}>
+              <label style={{ display: "block", marginBottom: 7, fontSize: 13, fontWeight: 600, color: "#374151" }}>
                 Contraseña
               </label>
               <div style={{ position: "relative" }}>
+                <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#9CA3AF", display: "flex", alignItems: "center", pointerEvents: "none" }}>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                    <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </span>
                 <input
                   className="v360d-inp"
                   type={showPass ? "text" : "password"}
@@ -424,7 +416,7 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
                   onKeyDown={onKey}
                   disabled={busy}
                   autoComplete="current-password"
-                  style={{ ...inp, paddingRight: 46, opacity: busy ? .6 : 1 }}
+                  style={{ ...inp, paddingLeft: 42, paddingRight: 46, opacity: busy ? .6 : 1 }}
                 />
                 <button
                   className="v360d-eye"
@@ -448,10 +440,7 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
             </div>
 
             {/* Mantener recordado */}
-            <label style={{
-              display: "flex", alignItems: "center", gap: 10,
-              marginBottom: 26, cursor: "pointer", userSelect: "none",
-            }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 26, cursor: "pointer", userSelect: "none" }}>
               <div
                 className="v360d-check"
                 onClick={() => setRemember(v => !v)}
@@ -464,15 +453,11 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
               >
                 {remember && (
                   <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                    <path d="M2 6L5 9L10 3" stroke="#fff" strokeWidth="2.2"
-                      strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M2 6L5 9L10 3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 )}
               </div>
-              <span
-                style={{ fontSize: 13, color: "#4B5563" }}
-                onClick={() => setRemember(v => !v)}
-              >
+              <span style={{ fontSize: 13, color: "#4B5563" }} onClick={() => setRemember(v => !v)}>
                 Mantener recordado
               </span>
             </label>
@@ -522,14 +507,9 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
             </button>
 
             {/* Divisor */}
-            <div style={{
-              display: "flex", alignItems: "center",
-              margin: "22px 0", gap: 12,
-            }}>
+            <div style={{ display: "flex", alignItems: "center", margin: "22px 0", gap: 12 }}>
               <div style={{ flex: 1, height: 1, background: "#F3F4F6" }} />
-              <span style={{ fontSize: 12, color: "#9CA3AF", fontWeight: 500 }}>
-                o continúa con
-              </span>
+              <span style={{ fontSize: 12, color: "#9CA3AF", fontWeight: 500 }}>o continúa con</span>
               <div style={{ flex: 1, height: 1, background: "#F3F4F6" }} />
             </div>
 
@@ -573,7 +553,7 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
 }
 
 // ══════════════════════════════════════════════════════════════
-// MOBILE LOGIN — sin cambios
+// MOBILE LOGIN
 // ══════════════════════════════════════════════════════════════
 function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: LoginScreenProps) {
   const isDesktop = useIsDesktop();
@@ -585,11 +565,8 @@ function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: Logi
   const [error, setError]                         = useState("");
   const [credentialStored, setCredentialStored]   = useState(false);
   const [webAuthnSupported, setWebAuthnSupported] = useState(false);
-  const [entered, setEntered]                     = useState(!splashActive);
-
-  useEffect(() => {
-    if (!splashActive && !entered) setEntered(true);
-  }, [splashActive]); // eslint-disable-line react-hooks/exhaustive-deps
+  // FIX: siempre mostrar el móvil aunque splashActive cambie tarde
+  const [entered, setEntered]                     = useState(true);
 
   const logoRef = useCallback((node: HTMLDivElement | null) => {
     if (!node || !onLogoReady) return;
@@ -615,6 +592,11 @@ function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: Logi
     setWebAuthnSupported(!!window.PublicKeyCredential);
     setCredentialStored(!!localStorage.getItem("v360-webauthn-credential"));
   }, []);
+
+  // FIX pantalla oscura: si splashActive pasa a false, mostrar contenido
+  useEffect(() => {
+    if (!splashActive) setEntered(true);
+  }, [splashActive]);
 
   const handleFaceID = async () => {
     setLoadingFace(true);
@@ -708,8 +690,9 @@ function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: Logi
       display: "flex", flexDirection: "column",
       zIndex: 998,
       background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
-      opacity: splashActive ? 0 : 1,
-      pointerEvents: splashActive ? "none" : "auto",
+      // FIX: siempre visible en móvil, no depender de splashActive para opacity
+      opacity: 1,
+      pointerEvents: "auto",
     }}>
       <style>{`
         @keyframes pulseRing {
@@ -717,6 +700,7 @@ function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: Logi
           70% { box-shadow: 0 0 0 14px rgba(37,99,235,0); }
           100%{ box-shadow: 0 0 0 0    rgba(37,99,235,0); }
         }
+        @keyframes v360spin { to { transform: rotate(360deg); } }
         .v360-faceid:active { transform: scale(.97); }
         .v360-google:active { opacity: .55 !important; }
       `}</style>
@@ -755,9 +739,7 @@ function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: Logi
           position: "relative", zIndex: 1, textAlign: "center",
           opacity: entered ? 1 : 0,
           transform: entered ? "translateY(0)" : "translateY(10px)",
-          transition: entered
-            ? "opacity 0.35s ease-out 0.05s, transform 0.35s ease-out 0.05s"
-            : "none",
+          transition: "opacity 0.35s ease-out 0.05s, transform 0.35s ease-out 0.05s",
         }}>
           <div style={{ fontSize: 16, color: "rgba(255,255,255,.72)", fontWeight: 400, marginBottom: 6 }}>
             Hola,
@@ -784,9 +766,7 @@ function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: Logi
         position: "relative", zIndex: 1,
         opacity: entered ? 1 : 0,
         transform: entered ? "translateY(0)" : "translateY(28px)",
-        transition: entered
-          ? "opacity 0.45s ease-out 0.15s, transform 0.45s ease-out 0.15s"
-          : "none",
+        transition: "opacity 0.45s ease-out 0.15s, transform 0.45s ease-out 0.15s",
       }}>
         {!API_KEY_OK && (
           <div style={{
@@ -811,10 +791,7 @@ function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: Logi
             fontSize: 16, fontWeight: 700,
             cursor: (loadingFace || loading) ? "wait" : "pointer",
             display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
-            animation:
-              !loadingFace && credentialStored
-                ? "pulseRing 2.8s ease-out infinite"
-                : undefined,
+            animation: !loadingFace && credentialStored ? "pulseRing 2.8s ease-out infinite" : undefined,
             transition: "background .2s, transform .12s",
             marginBottom: 18,
           }}
