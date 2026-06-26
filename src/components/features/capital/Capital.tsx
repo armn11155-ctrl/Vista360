@@ -56,6 +56,7 @@ import {
   SkPulse,
 } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
+import { useIsDesktop } from "../../../hooks/useIsDesktop";
 
 // ── Gastos y Proveedores viven ahora como pestañas dentro de Finanzas
 //    (antes "Capital") — lazy para no inflar el chunk si nunca se abren.
@@ -230,8 +231,7 @@ function DarkSelect({ label, value, onChange, options }: DarkSelectProps) {
 }
 
 // ── Tarjeta navy premium con ondas ──
-function CapCard({ children, accent = "#3B6EFF", noWave, style = {} }: CapCardProps) {
-  const wid = `cw${Math.random().toString(36).slice(2, 7)}`;
+function CapCard({ children, style = {} }: CapCardProps) {
   return (
     <div
       style={{
@@ -244,42 +244,6 @@ function CapCard({ children, accent = "#3B6EFF", noWave, style = {} }: CapCardPr
         ...style,
       }}
     >
-      {!noWave && (
-        <svg
-          viewBox="0 0 400 140"
-          preserveAspectRatio="xMidYMid slice"
-          style={{
-            position: "absolute",
-            right: 0,
-            bottom: 0,
-            width: "70%",
-            height: "100%",
-            pointerEvents: "none",
-            opacity: 0.55,
-          }}
-        >
-          <defs>
-            <linearGradient id={wid} x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor={accent} stopOpacity="0" />
-              <stop offset="50%" stopColor={accent} stopOpacity="0.5" />
-              <stop offset="100%" stopColor={accent} stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          {[0, 1, 2, 3, 4, 5].map(i => {
-            const t = i / 5;
-            return (
-              <path
-                key={i}
-                d={`M${380 - t * 40} ${140} C ${310 - t * 30} ${100} ${230 - t * 20} ${60} ${130 - t * 15} ${30} S ${20 - t * 10} ${10} ${-10} ${25}`}
-                fill="none"
-                stroke={`url(#${wid})`}
-                strokeWidth={1.2 - t * 0.15}
-                opacity={0.25 + t * 0.5}
-              />
-            );
-          })}
-        </svg>
-      )}
       <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
     </div>
   );
@@ -363,6 +327,7 @@ function Capital({
   onModalChange,
   loading,
 }: CapitalProps) {
+  const isDesktop = useIsDesktop();
   // ── State persistido en Firebase ──
   const [data, setData] = useState({
     cuentas: [], // {id,nombre,banco,saldo,tipo}
@@ -720,49 +685,77 @@ function Capital({
   const renderPatrimonio = () => (
     <div>
       {/* Hero patrimonio */}
-      <CapCard accent="#3B82F6" style={{ padding: "26px 22px 22px", marginBottom: 12 }}>
+      <CapCard style={{ padding: "26px 22px 22px", marginBottom: 12 }}>
+        <div
+          style={{
+            display: isDesktop ? "flex" : "block",
+            alignItems: isDesktop ? "center" : undefined,
+            gap: isDesktop ? 36 : 0,
+          }}
+        >
+          <div style={{ flex: isDesktop ? "0 0 auto" : undefined }}>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: "rgba(147,197,253,0.6)",
+                letterSpacing: 2.5,
+                textTransform: "uppercase",
+                marginBottom: 8,
+              }}
+            >
+              Patrimonio neto total
+            </div>
+            <div
+              style={{
+                fontSize: isDesktop ? 44 : 48,
+                fontWeight: 900,
+                color: "#fff",
+                letterSpacing: "-2px",
+                lineHeight: 1,
+                marginBottom: 8,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {fmtS2(patrimonio)}
+            </div>
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: patrimonioChange >= 0 ? "#60A5FA" : "#F87171",
+                background:
+                  patrimonioChange >= 0 ? "rgba(59,130,246,0.18)" : "rgba(248,113,113,0.15)",
+                borderRadius: 99,
+                padding: "3px 10px",
+                display: "inline-block",
+              }}
+            >
+              {patrimonioChange >= 0 ? "+" : ""}
+              {patrimonioChange}% este mes
+            </span>
+          </div>
+          <div style={{ flex: 1, minWidth: 0, marginTop: isDesktop ? 0 : 20 }}>
+            <Sparkline data={spark6} color="#60A5FA" height={isDesktop ? 64 : 44} />
+          </div>
+        </div>
+      </CapCard>
+
+      {/* Composición — Liquidez / Activos / Deudas, como tarjeta propia */}
+      <CapCard style={{ padding: "18px 20px", marginBottom: 12 }}>
         <div
           style={{
             fontSize: 10,
             fontWeight: 700,
-            color: "rgba(147,197,253,0.6)",
-            letterSpacing: 2.5,
+            color: "rgba(148,175,255,0.45)",
+            letterSpacing: 2,
             textTransform: "uppercase",
-            marginBottom: 8,
+            marginBottom: 14,
           }}
         >
-          Patrimonio neto total
+          Composición
         </div>
-        <div
-          style={{
-            fontSize: 48,
-            fontWeight: 900,
-            color: "#fff",
-            letterSpacing: "-2px",
-            lineHeight: 1,
-            marginBottom: 8,
-          }}
-        >
-          {fmtS2(patrimonio)}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          <span
-            style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: patrimonioChange >= 0 ? "#60A5FA" : "#F87171",
-              background:
-                patrimonioChange >= 0 ? "rgba(59,130,246,0.18)" : "rgba(248,113,113,0.15)",
-              borderRadius: 99,
-              padding: "3px 10px",
-            }}
-          >
-            {patrimonioChange >= 0 ? "+" : ""}
-            {patrimonioChange}% este mes
-          </span>
-        </div>
-        <Sparkline data={spark6} color="#60A5FA" height={44} />
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
           {[
             { label: "Liquidez", value: totalLiquidez, color: "#60A5FA" },
             { label: "Activos", value: totalActivos, color: "#fff" },
@@ -771,24 +764,27 @@ function Capital({
             <div
               key={label}
               style={{
-                background: "rgba(255,255,255,0.07)",
-                borderRadius: 12,
-                padding: "10px 10px",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 14,
+                padding: isDesktop ? "16px 16px" : "12px 12px",
               }}
             >
               <div
                 style={{
-                  width: 6,
-                  height: 6,
+                  width: 7,
+                  height: 7,
                   borderRadius: "50%",
                   background: color,
-                  marginBottom: 6,
+                  marginBottom: 8,
                 }}
               />
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 3 }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 4 }}>
                 {label}
               </div>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{fmtK(value)}</div>
+              <div style={{ fontSize: isDesktop ? 18 : 14, fontWeight: 800, color: "#fff" }}>
+                {fmtK(value)}
+              </div>
             </div>
           ))}
         </div>
@@ -808,7 +804,13 @@ function Capital({
         >
           Flujo mensual
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: isDesktop ? "repeat(4, 1fr)" : "1fr 1fr",
+            gap: 10,
+          }}
+        >
           {[
             {
               label: "Ingresos",
@@ -864,6 +866,7 @@ function Capital({
                     justifyContent: "center",
                     fontSize: 11,
                     color,
+                    flexShrink: 0,
                   }}
                 >
                   {icon}
@@ -939,7 +942,7 @@ function Capital({
   const renderLiquidez = () => (
     <div>
       {/* Total liquidez hero */}
-      <CapCard accent={CAP_COLORS.liquidez} style={{ padding: "22px 20px", marginBottom: 12 }}>
+      <CapCard style={{ padding: "22px 20px", marginBottom: 12 }}>
         <div
           style={{
             fontSize: 10,
@@ -1331,7 +1334,7 @@ function Capital({
 
   const renderActivos = () => (
     <div>
-      <CapCard accent={CAP_COLORS.activos} style={{ padding: "22px 20px", marginBottom: 12 }}>
+      <CapCard style={{ padding: "22px 20px", marginBottom: 12 }}>
         <div
           style={{
             fontSize: 10,
@@ -1590,7 +1593,7 @@ function Capital({
     const totalPct = data.fondos.reduce((s, f) => s + Number(f.pct || 0), 0);
     return (
       <div>
-        <CapCard accent={CAP_COLORS.fondos} style={{ padding: "22px 20px", marginBottom: 12 }}>
+        <CapCard style={{ padding: "22px 20px", marginBottom: 12 }}>
           <div
             style={{
               fontSize: 10,
@@ -1734,7 +1737,7 @@ function Capital({
 
   const renderObjetivos = () => (
     <div>
-      <CapCard accent={CAP_COLORS.objetivos} style={{ padding: "22px 20px", marginBottom: 12 }}>
+      <CapCard style={{ padding: "22px 20px", marginBottom: 12 }}>
         <div
           style={{
             fontSize: 10,
