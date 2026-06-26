@@ -36,6 +36,14 @@ export const TAB_TITLES: Record<string, string> = {
  * Separado para evitar que los cambios de ruta disparen re-renders
  * en los hooks de datos o de UI state.
  */
+// ── Cuentas que pertenecen a la misma persona (gerente) ──────────────
+// Sin importar con cuál de estos correos inicie sesión, se muestra
+// siempre el mismo nombre en toda la app.
+const KNOWN_USERS: Record<string, string> = {
+  "armn.101@hotmail.com": "Alan Rubén Martínez Núñez",
+  "armn.11155@gmail.com": "Alan Rubén Martínez Núñez",
+};
+
 export function useHeaderShell(user: User, showProfile: boolean) {
   const location = useLocation();
 
@@ -65,6 +73,8 @@ export function useHeaderShell(user: User, showProfile: boolean) {
 
   // ── Datos del usuario ──────────────────────────────────────────────
   const userName = useMemo(() => {
+    const email = (user.email ?? "").toLowerCase();
+    if (KNOWN_USERS[email]) return KNOWN_USERS[email];
     if (user.displayName) return user.displayName;
     const local = (user.email ?? "").split("@")[0] ?? "";
     return local.charAt(0).toUpperCase() + local.slice(1);
