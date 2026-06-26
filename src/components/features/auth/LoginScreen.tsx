@@ -97,7 +97,7 @@ const FEATURES = [
 
 // ══════════════════════════════════════════════════════════════
 // DESKTOP LOGIN
-// Fondo completo azul oscuro; tarjeta blanca flotante a la derecha
+// Panel izquierdo oscuro (branding) + panel derecho claro (form)
 // ══════════════════════════════════════════════════════════════
 function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void }) {
   const [email, setEmail]       = useState("");
@@ -109,8 +109,8 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
   const [error, setError]       = useState("");
 
   useEffect(() => {
-    document.body.style.background = "#07101F";
-    document.documentElement.style.background = "#07101F";
+    document.body.style.background = "#0D1629";
+    document.documentElement.style.background = "#0D1629";
   }, []);
 
   const checkAllowed = (user: User) => {
@@ -169,227 +169,249 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
 
   const inp: React.CSSProperties = {
     width: "100%",
-    padding: "13px 16px 13px 44px",
-    border: "1.5px solid #E5E7EB",
+    padding: "13px 16px 13px 46px",
+    border: "1.5px solid #E2E8F0",
     borderRadius: 10,
-    fontSize: 14,
-    color: "#111827",
-    background: "#FAFAFA",
+    fontSize: 14.5,
+    color: "#1E293B",
+    background: "#F8FAFC",
     outline: "none",
     boxSizing: "border-box",
     fontFamily: "'DM Sans', sans-serif",
-    transition: "border-color .18s, box-shadow .18s",
+    transition: "border-color .18s, box-shadow .18s, background .18s",
     opacity: busy ? 0.6 : 1,
   };
 
   return (
     <>
       <style>{`
-        html, body { background: #07101F !important; }
+        html, body { background: #0D1629 !important; }
         .v360d-inp:focus {
           border-color: #2563EB !important;
-          box-shadow: 0 0 0 3px rgba(37,99,235,.13) !important;
+          box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
           background: #fff !important;
         }
         .v360d-btn-main { transition: background .18s, box-shadow .18s, transform .1s; }
         .v360d-btn-main:hover:not(:disabled) {
           background: #1D4ED8 !important;
-          box-shadow: 0 6px 22px rgba(37,99,235,.4) !important;
+          box-shadow: 0 8px 28px rgba(37,99,235,.45) !important;
         }
         .v360d-btn-main:active:not(:disabled) { transform: scale(.985); }
         .v360d-btn-g { transition: background .15s, border-color .15s, box-shadow .15s; }
         .v360d-btn-g:hover:not(:disabled) {
-          background: #F9FAFB !important;
+          background: #F1F5F9 !important;
           border-color: #CBD5E1 !important;
           box-shadow: 0 2px 10px rgba(0,0,0,.08) !important;
         }
-        .v360d-btn-g:active:not(:disabled) { background: #F1F5F9 !important; }
+        .v360d-btn-g:active:not(:disabled) { background: #E2E8F0 !important; }
         .v360d-eye:hover { color: #2563EB !important; }
         @keyframes v360spin { to { transform: rotate(360deg); } }
-        @keyframes v360fadeIn {
-          from { opacity: 0; transform: translateY(14px); }
-          to   { opacity: 1; transform: translateY(0); }
+        @keyframes v360fadeInL {
+          from { opacity: 0; transform: translateX(-18px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes v360fadeInR {
+          from { opacity: 0; transform: translateX(18px); }
+          to   { opacity: 1; transform: translateX(0); }
         }
       `}</style>
 
-      {/* ── Wrapper: fondo azul completo ── */}
+      {/* ── Root: dos paneles a pantalla completa ── */}
       <div style={{
         position: "fixed", inset: 0,
-        backgroundImage: "url('/login-bg.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        display: "flex",
         fontFamily: "'DM Sans', sans-serif",
-        zIndex: 998, overflow: "hidden",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 6% 0 0",
+        zIndex: 998,
       }}>
 
-        {/* Overlay oscuro sobre la foto para legibilidad */}
-        <div style={{ position:"absolute", inset:0, background:"rgba(4,10,24,.62)", pointerEvents:"none", zIndex:0 }}/>
-        {/* Halo azul central */}
-        <div style={{ position:"absolute", top:"-15%", right:"30%", width:"55%", height:"65%", background:"radial-gradient(ellipse, rgba(37,99,235,.18) 0%, transparent 65%)", pointerEvents:"none", zIndex:0 }}/>
-        {/* Dots */}
-        <div style={{ position:"absolute", top:"12%", left:"8%",      width:6, height:6, borderRadius:"50%", background:"rgba(255,255,255,.18)" }}/>
-        <div style={{ position:"absolute", top:"28%", left:"14%",     width:4, height:4, borderRadius:"50%", background:"rgba(255,255,255,.11)" }}/>
-        <div style={{ position:"absolute", bottom:"18%", right:"45%", width:5, height:5, borderRadius:"50%", background:"rgba(255,255,255,.14)" }}/>
-        <div style={{ position:"absolute", top:"60%", left:"6%",      width:3, height:3, borderRadius:"50%", background:"rgba(255,255,255,.09)" }}/>
-
-        {/* ── LEFT: branding centrado verticalmente ── */}
+        {/* ════════════════════════════════════════
+            PANEL IZQUIERDO — Branding / oscuro
+            ════════════════════════════════════════ */}
         <div style={{
-          flex: "0 0 50%",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          padding: "0 48px",
-          position: "relative", zIndex: 1,
-          animation: "v360fadeIn .5s ease-out both",
+          flex: "0 0 48%",
+          background: "linear-gradient(160deg, #07101F 0%, #0D1629 45%, #0F1E3C 100%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "60px 56px",
+          position: "relative",
+          overflow: "hidden",
+          animation: "v360fadeInL .55s ease-out both",
         }}>
-          {/* Logo perfectamente centrado */}
-          <div style={{ filter:"drop-shadow(0 0 32px rgba(37,99,235,.45))", marginBottom:32, textAlign:"center" }}>
-            <Logo360 width={200} />
-          </div>
-
-          <p style={{ margin:"0 0 36px", fontSize:15, color:"rgba(255,255,255,.55)", lineHeight:1.6, textAlign:"center" }}>
-            Plataforma de gestión empresarial{" "}
-            <strong style={{ color:"rgba(255,255,255,.80)", fontWeight:700 }}>integral</strong>
-          </p>
-
-          {/* Tarjetas sin emojis */}
-          {FEATURES.map(({ Icon, label, sub }) => (
-            <div key={label} style={{
-              width: "100%", maxWidth: 380,
-              display:"flex", alignItems:"flex-start", gap:14,
-              marginBottom:12,
-              background:"rgba(255,255,255,.06)",
-              border:"1px solid rgba(255,255,255,.09)",
-              borderRadius:14, padding:"14px 16px",
-            }}>
-              <div style={{ width:38, height:38, borderRadius:10, background:"#2563EB", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                <Icon />
-              </div>
-              <div>
-                <div style={{ fontSize:13.5, color:"rgba(255,255,255,.85)", fontWeight:700, marginBottom:3 }}>{label}</div>
-                <div style={{ fontSize:11.5, color:"rgba(255,255,255,.42)", lineHeight:1.4 }}>{sub}</div>
-              </div>
-            </div>
+          {/* Halos decorativos */}
+          <div style={{ position:"absolute", top:"-10%", right:"-15%", width:"70%", height:"65%", background:"radial-gradient(ellipse, rgba(37,99,235,.2) 0%, transparent 65%)", pointerEvents:"none" }}/>
+          <div style={{ position:"absolute", bottom:"-15%", left:"-10%", width:"60%", height:"55%", background:"radial-gradient(ellipse, rgba(37,99,235,.13) 0%, transparent 65%)", pointerEvents:"none" }}/>
+          {/* Cuadrícula de puntos decorativa */}
+          {[["18%","12%"],["32%","8%"],["14%","62%"],["28%","70%"],["72%","25%"],["80%","72%"]].map(([t,l],i)=>(
+            <div key={i} style={{ position:"absolute", top:t, left:l, width:i%2===0?5:3, height:i%2===0?5:3, borderRadius:"50%", background:`rgba(255,255,255,${i%2===0?.18:.1})` }}/>
           ))}
-        </div>
 
-        {/* ── RIGHT: tarjeta blanca flotante ── */}
-        <div style={{
-          flex: "0 0 auto",
-          width: "min(420px, 42%)",
-          background: "#FFFFFF",
-          borderRadius: 20,
-          padding: "44px 40px",
-          boxShadow: "0 24px 80px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.06)",
-          position: "relative", zIndex: 1,
-          animation: "v360fadeIn .45s ease-out .1s both",
-          maxHeight: "90vh",
-          overflowY: "auto",
-        }}>
-          <h1 style={{ margin:"0 0 8px", fontSize:26, fontWeight:800, color:"#0D1629", letterSpacing:"-.5px" }}>
-            Bienvenido
-          </h1>
-          <div style={{ width:36, height:3, background:"#2563EB", borderRadius:2, marginBottom:12 }}/>
-          <p style={{ margin:"0 0 28px", fontSize:14, color:"#6B7280" }}>
-            Ingresa tus credenciales para continuar
+          {/* Logo */}
+          <div style={{ filter:"drop-shadow(0 0 40px rgba(37,99,235,.5))", marginBottom:36, position:"relative", zIndex:1 }}>
+            <Logo360 width={230} />
+          </div>
+
+          {/* Tagline */}
+          <p style={{ margin:"0 0 44px", fontSize:16, color:"rgba(255,255,255,.5)", lineHeight:1.65, textAlign:"center", maxWidth:340, position:"relative", zIndex:1 }}>
+            Plataforma de gestión empresarial{" "}
+            <strong style={{ color:"rgba(255,255,255,.82)", fontWeight:700 }}>integral</strong>{" "}
+            para publicidad exterior
           </p>
 
-          {!API_KEY_OK && (
-            <div style={{ marginBottom:18, padding:"10px 14px", background:"rgba(245,158,11,.08)", border:"1px solid rgba(245,158,11,.3)", borderRadius:10, color:"#92400E", fontSize:12, lineHeight:1.5 }}>
-              ⚠️ <strong>Sin variables de entorno.</strong> Configura VITE_FIREBASE_* en Cloudflare Pages.
-            </div>
-          )}
-
-          {/* Usuario */}
-          <div style={{ marginBottom:16 }}>
-            <label style={{ display:"block", marginBottom:7, fontSize:13, fontWeight:600, color:"#374151" }}>Usuario</label>
-            <div style={{ position:"relative" }}>
-              <span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", color:"#9CA3AF", display:"flex", alignItems:"center", pointerEvents:"none" }}>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
-                </svg>
-              </span>
-              <input className="v360d-inp" type="email" placeholder="correo@empresa.com"
-                value={email} onChange={e => { setEmail(e.target.value); setError(""); }}
-                onKeyDown={onKey} disabled={busy} autoComplete="email" style={inp}/>
-            </div>
+          {/* Feature cards */}
+          <div style={{ width:"100%", maxWidth:380, display:"flex", flexDirection:"column", gap:10, position:"relative", zIndex:1 }}>
+            {FEATURES.map(({ Icon, label, sub }) => (
+              <div key={label} style={{
+                display:"flex", alignItems:"flex-start", gap:14,
+                background:"rgba(255,255,255,.055)",
+                border:"1px solid rgba(255,255,255,.08)",
+                borderRadius:14, padding:"14px 18px",
+              }}>
+                <div style={{ width:40, height:40, borderRadius:11, background:"linear-gradient(135deg,#2563EB,#1D4ED8)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, boxShadow:"0 4px 14px rgba(37,99,235,.35)" }}>
+                  <Icon />
+                </div>
+                <div>
+                  <div style={{ fontSize:13.5, color:"rgba(255,255,255,.88)", fontWeight:700, marginBottom:3 }}>{label}</div>
+                  <div style={{ fontSize:12, color:"rgba(255,255,255,.4)", lineHeight:1.45 }}>{sub}</div>
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Contraseña */}
-          <div style={{ marginBottom:18 }}>
-            <label style={{ display:"block", marginBottom:7, fontSize:13, fontWeight:600, color:"#374151" }}>Contraseña</label>
-            <div style={{ position:"relative" }}>
-              <span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", color:"#9CA3AF", display:"flex", alignItems:"center", pointerEvents:"none" }}>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                  <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-              </span>
-              <input className="v360d-inp" type={showPass ? "text" : "password"} placeholder="••••••••"
-                value={password} onChange={e => { setPassword(e.target.value); setError(""); }}
-                onKeyDown={onKey} disabled={busy} autoComplete="current-password"
-                style={{ ...inp, paddingRight:46 }}/>
-              <button className="v360d-eye" type="button" tabIndex={-1}
-                onClick={() => setShowPass(v => !v)}
-                style={{ position:"absolute", right:13, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", padding:4, color:"#9CA3AF", lineHeight:1, transition:"color .15s" }}>
-                {showPass
-                  ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                  : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                }
-              </button>
-            </div>
+          {/* Versión */}
+          <div style={{ position:"absolute", bottom:24, left:0, right:0, textAlign:"center", fontSize:11, color:"rgba(255,255,255,.18)", letterSpacing:.4 }}>
+            v{APP_VERSION}
           </div>
-
-          {/* Recordado */}
-          <label style={{ display:"flex", alignItems:"center", gap:10, marginBottom:22, cursor:"pointer", userSelect:"none" }}>
-            <div onClick={() => setRemember(v => !v)} style={{ width:19, height:19, borderRadius:6, flexShrink:0, background:remember?"#2563EB":"#fff", border:remember?"none":"2px solid #D1D5DB", display:"flex", alignItems:"center", justifyContent:"center", transition:"background .18s, border-color .18s", cursor:"pointer" }}>
-              {remember && <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-            </div>
-            <span style={{ fontSize:13, color:"#4B5563" }} onClick={() => setRemember(v => !v)}>Mantener recordado</span>
-          </label>
-
-          {error && (
-            <div style={{ marginBottom:16, padding:"10px 14px", background:"rgba(239,68,68,.07)", border:"1px solid rgba(239,68,68,.2)", borderRadius:10, color:"#B91C1C", fontSize:13, lineHeight:1.5 }}>
-              {error}
-            </div>
-          )}
-
-          {/* Botón Ingresar */}
-          <button className="v360d-btn-main" onClick={handleLogin} disabled={busy}
-            style={{ width:"100%", padding:"13px", background:"#2563EB", color:"#FFF", border:"none", borderRadius:11, fontSize:15, fontWeight:700, cursor:busy?"wait":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:9, opacity:loadingG?.5:1, boxShadow:"0 3px 14px rgba(37,99,235,.28)" }}>
-            {loading
-              ? <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" style={{ animation:"v360spin .75s linear infinite" }}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>Ingresando...</>
-              : "Ingresar"
-            }
-          </button>
-
-          <div style={{ display:"flex", alignItems:"center", margin:"18px 0", gap:12 }}>
-            <div style={{ flex:1, height:1, background:"#F3F4F6" }}/>
-            <span style={{ fontSize:12, color:"#9CA3AF", fontWeight:500 }}>o continúa con</span>
-            <div style={{ flex:1, height:1, background:"#F3F4F6" }}/>
-          </div>
-
-          {/* Botón Google */}
-          <button className="v360d-btn-g" onClick={handleGoogle} disabled={busy}
-            style={{ width:"100%", padding:"12px", background:"#FFF", color:"#374151", border:"1.5px solid #E5E7EB", borderRadius:11, fontSize:14, fontWeight:600, cursor:busy?"wait":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:10, opacity:loading?.5:1, boxShadow:"0 1px 4px rgba(0,0,0,.07)" }}>
-            {loadingG
-              ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2.3" strokeLinecap="round" style={{ animation:"v360spin .75s linear infinite" }}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-              : <svg width="19" height="19" viewBox="0 0 48 48" style={{ flexShrink:0 }}><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4,12.955,4,4,12.955,4,24s8.955,20,20,20,20-8.955,20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4,16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C36.971,39.205,44,34,44,24c0-1.341-.138-2.65-.389-3.917z"/></svg>
-            }
-            {loadingG ? "Conectando..." : "Iniciar con Google"}
-          </button>
         </div>
 
-        {/* Versión */}
-        <div style={{ position:"absolute", bottom:20, left:"25%", fontSize:11, color:"rgba(255,255,255,.22)", letterSpacing:.3, zIndex:1 }}>
-          v{APP_VERSION}
+        {/* ════════════════════════════════════════
+            PANEL DERECHO — Formulario / claro
+            ════════════════════════════════════════ */}
+        <div style={{
+          flex: 1,
+          background: "#F0F2F7",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "48px 48px",
+          animation: "v360fadeInR .55s ease-out .08s both",
+        }}>
+          {/* Tarjeta de login */}
+          <div style={{
+            width: "100%",
+            maxWidth: 440,
+            background: "#FFFFFF",
+            borderRadius: 20,
+            padding: "48px 44px 40px",
+            boxShadow: "0 4px 24px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.04)",
+          }}>
+            {/* Header */}
+            <div style={{ marginBottom:32 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:18 }}>
+                <div style={{ width:8, height:8, borderRadius:"50%", background:"#2563EB", boxShadow:"0 0 10px rgba(37,99,235,.6)" }}/>
+                <span style={{ fontSize:12, fontWeight:700, color:"#2563EB", letterSpacing:1.2, textTransform:"uppercase" }}>Vista 360</span>
+              </div>
+              <h1 style={{ margin:"0 0 6px", fontSize:28, fontWeight:800, color:"#0D1629", letterSpacing:"-.6px", lineHeight:1.15 }}>
+                Bienvenido de nuevo
+              </h1>
+              <p style={{ margin:0, fontSize:14.5, color:"#64748B", lineHeight:1.5 }}>
+                Ingresa tus credenciales para continuar
+              </p>
+            </div>
+
+            {!API_KEY_OK && (
+              <div style={{ marginBottom:20, padding:"11px 14px", background:"rgba(245,158,11,.07)", border:"1px solid rgba(245,158,11,.28)", borderRadius:10, color:"#92400E", fontSize:12.5, lineHeight:1.5 }}>
+                ⚠️ <strong>Sin variables de entorno.</strong> Configura VITE_FIREBASE_* en Cloudflare Pages.
+              </div>
+            )}
+
+            {/* Campo: Usuario */}
+            <div style={{ marginBottom:18 }}>
+              <label style={{ display:"block", marginBottom:7, fontSize:13, fontWeight:600, color:"#374151", letterSpacing:.1 }}>Correo electrónico</label>
+              <div style={{ position:"relative" }}>
+                <span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", color:"#94A3B8", display:"flex", alignItems:"center", pointerEvents:"none" }}>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
+                  </svg>
+                </span>
+                <input className="v360d-inp" type="email" placeholder="correo@empresa.com"
+                  value={email} onChange={e => { setEmail(e.target.value); setError(""); }}
+                  onKeyDown={onKey} disabled={busy} autoComplete="email" style={inp}/>
+              </div>
+            </div>
+
+            {/* Campo: Contraseña */}
+            <div style={{ marginBottom:20 }}>
+              <label style={{ display:"block", marginBottom:7, fontSize:13, fontWeight:600, color:"#374151", letterSpacing:.1 }}>Contraseña</label>
+              <div style={{ position:"relative" }}>
+                <span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", color:"#94A3B8", display:"flex", alignItems:"center", pointerEvents:"none" }}>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                    <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </span>
+                <input className="v360d-inp" type={showPass ? "text" : "password"} placeholder="••••••••"
+                  value={password} onChange={e => { setPassword(e.target.value); setError(""); }}
+                  onKeyDown={onKey} disabled={busy} autoComplete="current-password"
+                  style={{ ...inp, paddingRight:46 }}/>
+                <button className="v360d-eye" type="button" tabIndex={-1}
+                  onClick={() => setShowPass(v => !v)}
+                  style={{ position:"absolute", right:13, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", padding:4, color:"#94A3B8", lineHeight:1, transition:"color .15s" }}>
+                  {showPass
+                    ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  }
+                </button>
+              </div>
+            </div>
+
+            {/* Recordar sesión */}
+            <label style={{ display:"flex", alignItems:"center", gap:10, marginBottom:24, cursor:"pointer", userSelect:"none" }}>
+              <div onClick={() => setRemember(v => !v)} style={{ width:20, height:20, borderRadius:6, flexShrink:0, background:remember?"#2563EB":"#fff", border:remember?"none":"1.5px solid #CBD5E1", display:"flex", alignItems:"center", justifyContent:"center", transition:"background .18s, border-color .18s", cursor:"pointer", boxShadow:remember?"0 2px 8px rgba(37,99,235,.3)":"none" }}>
+                {remember && <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              </div>
+              <span style={{ fontSize:13.5, color:"#475569" }} onClick={() => setRemember(v => !v)}>Mantener sesión iniciada</span>
+            </label>
+
+            {error && (
+              <div style={{ marginBottom:18, padding:"11px 14px", background:"rgba(239,68,68,.06)", border:"1px solid rgba(239,68,68,.18)", borderRadius:10, color:"#B91C1C", fontSize:13, lineHeight:1.5 }}>
+                {error}
+              </div>
+            )}
+
+            {/* Botón Ingresar */}
+            <button className="v360d-btn-main" onClick={handleLogin} disabled={busy}
+              style={{ width:"100%", padding:"14px", background:"#2563EB", color:"#FFF", border:"none", borderRadius:11, fontSize:15.5, fontWeight:700, cursor:busy?"wait":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:9, opacity:loadingG?.5:1, boxShadow:"0 4px 18px rgba(37,99,235,.32)" }}>
+              {loading
+                ? <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" style={{ animation:"v360spin .75s linear infinite" }}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>Ingresando...</>
+                : "Ingresar"
+              }
+            </button>
+
+            <div style={{ display:"flex", alignItems:"center", margin:"20px 0", gap:12 }}>
+              <div style={{ flex:1, height:1, background:"#E2E8F0" }}/>
+              <span style={{ fontSize:12.5, color:"#94A3B8", fontWeight:500 }}>o continúa con</span>
+              <div style={{ flex:1, height:1, background:"#E2E8F0" }}/>
+            </div>
+
+            {/* Botón Google */}
+            <button className="v360d-btn-g" onClick={handleGoogle} disabled={busy}
+              style={{ width:"100%", padding:"13px", background:"#FFF", color:"#334155", border:"1.5px solid #E2E8F0", borderRadius:11, fontSize:14.5, fontWeight:600, cursor:busy?"wait":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:10, opacity:loading?.5:1, boxShadow:"0 1px 4px rgba(0,0,0,.06)" }}>
+              {loadingG
+                ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.3" strokeLinecap="round" style={{ animation:"v360spin .75s linear infinite" }}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                : <svg width="20" height="20" viewBox="0 0 48 48" style={{ flexShrink:0 }}><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4,12.955,4,4,12.955,4,24s8.955,20,20,20,20-8.955,20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4,16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C36.971,39.205,44,34,44,24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+              }
+              {loadingG ? "Conectando..." : "Iniciar sesión con Google"}
+            </button>
+          </div>
         </div>
       </div>
     </>
   );
 }
+
 
 // ══════════════════════════════════════════════════════════════
 // MOBILE LOGIN
