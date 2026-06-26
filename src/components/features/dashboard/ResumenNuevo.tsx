@@ -793,7 +793,57 @@ function MetricCardNL({ icon, label, value, sub, waveColor, valueColor, isDeskto
 // ACCIONES RECOMENDADAS
 // ══════════════════════════════════════════════════════════════════
 function AccionesCard({ panalesLibres, setTab, isDesktop = false }: AccionesCardProps) {
-  if (panalesLibres === 0) return null;
+  if (panalesLibres === 0) {
+    if (!isDesktop) return null;
+    return (
+      <div
+        className="v360-panel-d"
+        style={{
+          background: "#0D1020",
+          borderRadius: 20,
+          padding: "22px 22px",
+          border: "1px solid rgba(255,255,255,0.06)",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: "#60A5FA",
+            letterSpacing: 1.5,
+            textTransform: "uppercase",
+            marginBottom: 14,
+          }}
+        >
+          Acciones recomendadas
+        </span>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, textAlign: "center" }}>
+          <div
+            style={{
+              width: 46,
+              height: 46,
+              borderRadius: 14,
+              background: "rgba(91,211,154,0.16)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#5BD39A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Todo en orden</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", maxWidth: 220 }}>
+            No tienes paneles libres por asignar en este momento.
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div
       className={isDesktop ? "v360-panel-d" : undefined}
@@ -911,8 +961,111 @@ function AccionesCard({ panalesLibres, setTab, isDesktop = false }: AccionesCard
 }
 
 // ══════════════════════════════════════════════════════════════════
-// RESUMEN HOY — nuevo diseño con datos reales
+// VENCEN PRONTO — lista real de contratos por vencer (solo escritorio,
+// llena el espacio que antes quedaba vacío junto a Acciones recomendadas)
 // ══════════════════════════════════════════════════════════════════
+function VencenProntoCard({ items, clientes, paneles, setTab }: VencenProntoCardProps) {
+  const fmtS = (n: number | null | undefined) =>
+    `$${Number(n || 0).toLocaleString("es-PE", { minimumFractionDigits: 0 })}`;
+
+  return (
+    <div
+      className="v360-panel-d"
+      style={{
+        background: "#0D1020",
+        borderRadius: 20,
+        padding: "22px 22px",
+        border: "1px solid rgba(255,255,255,0.06)",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: "#60A5FA", letterSpacing: 1.5, textTransform: "uppercase" }}>
+          Vencen pronto
+        </span>
+        <button
+          className="v360-glass-btn v360-link-d"
+          onClick={() => setTab("contratos")}
+          style={{ background: "none", border: "none", color: "#60A5FA", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+        >
+          Ver todas ›
+        </button>
+      </div>
+
+      {items.length === 0 ? (
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.3)", fontSize: 13 }}>
+          Ningún contrato vence en los próximos 30 días
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {items.slice(0, 4).map((c, i) => {
+            const cl = clientes.find(x => x.id === c.cliente_id);
+            const p = paneles.find(x => x.id === c.panel_id);
+            const urgent = c.diasRestantes <= 7;
+            const warn = c.diasRestantes <= 15;
+            return (
+              <div
+                key={c.id ?? i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "11px 0",
+                  borderBottom: i < Math.min(items.length, 4) - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                }}
+              >
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 11,
+                    flexShrink: 0,
+                    background: urgent ? "rgba(248,113,113,0.16)" : "rgba(96,165,250,0.15)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color: urgent ? "#F87171" : "#60A5FA",
+                  }}
+                >
+                  {c.diasRestantes}d
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {cl?.empresa || cl?.nombre || "Cliente sin nombre"}
+                  </div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {p?.nombre || "Panel"} · {fmtS(c.monto)}
+                  </div>
+                </div>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: 0.4,
+                    textTransform: "uppercase",
+                    padding: "3px 8px",
+                    borderRadius: 999,
+                    flexShrink: 0,
+                    color: urgent ? "#F87171" : warn ? "#FBBF24" : "#60A5FA",
+                    background: urgent ? "rgba(248,113,113,0.12)" : warn ? "rgba(251,191,36,0.12)" : "rgba(96,165,250,0.12)",
+                  }}
+                >
+                  {c.diasRestantes === 0 ? "Hoy" : `${c.diasRestantes}d`}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function ResumenNuevo({
   clientes,
   contratos,
@@ -953,11 +1106,18 @@ function ResumenNuevo({
       return ini <= mesActual && fin >= mesActual && !c.pagosMeses?.[mesActual];
     })
     .reduce((s, c) => s + Number(c.monto || 0), 0);
-  const vencenProx = contratos.filter(c => {
-    if (!c.fin) return false;
-    const d = Math.ceil((new Date(c.fin).getTime() - Date.now()) / 86400000);
-    return d >= 0 && d <= 30;
-  }).length;
+  const vencenLista = contratos
+    .filter(c => {
+      if (!c.fin || c.deleted) return false;
+      const d = Math.ceil((new Date(c.fin).getTime() - Date.now()) / 86400000);
+      return d >= 0 && d <= 30;
+    })
+    .map(c => ({
+      ...c,
+      diasRestantes: Math.ceil((new Date(c.fin).getTime() - Date.now()) / 86400000),
+    }))
+    .sort((a, b) => a.diasRestantes - b.diasRestantes);
+  const vencenProx = vencenLista.length;
   const fmtS = (n: number | null | undefined) =>
     `$${Number(n || 0).toLocaleString("es-PE", { minimumFractionDigits: 0 })}`;
 
@@ -1059,7 +1219,14 @@ function ResumenNuevo({
           isDesktop={isDesktop}
         />
       </div>
-      <AccionesCard panalesLibres={panalesLibres} setTab={setTab} isDesktop={isDesktop} />
+      {isDesktop ? (
+        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 18, alignItems: "stretch" }}>
+          <AccionesCard panalesLibres={panalesLibres} setTab={setTab} isDesktop />
+          <VencenProntoCard items={vencenLista} clientes={clientes} paneles={paneles} setTab={setTab} />
+        </div>
+      ) : (
+        <AccionesCard panalesLibres={panalesLibres} setTab={setTab} />
+      )}
     </div>
   );
 }
