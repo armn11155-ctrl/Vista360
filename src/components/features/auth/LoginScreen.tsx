@@ -224,8 +224,6 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
         padding: "0 6% 0 0",
       }}>
 
-        {/* Overlay oscuro sobre la foto para legibilidad */}
-        <div style={{ position:"absolute", inset:0, background:"rgba(4,10,24,.62)", pointerEvents:"none", zIndex:0 }}/>
         {/* Halo azul central */}
         <div style={{ position:"absolute", top:"-15%", right:"30%", width:"55%", height:"65%", background:"radial-gradient(ellipse, rgba(37,99,235,.18) 0%, transparent 65%)", pointerEvents:"none", zIndex:0 }}/>
         {/* Dots */}
@@ -248,9 +246,9 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
             <Logo360 width={200} />
           </div>
 
-          <p style={{ margin:"0 0 36px", fontSize:15, color:"rgba(255,255,255,.55)", lineHeight:1.6, textAlign:"center" }}>
+          <p style={{ margin:"0 0 36px", fontSize:15, color:"rgba(255,255,255,.78)", lineHeight:1.6, textAlign:"center", textShadow:"0 2px 10px rgba(0,0,0,.55)" }}>
             Plataforma de gestión empresarial{" "}
-            <strong style={{ color:"rgba(255,255,255,.80)", fontWeight:700 }}>integral</strong>
+            <strong style={{ color:"#fff", fontWeight:700 }}>integral</strong>
           </p>
 
           {/* Tarjetas sin emojis */}
@@ -259,16 +257,19 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
               width: "100%", maxWidth: 380,
               display:"flex", alignItems:"flex-start", gap:14,
               marginBottom:12,
-              background:"rgba(255,255,255,.06)",
-              border:"1px solid rgba(255,255,255,.09)",
+              background:"rgba(6,12,28,.58)",
+              backdropFilter:"blur(8px)",
+              WebkitBackdropFilter:"blur(8px)",
+              border:"1px solid rgba(255,255,255,.12)",
               borderRadius:14, padding:"14px 16px",
+              boxShadow:"0 8px 24px rgba(0,0,0,.30)",
             }}>
               <div style={{ width:38, height:38, borderRadius:10, background:"#2563EB", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                 <Icon />
               </div>
               <div>
-                <div style={{ fontSize:13.5, color:"rgba(255,255,255,.85)", fontWeight:700, marginBottom:3 }}>{label}</div>
-                <div style={{ fontSize:11.5, color:"rgba(255,255,255,.42)", lineHeight:1.4 }}>{sub}</div>
+                <div style={{ fontSize:13.5, color:"#fff", fontWeight:700, marginBottom:3 }}>{label}</div>
+                <div style={{ fontSize:11.5, color:"rgba(255,255,255,.62)", lineHeight:1.4 }}>{sub}</div>
               </div>
             </div>
           ))}
