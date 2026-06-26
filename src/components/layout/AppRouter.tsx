@@ -283,12 +283,18 @@ export function AppRouter({ userName, autoScan, setAutoScan, onModalChange }: Ap
           path="/capital"
           element={
             <div className="tabPanel tabFlush">
-              <ErrorBoundary label="Capital">
+              <ErrorBoundary label="Finanzas">
                 <Capital
                   paneles={paneles}
                   contratos={contractsActive}
                   gastos={gastos}
                   proveedores={proveedoresActive}
+                  setGastos={setGastos}
+                  setProveedores={setProveedores}
+                  autoScan={autoScan}
+                  setAutoScan={setAutoScan}
+                  onModalChange={onModalChange}
+                  loading={loading}
                 />
               </ErrorBoundary>
             </div>

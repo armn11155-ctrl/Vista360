@@ -1,5 +1,5 @@
 // @ts-nocheck — legacy file: migrating to strict TypeScript gradually
-import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import React, { useState, useMemo, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import {
   collection,
   getDocs,
@@ -56,6 +56,11 @@ import {
   SkPulse,
 } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
+
+// ── Gastos y Proveedores viven ahora como pestañas dentro de Finanzas
+//    (antes "Capital") — lazy para no inflar el chunk si nunca se abren.
+const GastosTab = lazy(() => import("../gastos/Gastos"));
+const ProveedoresTab = lazy(() => import("../proveedores/Proveedores"));
 
 function CapModal({ open, onClose, title, subtitle, children }: CapModalProps) {
   if (!open) return null;
@@ -346,7 +351,18 @@ function ProgressBar({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // CAPITAL — componente principal
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
+function Capital({
+  paneles,
+  contratos,
+  gastos,
+  proveedores,
+  setGastos,
+  setProveedores,
+  autoScan,
+  setAutoScan,
+  onModalChange,
+  loading,
+}: CapitalProps) {
   // ── State persistido en Firebase ──
   const [data, setData] = useState({
     cuentas: [], // {id,nombre,banco,saldo,tipo}
@@ -613,6 +629,24 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
           <circle cx="12" cy="12" r="10" />
           <circle cx="12" cy="12" r="6" />
           <circle cx="12" cy="12" r="2" />
+        </svg>
+      ),
+    },
+    {
+      id: "gastos",
+      label: "Gastos",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M3 10H21M7 15H8M12 15H13M6 19H18C19.105 19 20 18.105 20 17V7C20 5.895 19.105 5 18 5H6C4.895 5 4 5.895 4 7V17C4 18.105 4.895 19 6 19Z" />
+        </svg>
+      ),
+    },
+    {
+      id: "proveedores",
+      label: "Proveedores",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 21V5C19 3.895 18.105 3 17 3H7C5.895 3 5 3.895 5 5V21M3 21H21M9 21V15H15V21" />
         </svg>
       ),
     },
@@ -2321,13 +2355,13 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             marginBottom: 2,
           }}
         >
-          Capital e Inversiones
+          Finanzas
         </div>
         <div style={{ fontSize: 12, color: "#64748B", marginBottom: 16 }}>
-          Sistema financiero del negocio
+          Capital, gastos y proveedores en un solo lugar
         </div>
 
-        {/* Tabs de sección — estilo Gastos: fondo oscuro elegante */}
+        {/* Tabs de sección — fondo oscuro elegante, scrollable horizontal */}
         <div
           style={{
             display: "flex",
@@ -2337,34 +2371,42 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
             padding: 4,
             marginBottom: 16,
             gap: 4,
+            overflowX: "auto",
+            WebkitOverflowScrolling: "touch",
+            scrollbarWidth: "none",
           }}
         >
           {TABS.map(t => (
-            <button
-              key={t.id}
-              onClick={() => setSection(t.id)}
-              style={{
-                flex: 1,
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 5,
-                padding: "10px 0",
-                borderRadius: 11,
-                border: "none",
-                fontFamily: "inherit",
-                background: section === t.id ? T.accent : "transparent",
-                color: section === t.id ? "#fff" : "rgba(180,210,255,0.5)",
-                fontWeight: section === t.id ? 700 : 500,
-                fontSize: 13,
-                cursor: "pointer",
-                touchAction: "manipulation",
-                transition: "all .15s",
-              }}
-            >
-              {t.icon && <span style={{ opacity: 0.85 }}>{t.icon}</span>}
-              {t.label}
-            </button>
+            <React.Fragment key={t.id}>
+              {t.id === "gastos" && (
+                <div style={{ width: 1, background: "#1E3050", margin: "4px 2px", flexShrink: 0 }} />
+              )}
+              <button
+                onClick={() => setSection(t.id)}
+                style={{
+                  flex: "0 0 auto",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 5,
+                  padding: "10px 14px",
+                  borderRadius: 11,
+                  border: "none",
+                  fontFamily: "inherit",
+                  background: section === t.id ? T.accent : "transparent",
+                  color: section === t.id ? "#fff" : "rgba(180,210,255,0.5)",
+                  fontWeight: section === t.id ? 700 : 500,
+                  fontSize: 13,
+                  whiteSpace: "nowrap",
+                  cursor: "pointer",
+                  touchAction: "manipulation",
+                  transition: "all .15s",
+                }}
+              >
+                {t.icon && <span style={{ opacity: 0.85 }}>{t.icon}</span>}
+                {t.label}
+              </button>
+            </React.Fragment>
           ))}
         </div>
       </div>
@@ -2376,6 +2418,27 @@ function Capital({ paneles, contratos, gastos, proveedores }: CapitalProps) {
         {section === "activos" && renderActivos()}
         {section === "fondos" && renderFondos()}
         {section === "objetivos" && renderObjetivos()}
+        {section === "gastos" && (
+          <Suspense fallback={<div style={{ padding: 40, textAlign: "center", color: "#94A3B8", fontSize: 13 }}>Cargando gastos…</div>}>
+            <GastosTab
+              gastos={gastos}
+              setGastos={setGastos}
+              autoScan={autoScan}
+              setAutoScan={setAutoScan}
+              onModalChange={onModalChange}
+            />
+          </Suspense>
+        )}
+        {section === "proveedores" && (
+          <Suspense fallback={<div style={{ padding: 40, textAlign: "center", color: "#94A3B8", fontSize: 13 }}>Cargando proveedores…</div>}>
+            <ProveedoresTab
+              proveedores={proveedores}
+              setProveedores={setProveedores}
+              loading={loading}
+              onModalChange={onModalChange}
+            />
+          </Suspense>
+        )}
       </div>
 
       {/* ── Modales ── */}

@@ -26,7 +26,7 @@ export const TAB_TITLES: Record<string, string> = {
   "/gastos": "Gastos",
   "/proveedores": "Proveedores",
   "/facturacion": "Facturación",
-  "/capital": "Capital",
+  "/capital": "Finanzas",
   "/mapa": "Mapa",
 };
 
