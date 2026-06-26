@@ -129,28 +129,15 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           <DesktopSidebar
             onTabClick={shell.handleTabClick}
             onTrashOpen={() => shell.setTrashOpen(true)}
+            onProfileClick={() => shell.handleTabClick("/perfil")}
             userName={shell.userName}
             userInitials={shell.userInitials}
             trashCount={shell.trashCount}
             showProfile={shell.showProfile}
           />
 
-          {/* ── Columna principal (header + contenido scrollable) ── */}
+          {/* ── Columna principal (solo contenido scrollable, sin barra superior) ── */}
           <div className={styles.desktopMain}>
-            <AppHeader
-              title={shell.showProfile ? "Perfil" : (shell.pageTitle === "Inicio" ? "Inicio" : "")}
-              user={user}
-              userName={shell.userName}
-              onProfileClick={() => shell.handleTabClick("/perfil")}
-              onSearchClick={() => shell.setGlobalSearch(true)}
-              onNotifClick={() => shell.setNotifOpen(v => !v)}
-              notifCount={shell.notifCount}
-              headerColor={shell.headerColor}
-              headerDark={shell.headerDark}
-              onDrawerClick={() => {}}
-              showProfile={shell.showProfile}
-              isDesktop={true}
-            />
             <div className={styles.desktopContent} ref={shell.scrollRef}>
               {shell.showProfile ? (
                 <div style={{ padding: "0 0 40px" }}>

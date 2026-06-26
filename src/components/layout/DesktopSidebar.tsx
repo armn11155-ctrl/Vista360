@@ -4,6 +4,7 @@ import { T } from "../../config/theme";
 interface DesktopSidebarProps {
   onTabClick: (path: string) => void;
   onTrashOpen: () => void;
+  onProfileClick: () => void;
   userName: string;
   userInitials: string;
   trashCount: number;
@@ -98,6 +99,9 @@ const ICONS: Record<string, React.ReactNode> = {
 export function DesktopSidebar({
   onTabClick,
   onTrashOpen,
+  onProfileClick,
+  userName,
+  userInitials,
   trashCount,
   showProfile,
 }: DesktopSidebarProps) {
@@ -121,38 +125,73 @@ export function DesktopSidebar({
         zIndex: 10,
       }}
     >
-      {/* ── Logo / Marca ── */}
+      {/* ── Perfil del usuario ── */}
       <div
         style={{
-          padding: "16px 12px",
+          padding: "12px",
           borderBottom: "1px solid rgba(15,23,41,0.06)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
         }}
       >
-        <div
+        <button
+          onClick={onProfileClick}
+          aria-current={showProfile ? "page" : undefined}
           style={{
-            borderRadius: 10,
-            background: "linear-gradient(135deg, #07101F, #112260)",
-            padding: "4px 10px",
+            width: "100%",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
+            gap: 10,
+            padding: "8px 10px",
+            borderRadius: 14,
+            background: showProfile
+              ? "linear-gradient(90deg,#DBE7FF 0%,#ECF2FF 100%)"
+              : "transparent",
+            border: "none",
+            cursor: "pointer",
+            textAlign: "left",
+            outline: "none",
+            WebkitTapHighlightColor: "transparent",
           }}
         >
-          <img
-            src="/logo.png"
-            alt="Vista360 logo"
+          <div
             style={{
-              width: 100,
-              height: "auto",
-              display: "block",
-              objectFit: "contain",
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: "linear-gradient(135deg,#081740,#1558D6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              fontWeight: 800,
+              fontSize: 12,
+              letterSpacing: "0.5px",
+              flexShrink: 0,
+              boxShadow: "0 2px 8px rgba(21,88,214,0.35)",
+              border: showProfile ? `2px solid ${T.accent}` : "2px solid transparent",
             }}
-          />
-        </div>
+          >
+            {userInitials}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: showProfile ? T.accent : "#0F1729",
+                letterSpacing: "-0.2px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {userName || "Mi cuenta"}
+            </div>
+            <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 1 }}>Ver perfil</div>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={showProfile ? T.accent : "#94A3B8"} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <polyline points="9 6 15 12 9 18" />
+          </svg>
+        </button>
       </div>
 
       {/* ── Navegación ── */}
