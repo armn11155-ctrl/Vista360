@@ -166,3 +166,13 @@
   width: 100%;
   background: #F2F4F8;
 }
+
+/* En escritorio, el contenido necesita más aire que en mobile —
+   si no, el diseño se siente "estirado" en vez de premium. */
+@media (min-width: 1024px) {
+  .tabPadded {
+    padding-top: 28px;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}

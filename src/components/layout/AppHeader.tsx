@@ -71,15 +71,15 @@ export function AppHeader({
         aria-label="Encabezado principal"
         style={{
           flexShrink: 0,
-          paddingTop: "env(safe-area-inset-top)",
-          paddingLeft: 16,
-          paddingRight: 16,
-          paddingBottom: 6,
+          paddingTop: isDesktop ? 18 : "env(safe-area-inset-top)",
+          paddingLeft: isDesktop ? 32 : 16,
+          paddingRight: isDesktop ? 32 : 16,
+          paddingBottom: isDesktop ? 18 : 6,
           background: headerColor,
           borderBottom: headerDark ? "none" : `1px solid rgba(229,231,235,0.8)`,
           display: "flex",
           alignItems: "center",
-          gap: 10,
+          gap: isDesktop ? 14 : 10,
         }}
       >
         {/* ── Drawer / Inicio ── oculto en desktop (sidebar siempre visible) ── */}
@@ -111,7 +111,7 @@ export function AppHeader({
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
-              fontSize: 15,
+              fontSize: isDesktop ? 20 : 15,
               fontWeight: 700,
               color: headerDark ? "#fff" : T.text,
               lineHeight: 1.1,
@@ -121,15 +121,15 @@ export function AppHeader({
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: isDesktop ? 10 : 6, flexShrink: 0 }}>
           {/* ── Search ── liquid glass border, interior transparente */}
           <button
             onClick={onSearchClick}
             aria-label="Buscar"
             className="v360-icon-glass"
             style={{
-              width: 40,
-              height: 40,
+              width: isDesktop ? 44 : 40,
+              height: isDesktop ? 44 : 40,
               borderRadius: "50%",
               background: "transparent",
               display: "flex",
@@ -155,8 +155,8 @@ export function AppHeader({
             aria-label="Notificaciones"
             className="v360-icon-glass"
             style={{
-              width: 40,
-              height: 40,
+              width: isDesktop ? 44 : 40,
+              height: isDesktop ? 44 : 40,
               borderRadius: "50%",
               background: "transparent",
               display: "flex",
@@ -199,8 +199,8 @@ export function AppHeader({
             aria-label="Ver perfil"
             aria-current={showProfile ? "page" : undefined}
             style={{
-              width: 40,
-              height: 40,
+              width: isDesktop ? 44 : 40,
+              height: isDesktop ? 44 : 40,
               borderRadius: 10,
               background: "linear-gradient(135deg,#081740,#1558D6)",
               display: "flex",

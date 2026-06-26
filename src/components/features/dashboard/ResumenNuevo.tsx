@@ -44,6 +44,30 @@ import {
   SkPulse,
 } from "../../ui";
 import { usePagination } from "../../../hooks/usePagination";
+import { useIsDesktop } from "../../../hooks/useIsDesktop";
+
+// ══════════════════════════════════════════════════════════════════
+// Estilos de hover — solo aplican en escritorio (clases v360-*-d)
+// ══════════════════════════════════════════════════════════════════
+const DESKTOP_HOVER_CSS = `
+  .v360-metric-d {
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+  .v360-metric-d:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px -12px rgba(16,22,40,0.22);
+    border-color: rgba(37,99,235,0.25);
+  }
+  .v360-panel-d {
+    transition: border-color 0.18s ease;
+  }
+  .v360-panel-d:hover {
+    border-color: rgba(255,255,255,0.16);
+  }
+  .v360-link-d:hover { color: #8FB8FF !important; }
+  .v360-cta-d:hover { background: #1D4FD8 !important; }
+  .v360-pill-d:hover { border-color: rgba(255,255,255,0.5) !important; }
+`;
 
 function Wave({
   color = T.accent,
@@ -101,6 +125,7 @@ function HeroCard({
   contratos = [],
   setTab = () => {},
   userName = "",
+  isDesktop = false,
 }: HeroCardProps) {
   const [visible, setVisible] = React.useState(false);
   const hora = new Date().getHours();
@@ -134,6 +159,235 @@ function HeroCard({
   const delta = ingActual - ingPrev;
   const deltaPct = ingPrev > 0 ? (delta / ingPrev) * 100 : 0;
   const positive = delta >= 0;
+
+  // ════════════════════════════════════════════════════════════
+  // HERO — VERSIÓN ESCRITORIO (layout propio, no es el mobile estirado)
+  // ════════════════════════════════════════════════════════════
+  if (isDesktop) {
+    return (
+      <div
+        style={{
+          position: "relative",
+          margin: "0 0 24px",
+          padding: "30px 36px 34px",
+          borderRadius: 24,
+          overflow: "hidden",
+          background: "linear-gradient(135deg, #0E1A3B 0%, #142657 55%, #1A2E6E 100%)",
+          color: "#fff",
+        }}
+      >
+        <div
+          aria-hidden
+          style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden", borderRadius: 24 }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              bottom: -160,
+              right: -120,
+              width: 460,
+              height: 460,
+              borderRadius: "50%",
+              background: "radial-gradient(closest-side, rgba(60,130,255,0.26), rgba(60,130,255,0))",
+              filter: "blur(6px)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: -140,
+              left: "30%",
+              width: 320,
+              height: 320,
+              borderRadius: "50%",
+              background: "radial-gradient(closest-side, rgba(80,140,255,0.12), rgba(0,0,0,0))",
+            }}
+          />
+        </div>
+
+        {/* header: saludo + título */}
+        <div style={{ position: "relative" }}>
+          <div style={{ fontSize: 13, color: "rgba(200,212,240,0.72)", fontWeight: 500 }}>
+            {saludo}
+            {userName ? ", " + userName.split(" ")[0] : ""}
+          </div>
+          <div
+            style={{
+              fontSize: 32,
+              fontWeight: 800,
+              color: "#fff",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.05,
+              marginTop: 4,
+            }}
+          >
+            Resumen
+          </div>
+          <div style={{ fontSize: 13, color: "rgba(200,212,240,0.5)", marginTop: 4 }}>{fechaCap}</div>
+        </div>
+
+        {/* fila: panel de ingreso (ancho fijo) + gráfico (ancho flexible) */}
+        <div style={{ position: "relative", marginTop: 28, display: "flex", alignItems: "stretch", gap: 24 }}>
+          <div
+            className="v360-panel-d"
+            style={{
+              flex: "0 0 320px",
+              background: "linear-gradient(160deg, rgba(28,44,90,0.95) 0%, rgba(14,24,58,0.98) 100%)",
+              border: "1px solid rgba(255,255,255,0.10)",
+              borderRadius: 20,
+              padding: "22px 24px 22px",
+              display: "flex",
+              flexDirection: "column",
+              boxShadow:
+                "0 20px 40px -12px rgba(0,0,0,0.55), 0 2px 0 rgba(255,255,255,0.06) inset, 0 -1px 0 rgba(0,0,0,0.3) inset",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 13, color: "rgba(200,212,240,0.66)", fontWeight: 500 }}>
+                Ingreso del mes
+              </span>
+              <button
+                className="v360-pill-d"
+                onClick={() => setVisible(v => !v)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  background: "transparent",
+                  border: `1px solid ${visible ? "#5BD39A" : "#BDD2FF"}`,
+                  color: visible ? "#5BD39A" : "#BDD2FF",
+                  borderRadius: 999,
+                  padding: "4px 9px",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                {visible ? "Ocultar" : "Mostrar"}
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                  {visible ? (
+                    <g>
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </g>
+                  ) : (
+                    <g>
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </g>
+                  )}
+                </svg>
+              </button>
+            </div>
+
+            <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, marginTop: 14, position: "relative", display: "inline-block" }}>
+              <span style={{ color: visible ? "#fff" : "transparent", userSelect: visible ? "auto" : "none" }}>
+                {fmt(ingActual)}
+              </span>
+              {!visible && (
+                <span aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "space-between", color: "#fff", fontSize: "0.55em", pointerEvents: "none" }}>
+                  {"S/\u00a0" + "\u25CF".repeat(Math.max(4, fmt(ingActual).replace("S/ ", "").replace(/\D/g, "").length + 1))}
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12 }}>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: positive ? "#5BD39A" : "#FF7A8A",
+                  background: positive ? "rgba(91,211,154,0.12)" : "rgba(255,122,138,0.12)",
+                  border: `1px solid ${positive ? "rgba(91,211,154,0.25)" : "rgba(255,122,138,0.25)"}`,
+                  padding: "3px 8px",
+                  borderRadius: 999,
+                  position: "relative",
+                }}
+              >
+                <span style={{ color: visible ? "inherit" : "transparent", userSelect: visible ? "auto" : "none" }}>
+                  {positive ? "+" : "-"}{fmt(Math.abs(delta))}
+                </span>
+                {!visible && (
+                  <span aria-hidden="true" style={{ position: "absolute", inset: "0 8px", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "0.7em", pointerEvents: "none" }}>
+                    {"\u25CF".repeat(Math.max(4, fmt(Math.abs(delta)).replace(/\D/g, "").length + 2))}
+                  </span>
+                )}
+              </span>
+              <span style={{ fontSize: 11, color: "rgba(200,212,240,0.55)" }}>vs mes anterior</span>
+            </div>
+
+            <div style={{ flex: 1 }} />
+
+            <button
+              className="v360-pill-d"
+              onClick={() => setTab("contratos")}
+              style={{
+                marginTop: 16,
+                alignSelf: "flex-start",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                background: "transparent",
+                border: "1px solid rgba(255,255,255,0.28)",
+                color: "#fff",
+                borderRadius: 999,
+                padding: "8px 14px",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Ver contratos
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 6 15 12 9 18" />
+              </svg>
+            </button>
+          </div>
+
+          {/* gráfico de 6 meses — usa todo el ancho disponible */}
+          <div style={{ flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column" }}>
+            <div style={{ fontSize: 13, color: "rgba(200,212,240,0.66)", fontWeight: 500, marginBottom: 18 }}>
+              Ingresos · últimos 6 meses
+            </div>
+            <div style={{ flex: 1, display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 20, minHeight: 140 }}>
+              {meses6.map((m, i) => {
+                const isHi = i >= meses6.length - 3;
+                const h = (m.v / maxV) * 100;
+                return (
+                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minWidth: 0 }}>
+                    <div
+                      style={{
+                        width: "56%",
+                        height: `${Math.max(h, 6)}%`,
+                        minHeight: 5,
+                        borderRadius: 6,
+                        background: isHi
+                          ? "linear-gradient(180deg,#4A8CFF 0%,#1D6BFF 100%)"
+                          : "rgba(255,255,255,0.08)",
+                        boxShadow: isHi ? "0 0 16px rgba(29,107,255,0.4)" : "none",
+                      }}
+                    />
+                    <div
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: isHi ? "rgba(189,210,255,0.95)" : "rgba(200,212,240,0.45)",
+                        letterSpacing: 0.5,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {m.lbl}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -484,13 +738,14 @@ function HeroCard({
 // ══════════════════════════════════════════════════════════════════
 // METRIC CARD
 // ══════════════════════════════════════════════════════════════════
-function MetricCardNL({ icon, label, value, sub, waveColor, valueColor }: MetricCardNLProps) {
+function MetricCardNL({ icon, label, value, sub, waveColor, valueColor, isDesktop = false }: MetricCardNLProps) {
   return (
     <div
+      className={isDesktop ? "v360-metric-d" : undefined}
       style={{
         background: T.white,
-        borderRadius: 18,
-        padding: "14px 12px 12px",
+        borderRadius: isDesktop ? 18 : 18,
+        padding: isDesktop ? "20px 20px 18px" : "14px 12px 12px",
         minWidth: 0,
         border: `1px solid ${T.border}`,
         boxShadow: "0 1px 0 rgba(16,22,40,0.02), 0 6px 24px -16px rgba(16,22,40,0.18)",
@@ -500,22 +755,22 @@ function MetricCardNL({ icon, label, value, sub, waveColor, valueColor }: Metric
     >
       <div
         style={{
-          width: 38,
-          height: 38,
-          borderRadius: 11,
+          width: isDesktop ? 42 : 38,
+          height: isDesktop ? 42 : 38,
+          borderRadius: isDesktop ? 13 : 11,
           background: "linear-gradient(180deg, #0E1A3B 0%, #15265A 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          marginBottom: 12,
+          marginBottom: isDesktop ? 16 : 12,
         }}
       >
         {icon}
       </div>
-      <div style={{ fontSize: 12, color: T.text, fontWeight: 600, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 12, color: isDesktop ? T.muted : T.text, fontWeight: 600, marginBottom: isDesktop ? 6 : 4, textTransform: isDesktop ? "uppercase" : "none", letterSpacing: isDesktop ? 0.4 : 0 }}>{label}</div>
       <div
         style={{
-          fontSize: 26,
+          fontSize: isDesktop ? 28 : 26,
           fontWeight: 800,
           color: valueColor || T.text,
           lineHeight: 1,
@@ -524,10 +779,10 @@ function MetricCardNL({ icon, label, value, sub, waveColor, valueColor }: Metric
       >
         {value}
       </div>
-      <div style={{ fontSize: 11, color: T.muted, marginTop: 6, lineHeight: 1.35, minHeight: 28 }}>
+      <div style={{ fontSize: 11, color: T.muted, marginTop: 6, lineHeight: 1.35, minHeight: isDesktop ? 18 : 28 }}>
         {sub}
       </div>
-      <div style={{ marginTop: 4, marginLeft: -2, marginRight: -2 }}>
+      <div style={{ marginTop: isDesktop ? 10 : 4, marginLeft: -2, marginRight: -2 }}>
         <Wave color={waveColor || T.accent} />
       </div>
     </div>
@@ -537,10 +792,22 @@ function MetricCardNL({ icon, label, value, sub, waveColor, valueColor }: Metric
 // ══════════════════════════════════════════════════════════════════
 // ACCIONES RECOMENDADAS
 // ══════════════════════════════════════════════════════════════════
-function AccionesCard({ panalesLibres, setTab }: AccionesCardProps) {
+function AccionesCard({ panalesLibres, setTab, isDesktop = false }: AccionesCardProps) {
   if (panalesLibres === 0) return null;
   return (
-    <div style={{ background: "#0D1020", borderRadius: 20, padding: 18, marginBottom: 20 }}>
+    <div
+      className={isDesktop ? "v360-panel-d" : undefined}
+      style={{
+        background: "#0D1020",
+        borderRadius: 20,
+        padding: isDesktop ? "22px 22px" : 18,
+        marginBottom: isDesktop ? 0 : 20,
+        border: isDesktop ? "1px solid rgba(255,255,255,0.06)" : "none",
+        height: isDesktop ? "100%" : "auto",
+        display: isDesktop ? "flex" : "block",
+        flexDirection: isDesktop ? "column" : undefined,
+      }}
+    >
       <div
         style={{
           display: "flex",
@@ -560,7 +827,7 @@ function AccionesCard({ panalesLibres, setTab }: AccionesCardProps) {
         >
           Acciones recomendadas
         </span>
-        <button className="v360-glass-btn"
+        <button className={isDesktop ? "v360-glass-btn v360-link-d" : "v360-glass-btn"}
           style={{
             background: "none",
             border: "none",
@@ -574,7 +841,7 @@ function AccionesCard({ panalesLibres, setTab }: AccionesCardProps) {
           Ver todas ›
         </button>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: isDesktop ? "wrap" : "nowrap", flex: isDesktop ? 1 : undefined }}>
         <div
           style={{
             width: 46,
@@ -620,7 +887,7 @@ function AccionesCard({ panalesLibres, setTab }: AccionesCardProps) {
             Tienes {panalesLibres} paneles listos para asignar.
           </div>
         </div>
-        <button className="v360-glass-btn"
+        <button className={isDesktop ? "v360-glass-btn v360-cta-d" : "v360-glass-btn"}
           onClick={() => setTab("paneles")}
           style={{
             background: T.accent,
@@ -646,7 +913,7 @@ function AccionesCard({ panalesLibres, setTab }: AccionesCardProps) {
 // ══════════════════════════════════════════════════════════════════
 // ACTIVIDAD RECIENTE (basada en datos reales)
 // ══════════════════════════════════════════════════════════════════
-function ActividadReciente({ contratos, clientes, paneles }: ActividadRecienteProps) {
+function ActividadReciente({ contratos, clientes, paneles, isDesktop = false }: ActividadRecienteProps) {
   const items = [];
   [...contratos]
     .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
@@ -738,12 +1005,14 @@ function ActividadReciente({ contratos, clientes, paneles }: ActividadRecientePr
 
   return (
     <div
+      className={isDesktop ? "v360-panel-d" : undefined}
       style={{
         background: "#0D1020",
         borderRadius: 20,
-        padding: "18px 18px",
-        marginBottom: 20,
+        padding: isDesktop ? "22px 22px" : "18px 18px",
+        marginBottom: isDesktop ? 0 : 20,
         boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
+        border: isDesktop ? "1px solid rgba(255,255,255,0.06)" : "none",
       }}
     >
       {/* Header */}
@@ -766,7 +1035,7 @@ function ActividadReciente({ contratos, clientes, paneles }: ActividadRecientePr
         >
           Actividad reciente
         </span>
-        <button className="v360-glass-btn"
+        <button className={isDesktop ? "v360-glass-btn v360-link-d" : "v360-glass-btn"}
           style={{
             background: "none",
             border: "none",
@@ -885,6 +1154,7 @@ function ResumenNuevo({
   setTab,
   userName = "",
 }: ResumenNuevoProps) {
+  const isDesktop = useIsDesktop();
   const hoyStr = new Date().toISOString().slice(0, 10);
   const ocupadosHoy = new Set(
     contratos
@@ -956,14 +1226,23 @@ function ResumenNuevo({
   );
 
   return (
-    <div style={{ paddingBottom: 32 }}>
+    <div style={{ paddingBottom: 32, maxWidth: isDesktop ? 1180 : undefined, margin: isDesktop ? "0 auto" : undefined }}>
+      {isDesktop && <style>{DESKTOP_HOVER_CSS}</style>}
       <HeroCard
         panalesLibres={panalesLibres}
         contratos={contratos}
         setTab={setTab}
         userName={userName}
+        isDesktop={isDesktop}
       />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: isDesktop ? "repeat(4, 1fr)" : "1fr 1fr",
+          gap: isDesktop ? 18 : 10,
+          marginBottom: isDesktop ? 24 : 20,
+        }}
+      >
         <MetricCardNL
           icon={iDollar}
           label="Cobrado este mes"
@@ -977,6 +1256,7 @@ function ResumenNuevo({
             }).length
           } contratos pagados`}
           waveColor={T.accent}
+          isDesktop={isDesktop}
         />
         <MetricCardNL
           icon={iPanels}
@@ -985,6 +1265,7 @@ function ResumenNuevo({
           valueColor={T.accent}
           sub="Listos para asignar"
           waveColor={T.accent}
+          isDesktop={isDesktop}
         />
         <MetricCardNL
           icon={iClock}
@@ -1000,6 +1281,7 @@ function ResumenNuevo({
             }).length
           } contratos pendientes`}
           waveColor={T.accent}
+          isDesktop={isDesktop}
         />
         <MetricCardNL
           icon={iCal}
@@ -1007,10 +1289,27 @@ function ResumenNuevo({
           value={vencenProx}
           sub="Próximos 30 días"
           waveColor={T.accent}
+          isDesktop={isDesktop}
         />
       </div>
-      <AccionesCard panalesLibres={panalesLibres} setTab={setTab} />
-      <ActividadReciente contratos={contratos} clientes={clientes} paneles={paneles} />
+      {isDesktop ? (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: panalesLibres > 0 ? "1.1fr 1fr" : "1fr",
+            gap: 18,
+            alignItems: "stretch",
+          }}
+        >
+          <AccionesCard panalesLibres={panalesLibres} setTab={setTab} isDesktop />
+          <ActividadReciente contratos={contratos} clientes={clientes} paneles={paneles} isDesktop />
+        </div>
+      ) : (
+        <>
+          <AccionesCard panalesLibres={panalesLibres} setTab={setTab} />
+          <ActividadReciente contratos={contratos} clientes={clientes} paneles={paneles} />
+        </>
+      )}
     </div>
   );
 }
