@@ -2,6 +2,7 @@ import { useMemo, useEffect, useLayoutEffect } from "react";
 import { useLocation } from "react-router-dom";
 import type { User } from "firebase/auth";
 import { T } from "../config/theme";
+import { OWNER_EMAILS } from "../config/constants";
 
 export const HEADER_COLORS: Record<string, string> = {
   "/": "#0E1A3B",
@@ -87,11 +88,18 @@ export function useHeaderShell(user: User, showProfile: boolean) {
     return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toUpperCase();
   }, [userName]);
 
+  // ── Dueño vs. trabajador ─────────────────────────────────────────────
+  const isOwner = useMemo(
+    () => OWNER_EMAILS.includes((user.email ?? "").toLowerCase()),
+    [user],
+  );
+
   return {
     headerColor,
     headerDark,
     userName,
     userInitials,
+    isOwner,
     pageTitle: TAB_TITLES[location.pathname] ?? "Inicio",
   };
 }

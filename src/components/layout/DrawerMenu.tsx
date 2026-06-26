@@ -9,13 +9,16 @@ import { Modal, FieldGroup, Badge, Card, Spinner } from "../ui";
 
 // ── Menú drawer: solo los destinos que NO están en el bottom bar ──
 // El bottom bar ya tiene: Inicio, Contratos, Clientes, Paneles
-// Gastos y Proveedores viven dentro de Finanzas (antes "Capital").
+// Finanzas (antes "Capital") es solo para el dueño — un trabajador
+// no la ve, pero sí ve Gastos y Proveedores normalmente.
 const MENU_DRAWER = [
+  { id: "gastos", label: "Gastos" },
+  { id: "proveedores", label: "Proveedores" },
   { id: "mapa", label: "Mapa" },
   { id: "facturacion", label: "Facturación" },
   { id: "historico", label: "Histórico" },
   { id: "reportes", label: "Reportes" },
-  { id: "capital", label: "Finanzas" },
+  { id: "capital", label: "Finanzas", ownerOnly: true },
 ];
 
 // ── Iconos del drawer por id de tab ───────────────────────────────
@@ -67,6 +70,27 @@ const DRAWER_ICONS: Record<string, React.ReactNode> = {
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
+      />
+    </svg>
+  ),
+  gastos: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M3 10H21M7 15H8M12 15H13M6 19H18C19.105 19 20 18.105 20 17V7C20 5.895 19.105 5 18 5H6C4.895 5 4 5.895 4 7V17C4 18.105 4.895 19 6 19Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
+  proveedores: (
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M19 21V5C19 3.895 18.105 3 17 3H7C5.895 3 5 3.895 5 5V21M3 21H21M9 21V15H15V21"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   ),
@@ -176,8 +200,10 @@ function DrawerMenu({
   trashCount = 0,
   userName = "",
   userInitials = "?",
+  isOwner = false,
 }: DrawerMenuProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
+  const visibleMenu = MENU_DRAWER.filter(item => !item.ownerOnly || isOwner);
 
   // Focus trap completo: Escape cierra, Tab/Shift+Tab ciclan dentro del drawer.
   // Al abrir, el foco va automáticamente al primer elemento focusable.
@@ -334,11 +360,11 @@ function DrawerMenu({
 
         {/* ── Items del menú ── */}
         <div style={{ flex: 1, overflowY: "auto", padding: "4px 14px 8px" }}>
-          {MENU_DRAWER.map((item, idx) => {
+          {visibleMenu.map((item, idx) => {
             const active = activeTab === item.id;
             const nextActive =
-              idx < MENU_DRAWER.length - 1 && activeTab === MENU_DRAWER[idx + 1]?.id;
-            const showDivider = idx < MENU_DRAWER.length - 1 && !active && !nextActive;
+              idx < visibleMenu.length - 1 && activeTab === visibleMenu[idx + 1]?.id;
+            const showDivider = idx < visibleMenu.length - 1 && !active && !nextActive;
             return (
               <div key={item.id}>
                 <button

@@ -53,6 +53,7 @@ export interface AppRouterProps {
   autoScan: boolean;
   setAutoScan: Dispatch<SetStateAction<boolean>>;
   onModalChange: Dispatch<SetStateAction<boolean>>;
+  isOwner: boolean;
 }
 
 /**
@@ -61,7 +62,7 @@ export interface AppRouterProps {
  * Lee datos directamente de AppContext (useAppData, useAppDerived, useAppSetters)
  * eliminando el prop drilling de colecciones desde App → AppRouter → features.
  */
-export function AppRouter({ userName, autoScan, setAutoScan, onModalChange }: AppRouterProps) {
+export function AppRouter({ userName, autoScan, setAutoScan, onModalChange, isOwner }: AppRouterProps) {
   const navigate = useNavigate();
 
   // ── Datos desde contexto (sin prop drilling) ──────────────────────
@@ -284,18 +285,30 @@ export function AppRouter({ userName, autoScan, setAutoScan, onModalChange }: Ap
           element={
             <div className="tabPanel tabFlush">
               <ErrorBoundary label="Finanzas">
-                <Capital
-                  paneles={paneles}
-                  contratos={contractsActive}
-                  gastos={gastos}
-                  proveedores={proveedoresActive}
-                  setGastos={setGastos}
-                  setProveedores={setProveedores}
-                  autoScan={autoScan}
-                  setAutoScan={setAutoScan}
-                  onModalChange={onModalChange}
-                  loading={loading}
-                />
+                {isOwner ? (
+                  <Capital
+                    paneles={paneles}
+                    contratos={contractsActive}
+                    gastos={gastos}
+                    proveedores={proveedoresActive}
+                    setGastos={setGastos}
+                    setProveedores={setProveedores}
+                    autoScan={autoScan}
+                    setAutoScan={setAutoScan}
+                    onModalChange={onModalChange}
+                    loading={loading}
+                  />
+                ) : (
+                  <div style={{ padding: "60px 24px", textAlign: "center" }}>
+                    <div style={{ fontSize: 32, marginBottom: 12 }}>🔒</div>
+                    <h2 style={{ fontSize: 17, fontWeight: 700, color: "#0F1729", margin: "0 0 6px" }}>
+                      Acceso restringido
+                    </h2>
+                    <p style={{ fontSize: 14, color: "#64748B", margin: 0 }}>
+                      Esta sección es solo para el dueño de la cuenta.
+                    </p>
+                  </div>
+                )}
               </ErrorBoundary>
             </div>
           }

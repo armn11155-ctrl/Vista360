@@ -9,18 +9,21 @@ interface DesktopSidebarProps {
   userInitials: string;
   trashCount: number;
   showProfile: boolean;
+  isOwner: boolean;
 }
 
-const NAV_ITEMS: ({ id: string; path: string; label: string } | null)[] = [
+const NAV_ITEMS: ({ id: string; path: string; label: string; ownerOnly?: boolean } | null)[] = [
   { id: "hoy",       path: "/",            label: "Inicio"      },
   { id: "paneles",   path: "/paneles",     label: "Paneles"     },
   { id: "contratos", path: "/contratos",   label: "Contratos"   },
   { id: "crm",       path: "/crm",         label: "Clientes"    },
+  { id: "gastos",      path: "/gastos",      label: "Gastos"      },
+  { id: "proveedores", path: "/proveedores", label: "Proveedores" },
   { id: "mapa",        path: "/mapa",        label: "Mapa"        },
   { id: "facturacion", path: "/facturacion", label: "Facturación" },
   { id: "historico",   path: "/historico",   label: "Histórico"   },
   { id: "reportes",    path: "/reportes",    label: "Reportes"    },
-  { id: "capital",     path: "/capital",     label: "Finanzas"    },
+  { id: "capital",     path: "/capital",     label: "Finanzas",   ownerOnly: true },
 ];
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -48,6 +51,18 @@ const ICONS: Record<string, React.ReactNode> = {
     <svg width="19" height="19" fill="none" viewBox="0 0 24 24">
       <path d="M17 21V19C17 17.343 15.657 16 14 16H10C8.343 16 7 17.343 7 19V21M12 13C14.209 13 16 11.209 16 9C16 6.791 14.209 5 12 5C9.791 5 8 6.791 8 9C8 11.209 9.791 13 12 13Z"
         stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  ),
+  gastos: (
+    <svg width="19" height="19" fill="none" viewBox="0 0 24 24">
+      <path d="M3 10H21M7 15H8M12 15H13M6 19H18C19.105 19 20 18.105 20 17V7C20 5.895 19.105 5 18 5H6C4.895 5 4 5.895 4 7V17C4 18.105 4.895 19 6 19Z"
+        stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  ),
+  proveedores: (
+    <svg width="19" height="19" fill="none" viewBox="0 0 24 24">
+      <path d="M19 21V5C19 3.895 18.105 3 17 3H7C5.895 3 5 3.895 5 5V21M3 21H21M9 21V15H15V21"
+        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   mapa: (
@@ -90,9 +105,11 @@ export function DesktopSidebar({
   userInitials,
   trashCount,
   showProfile,
+  isOwner,
 }: DesktopSidebarProps) {
   const location = useLocation();
   const activePath = showProfile ? "/perfil" : location.pathname;
+  const visibleItems = NAV_ITEMS.filter(item => item === null || !item.ownerOnly || isOwner);
 
   return (
     <aside
@@ -182,7 +199,7 @@ export function DesktopSidebar({
 
       {/* ── Navegación ── */}
       <nav style={{ flex: 1, padding: "10px 10px", overflowY: "auto" }}>
-        {NAV_ITEMS.map((item, idx) => {
+        {visibleItems.map((item, idx) => {
           if (item === null) {
             return (
               <div

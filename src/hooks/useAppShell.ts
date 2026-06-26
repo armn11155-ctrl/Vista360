@@ -38,6 +38,7 @@ export interface AppShellState {
   headerDark: boolean;
   userName: string;
   userInitials: string;
+  isOwner: boolean;
   pageTitle: string;
   notifCount: number;
   trashCount: number;
@@ -90,6 +91,7 @@ export function useAppShell(user: User, onLogout: () => void): AppShellState {
     headerDark: header.headerDark,
     userName: header.userName,
     userInitials: header.userInitials,
+    isOwner: header.isOwner,
     pageTitle: header.pageTitle,
     // Data
     notifCount: data.appDerived.notifCount,

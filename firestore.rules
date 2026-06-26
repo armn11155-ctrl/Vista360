@@ -24,6 +24,23 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // ── Dueño / gerente ─────────────────────────────────────────────────
+    // Único(s) correo(s) con acceso a Finanzas (patrimonio, liquidez,
+    // activos, deudas, fondos, objetivos). Mantener sincronizado con
+    // OWNER_EMAILS en src/config/constants.ts.
+    function isOwner() {
+      return request.auth != null &&
+        request.auth.token.email in [
+          'armn.101@hotmail.com',
+          'armn.11155@gmail.com'
+        ];
+    }
+
+    // ── Finanzas (configuracion/capitalv2) — solo el dueño ─────────────────
+    match /configuracion/{id} {
+      allow read, write: if isOwner();
+    }
+
     // ── Colecciones de negocio (requieren rol admin) ───────────────────────
     match /paneles/{id} {
       allow read: if isSignedIn();

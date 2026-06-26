@@ -134,6 +134,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
             userInitials={shell.userInitials}
             trashCount={shell.trashCount}
             showProfile={shell.showProfile}
+            isOwner={shell.isOwner}
           />
 
           {/* ── Columna principal (solo contenido scrollable, sin barra superior) ── */}
@@ -156,6 +157,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                   autoScan={shell.autoScan}
                   setAutoScan={shell.setAutoScan}
                   onModalChange={shell.setAnyModalOpen}
+                  isOwner={shell.isOwner}
                 />
               )}
             </div>
@@ -231,6 +233,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
                 autoScan={shell.autoScan}
                 setAutoScan={shell.setAutoScan}
                 onModalChange={shell.setAnyModalOpen}
+                isOwner={shell.isOwner}
               />
             </div>
           </div>
@@ -259,6 +262,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
           trashCount={shell.trashCount}
           userName={shell.userName}
           userInitials={shell.userInitials}
+          isOwner={shell.isOwner}
         />
       </div>
       {overlays}
