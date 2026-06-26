@@ -215,16 +215,19 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
       {/* ── Wrapper: fondo azul completo ── */}
       <div style={{
         position: "fixed", inset: 0,
-        background: "linear-gradient(160deg, #07101F 0%, #0D1A35 55%, #0A2060 100%)",
+        backgroundImage: "url('/login-bg.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
         fontFamily: "'DM Sans', sans-serif",
         zIndex: 998, overflow: "hidden",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "0 6% 0 0",
       }}>
 
-        {/* Halos globales sobre todo el fondo */}
-        <div style={{ position:"absolute", top:"-15%", right:"30%", width:"55%", height:"65%", background:"radial-gradient(ellipse, rgba(37,99,235,.22) 0%, transparent 65%)", pointerEvents:"none" }}/>
-        <div style={{ position:"absolute", bottom:"-20%", left:"-10%", width:"55%", height:"55%", background:"radial-gradient(ellipse, rgba(37,99,235,.15) 0%, transparent 65%)", pointerEvents:"none" }}/>
+        {/* Overlay oscuro sobre la foto para legibilidad */}
+        <div style={{ position:"absolute", inset:0, background:"rgba(4,10,24,.62)", pointerEvents:"none", zIndex:0 }}/>
+        {/* Halo azul central */}
+        <div style={{ position:"absolute", top:"-15%", right:"30%", width:"55%", height:"65%", background:"radial-gradient(ellipse, rgba(37,99,235,.18) 0%, transparent 65%)", pointerEvents:"none", zIndex:0 }}/>
         {/* Dots */}
         <div style={{ position:"absolute", top:"12%", left:"8%",      width:6, height:6, borderRadius:"50%", background:"rgba(255,255,255,.18)" }}/>
         <div style={{ position:"absolute", top:"28%", left:"14%",     width:4, height:4, borderRadius:"50%", background:"rgba(255,255,255,.11)" }}/>
@@ -510,3 +513,4 @@ function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: Logi
 }
 
 export default LoginScreen;
+
