@@ -192,28 +192,6 @@ Configura las variables `VITE_*` en **Cloudflare Pages → Settings → Environm
 
 ---
 
-## 📺 Vista360 Player (pantallas físicas)
-
-Repo aparte: [armn11155-ctrl/Vista360-Player](https://github.com/armn11155-ctrl/Vista360-Player).
-Es la app que corre en cada pantalla/panel para mostrar contenido digital
-(imágenes/video) — usa el mismo proyecto de Firebase, autenticándose de forma
-anónima. Lee `contenidoDigital/{panel_id}` y reporta su estado en
-`playersStatus/{panel_id}`.
-
-Para probarlo rápido sin tocar la consola de Firebase a mano:
-
-```bash
-GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json \
-  node scripts/seed-contenido-digital.mjs panel-001
-```
-
-Las reglas de Firestore (`firestore.rules`) ya distinguen entre un login
-humano y el login anónimo del player (`isHuman()`), para que las pantallas
-nunca puedan leer datos de clientes, contratos ni facturas — solo su propio
-contenido. Hay que desplegarlas una vez: `firebase deploy --only firestore:rules`.
-
----
-
 ## 🔐 Seguridad
 
 - **Firestore rules**: deny-all por defecto. Solo emails en `/config/allowedEmails` pueden acceder a las colecciones de negocio.
