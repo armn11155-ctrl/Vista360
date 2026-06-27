@@ -2,34 +2,40 @@
 /**
  * scripts/crear-acceso-cliente.mjs
  *
- * Crea la cuenta de Firebase Auth de un cliente (para Vista360-Player)
- * y la vincula a su cliente_id existente en Vista360, escribiendo
- * /portalUsers/{uid}.
+ * Crea la cuenta de Firebase Auth de un cliente (para Vista360-Player),
+ * la vincula a su cliente_id existente en Vista360, y le manda un correo
+ * AUTOMÁTICO de Firebase con un link para que el cliente cree su propia
+ * contraseña — nunca le mandamos una contraseña en texto plano.
  *
  * Uso:
  *   GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json \
- *   node scripts/crear-acceso-cliente.mjs <cliente_id> <email> <password>
+ *   VITE_FIREBASE_API_KEY=... VITE_FIREBASE_AUTH_DOMAIN=... VITE_FIREBASE_PROJECT_ID=... \
+ *   node scripts/crear-acceso-cliente.mjs <cliente_id> <email>
+ *
+ * Más fácil: si ya tienes un .env.local con las VITE_FIREBASE_* (el mismo
+ * que usa la app), corre con dotenv:
+ *   node --env-file=.env.local scripts/crear-acceso-cliente.mjs <cliente_id> <email>
  *
  * Ejemplo:
- *   node scripts/crear-acceso-cliente.mjs abc123 cliente@coca-cola.pe Temporal123!
+ *   node --env-file=.env.local scripts/crear-acceso-cliente.mjs abc123 cliente@coca-cola.pe
  *
  * Requisitos:
  *   npm install -D firebase-admin
  *   Descargar serviceAccountKey.json desde Firebase Console →
  *   Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada
- *
- * El cliente debe cambiar esa contraseña la primera vez que entre
- * (Vista360-Player no fuerza esto todavía — pídeselo manualmente).
  */
 
-import { initializeApp, cert } from "firebase-admin/app";
+import { randomBytes } from "crypto";
+import { initializeApp as initAdmin, cert } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
-import { getAuth } from "firebase-admin/auth";
+import { getAuth as getAdminAuth } from "firebase-admin/auth";
+import { initializeApp as initClient } from "firebase/app";
+import { getAuth as getClientAuth, sendPasswordResetEmail } from "firebase/auth";
 
-const [clienteId, email, password] = process.argv.slice(2);
+const [clienteId, email] = process.argv.slice(2);
 
-if (!clienteId || !email || !password) {
-  console.error("❌  Uso: node scripts/crear-acceso-cliente.mjs <cliente_id> <email> <password>");
+if (!clienteId || !email) {
+  console.error("❌  Uso: node scripts/crear-acceso-cliente.mjs <cliente_id> <email>");
   process.exit(1);
 }
 
@@ -39,9 +45,22 @@ if (!credPath) {
   process.exit(1);
 }
 
-initializeApp({ credential: cert(credPath) });
+const clientConfig = {
+  apiKey: process.env.VITE_FIREBASE_API_KEY,
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+};
+if (!clientConfig.apiKey || !clientConfig.authDomain || !clientConfig.projectId) {
+  console.error("❌  Faltan VITE_FIREBASE_API_KEY / VITE_FIREBASE_AUTH_DOMAIN / VITE_FIREBASE_PROJECT_ID.");
+  console.error("    Corre con: node --env-file=.env.local scripts/crear-acceso-cliente.mjs ...");
+  process.exit(1);
+}
+
+initAdmin({ credential: cert(credPath) });
 const db = getFirestore();
-const auth = getAuth();
+const adminAuth = getAdminAuth();
+const clientApp = initClient(clientConfig, "client-temporal");
+const clientAuth = getClientAuth(clientApp);
 
 try {
   // 1. Verificar que el cliente_id realmente existe en Vista360
@@ -53,18 +72,23 @@ try {
   }
   const clienteData = clienteSnap.data();
 
-  // 2. Crear (o reusar, si ya existe) la cuenta de Firebase Auth
+  // 2. Crear (o reusar, si ya existe) la cuenta de Firebase Auth.
+  //    La contraseña es aleatoria y nadie la usa nunca — el cliente va a
+  //    crear la suya mediante el link que le llega por correo.
   let userRecord;
+  let esNueva = false;
   try {
-    userRecord = await auth.getUserByEmail(email);
+    userRecord = await adminAuth.getUserByEmail(email);
     console.log(`ℹ️  Ya existía una cuenta con ese correo (uid: ${userRecord.uid}). Se reutiliza.`);
   } catch {
-    userRecord = await auth.createUser({
+    const passwordTemporal = randomBytes(24).toString("base64url");
+    userRecord = await adminAuth.createUser({
       email,
-      password,
+      password: passwordTemporal,
       displayName: clienteData.empresa ?? email,
       emailVerified: false,
     });
+    esNueva = true;
     console.log(`✅  Cuenta creada (uid: ${userRecord.uid}).`);
   }
 
@@ -75,15 +99,20 @@ try {
     nombre: clienteData.empresa ?? "",
     createdAt: FieldValue.serverTimestamp(),
   });
-
   console.log(`✅  portalUsers/${userRecord.uid} vinculado a cliente "${clienteData.empresa}" (${clienteId}).`);
+
+  // 4. Mandar el correo automático de Firebase para que el cliente cree
+  //    su propia contraseña (esto SÍ envía el correo de verdad — no es
+  //    solo generar un link, Firebase lo despacha por su cuenta).
+  await sendPasswordResetEmail(clientAuth, email, {
+    url: "https://vista360-player.pages.dev",
+    handleCodeInApp: false,
+  });
+
   console.log("");
-  console.log("📋  Datos para entregarle al cliente:");
-  console.log(`    URL:        https://vista360-player.pages.dev`);
-  console.log(`    Correo:     ${email}`);
-  console.log(`    Contraseña: ${password}`);
-  console.log("");
-  console.log("🔒  Recuérdale que cambie la contraseña en su primer ingreso.");
+  console.log(`📧  Correo enviado a ${email} con el link para crear su contraseña.`);
+  console.log(`    URL del portal: https://vista360-player.pages.dev`);
+  if (!esNueva) console.log("    (cuenta ya existía — el correo sirve para que reestablezca su contraseña)");
   process.exit(0);
 } catch (err) {
   console.error("❌  Error:", err.message ?? err);

@@ -203,12 +203,19 @@ Para darle acceso a un cliente nuevo:
 
 ```bash
 GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json \
-  node scripts/crear-acceso-cliente.mjs <cliente_id> <email> <password>
+  node --env-file=.env.local scripts/crear-acceso-cliente.mjs <cliente_id> <email>
 ```
 
-Esto crea su cuenta de Firebase Auth y la vincula a su `cliente_id` real en
-`/portalUsers/{uid}`. El script te imprime los datos para entregarle al
-cliente. No hay auto-registro: solo entra quien tú habilitaste.
+Esto crea su cuenta de Firebase Auth, la vincula a su `cliente_id` real en
+`/portalUsers/{uid}`, **y le manda un correo automático de Firebase** con un
+link para que el cliente cree su propia contraseña — nunca le compartes una
+contraseña tú mismo. No hay auto-registro: solo entra quien tú habilitaste
+corriendo este script.
+
+> ⚠️ **Configuración única, antes del primer uso**: en Firebase Console →
+> Authentication → Settings → Authorized domains, agrega
+> `vista360-player.pages.dev`. Sin esto, el correo automático falla con
+> `auth/unauthorized-continue-uri`.
 
 ---
 
