@@ -217,6 +217,19 @@ corriendo este script.
 > `vista360-player.pages.dev`. Sin esto, el correo automático falla con
 > `auth/unauthorized-continue-uri`.
 
+### Tu cuenta de admin dentro del portal
+
+Además de tus clientes, tú también puedes tener una cuenta en
+Vista360-Player — pero con rol `admin`: ves los clientes en un selector,
+puedes subir evidencias (los clientes solo las pueden ver), y ves si el
+informe mensual de cada uno ya se envió. Es una cuenta independiente de tu
+login en Vista360 (el ERP).
+
+```bash
+GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json \
+  node --env-file=.env.local scripts/crear-acceso-cliente.mjs admin tu-correo@ejemplo.com
+```
+
 ### Informes mensuales por cliente
 
 Cada día 1 del mes, el workflow `informe-mensual-clientes.yml` genera un PDF

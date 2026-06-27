@@ -27,6 +27,17 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/portalUsers/$(request.auth.uid)).data.clienteId;
     }
 
+    // El dueño también tiene una cuenta DENTRO de Vista360-Player (creada
+    // con role:'admin' en su portalUsers), para ver y gestionar evidencias
+    // de cualquier cliente desde la misma pantalla que usan ellos — sin
+    // tener que repetir la función en Vista360. Sigue siendo una cuenta de
+    // "portal" (no isHuman()), pero con permisos ampliados a TODOS los
+    // clientes en vez de uno solo.
+    function esAdminPortal() {
+      return esCuentaDePortal() &&
+        get(/databases/$(database)/documents/portalUsers/$(request.auth.uid)).data.role == 'admin';
+    }
+
     function isHuman() {
       return request.auth != null && !esCuentaDePortal();
     }
@@ -57,14 +68,19 @@ service cloud.firestore {
     }
 
     match /clientes/{id} {
-      allow read: if isHuman() || (esCuentaDePortal() && id == clienteIdDelPortal());
+      allow read: if isHuman() || esAdminPortal() || (esCuentaDePortal() && id == clienteIdDelPortal());
       allow write: if isHuman();
     }
 
     match /contratos/{id} {
-      allow read: if isHuman() ||
+      allow read: if isHuman() || esAdminPortal() ||
         (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal());
-      allow write: if isHuman();
+      allow write: if isHuman() ||
+        // El admin-portal solo puede tocar fotos_campania — ni precio, ni
+        // cliente, ni fechas. Si esa cuenta se ve comprometida algún día,
+        // el daño posible queda acotado a "puede subir fotos", nada más.
+        (esAdminPortal() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fotos_campania']));
     }
 
     match /gastos/{id} {
@@ -122,7 +138,7 @@ service cloud.firestore {
     // el Admin SDK, que no pasa por estas reglas — esta regla solo controla
     // la LECTURA desde la app: cada cliente ve únicamente sus propios informes.
     match /informesCliente/{id} {
-      allow read: if isHuman() ||
+      allow read: if isHuman() || esAdminPortal() ||
         (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal());
       allow write: if isHuman();
     }

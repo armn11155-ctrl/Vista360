@@ -34,7 +34,7 @@ import type { User } from "firebase/auth";
 import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from "../../../types";
 
 // ── Servicios y utilidades ────────────────────────────────────────
-import { fb, cloudinaryThumb } from "../../../services/firestore";
+import { fb } from "../../../services/firestore";
 import { T, tCol, catCol } from "../../../config/theme";
 import { toast, confirmAsync } from "../../../context/UIContext";
 import { fmt, fmtF, dias, mesHoy, mesLabel, hoy, validate, haptic } from "../../../lib/utils";
@@ -82,10 +82,6 @@ function Contratos({
   const isDesktop = useIsDesktop();
   const [filtro, setFiltro] = useState("Activos");
   const [modal, setModal] = useState<Partial<Contrato> | null>(null);
-  // Pantalla completa de "Campaña" — lo que ve el cliente (panel, fechas,
-  // evidencias). Separada del modal de Contrato (precio, cliente, pagos),
-  // que sigue siendo privado del dueño.
-  const [campanaAbierta, setCampanaAbierta] = useState<Contrato | null>(null);
   const [saving, setSaving] = useState(false);
   const closeBackdropRef = useRef(false);
   const modalOpenedAt = useRef(0);
@@ -1214,37 +1210,42 @@ function Contratos({
 
                   {/* Botones acción */}
                   <>
-                    {/* Ir a Campaña — pantalla completa con evidencias, fechas y panel */}
+                    {/* Foto de campaña */}
                     <button
-                      onClick={() => setCampanaAbierta(c)}
+                      onClick={() => {
+                        fotoCampaniaRef.current?.setAttribute("data-contrato-id", c.id);
+                        fotoCampaniaRef.current?.click();
+                      }}
+                      disabled={subiendoFotoId === c.id}
+                      title="Subir foto de la campaña instalada"
                       style={{
+                        width: 38,
                         height: 38,
-                        padding: "0 12px",
                         borderRadius: 10,
                         border: "1px solid rgba(124,58,237,0.35)",
                         background: "rgba(124,58,237,0.13)",
-                        cursor: "pointer",
+                        cursor: subiendoFotoId === c.id ? "default" : "pointer",
                         touchAction: "manipulation",
                         display: "inline-flex",
                         alignItems: "center",
-                        gap: 6,
+                        justifyContent: "center",
                         color: "#A78BFA",
-                        fontSize: 12,
-                        fontWeight: 700,
                         position: "relative",
-                        whiteSpace: "nowrap",
                       }}
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
-                        <circle cx="12" cy="13" r="4" />
-                      </svg>
-                      Ir a Campaña
+                      {subiendoFotoId === c.id ? (
+                        <div style={{ width: 14, height: 14, border: "2px solid rgba(167,139,250,0.3)", borderTopColor: "#A78BFA", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+                      ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                          <circle cx="12" cy="13" r="4" />
+                        </svg>
+                      )}
                       {(c.fotos_campania?.length ?? 0) > 0 && (
                         <span
                           style={{
-                            background: "#16A34A", color: "#fff",
-                            borderRadius: "50%", width: 16, height: 16, fontSize: 9, fontWeight: 800,
+                            position: "absolute", top: -4, right: -4, background: "#16A34A", color: "#fff",
+                            borderRadius: "50%", width: 15, height: 15, fontSize: 9, fontWeight: 800,
                             display: "flex", alignItems: "center", justifyContent: "center",
                           }}
                         >
@@ -1513,128 +1514,6 @@ function Contratos({
           />
         </div>
       )}
-
-      {/* ── Pantalla completa: Campaña (lo que ve el cliente) ── */}
-      {campanaAbierta && (() => {
-        const c = campanaAbierta;
-        const panel = paneles.find(p => p.id === c.panel_id);
-        return (
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              zIndex: 200,
-              background: T.bg,
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "16px 16px",
-                borderBottom: `1px solid ${T.border}`,
-                flexShrink: 0,
-                background: T.surface,
-              }}
-            >
-              <button
-                onClick={() => setCampanaAbierta(null)}
-                style={{
-                  width: 36, height: 36, borderRadius: 10, border: "none",
-                  background: "transparent", color: T.text, cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="m15 18-6-6 6-6" />
-                </svg>
-              </button>
-              <div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: T.text }}>Campaña</div>
-                <div style={{ fontSize: 12, color: T.muted }}>
-                  {panel?.nombre ?? c.panel_id}{panel?.ciudad ? ` · ${panel.ciudad}` : ""}
-                </div>
-              </div>
-            </div>
-
-            <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
-                <span style={{ fontSize: 12, padding: "6px 12px", borderRadius: 8, background: T.surface, color: T.text, border: `1px solid ${T.border}` }}>
-                  📅 {c.inicio} → {c.fin}
-                </span>
-                {c.cara && (
-                  <span style={{ fontSize: 12, padding: "6px 12px", borderRadius: 8, background: T.surface, color: T.text, border: `1px solid ${T.border}` }}>
-                    Cara {c.cara}
-                  </span>
-                )}
-              </div>
-
-              <div style={{ fontSize: 13, fontWeight: 700, color: T.text, marginBottom: 10 }}>
-                Evidencias ({c.fotos_campania?.length ?? 0})
-              </div>
-
-              {c.fotos_campania?.length ? (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 18 }}>
-                  {c.fotos_campania.map((foto, i) => (
-                    <a
-                      key={i}
-                      href={foto.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ display: "block", position: "relative", borderRadius: 10, overflow: "hidden", aspectRatio: "1", background: T.surface }}
-                    >
-                      <img src={cloudinaryThumb(foto.url)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      <span style={{ position: "absolute", bottom: 4, left: 4, fontSize: 9, color: "#fff", background: "rgba(0,0,0,0.55)", padding: "2px 6px", borderRadius: 6 }}>
-                        {foto.fecha}
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ fontSize: 13, color: T.muted, marginBottom: 18 }}>
-                  Todavía no se ha subido ninguna foto de esta campaña.
-                </div>
-              )}
-
-              <button
-                onClick={() => {
-                  fotoCampaniaRef.current?.setAttribute("data-contrato-id", c.id);
-                  fotoCampaniaRef.current?.click();
-                }}
-                disabled={subiendoFotoId === c.id}
-                style={{
-                  width: "100%",
-                  padding: 14,
-                  borderRadius: 12,
-                  border: `1px solid ${T.border}`,
-                  background: T.surface,
-                  color: T.text,
-                  fontWeight: 700,
-                  fontSize: 14,
-                  cursor: subiendoFotoId === c.id ? "default" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                }}
-              >
-                {subiendoFotoId === c.id ? (
-                  <div style={{ width: 16, height: 16, border: "2px solid rgba(124,58,237,0.3)", borderTopColor: "#A78BFA", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
-                ) : (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
-                    <circle cx="12" cy="13" r="4" />
-                  </svg>
-                )}
-                Subir evidencia
-              </button>
-            </div>
-          </div>
-        );
-      })()}
     </div>
   );
 }
