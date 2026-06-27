@@ -3,25 +3,32 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ── Permisos ────────────────────────────────────────────────────────────
-    // NOTA: la version anterior de esto exigia un Custom Claim
-    // (request.auth.token.role == 'admin') que nunca se activo para tu
-    // usuario real -> por eso se rompio "Agregar prospecto" y la lectura
-    // de solicitudesWeb ("Missing or insufficient permissions"). Mientras
-    // uses una sola cuenta para administrar todo, isAllowed() == estar
-    // logueado es exactamente el mismo nivel de seguridad que ya tenias
-    // (la regla original era "if request.auth != null" para todo).
-    //
-    // Si en el futuro agregas mas usuarios y quieres separar permisos
-    // (ej: un vendedor que solo lee, sin poder borrar), ahi si conviene
-    // volver a Custom Claims, pero hay que activarlos primero desde un
-    // backend con el Admin SDK:
+    // Mientras uses una sola cuenta humana para administrar todo, "admin"
+    // == estar logueado Y no ser una cuenta de cliente del portal (ver
+    // isHuman() más abajo). Si en el futuro agregas más usuarios humanos
+    // y quieres separar permisos entre ellos (ej: un vendedor que solo lee,
+    // sin poder borrar), ahí sí conviene Custom Claims, pero hay que
+    // activarlos primero desde un backend con el Admin SDK:
     //   await admin.auth().setCustomUserClaims(uid, { role: 'admin' });
-    function isAllowed() {
-      return request.auth != null;
+
+    // ── Vista360-Player (portal de clientes) ───────────────────────────────
+    // Cada cliente tiene una cuenta de Firebase Auth (creada por el dueño
+    // con scripts/crear-acceso-cliente.mjs) vinculada a su cliente_id real
+    // mediante un documento en portalUsers. isHuman() excluye explícitamente
+    // a esas cuentas de cliente de TODAS las colecciones internas (gastos,
+    // facturas, proveedores, otros clientes, etc.) — solo ven lo que la
+    // sección de abajo les habilita explícitamente, y solo lo suyo.
+    function esCuentaDePortal() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/portalUsers/$(request.auth.uid));
     }
 
-    function isSignedIn() {
-      return request.auth != null;
+    function clienteIdDelPortal() {
+      return get(/databases/$(database)/documents/portalUsers/$(request.auth.uid)).data.clienteId;
+    }
+
+    function isHuman() {
+      return request.auth != null && !esCuentaDePortal();
     }
 
     // ── Dueño / gerente ─────────────────────────────────────────────────
@@ -41,40 +48,73 @@ service cloud.firestore {
       allow read, write: if isOwner();
     }
 
-    // ── Colecciones de negocio (requieren rol admin) ───────────────────────
+    // ── Colecciones de negocio (admins humanos; paneles también visibles
+    //    para el portal de clientes, ya que su nombre/ubicación no es
+    //    sensible y el portal los necesita para mostrar campañas) ─────────
     match /paneles/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman() || esCuentaDePortal();
+      allow write: if isHuman();
     }
 
     match /clientes/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman() || (esCuentaDePortal() && id == clienteIdDelPortal());
+      allow write: if isHuman();
     }
 
     match /contratos/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman() ||
+        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal());
+      allow write: if isHuman();
     }
 
     match /gastos/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman();
+      allow write: if isHuman();
     }
 
     match /proveedores/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman();
+      allow write: if isHuman();
     }
 
     match /facturas/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman();
+      allow write: if isHuman();
     }
 
     match /sueldos/{id} {
-      allow read: if isAllowed();
-      allow write: if isAllowed();
+      allow read: if isHuman();
+      allow write: if isHuman();
+    }
+
+    // ── Vista360-Player: vínculo cuenta ↔ cliente ───────────────────────────
+    // Solo lo crea/edita el dueño (con el script de Admin SDK). El propio
+    // cliente puede leer ÚNICAMENTE su propio documento, para saber a qué
+    // cliente_id corresponde apenas inicia sesión.
+    match /portalUsers/{uid} {
+      allow read: if isHuman() || (request.auth != null && request.auth.uid == uid);
+      allow write: if isHuman();
+    }
+
+    // ── Vista360-Player: solicitudes de nueva campaña ──────────────────────
+    // El cliente solo puede crear una solicitud para SU PROPIO cliente_id,
+    // con datos validados, y leer las suyas. Aprobar/rechazar/convertir en
+    // contrato real lo hace el dueño desde Vista360 (igual que solicitudesWeb).
+    function esSolicitudCampanaValida(d) {
+      return d.keys().hasOnly(
+              ['cliente_id','nombre','objetivo','presupuesto','ciudades',
+               'comentarios','estado','createdAt']
+            )
+        && d.cliente_id is string && d.cliente_id == clienteIdDelPortal()
+        && d.nombre     is string && d.nombre.size()  > 0 && d.nombre.size()  <= 100
+        && d.estado     == 'Pendiente';
+    }
+
+    match /solicitudesCampana/{id} {
+      allow read: if isHuman() ||
+        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal());
+      allow create: if esCuentaDePortal() && esSolicitudCampanaValida(request.resource.data);
+      allow update, delete: if isHuman();
     }
 
     // ── Solicitudes desde la web pública (sin login) ───────────────────────
@@ -101,7 +141,7 @@ service cloud.firestore {
     }
 
     match /solicitudesWeb/{id} {
-      allow read, update, delete: if isAllowed();
+      allow read, update, delete: if isHuman();
       allow create: if esSolicitudValida(request.resource.data);
     }
 

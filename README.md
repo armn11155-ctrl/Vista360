@@ -192,9 +192,30 @@ Configura las variables `VITE_*` en **Cloudflare Pages → Settings → Environm
 
 ---
 
+## 👥 Vista360-Player (portal de clientes)
+
+Repo aparte: [armn11155-ctrl/Vista360-Player](https://github.com/armn11155-ctrl/Vista360-Player).
+Es el portal donde **tus clientes (anunciantes)** entran a ver sus propias
+campañas, evidencias fotográficas y reportes — usa el mismo proyecto de
+Firebase, pero cada cliente solo lee lo suyo (ver reglas más abajo).
+
+Para darle acceso a un cliente nuevo:
+
+```bash
+GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json \
+  node scripts/crear-acceso-cliente.mjs <cliente_id> <email> <password>
+```
+
+Esto crea su cuenta de Firebase Auth y la vincula a su `cliente_id` real en
+`/portalUsers/{uid}`. El script te imprime los datos para entregarle al
+cliente. No hay auto-registro: solo entra quien tú habilitaste.
+
+---
+
 ## 🔐 Seguridad
 
 - **Firestore rules**: deny-all por defecto. Solo emails en `/config/allowedEmails` pueden acceder a las colecciones de negocio.
+- **Portal de clientes aislado**: las cuentas creadas para Vista360-Player (`portalUsers`) están explícitamente excluidas de toda colección interna (`gastos`, `facturas`, `proveedores`, otros clientes) por `isHuman()` en `firestore.rules` — solo ven su propio `cliente_id`.
 - **Whitelist en Firestore**: los emails autorizados se guardan en Firestore (no en el frontend) para evitar exponerlos en el repositorio.
 - **Cloudinary**: las imágenes se comprimen antes de subir (máx 1200px, JPEG 72%). La eliminación de imágenes se hace vía backend (Admin SDK).
 - **Variables de entorno**: validadas en arranque por `src/config/env.ts` — falla rápido con mensaje descriptivo si falta alguna.
