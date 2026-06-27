@@ -217,6 +217,17 @@ corriendo este script.
 > `vista360-player.pages.dev`. Sin esto, el correo automático falla con
 > `auth/unauthorized-continue-uri`.
 
+### Informes mensuales por cliente
+
+Cada día 1 del mes, el workflow `informe-mensual-clientes.yml` genera un PDF
+por cliente (estado de sus campañas, fechas, evidencias, pago — sin datos
+financieros internos), lo guarda en Firebase Storage, lo deja disponible en
+la pestaña "Reportes" de Vista360-Player, y le manda un correo avisando.
+Reusa los mismos secrets que ya tienes configurados para el reporte interno
+(`FIREBASE_SERVICE_ACCOUNT`, `GMAIL_USER`, `GMAIL_PASS`) — no hay que
+configurar nada nuevo. Requiere que **Firebase Storage esté activado** en
+tu proyecto (Firebase Console → Storage → "Comenzar", si no lo has hecho ya).
+
 ---
 
 ## 🔐 Seguridad

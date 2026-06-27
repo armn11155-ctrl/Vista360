@@ -117,6 +117,16 @@ service cloud.firestore {
       allow update, delete: if isHuman();
     }
 
+    // ── Vista360-Player: informes mensuales por cliente ────────────────────
+    // Los genera el job mensual (scripts/informe-mensual-clientes.mjs) con
+    // el Admin SDK, que no pasa por estas reglas — esta regla solo controla
+    // la LECTURA desde la app: cada cliente ve únicamente sus propios informes.
+    match /informesCliente/{id} {
+      allow read: if isHuman() ||
+        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal());
+      allow write: if isHuman();
+    }
+
     // ── Solicitudes desde la web pública (sin login) ───────────────────────
     // El formulario de contacto del sitio web escribe aquí directamente.
     // Solo permite CREAR, con datos validados estrictamente. Nadie puede
