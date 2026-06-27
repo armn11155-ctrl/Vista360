@@ -577,7 +577,7 @@ const BOTTOM_TABS_LIST = [
   { id: "hoy", label: "Inicio" },
   { id: "paneles", label: "Paneles" },
   { id: "__add__", label: "" },
-  { id: "contratos", label: "Campañas" },
+  { id: "contratos", label: "Contratos" },
   { id: "crm", label: "Clientes" },
 ];
 

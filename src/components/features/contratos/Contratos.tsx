@@ -82,9 +82,10 @@ function Contratos({
   const isDesktop = useIsDesktop();
   const [filtro, setFiltro] = useState("Activos");
   const [modal, setModal] = useState<Partial<Contrato> | null>(null);
-  // Separa visualmente lo que ve el cliente (Campaña: panel, fechas, evidencias)
-  // de lo que es privado del dueño (Contrato: cliente, monto, pagos).
-  const [tabModal, setTabModal] = useState<"campana" | "contrato">("campana");
+  // Pantalla completa de "Campaña" — lo que ve el cliente (panel, fechas,
+  // evidencias). Separada del modal de Contrato (precio, cliente, pagos),
+  // que sigue siendo privado del dueño.
+  const [campanaAbierta, setCampanaAbierta] = useState<Contrato | null>(null);
   const [saving, setSaving] = useState(false);
   const closeBackdropRef = useRef(false);
   const modalOpenedAt = useRef(0);
@@ -189,7 +190,6 @@ function Contratos({
   const openEdit = c => {
     modalOpenedAt.current = Date.now();
     closeBackdropRef.current = false;
-    setTabModal("campana");
     const pm = c.pagosMeses || {};
     setForm({
       panel_id: c.panel_id,
@@ -436,7 +436,7 @@ function Contratos({
               }}
             >
               <span style={{ fontSize: 17, fontWeight: 800, color: T.text }}>
-                {modal === "nuevo" ? "Nueva Campaña" : "Detalle de la campaña"}
+                {modal === "nuevo" ? "Nuevo Contrato" : "Editar Contrato"}
               </span>
               <button
                 onClick={() => {
@@ -460,56 +460,6 @@ function Contratos({
               ></button>
             </div>
 
-            {modal !== "nuevo" && (
-              <div
-                style={{
-                  display: "flex",
-                  gap: 8,
-                  marginBottom: 18,
-                  background: T.bg,
-                  borderRadius: 12,
-                  padding: 4,
-                }}
-              >
-                {(
-                  [
-                    { id: "campana" as const, label: "📋 Campaña" },
-                    { id: "contrato" as const, label: "💰 Contrato" },
-                  ]
-                ).map(t => {
-                  const active = tabModal === t.id;
-                  return (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onPointerDown={e => e.stopPropagation()}
-                      onClick={() => setTabModal(t.id)}
-                      style={{
-                        flex: 1,
-                        padding: "10px 0",
-                        borderRadius: 9,
-                        border: "none",
-                        background: active ? T.accent : "transparent",
-                        color: active ? "#fff" : T.muted,
-                        fontWeight: 700,
-                        fontSize: 13,
-                        cursor: "pointer",
-                        touchAction: "manipulation",
-                      }}
-                    >
-                      {t.label}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-            {modal !== "nuevo" && tabModal === "contrato" && (
-              <div style={{ fontSize: 11, color: T.muted, marginTop: -10, marginBottom: 14 }}>
-                🔒 Esta pestaña es solo para ti — el cliente nunca la ve.
-              </div>
-            )}
-
-            {(modal === "nuevo" || tabModal === "campana") && (
             <F label="Panel *">
               <select
                 value={form.panel_id}
@@ -525,11 +475,9 @@ function Contratos({
                 ))}
               </select>
             </F>
-            )}
 
             {/* ── Selector de cara — solo para Unipolares (2 caras) ── */}
             {(() => {
-              if (!(modal === "nuevo" || tabModal === "campana")) return null;
               const selPanel = paneles.find(p => p.id === form.panel_id);
               const numCaras = getCarasPanel(selPanel?.tipo || "");
               if (numCaras < 2) return null;
@@ -572,7 +520,6 @@ function Contratos({
               );
             })()}
 
-            {(modal === "nuevo" || tabModal === "contrato") && (
             <F label="Cliente *">
               <select
                 value={form.cliente_id}
@@ -590,9 +537,7 @@ function Contratos({
                   ))}
               </select>
             </F>
-            )}
 
-            {(modal === "nuevo" || tabModal === "campana") && (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <F label="Fecha inicio *">
                 <input
@@ -625,61 +570,7 @@ function Contratos({
                 />
               </F>
             </div>
-            )}
 
-            {tabModal === "campana" && modal !== "nuevo" && (
-              <F label="Evidencias de esta campaña">
-                {(modal as Contrato)?.fotos_campania?.length ? (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 10 }}>
-                    {(modal as Contrato).fotos_campania!.map((foto, i) => (
-                      <a
-                        key={i}
-                        href={foto.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ display: "block", borderRadius: 10, overflow: "hidden", aspectRatio: "1", background: T.bg }}
-                      >
-                        <img
-                          src={cloudinaryThumb(foto.url)}
-                          alt=""
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        />
-                      </a>
-                    ))}
-                  </div>
-                ) : (
-                  <div style={{ fontSize: 12, color: T.muted, marginBottom: 10 }}>
-                    Todavía no se ha subido ninguna foto de esta campaña.
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onPointerDown={e => e.stopPropagation()}
-                  onClick={() => {
-                    const cId = (modal as Contrato)?.id;
-                    if (!cId) return;
-                    fotoCampaniaRef.current?.setAttribute("data-contrato-id", cId);
-                    fotoCampaniaRef.current?.click();
-                  }}
-                  style={{
-                    width: "100%",
-                    padding: 10,
-                    borderRadius: 10,
-                    border: `1px solid ${T.border}`,
-                    background: T.surface,
-                    color: T.text,
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: "pointer",
-                    touchAction: "manipulation",
-                  }}
-                >
-                  📷 Agregar evidencia
-                </button>
-              </F>
-            )}
-
-            {(modal === "nuevo" || tabModal === "contrato") && (
             <F label="Monto mensual (S/) *">
               <input
                 type="text"
@@ -695,10 +586,9 @@ function Contratos({
                 style={{ ...inp, fontSize: 16 }}
               />
             </F>
-            )}
 
             {/* PAGOS POR MES */}
-            {(modal === "nuevo" || tabModal === "contrato") && mesesForm.length > 0 && (
+            {mesesForm.length > 0 && (
               <F label={`Pagos por mes (${pagosMarcados}/${mesesForm.length} pagados)`}>
                 <div
                   style={{
@@ -797,7 +687,7 @@ function Contratos({
               </F>
             )}
 
-            {(modal === "nuevo" || tabModal === "contrato") && (!form.inicio || !form.fin ? (
+            {!form.inicio || !form.fin ? (
               <div
                 style={{
                   textAlign: "center",
@@ -809,7 +699,7 @@ function Contratos({
               >
                 Selecciona las fechas para ver los meses de pago
               </div>
-            ) : null)}
+            ) : null}
 
             <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
               <button
@@ -849,7 +739,7 @@ function Contratos({
                   opacity: saving ? 0.6 : 1,
                 }}
               >
-                {saving ? "Guardando..." : modal === "nuevo" ? "Crear Campaña" : "Guardar Cambios"}
+                {saving ? "Guardando..." : modal === "nuevo" ? "Crear Contrato" : "Guardar Cambios"}
               </button>
             </div>
           </div>
@@ -1324,42 +1214,37 @@ function Contratos({
 
                   {/* Botones acción */}
                   <>
-                    {/* Foto de campaña */}
+                    {/* Ir a Campaña — pantalla completa con evidencias, fechas y panel */}
                     <button
-                      onClick={() => {
-                        fotoCampaniaRef.current?.setAttribute("data-contrato-id", c.id);
-                        fotoCampaniaRef.current?.click();
-                      }}
-                      disabled={subiendoFotoId === c.id}
-                      title="Subir foto de la campaña instalada"
+                      onClick={() => setCampanaAbierta(c)}
                       style={{
-                        width: 38,
                         height: 38,
+                        padding: "0 12px",
                         borderRadius: 10,
                         border: "1px solid rgba(124,58,237,0.35)",
                         background: "rgba(124,58,237,0.13)",
-                        cursor: subiendoFotoId === c.id ? "default" : "pointer",
+                        cursor: "pointer",
                         touchAction: "manipulation",
                         display: "inline-flex",
                         alignItems: "center",
-                        justifyContent: "center",
+                        gap: 6,
                         color: "#A78BFA",
+                        fontSize: 12,
+                        fontWeight: 700,
                         position: "relative",
+                        whiteSpace: "nowrap",
                       }}
                     >
-                      {subiendoFotoId === c.id ? (
-                        <div style={{ width: 14, height: 14, border: "2px solid rgba(167,139,250,0.3)", borderTopColor: "#A78BFA", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
-                      ) : (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
-                          <circle cx="12" cy="13" r="4" />
-                        </svg>
-                      )}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                        <circle cx="12" cy="13" r="4" />
+                      </svg>
+                      Ir a Campaña
                       {(c.fotos_campania?.length ?? 0) > 0 && (
                         <span
                           style={{
-                            position: "absolute", top: -4, right: -4, background: "#16A34A", color: "#fff",
-                            borderRadius: "50%", width: 15, height: 15, fontSize: 9, fontWeight: 800,
+                            background: "#16A34A", color: "#fff",
+                            borderRadius: "50%", width: 16, height: 16, fontSize: 9, fontWeight: 800,
                             display: "flex", alignItems: "center", justifyContent: "center",
                           }}
                         >
@@ -1628,6 +1513,128 @@ function Contratos({
           />
         </div>
       )}
+
+      {/* ── Pantalla completa: Campaña (lo que ve el cliente) ── */}
+      {campanaAbierta && (() => {
+        const c = campanaAbierta;
+        const panel = paneles.find(p => p.id === c.panel_id);
+        return (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 200,
+              background: T.bg,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "16px 16px",
+                borderBottom: `1px solid ${T.border}`,
+                flexShrink: 0,
+                background: T.surface,
+              }}
+            >
+              <button
+                onClick={() => setCampanaAbierta(null)}
+                style={{
+                  width: 36, height: 36, borderRadius: 10, border: "none",
+                  background: "transparent", color: T.text, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+              </button>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: T.text }}>Campaña</div>
+                <div style={{ fontSize: 12, color: T.muted }}>
+                  {panel?.nombre ?? c.panel_id}{panel?.ciudad ? ` · ${panel.ciudad}` : ""}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
+                <span style={{ fontSize: 12, padding: "6px 12px", borderRadius: 8, background: T.surface, color: T.text, border: `1px solid ${T.border}` }}>
+                  📅 {c.inicio} → {c.fin}
+                </span>
+                {c.cara && (
+                  <span style={{ fontSize: 12, padding: "6px 12px", borderRadius: 8, background: T.surface, color: T.text, border: `1px solid ${T.border}` }}>
+                    Cara {c.cara}
+                  </span>
+                )}
+              </div>
+
+              <div style={{ fontSize: 13, fontWeight: 700, color: T.text, marginBottom: 10 }}>
+                Evidencias ({c.fotos_campania?.length ?? 0})
+              </div>
+
+              {c.fotos_campania?.length ? (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 18 }}>
+                  {c.fotos_campania.map((foto, i) => (
+                    <a
+                      key={i}
+                      href={foto.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ display: "block", position: "relative", borderRadius: 10, overflow: "hidden", aspectRatio: "1", background: T.surface }}
+                    >
+                      <img src={cloudinaryThumb(foto.url)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <span style={{ position: "absolute", bottom: 4, left: 4, fontSize: 9, color: "#fff", background: "rgba(0,0,0,0.55)", padding: "2px 6px", borderRadius: 6 }}>
+                        {foto.fecha}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: T.muted, marginBottom: 18 }}>
+                  Todavía no se ha subido ninguna foto de esta campaña.
+                </div>
+              )}
+
+              <button
+                onClick={() => {
+                  fotoCampaniaRef.current?.setAttribute("data-contrato-id", c.id);
+                  fotoCampaniaRef.current?.click();
+                }}
+                disabled={subiendoFotoId === c.id}
+                style={{
+                  width: "100%",
+                  padding: 14,
+                  borderRadius: 12,
+                  border: `1px solid ${T.border}`,
+                  background: T.surface,
+                  color: T.text,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  cursor: subiendoFotoId === c.id ? "default" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                }}
+              >
+                {subiendoFotoId === c.id ? (
+                  <div style={{ width: 16, height: 16, border: "2px solid rgba(124,58,237,0.3)", borderTopColor: "#A78BFA", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                )}
+                Subir evidencia
+              </button>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
