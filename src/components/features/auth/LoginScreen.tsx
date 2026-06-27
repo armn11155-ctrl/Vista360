@@ -6,6 +6,7 @@ import {
   setPersistence,
   browserLocalPersistence,
   browserSessionPersistence,
+  onAuthStateChanged,
 } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth, googleProvider } from "../../../config/firebase";
@@ -442,7 +443,6 @@ function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: Logi
         const currentUser = await new Promise<User | null>((resolve) => {
           if (auth.currentUser) { resolve(auth.currentUser); return; }
           let resolved = false;
-          const { onAuthStateChanged } = require("firebase/auth") as typeof import("firebase/auth");
           const unsub = onAuthStateChanged(auth, (u) => { if (!resolved) { resolved = true; unsub(); resolve(u); } });
           setTimeout(() => { if (!resolved) { resolved = true; unsub(); resolve(null); } }, 3000);
         });

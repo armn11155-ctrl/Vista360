@@ -196,6 +196,39 @@ export interface SolicitudWeb {
   createdAt?: Timestamp | null;
 }
 
+// ── Vista360 Player ──────────────────────────────────────────────
+// Ver repo armn11155-ctrl/Vista360-Player. El player de cada pantalla
+// lee estas colecciones con login anónimo (ver firestore.rules / isHuman()).
+
+export type ContenidoTipo = "imagen" | "video";
+
+export interface ContenidoItem {
+  tipo: ContenidoTipo;
+  url: string;
+  /** Segundos en pantalla (solo aplica a imágenes). */
+  duracionSeg?: number;
+  orden: number;
+}
+
+/** Colección: contenidoDigital. El id del documento es el panel_id. */
+export interface ContenidoDigital {
+  id: string;
+  panel_id: string;
+  activo: boolean;
+  items: ContenidoItem[];
+  updatedAt?: Timestamp;
+}
+
+/** Colección: playersStatus. El id del documento es el panel_id. */
+export interface PlayerStatus {
+  id: string;
+  panel_id: string;
+  online: boolean;
+  lastSeen: Timestamp;
+  appVersion?: string;
+  userAgent?: string;
+}
+
 // ── Utility types ─────────────────────────────────────────────────
 export type ColName =
   | "paneles"

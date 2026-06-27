@@ -24,6 +24,19 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // ── Vista360 Player ──────────────────────────────────────────────────
+    // Las pantallas/paneles físicos inician sesión de forma ANÓNIMA (no
+    // hay un humano frente a ellas para escribir credenciales). isHuman()
+    // excluye explícitamente esos logins anónimos de las colecciones de
+    // negocio (clientes, contratos, gastos, facturas...), para que un
+    // dispositivo player jamás pueda leer ni escribir datos financieros o
+    // de clientes — solo accede a lo que le corresponde: su contenido
+    // (contenidoDigital) y su propio estado (playersStatus).
+    function isHuman() {
+      return request.auth != null &&
+        request.auth.token.firebase.sign_in_provider != "anonymous";
+    }
+
     // ── Dueño / gerente ─────────────────────────────────────────────────
     // Único(s) correo(s) con acceso a Finanzas (patrimonio, liquidez,
     // activos, deudas, fondos, objetivos). Mantener sincronizado con
@@ -41,40 +54,64 @@ service cloud.firestore {
       allow read, write: if isOwner();
     }
 
-    // ── Colecciones de negocio (requieren rol admin) ───────────────────────
+    // ── Colecciones de negocio (solo admins humanos — nunca players) ───────
     match /paneles/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman();
+      allow write: if isHuman();
     }
 
     match /clientes/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman();
+      allow write: if isHuman();
     }
 
     match /contratos/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman();
+      allow write: if isHuman();
     }
 
     match /gastos/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman();
+      allow write: if isHuman();
     }
 
     match /proveedores/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman();
+      allow write: if isHuman();
     }
 
     match /facturas/{id} {
-      allow read: if isSignedIn();
-      allow write: if isAllowed();
+      allow read: if isHuman();
+      allow write: if isHuman();
     }
 
     match /sueldos/{id} {
-      allow read: if isAllowed();
-      allow write: if isAllowed();
+      allow read: if isHuman();
+      allow write: if isHuman();
+    }
+
+    // ── Vista360 Player: contenido asignado a cada panel ───────────────────
+    // El id del documento es el panel_id. Cualquier dispositivo autenticado
+    // (incluyendo el login anónimo del player) puede LEER su playlist —
+    // así no hace falta una cuenta humana en cada pantalla. Solo un admin
+    // humano puede crear/editar/borrar contenido.
+    match /contenidoDigital/{id} {
+      allow read: if isSignedIn();
+      allow write: if isHuman();
+    }
+
+    // ── Vista360 Player: heartbeat de cada pantalla ─────────────────────────
+    // Cada dispositivo solo puede escribir SU PROPIO documento de estado
+    // (el id debe coincidir con el panel_id que reporta), y solo esos
+    // campos puntuales — no puede tocar nada más. Los admins humanos
+    // pueden leer todo para ver el panel de estado de pantallas.
+    match /playersStatus/{id} {
+      allow read: if isHuman();
+      allow write: if isSignedIn()
+        && request.resource.data.keys().hasOnly(
+             ['panel_id', 'online', 'lastSeen', 'appVersion', 'userAgent']
+           )
+        && request.resource.data.panel_id == id;
     }
 
     // ── Solicitudes desde la web pública (sin login) ───────────────────────
