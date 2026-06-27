@@ -156,7 +156,7 @@ export function AppRouter({ userName, autoScan, setAutoScan, onModalChange, isOw
           path="/contratos"
           element={
             <div className="tabPanel tabFlush">
-              <ErrorBoundary label="Contratos">
+              <ErrorBoundary label="Campañas">
                 <Contratos
                   contratos={contratos}
                   setContratos={setContratos}

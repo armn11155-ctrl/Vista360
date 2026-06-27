@@ -34,7 +34,7 @@ import type { User } from "firebase/auth";
 import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from "../../../types";
 
 // ── Servicios y utilidades ────────────────────────────────────────
-import { fb } from "../../../services/firestore";
+import { fb, cloudinaryThumb } from "../../../services/firestore";
 import { T, tCol, catCol } from "../../../config/theme";
 import { toast, confirmAsync } from "../../../context/UIContext";
 import { fmt, fmtF, dias, mesHoy, mesLabel, hoy, validate, haptic } from "../../../lib/utils";
@@ -82,6 +82,9 @@ function Contratos({
   const isDesktop = useIsDesktop();
   const [filtro, setFiltro] = useState("Activos");
   const [modal, setModal] = useState<Partial<Contrato> | null>(null);
+  // Separa visualmente lo que ve el cliente (Campaña: panel, fechas, evidencias)
+  // de lo que es privado del dueño (Contrato: cliente, monto, pagos).
+  const [tabModal, setTabModal] = useState<"campana" | "contrato">("campana");
   const [saving, setSaving] = useState(false);
   const closeBackdropRef = useRef(false);
   const modalOpenedAt = useRef(0);
@@ -186,6 +189,7 @@ function Contratos({
   const openEdit = c => {
     modalOpenedAt.current = Date.now();
     closeBackdropRef.current = false;
+    setTabModal("campana");
     const pm = c.pagosMeses || {};
     setForm({
       panel_id: c.panel_id,
@@ -432,7 +436,7 @@ function Contratos({
               }}
             >
               <span style={{ fontSize: 17, fontWeight: 800, color: T.text }}>
-                {modal === "nuevo" ? "Nuevo Contrato" : "Editar Contrato"}
+                {modal === "nuevo" ? "Nueva Campaña" : "Detalle de la campaña"}
               </span>
               <button
                 onClick={() => {
@@ -456,6 +460,56 @@ function Contratos({
               ></button>
             </div>
 
+            {modal !== "nuevo" && (
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  marginBottom: 18,
+                  background: T.bg,
+                  borderRadius: 12,
+                  padding: 4,
+                }}
+              >
+                {(
+                  [
+                    { id: "campana" as const, label: "📋 Campaña" },
+                    { id: "contrato" as const, label: "💰 Contrato" },
+                  ]
+                ).map(t => {
+                  const active = tabModal === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onPointerDown={e => e.stopPropagation()}
+                      onClick={() => setTabModal(t.id)}
+                      style={{
+                        flex: 1,
+                        padding: "10px 0",
+                        borderRadius: 9,
+                        border: "none",
+                        background: active ? T.accent : "transparent",
+                        color: active ? "#fff" : T.muted,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        cursor: "pointer",
+                        touchAction: "manipulation",
+                      }}
+                    >
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {modal !== "nuevo" && tabModal === "contrato" && (
+              <div style={{ fontSize: 11, color: T.muted, marginTop: -10, marginBottom: 14 }}>
+                🔒 Esta pestaña es solo para ti — el cliente nunca la ve.
+              </div>
+            )}
+
+            {(modal === "nuevo" || tabModal === "campana") && (
             <F label="Panel *">
               <select
                 value={form.panel_id}
@@ -471,9 +525,11 @@ function Contratos({
                 ))}
               </select>
             </F>
+            )}
 
             {/* ── Selector de cara — solo para Unipolares (2 caras) ── */}
             {(() => {
+              if (!(modal === "nuevo" || tabModal === "campana")) return null;
               const selPanel = paneles.find(p => p.id === form.panel_id);
               const numCaras = getCarasPanel(selPanel?.tipo || "");
               if (numCaras < 2) return null;
@@ -516,6 +572,7 @@ function Contratos({
               );
             })()}
 
+            {(modal === "nuevo" || tabModal === "contrato") && (
             <F label="Cliente *">
               <select
                 value={form.cliente_id}
@@ -533,7 +590,9 @@ function Contratos({
                   ))}
               </select>
             </F>
+            )}
 
+            {(modal === "nuevo" || tabModal === "campana") && (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <F label="Fecha inicio *">
                 <input
@@ -566,7 +625,61 @@ function Contratos({
                 />
               </F>
             </div>
+            )}
 
+            {tabModal === "campana" && modal !== "nuevo" && (
+              <F label="Evidencias de esta campaña">
+                {(modal as Contrato)?.fotos_campania?.length ? (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 10 }}>
+                    {(modal as Contrato).fotos_campania!.map((foto, i) => (
+                      <a
+                        key={i}
+                        href={foto.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ display: "block", borderRadius: 10, overflow: "hidden", aspectRatio: "1", background: T.bg }}
+                      >
+                        <img
+                          src={cloudinaryThumb(foto.url)}
+                          alt=""
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 12, color: T.muted, marginBottom: 10 }}>
+                    Todavía no se ha subido ninguna foto de esta campaña.
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onPointerDown={e => e.stopPropagation()}
+                  onClick={() => {
+                    const cId = (modal as Contrato)?.id;
+                    if (!cId) return;
+                    fotoCampaniaRef.current?.setAttribute("data-contrato-id", cId);
+                    fotoCampaniaRef.current?.click();
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: 10,
+                    borderRadius: 10,
+                    border: `1px solid ${T.border}`,
+                    background: T.surface,
+                    color: T.text,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    touchAction: "manipulation",
+                  }}
+                >
+                  📷 Agregar evidencia
+                </button>
+              </F>
+            )}
+
+            {(modal === "nuevo" || tabModal === "contrato") && (
             <F label="Monto mensual (S/) *">
               <input
                 type="text"
@@ -582,9 +695,10 @@ function Contratos({
                 style={{ ...inp, fontSize: 16 }}
               />
             </F>
+            )}
 
             {/* PAGOS POR MES */}
-            {mesesForm.length > 0 && (
+            {(modal === "nuevo" || tabModal === "contrato") && mesesForm.length > 0 && (
               <F label={`Pagos por mes (${pagosMarcados}/${mesesForm.length} pagados)`}>
                 <div
                   style={{
@@ -683,7 +797,7 @@ function Contratos({
               </F>
             )}
 
-            {!form.inicio || !form.fin ? (
+            {(modal === "nuevo" || tabModal === "contrato") && (!form.inicio || !form.fin ? (
               <div
                 style={{
                   textAlign: "center",
@@ -695,7 +809,7 @@ function Contratos({
               >
                 Selecciona las fechas para ver los meses de pago
               </div>
-            ) : null}
+            ) : null)}
 
             <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
               <button
@@ -735,7 +849,7 @@ function Contratos({
                   opacity: saving ? 0.6 : 1,
                 }}
               >
-                {saving ? "Guardando..." : modal === "nuevo" ? "Crear Contrato" : "Guardar Cambios"}
+                {saving ? "Guardando..." : modal === "nuevo" ? "Crear Campaña" : "Guardar Cambios"}
               </button>
             </div>
           </div>

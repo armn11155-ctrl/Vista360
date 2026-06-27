@@ -89,8 +89,7 @@ for (const pu of portalUsers) {
       <td><strong>${c.panel?.nombre || c.panel_id}</strong>${c.panel?.ciudad?`<br/><span style="font-size:9px;color:#64748B">${c.panel.ciudad}</span>`:''}</td>
       <td style="color:${color};font-weight:600">${estado}</td>
       <td style="font-size:10px;color:#64748B">${fmtF(c.inicio)}<br/>${fmtF(c.fin)}</td>
-      <td>${c.pagado ? '✓ Al día' : 'Pendiente'}</td>
-      <td style="text-align:center">${c.fotos_campania?.length || 0}</td>
+      <td>${c.fotos_campania?.length || 0}</td>
     </tr>`;
   }).join('');
 
@@ -111,7 +110,7 @@ for (const pu of portalUsers) {
       <p>${mesLabel} · ${ctrsDelMes.length} campaña(s) · ${totalEvidencias} evidencia(s)</p>
     </div>
     <table>
-      <thead><tr><th>Panel</th><th>Estado</th><th>Período</th><th>Pago</th><th>Evidencias</th></tr></thead>
+      <thead><tr><th>Panel</th><th>Estado</th><th>Período</th><th>Evidencias</th></tr></thead>
       <tbody>${filas}</tbody>
     </table>
     <div class="footer">Vista360 · Generado automáticamente el ${new Date().toLocaleDateString('es-PE')}</div>

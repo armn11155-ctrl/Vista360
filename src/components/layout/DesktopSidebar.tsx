@@ -15,7 +15,7 @@ interface DesktopSidebarProps {
 const NAV_ITEMS: ({ id: string; path: string; label: string; ownerOnly?: boolean } | null)[] = [
   { id: "hoy",       path: "/",            label: "Inicio"      },
   { id: "paneles",   path: "/paneles",     label: "Paneles"     },
-  { id: "contratos", path: "/contratos",   label: "Contratos"   },
+  { id: "contratos", path: "/contratos",   label: "Campañas"   },
   { id: "crm",       path: "/crm",         label: "Clientes"    },
   { id: "gastos",      path: "/gastos",      label: "Gastos"      },
   { id: "proveedores", path: "/proveedores", label: "Proveedores" },
