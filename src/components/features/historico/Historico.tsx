@@ -490,8 +490,8 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                     width: "100%",
                     padding: "12px",
                     borderRadius: 12,
-                    border: "1px solid #FECACA",
-                    background: "#FEF2F2",
+                    border: `1px solid ${T.red}40`,
+                    background: `${T.red}14`,
                     color: T.red,
                     fontWeight: 700,
                     fontSize: 14,
@@ -520,8 +520,8 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
               ) : (
                 <div
                   style={{
-                    background: "#FEF2F2",
-                    border: "1px solid #FECACA",
+                    background: `${T.red}14`,
+                    border: `1px solid ${T.red}40`,
                     borderRadius: 14,
                     padding: 16,
                   }}
@@ -838,7 +838,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
       </div>
 
       {/* ── LISTA DE CONTRATOS ── */}
-      <div style={{ marginTop: 0, background: "#F8FAFC", padding: "16px 0 0" }}>
+      <div style={{ marginTop: 0, background: T.bg, padding: "16px 0 0" }}>
         {listaFiltrada.length === 0 ? (
           <div style={{ padding: "60px 20px", textAlign: "center" }}>
             <div
@@ -846,7 +846,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                 width: 52,
                 height: 52,
                 borderRadius: 16,
-                background: "#EFF4FF",
+                background: T.accentLt,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -871,7 +871,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                 ? `Sin contratos en ${MESES_FULL[mesSel]}`
                 : `Sin contratos en ${anioEfectivo}`}
             </div>
-            <div style={{ fontSize: 12, color: "#94A3B8" }}>Selecciona otro año o mes</div>
+            <div style={{ fontSize: 12, color: T.muted }}>Selecciona otro año o mes</div>
           </div>
         ) : (
           (() => {
@@ -907,7 +907,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                         borderRadius: "50%",
                         background: T.accent,
                         flexShrink: 0,
-                        boxShadow: "0 0 0 3px #DBEAFE",
+                        boxShadow: `0 0 0 3px ${T.accent}33`,
                       }}
                     />
                     <div style={{ height: 1, flex: 1, background: T.border }} />
@@ -923,7 +923,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                     >
                       {labelGrupo(key)}
                     </span>
-                    <span style={{ fontSize: 10, color: "#94A3B8", flexShrink: 0 }}>
+                    <span style={{ fontSize: 10, color: T.muted, flexShrink: 0 }}>
                       {fmt(items.reduce((s, c) => s + Number(c.monto || 0), 0))}/mes
                     </span>
                     <div style={{ height: 1, flex: 1, background: T.border }} />
@@ -940,7 +940,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                   >
                     {items.map(c => {
                       const activo = c.d > 0;
-                      const statusColor = activo ? (c.d <= 30 ? T.white : T.green) : "#94A3B8";
+                      const statusColor = activo ? (c.d <= 30 ? T.white : T.green) : T.muted;
                       const statusLabel = activo
                         ? c.d <= 30
                           ? `Vence en ${c.d}d`
@@ -950,12 +950,11 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                         <div
                           key={c.id}
                           style={{
-                            background: "#fff",
+                            background: T.card,
                             borderRadius: 18,
-                            border: "1px solid #E5E7EB",
+                            border: `1px solid ${T.border}`,
                             overflow: "hidden",
-                            boxShadow:
-                              "0 1px 3px rgba(0,0,0,0.04), 0 4px 12px -6px rgba(0,0,0,0.08)",
+                            boxShadow: "0 12px 28px -18px rgba(0,0,0,0.6)",
                           }}
                         >
                           <div
@@ -1037,7 +1036,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                                   }}
                                 >
                                   {fmt(c.monto)}
-                                  <span style={{ fontSize: 10, color: "#94A3B8", fontWeight: 500 }}>
+                                  <span style={{ fontSize: 10, color: T.muted, fontWeight: 500 }}>
                                     /mes
                                   </span>
                                 </div>
@@ -1073,16 +1072,16 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                                 <div
                                   key={l}
                                   style={{
-                                    background: "#F8FAFC",
+                                    background: T.dark,
                                     borderRadius: 10,
                                     padding: "7px 10px",
-                                    border: "1px solid #E5E7EB",
+                                    border: `1px solid ${T.border}`,
                                   }}
                                 >
                                   <div
                                     style={{
                                       fontSize: 9,
-                                      color: "#94A3B8",
+                                      color: T.muted,
                                       textTransform: "uppercase",
                                       letterSpacing: 1,
                                       marginBottom: 2,
@@ -1116,7 +1115,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                                 <span
                                   style={{
                                     fontSize: 11,
-                                    color: c.pagado ? T.green : "#94A3B8",
+                                    color: c.pagado ? T.green : T.muted,
                                     fontWeight: 600,
                                   }}
                                 >
@@ -1131,8 +1130,8 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                                   gap: 5,
                                   padding: "7px 14px",
                                   borderRadius: 50,
-                                  border: "1px solid #E5E7EB",
-                                  background: "#F8FAFC",
+                                  border: `1px solid ${T.border}`,
+                                  background: T.dark,
                                   color: T.muted,
                                   fontWeight: 600,
                                   fontSize: 12,
