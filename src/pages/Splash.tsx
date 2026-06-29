@@ -104,12 +104,8 @@ function Splash({ done, onReveal, getLoginLogoRect }: SplashProps) {
     <div
       style={{
         position: "fixed",
-        inset: 0,   // top/right/bottom/left: 0 — SIN height explícito.
-                    // (height:100dvh aquí causaba el vacío en mobile: con
-                    // inset:0 + height juntos, el navegador ignora "bottom"
-                    // y confía solo en el cálculo de dvh, que en algunos
-                    // iPhone no coincide con la pantalla real. Dejando solo
-                    // top/bottom, igual que en Vista360-Player, nunca sobra nada.)
+        inset: 0,
+        height: "100dvh",   // explícito: evita que iOS calcule altura diferente dentro de #root
         zIndex: 999,
         background: "linear-gradient(170deg, #07101F 0%, #0D1629 55%, #111E35 100%)",
         overflow: "hidden",
