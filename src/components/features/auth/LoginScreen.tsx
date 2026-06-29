@@ -171,11 +171,11 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
   const inp: React.CSSProperties = {
     width: "100%",
     padding: "13px 16px 13px 44px",
-    border: "1.5px solid #E5E7EB",
+    border: "1.5px solid rgba(255,255,255,0.14)",
     borderRadius: 10,
     fontSize: 14,
-    color: "#111827",
-    background: "#FAFAFA",
+    color: "#F1F5F9",
+    background: "rgba(255,255,255,0.06)",
     outline: "none",
     boxSizing: "border-box",
     fontFamily: "'DM Sans', sans-serif",
@@ -188,24 +188,24 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
       <style>{`
         html, body { background: #07101F !important; }
         .v360d-inp:focus {
-          border-color: #2563EB !important;
-          box-shadow: 0 0 0 3px rgba(37,99,235,.13) !important;
-          background: #fff !important;
+          border-color: #3B82F6 !important;
+          box-shadow: 0 0 0 3px rgba(59,130,246,.2) !important;
+          background: rgba(59,130,246,.08) !important;
         }
         .v360d-btn-main { transition: background .18s, box-shadow .18s, transform .1s; }
         .v360d-btn-main:hover:not(:disabled) {
-          background: #1D4ED8 !important;
-          box-shadow: 0 6px 22px rgba(37,99,235,.4) !important;
+          background: #2C6FE0 !important;
+          box-shadow: 0 6px 22px rgba(59,130,246,.5) !important;
         }
         .v360d-btn-main:active:not(:disabled) { transform: scale(.985); }
         .v360d-btn-g { transition: background .15s, border-color .15s, box-shadow .15s; }
         .v360d-btn-g:hover:not(:disabled) {
-          background: #F9FAFB !important;
-          border-color: #CBD5E1 !important;
-          box-shadow: 0 2px 10px rgba(0,0,0,.08) !important;
+          background: rgba(255,255,255,.08) !important;
+          border-color: rgba(255,255,255,.22) !important;
+          box-shadow: 0 2px 10px rgba(0,0,0,.3) !important;
         }
-        .v360d-btn-g:active:not(:disabled) { background: #F1F5F9 !important; }
-        .v360d-eye:hover { color: #2563EB !important; }
+        .v360d-btn-g:active:not(:disabled) { background: rgba(255,255,255,.04) !important; }
+        .v360d-eye:hover { color: #3B82F6 !important; }
         @keyframes v360spin { to { transform: rotate(360deg); } }
         @keyframes v360fadeIn {
           from { opacity: 0; transform: translateY(14px); }
@@ -265,7 +265,7 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
               borderRadius:14, padding:"14px 16px",
               boxShadow:"0 8px 24px rgba(0,0,0,.30)",
             }}>
-              <div style={{ width:38, height:38, borderRadius:10, background:"#2563EB", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+              <div style={{ width:38, height:38, borderRadius:10, background:"#3B82F6", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                 <Icon />
               </div>
               <div>
@@ -280,34 +280,37 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
         <div style={{
           flex: "0 0 auto",
           width: "min(420px, 42%)",
-          background: "#FFFFFF",
+          background: "rgba(10,18,32,.78)",
+          backdropFilter: "blur(24px) saturate(160%)",
+          WebkitBackdropFilter: "blur(24px) saturate(160%)",
+          border: "1px solid rgba(255,255,255,.10)",
           borderRadius: 20,
           padding: "44px 40px",
-          boxShadow: "0 24px 80px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.06)",
+          boxShadow: "0 24px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.04)",
           position: "relative", zIndex: 1,
           animation: "v360fadeIn .45s ease-out .1s both",
           maxHeight: "90vh",
           overflowY: "auto",
         }}>
-          <h1 style={{ margin:"0 0 8px", fontSize:26, fontWeight:800, color:"#0D1629", letterSpacing:"-.5px" }}>
+          <h1 style={{ margin:"0 0 8px", fontSize:26, fontWeight:800, color:"#F1F5F9", letterSpacing:"-.5px" }}>
             Bienvenido
           </h1>
-          <div style={{ width:36, height:3, background:"#2563EB", borderRadius:2, marginBottom:12 }}/>
-          <p style={{ margin:"0 0 28px", fontSize:14, color:"#6B7280" }}>
+          <div style={{ width:36, height:3, background:"#3B82F6", borderRadius:2, marginBottom:12 }}/>
+          <p style={{ margin:"0 0 28px", fontSize:14, color:"#8B96AC" }}>
             Ingresa tus credenciales para continuar
           </p>
 
           {!API_KEY_OK && (
-            <div style={{ marginBottom:18, padding:"10px 14px", background:"rgba(245,158,11,.08)", border:"1px solid rgba(245,158,11,.3)", borderRadius:10, color:"#92400E", fontSize:12, lineHeight:1.5 }}>
+            <div style={{ marginBottom:18, padding:"10px 14px", background:"rgba(245,158,11,.12)", border:"1px solid rgba(245,158,11,.35)", borderRadius:10, color:"#FCD34D", fontSize:12, lineHeight:1.5 }}>
               ⚠️ <strong>Sin variables de entorno.</strong> Configura VITE_FIREBASE_* en Cloudflare Pages.
             </div>
           )}
 
           {/* Usuario */}
           <div style={{ marginBottom:16 }}>
-            <label style={{ display:"block", marginBottom:7, fontSize:13, fontWeight:600, color:"#374151" }}>Usuario</label>
+            <label style={{ display:"block", marginBottom:7, fontSize:13, fontWeight:600, color:"#8B96AC" }}>Usuario</label>
             <div style={{ position:"relative" }}>
-              <span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", color:"#9CA3AF", display:"flex", alignItems:"center", pointerEvents:"none" }}>
+              <span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", color:"#8B96AC", display:"flex", alignItems:"center", pointerEvents:"none" }}>
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
@@ -321,9 +324,9 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
 
           {/* Contraseña */}
           <div style={{ marginBottom:18 }}>
-            <label style={{ display:"block", marginBottom:7, fontSize:13, fontWeight:600, color:"#374151" }}>Contraseña</label>
+            <label style={{ display:"block", marginBottom:7, fontSize:13, fontWeight:600, color:"#8B96AC" }}>Contraseña</label>
             <div style={{ position:"relative" }}>
-              <span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", color:"#9CA3AF", display:"flex", alignItems:"center", pointerEvents:"none" }}>
+              <span style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)", color:"#8B96AC", display:"flex", alignItems:"center", pointerEvents:"none" }}>
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                   <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -335,7 +338,7 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
                 style={{ ...inp, paddingRight:46 }}/>
               <button className="v360d-eye" type="button" tabIndex={-1}
                 onClick={() => setShowPass(v => !v)}
-                style={{ position:"absolute", right:13, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", padding:4, color:"#9CA3AF", lineHeight:1, transition:"color .15s" }}>
+                style={{ position:"absolute", right:13, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", padding:4, color:"#8B96AC", lineHeight:1, transition:"color .15s" }}>
                 {showPass
                   ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                   : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -346,21 +349,21 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
 
           {/* Recordado */}
           <label style={{ display:"flex", alignItems:"center", gap:10, marginBottom:22, cursor:"pointer", userSelect:"none" }}>
-            <div onClick={() => setRemember(v => !v)} style={{ width:19, height:19, borderRadius:6, flexShrink:0, background:remember?"#2563EB":"#fff", border:remember?"none":"2px solid #D1D5DB", display:"flex", alignItems:"center", justifyContent:"center", transition:"background .18s, border-color .18s", cursor:"pointer" }}>
+            <div onClick={() => setRemember(v => !v)} style={{ width:19, height:19, borderRadius:6, flexShrink:0, background:remember?"#3B82F6":"transparent", border:remember?"none":"2px solid rgba(255,255,255,0.25)", display:"flex", alignItems:"center", justifyContent:"center", transition:"background .18s, border-color .18s", cursor:"pointer" }}>
               {remember && <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
             </div>
-            <span style={{ fontSize:13, color:"#4B5563" }} onClick={() => setRemember(v => !v)}>Mantener recordado</span>
+            <span style={{ fontSize:13, color:"#8B96AC" }} onClick={() => setRemember(v => !v)}>Mantener recordado</span>
           </label>
 
           {error && (
-            <div style={{ marginBottom:16, padding:"10px 14px", background:"rgba(239,68,68,.07)", border:"1px solid rgba(239,68,68,.2)", borderRadius:10, color:"#B91C1C", fontSize:13, lineHeight:1.5 }}>
+            <div style={{ marginBottom:16, padding:"10px 14px", background:"rgba(239,68,68,.12)", border:"1px solid rgba(239,68,68,.3)", borderRadius:10, color:"#FCA5A5", fontSize:13, lineHeight:1.5 }}>
               {error}
             </div>
           )}
 
           {/* Botón Ingresar */}
           <button className="v360d-btn-main" onClick={handleLogin} disabled={busy}
-            style={{ width:"100%", padding:"13px", background:"#2563EB", color:"#FFF", border:"none", borderRadius:11, fontSize:15, fontWeight:700, cursor:busy?"wait":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:9, opacity:loadingG?.5:1, boxShadow:"0 3px 14px rgba(37,99,235,.28)" }}>
+            style={{ width:"100%", padding:"13px", background:"#3B82F6", color:"#FFF", border:"none", borderRadius:11, fontSize:15, fontWeight:700, cursor:busy?"wait":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:9, opacity:loadingG?.5:1, boxShadow:"0 3px 14px rgba(59,130,246,.4)" }}>
             {loading
               ? <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" style={{ animation:"v360spin .75s linear infinite" }}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>Ingresando...</>
               : "Ingresar"
@@ -368,16 +371,16 @@ function DesktopLogin({ onLoginSuccess }: { onLoginSuccess: (u: User) => void })
           </button>
 
           <div style={{ display:"flex", alignItems:"center", margin:"18px 0", gap:12 }}>
-            <div style={{ flex:1, height:1, background:"#F3F4F6" }}/>
-            <span style={{ fontSize:12, color:"#9CA3AF", fontWeight:500 }}>o continúa con</span>
-            <div style={{ flex:1, height:1, background:"#F3F4F6" }}/>
+            <div style={{ flex:1, height:1, background:"rgba(255,255,255,0.10)" }}/>
+            <span style={{ fontSize:12, color:"#8B96AC", fontWeight:500 }}>o continúa con</span>
+            <div style={{ flex:1, height:1, background:"rgba(255,255,255,0.10)" }}/>
           </div>
 
           {/* Botón Google */}
           <button className="v360d-btn-g" onClick={handleGoogle} disabled={busy}
-            style={{ width:"100%", padding:"12px", background:"#FFF", color:"#374151", border:"1.5px solid #E5E7EB", borderRadius:11, fontSize:14, fontWeight:600, cursor:busy?"wait":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:10, opacity:loading?.5:1, boxShadow:"0 1px 4px rgba(0,0,0,.07)" }}>
+            style={{ width:"100%", padding:"12px", background:"rgba(255,255,255,0.05)", color:"#F1F5F9", border:"1.5px solid rgba(255,255,255,0.14)", borderRadius:11, fontSize:14, fontWeight:600, cursor:busy?"wait":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:10, opacity:loading?.5:1, boxShadow:"0 1px 4px rgba(0,0,0,.3)" }}>
             {loadingG
-              ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2.3" strokeLinecap="round" style={{ animation:"v360spin .75s linear infinite" }}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B96AC" strokeWidth="2.3" strokeLinecap="round" style={{ animation:"v360spin .75s linear infinite" }}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
               : <svg width="19" height="19" viewBox="0 0 48 48" style={{ flexShrink:0 }}><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4,12.955,4,4,12.955,4,24s8.955,20,20,20,20-8.955,20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4,16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C36.971,39.205,44,34,44,24c0-1.341-.138-2.65-.389-3.917z"/></svg>
             }
             {loadingG ? "Conectando..." : "Iniciar con Google"}
@@ -496,18 +499,18 @@ function LoginScreen({ onLoginSuccess, splashActive = false, onLogoReady }: Logi
           <div style={{ fontSize:33, fontWeight:800, color:"#FFF", letterSpacing:"-0.6px", textShadow:"0 2px 18px rgba(0,0,0,.45)" }}>Alan Martínez</div>
         </div>
       </div>
-      <div style={{ flex:1, background:"#FFF", borderTopLeftRadius:30, borderTopRightRadius:30, display:"flex", flexDirection:"column", alignItems:"stretch", paddingLeft:28, paddingRight:28, paddingTop:34, paddingBottom:"max(20px, env(safe-area-inset-bottom))", boxShadow:"0 -6px 36px rgba(0,0,0,.14)", position:"relative", zIndex:1, opacity:entered?1:0, transform:entered?"translateY(0)":"translateY(28px)", transition:entered?"opacity 0.45s ease-out 0.15s, transform 0.45s ease-out 0.15s":"none" }}>
-        {!API_KEY_OK && (<div style={{ marginBottom:14, padding:"10px 14px", background:"rgba(245,158,11,.1)", border:"1px solid rgba(245,158,11,.35)", borderRadius:10, color:"#92400E", fontSize:12, lineHeight:1.5, textAlign:"center" }}>⚠️ <strong>Sin variables de entorno.</strong> Configura VITE_FIREBASE_* en Cloudflare Pages.</div>)}
+      <div style={{ flex:1, background:"#0D1629", borderTopLeftRadius:30, borderTopRightRadius:30, borderTop: "1px solid rgba(255,255,255,0.08)", display:"flex", flexDirection:"column", alignItems:"stretch", paddingLeft:28, paddingRight:28, paddingTop:34, paddingBottom:"max(20px, env(safe-area-inset-bottom))", boxShadow:"0 -6px 36px rgba(0,0,0,.4)", position:"relative", zIndex:1, opacity:entered?1:0, transform:entered?"translateY(0)":"translateY(28px)", transition:entered?"opacity 0.45s ease-out 0.15s, transform 0.45s ease-out 0.15s":"none" }}>
+        {!API_KEY_OK && (<div style={{ marginBottom:14, padding:"10px 14px", background:"rgba(245,158,11,.12)", border:"1px solid rgba(245,158,11,.35)", borderRadius:10, color:"#FCD34D", fontSize:12, lineHeight:1.5, textAlign:"center" }}>⚠️ <strong>Sin variables de entorno.</strong> Configura VITE_FIREBASE_* en Cloudflare Pages.</div>)}
         <button className="v360-faceid" onClick={handleFaceID} disabled={loadingFace || loading} style={{ width:"100%", padding:"15px 20px", background:loadingFace?"#1A2E55":"#0D1629", color:"#FFF", border:"none", borderRadius:50, fontSize:16, fontWeight:700, cursor:(loadingFace||loading)?"wait":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:12, animation:(!loadingFace&&credentialStored)?"pulseRing 2.8s ease-out infinite":undefined, transition:"background .2s, transform .12s", marginBottom:18 }}>
           {loadingFace ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" style={{ animation:"v360spin .75s linear infinite" }}><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> : <FaceIDIcon size={24} />}
           {loadingFace ? "Verificando..." : "Ingresar con Face ID"}
         </button>
-        <button className="v360-google" onClick={handleGoogleLogin} disabled={loading||loadingFace} style={{ width:"100%", padding:"11px 20px", background:"transparent", color:"#0D1629", border:"none", borderRadius:8, fontSize:15, fontWeight:600, cursor:loading?"wait":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:9, opacity:(loading||loadingFace)?0.5:1, transition:"opacity .2s", textDecoration:"underline", textDecorationColor:"rgba(13,22,41,.3)", textUnderlineOffset:3 }}>
+        <button className="v360-google" onClick={handleGoogleLogin} disabled={loading||loadingFace} style={{ width:"100%", padding:"11px 20px", background:"transparent", color:"#F1F5F9", border:"none", borderRadius:8, fontSize:15, fontWeight:600, cursor:loading?"wait":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:9, opacity:(loading||loadingFace)?0.5:1, transition:"opacity .2s", textDecoration:"underline", textDecorationColor:"rgba(255,255,255,.3)", textUnderlineOffset:3 }}>
           <svg width="18" height="18" viewBox="0 0 48 48" style={{ flexShrink:0 }}><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4,12.955,4,4,12.955,4,24s8.955,20,20,20,20-8.955,20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4,16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C36.971,39.205,44,34,44,24c0-1.341-.138-2.65-.389-3.917z"/></svg>
           {loading ? "Iniciando sesión..." : "Ingresar con cuenta de Google"}
         </button>
-        {error && (<div style={{ marginTop:14, padding:"10px 14px", background:"rgba(239,68,68,.07)", border:"1px solid rgba(239,68,68,.22)", borderRadius:10, color:"#B91C1C", fontSize:12, lineHeight:1.5, textAlign:"center" }}>{error}</div>)}
-        <div style={{ marginTop:"auto", paddingTop:16, textAlign:"center", fontSize:11, color:"#9CA3AF", letterSpacing:.2 }}>v{APP_VERSION}</div>
+        {error && (<div style={{ marginTop:14, padding:"10px 14px", background:"rgba(239,68,68,.12)", border:"1px solid rgba(239,68,68,.3)", borderRadius:10, color:"#FCA5A5", fontSize:12, lineHeight:1.5, textAlign:"center" }}>{error}</div>)}
+        <div style={{ marginTop:"auto", paddingTop:16, textAlign:"center", fontSize:11, color:"#8B96AC", letterSpacing:.2 }}>v{APP_VERSION}</div>
       </div>
     </div>
   );
