@@ -49,7 +49,7 @@ function BusquedaGlobal({
           titulo: p.nombre,
           sub: `${p.ciudad || ""}${p.ubicacion ? " · " + p.ubicacion : ""}`,
           tag: activo ? "Activo" : "Libre",
-          tagColor: activo ? T.green : T.muted,
+          tagColor: activo ? T.green : "#64748B",
           tab: "paneles",
         });
       }
@@ -87,7 +87,7 @@ function BusquedaGlobal({
       if (haystack.includes(texto)) {
         const dRestantes = Math.ceil((new Date(ct.fin).getTime() - Date.now()) / 86400000);
         const tagColor =
-          ct.estado === "Activo" ? T.green : ct.estado === "Por vencer" ? T.white : T.red;
+          ct.estado === "Activo" ? T.green : ct.estado === "Por vencer" ? T.amber : T.red;
         res.push({
           tipo: "contrato",
           id: ct.id,
@@ -162,11 +162,11 @@ function BusquedaGlobal({
             height="20"
             fill="none"
             viewBox="0 0 24 24"
-            style={{ flexShrink: 0, color: T.muted }}
+            style={{ flexShrink: 0, color: "#64748B" }}
           >
             <path
               d="M21 21L15 15M17 11C17 14.866 13.866 18 10 18C6.134 18 3 14.866 3 11C3 7.134 6.134 4 10 4C13.866 4 17 7.134 17 11Z"
-              stroke={T.muted}
+              stroke={"#64748B"}
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -182,7 +182,7 @@ function BusquedaGlobal({
               border: "none",
               outline: "none",
               fontSize: 16,
-              color: T.text,
+              color: "#0D1629",
               background: "transparent",
               fontFamily: "'DM Sans',sans-serif",
             }}
@@ -207,7 +207,7 @@ function BusquedaGlobal({
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
                 <path
                   d="M18 6L6 18M6 6L18 18"
-                  stroke={T.muted}
+                  stroke={"#64748B"}
                   strokeWidth="2.5"
                   strokeLinecap="round"
                 />
@@ -221,7 +221,7 @@ function BusquedaGlobal({
               border: "none",
               borderRadius: 8,
               padding: "4px 10px",
-              color: T.muted,
+              color: "#64748B",
               fontSize: 12,
               cursor: "pointer",
               touchAction: "manipulation",
@@ -247,9 +247,9 @@ function BusquedaGlobal({
           >
             {resultados.length === 0 ? (
               <div
-                style={{ padding: "32px 20px", textAlign: "center", color: T.muted, fontSize: 14 }}
+                style={{ padding: "32px 20px", textAlign: "center", color: "#64748B", fontSize: 14 }}
               >
-                Sin resultados para <strong style={{ color: T.text }}>"{q}"</strong>
+                Sin resultados para <strong style={{ color: "#0D1629" }}>"{q}"</strong>
               </div>
             ) : (
               Object.entries(grupos).map(([tipo, items]) => (
@@ -259,7 +259,7 @@ function BusquedaGlobal({
                       padding: "10px 16px 4px",
                       fontSize: 11,
                       fontWeight: 700,
-                      color: T.muted,
+                      color: "#64748B",
                       textTransform: "uppercase",
                       letterSpacing: 1.2,
                       borderTop: "1px solid #F1F5F9",
@@ -310,7 +310,7 @@ function BusquedaGlobal({
                           style={{
                             fontSize: 14,
                             fontWeight: 600,
-                            color: T.text,
+                            color: "#0D1629",
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -321,7 +321,7 @@ function BusquedaGlobal({
                         <div
                           style={{
                             fontSize: 12,
-                            color: T.muted,
+                            color: "#64748B",
                             marginTop: 1,
                             whiteSpace: "nowrap",
                             overflow: "hidden",
@@ -368,7 +368,7 @@ function BusquedaGlobal({
               style={{
                 fontSize: 11,
                 fontWeight: 700,
-                color: T.muted,
+                color: "#64748B",
                 textTransform: "uppercase",
                 letterSpacing: 1.2,
                 marginBottom: 12,
@@ -500,7 +500,7 @@ function BusquedaGlobal({
                     touchAction: "manipulation",
                     fontSize: 13,
                     fontWeight: 600,
-                    color: T.text,
+                    color: "#0D1629",
                     fontFamily: "'DM Sans',sans-serif",
                   }}
                 >

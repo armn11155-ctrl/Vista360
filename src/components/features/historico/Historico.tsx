@@ -233,7 +233,7 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
 
   const inpStyle = {
     width: "100%",
-    background: T.bg,
+    background: T.dark,
     border: `1px solid ${T.border}`,
     borderRadius: 10,
     padding: "10px 13px",

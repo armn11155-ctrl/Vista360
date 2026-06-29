@@ -160,7 +160,7 @@ function MesCard({
               style={{
                 fontSize: 17,
                 fontWeight: 900,
-                color: T.text,
+                color: "#0D1629",
                 marginTop: 3,
                 letterSpacing: "-0.5px",
               }}
@@ -1164,7 +1164,7 @@ function Reportes({ contratos, paneles, clientes, gastos, initialSeccion }: Repo
   };
 
   const cardStyle = {
-    background: T.bg,
+    background: D.bg,
     border: `1px solid ${T.border}`,
     borderRadius: 20,
     padding: "20px 18px",

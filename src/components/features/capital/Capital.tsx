@@ -2353,14 +2353,14 @@ function Capital({
           style={{
             fontSize: 22,
             fontWeight: 900,
-            color: T.text,
+            color: "#0D1629",
             letterSpacing: "-0.03em",
             marginBottom: 2,
           }}
         >
           Finanzas
         </div>
-        <div style={{ fontSize: 12, color: T.muted, marginBottom: 16 }}>
+        <div style={{ fontSize: 12, color: "#64748B", marginBottom: 16 }}>
           Capital, gastos y proveedores en un solo lugar
         </div>
 

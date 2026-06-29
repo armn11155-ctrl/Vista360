@@ -307,7 +307,7 @@ function Proveedores({ proveedores, setProveedores, loading, onModalChange }: Pr
             {(() => {
               const inpS = {
                 width: "100%",
-                background: T.bg,
+                background: T.dark,
                 border: `1px solid ${T.border}`,
                 borderRadius: 10,
                 padding: "10px 13px",

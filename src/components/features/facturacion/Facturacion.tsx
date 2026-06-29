@@ -1726,9 +1726,9 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
           {loading ? (
             <Spinner />
           ) : facsFiltradas.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 20px", color: T.muted }}>
+            <div style={{ textAlign: "center", padding: "60px 20px", color: "#64748B" }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}></div>
-              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6, color: T.text }}>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6, color: "#0D1629" }}>
                 {facturas.length === 0 ? "No hay comprobantes aún" : "Sin resultados"}
               </div>
               <div style={{ fontSize: 13 }}>
@@ -2106,14 +2106,14 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
             <div
               style={{
                 marginTop: 14,
-                background: "rgba(59,130,246,0.12)",
-                border: "1px solid rgba(59,130,246,0.28)",
+                background: T.dark,
+                border: "1px solid rgba(59,130,246,0.3)",
                 borderRadius: 18,
                 padding: "16px 20px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                boxShadow: "0 8px 24px -12px rgba(0,0,0,0.5)",
               }}
             >
               <span style={{ fontSize: 12, color: "#93C5FD", fontWeight: 600 }}>
@@ -2939,7 +2939,7 @@ function MesCard({
               style={{
                 fontSize: 17,
                 fontWeight: 900,
-                color: T.text,
+                color: "#0D1629",
                 marginTop: 3,
                 letterSpacing: "-0.5px",
               }}

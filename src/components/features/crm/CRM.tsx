@@ -945,7 +945,7 @@ function CRM({
           style={{
             marginLeft: "auto",
             fontSize: 11,
-            color: T.muted,
+            color: "#64748B",
             flexShrink: 0,
             alignSelf: "center",
             fontWeight: 600,
@@ -964,14 +964,14 @@ function CRM({
             justifyContent: "center",
             height: 200,
             gap: 10,
-            color: T.muted,
+            color: "#64748B",
           }}
         >
           <div
             style={{
               width: 20,
               height: 20,
-              border: `2px solid ${T.border}`,
+              border: "2px solid #E5E7EB",
               borderTopColor: T.accent,
               borderRadius: "50%",
               animation: "spin .7s linear infinite",
@@ -1296,7 +1296,7 @@ function CRM({
                 padding: "10px 4px",
               }}
             >
-              <span style={{ fontSize: 11, color: T.muted }}>
+              <span style={{ fontSize: 11, color: "#64748B" }}>
                 {Math.min((page - 1) * perPage + 1, filtrado.length)}–
                 {Math.min(page * perPage, filtrado.length)} de {filtrado.length}
               </span>
@@ -1618,8 +1618,8 @@ function CRM({
           }}
         >
           <div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: T.text }}>Leads</div>
-            <div style={{ fontSize: 11, color: T.muted, fontWeight: 500 }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: "#0D1629" }}>Leads</div>
+            <div style={{ fontSize: 11, color: "#64748B", fontWeight: 500 }}>
               {pros.length} prospecto{pros.length !== 1 ? "s" : ""} · {propuestas.length} con
               propuesta{ganados.length > 0 ? ` · 🎉 ${ganados.length} ganado${ganados.length !== 1 ? "s" : ""}` : ""}
             </div>
@@ -1668,7 +1668,7 @@ function CRM({
             bg: "#F5F3FF",
           },
           { label: "🎉 Ganado", estado: "Ganado", color: "#16A34A", bg: "#F0FDF4" },
-          { label: "Frío", estado: "Frío", color: T.muted, bg: "#F8FAFC" },
+          { label: "Frío", estado: "Frío", color: "#64748B", bg: "#F8FAFC" },
           { label: "Perdido", estado: "Perdido", color: T.red, bg: "#FEF2F2" },
         ].map(({ label, estado, color, bg }) => {
           const grupo = pros.filter(p => p.estado === estado);
@@ -1915,15 +1915,15 @@ function CRM({
                 boxShadow: "0 0 0 3px rgba(59,130,246,0.2)",
               }}
             />
-            <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#0D1629" }}>
               Solicitudes del sitio web
             </div>
             {solPendientes.length > 0 && (
               <span
                 style={{
-                  background: "rgba(59,130,246,0.16)",
-                  color: "#93C5FD",
-                  border: "1px solid rgba(59,130,246,0.35)",
+                  background: T.accent,
+                  color: "#fff",
+                  border: "none",
                   fontSize: 10,
                   fontWeight: 700,
                   padding: "2px 7px",
@@ -1936,7 +1936,7 @@ function CRM({
           </div>
 
           {loadingSol ? (
-            <div style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.3)", borderRadius: 14, padding: 16, textAlign: "center", fontSize: 12, color: "#93C5FD" }}>
+            <div style={{ background: T.dark, border: "1px solid rgba(59,130,246,0.3)", borderRadius: 14, padding: 16, textAlign: "center", fontSize: 12, color: "#93C5FD" }}>
               Cargando solicitudes…
             </div>
           ) : solPendientes.length === 0 ? (
@@ -1959,8 +1959,8 @@ function CRM({
                 <div
                   key={sol.id}
                     style={{
-                      background: "rgba(59,130,246,0.10)",
-                      border: "1px solid rgba(59,130,246,0.28)",
+                      background: T.dark,
+                      border: "1px solid rgba(59,130,246,0.3)",
                       borderRadius: 16,
                       padding: "14px 16px",
                     }}
@@ -1969,7 +1969,7 @@ function CRM({
                       <div
                         style={{
                           width: 38, height: 38, borderRadius: 11, flexShrink: 0,
-                          background: T.dark,
+                          background: T.accent,
                           display: "flex", alignItems: "center", justifyContent: "center",
                           color: "#fff", fontWeight: 800, fontSize: 15,
                         }}
@@ -1980,7 +1980,7 @@ function CRM({
                         <div style={{ fontSize: 14, fontWeight: 800, color: T.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {sol.empresa || "Sin empresa"}
                         </div>
-                        <div style={{ fontSize: 12, color: "#3B82F6", marginTop: 1, fontWeight: 600 }}>
+                        <div style={{ fontSize: 12, color: "#93C5FD", marginTop: 1, fontWeight: 600 }}>
                           {sol.contacto || "—"} · {sol.celular || "—"}
                         </div>
                         {sol.email && (
@@ -1989,7 +1989,7 @@ function CRM({
                           </div>
                         )}
                         {sol.panelInteres && (
-                          <div style={{ fontSize: 11, color: "#3B82F6", marginTop: 4, fontStyle: "italic" }}>
+                          <div style={{ fontSize: 11, color: "#93C5FD", marginTop: 4, fontStyle: "italic" }}>
                             Interés: {sol.panelInteres}
                           </div>
                         )}

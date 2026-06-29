@@ -115,8 +115,8 @@ function NotifPanel({ open, onClose, contratos, clientes, paneles, gastos }: Not
           <line x1="10" y1="14" x2="14" y2="14" />
         </svg>
       ),
-      bg: "#FAEEDA",
-      ic: "#854F0B",
+      bg: "rgba(245,158,11,0.16)",
+      ic: "#F0B65B",
       dot: "#EF9F27",
     },
     factura: {
@@ -137,8 +137,8 @@ function NotifPanel({ open, onClose, contratos, clientes, paneles, gastos }: Not
           <line x1="9" y1="17" x2="13" y2="17" />
         </svg>
       ),
-      bg: "#FCEBEB",
-      ic: "#A32D2D",
+      bg: "rgba(239,68,68,0.16)",
+      ic: "#F87171",
       dot: "#E24B4A",
     },
     panel: {
@@ -159,8 +159,8 @@ function NotifPanel({ open, onClose, contratos, clientes, paneles, gastos }: Not
           <rect x="3" y="14" width="7" height="7" />
         </svg>
       ),
-      bg: "#E6F1FB",
-      ic: "#185FA5",
+      bg: "rgba(59,130,246,0.16)",
+      ic: "#60A5FA",
       dot: "#378ADD",
     },
     cliente: {
@@ -180,8 +180,8 @@ function NotifPanel({ open, onClose, contratos, clientes, paneles, gastos }: Not
           <line x1="4" y1="4" x2="20" y2="20" />
         </svg>
       ),
-      bg: "#FAEEDA",
-      ic: "#854F0B",
+      bg: "rgba(245,158,11,0.16)",
+      ic: "#F0B65B",
       dot: "#EF9F27",
     },
     meta: {
@@ -202,8 +202,8 @@ function NotifPanel({ open, onClose, contratos, clientes, paneles, gastos }: Not
           <line x1="15" y1="22" x2="15" y2="15" />
         </svg>
       ),
-      bg: "#EAF3DE",
-      ic: "#3B6D11",
+      bg: "rgba(34,197,94,0.16)",
+      ic: "#86EFAC",
       dot: "#639922",
     },
   };
@@ -239,14 +239,14 @@ function NotifPanel({ open, onClose, contratos, clientes, paneles, gastos }: Not
           top: "max(64px, calc(env(safe-area-inset-top) + 12px))",
           right: 12,
           width: "min(360px, calc(100vw - 24px))",
-          background: T.white,
+          background: T.card,
           borderRadius: 20,
           border: `1px solid ${T.border}`,
           maxHeight: "72vh",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
         }}
       >
         {/* Header */}
@@ -374,7 +374,7 @@ function NotifPanel({ open, onClose, contratos, clientes, paneles, gastos }: Not
                     padding: "10px 8px",
                     borderRadius: 12,
                     marginBottom: 4,
-                    background: isLeida ? "transparent" : T.bg,
+                    background: isLeida ? "transparent" : T.dark,
                     cursor: "pointer",
                     touchAction: "manipulation",
                     opacity: isLeida ? 0.45 : 1,

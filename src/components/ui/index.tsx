@@ -140,14 +140,14 @@ export const PgTit = ({ icon, title, sub, dark }: PgTitProps) => (
       style={{
         fontSize: 22,
         fontWeight: 800,
-        color: dark ? T.white : T.text,
+        color: dark ? T.white : "#0D1629",
         letterSpacing: "-0.5px",
       }}
     >
       {title}
     </div>
     {sub && (
-      <div style={{ fontSize: 13, color: dark ? "rgba(255,255,255,0.55)" : T.muted, marginTop: 4 }}>
+      <div style={{ fontSize: 13, color: dark ? "rgba(255,255,255,0.55)" : "#64748B", marginTop: 4 }}>
         {sub}
       </div>
     )}
@@ -320,8 +320,8 @@ export function Pagination({
   const from = (page - 1) * pageSize + 1,
     to = Math.min(page * pageSize, total);
   const bg = dark ? T.dark : T.white,
-    border = dark ? "rgba(59,130,246,0.22)" : T.border;
-  const text = dark ? "rgba(255,255,255,0.55)" : T.muted;
+    border = dark ? "rgba(59,130,246,0.22)" : "#E5E7EB";
+  const text = dark ? "rgba(255,255,255,0.55)" : "#64748B";
   const btnBg = dark ? "rgba(255,255,255,0.06)" : "#F1F5F9";
   const pages: (number | "…")[] = [];
   if (totalPages <= 5) {
@@ -347,7 +347,9 @@ export function Pagination({
         color: active
           ? "#fff"
           : disabled
-            ? "rgba(255,255,255,0.2)"
+            ? dark
+              ? "rgba(255,255,255,0.2)"
+              : "rgba(15,23,41,0.2)"
             : dark
               ? "rgba(255,255,255,0.75)"
               : "#374151",

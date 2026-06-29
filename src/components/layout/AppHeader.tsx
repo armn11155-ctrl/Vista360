@@ -76,7 +76,7 @@ export function AppHeader({
           paddingRight: isDesktop ? 32 : 16,
           paddingBottom: isDesktop ? 18 : 6,
           background: headerColor,
-          borderBottom: headerDark ? "none" : `1px solid ${T.border}`,
+          borderBottom: headerDark ? "none" : "1px solid #E5E7EB",
           display: "flex",
           alignItems: "center",
           gap: isDesktop ? 14 : 10,
@@ -100,10 +100,10 @@ export function AppHeader({
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <rect x="3"  y="3"  width="8" height="8" rx="2" fill={headerDark ? "white" : T.text} />
-            <rect x="13" y="3"  width="8" height="8" rx="2" fill={headerDark ? "white" : T.text} />
-            <rect x="3"  y="13" width="8" height="8" rx="2" fill={headerDark ? "white" : T.text} />
-            <rect x="13" y="13" width="8" height="8" rx="2" fill={headerDark ? "white" : T.text} />
+            <rect x="3"  y="3"  width="8" height="8" rx="2" fill={headerDark ? "white" : "#0D1629"} />
+            <rect x="13" y="3"  width="8" height="8" rx="2" fill={headerDark ? "white" : "#0D1629"} />
+            <rect x="3"  y="13" width="8" height="8" rx="2" fill={headerDark ? "white" : "#0D1629"} />
+            <rect x="13" y="13" width="8" height="8" rx="2" fill={headerDark ? "white" : "#0D1629"} />
           </svg>
         </button>}
 
@@ -113,7 +113,7 @@ export function AppHeader({
             style={{
               fontSize: isDesktop ? 20 : 15,
               fontWeight: 700,
-              color: headerDark ? "#fff" : T.text,
+              color: headerDark ? "#fff" : "#0D1629",
               lineHeight: 1.1,
             }}
           >
@@ -141,7 +141,7 @@ export function AppHeader({
             <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
               <path
                 d="M21 21L15 15M17 11C17 14.866 13.866 18 10 18C6.134 18 3 14.866 3 11C3 7.134 6.134 4 10 4C13.866 4 17 7.134 17 11Z"
-                stroke={headerDark ? "#fff" : T.text}
+                stroke={headerDark ? "#fff" : "#0D1629"}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -169,7 +169,7 @@ export function AppHeader({
             <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
               <path
                 d="M15 17H9M15 17C15 18.657 13.657 20 12 20C10.343 20 9 18.657 9 17M15 17H20L18.784 15.784C18.284 15.284 18 14.612 18 13.914V10C18 7.239 15.761 5 13 5H11C8.239 5 6 7.239 6 10V13.914C6 14.612 5.716 15.284 5.216 15.784L4 17H9"
-                stroke={headerDark ? "#fff" : T.text}
+                stroke={headerDark ? "#fff" : "#0D1629"}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"

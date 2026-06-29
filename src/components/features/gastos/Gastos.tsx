@@ -1028,7 +1028,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                       placeholder={ph}
                       style={{
                         width: "100%",
-                        background: T.bg,
+                        background: T.dark,
                         border: `1px solid ${T.border}`,
                         borderRadius: 10,
                         padding: "11px 13px",

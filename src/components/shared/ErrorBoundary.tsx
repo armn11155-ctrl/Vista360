@@ -107,7 +107,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <div style={{ fontSize: 13, fontWeight: 800, color: T.red }}>
               Error en {this.props.label}
             </div>
-            <div style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>
+            <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>
               El resto de la app sigue funcionando
             </div>
           </div>
@@ -184,7 +184,7 @@ export class ErrorBoundary extends Component<Props, State> {
         {/* Stack trace (solo en desarrollo) */}
         {import.meta.env.DEV && this.state.stack && (
           <details style={{ marginTop: 12 }}>
-            <summary style={{ fontSize: 10.5, color: T.muted, cursor: "pointer" }}>
+            <summary style={{ fontSize: 10.5, color: "#94A3B8", cursor: "pointer" }}>
               Stack trace (solo visible en desarrollo)
             </summary>
             <pre

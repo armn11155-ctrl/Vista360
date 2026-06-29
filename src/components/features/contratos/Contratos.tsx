@@ -338,7 +338,7 @@ function Contratos({
   const F = FieldGroup;
   const inp = {
     width: "100%",
-    background: T.bg,
+    background: T.dark,
     border: `1px solid ${T.border}`,
     borderRadius: 10,
     padding: "10px 13px",
@@ -588,7 +588,7 @@ function Contratos({
               <F label={`Pagos por mes (${pagosMarcados}/${mesesForm.length} pagados)`}>
                 <div
                   style={{
-                    background: T.bg,
+                    background: T.dark,
                     borderRadius: 12,
                     padding: 14,
                     border: `1px solid ${T.border}`,
@@ -783,11 +783,11 @@ function Contratos({
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
-            style={{ fontSize: 20, fontWeight: 800, color: T.text, letterSpacing: "-0.02em" }}
+            style={{ fontSize: 20, fontWeight: 800, color: "#0D1629", letterSpacing: "-0.02em" }}
           >
             Contratos
           </div>
-          <div style={{ fontSize: 12, color: T.muted, marginTop: 1 }}>
+          <div style={{ fontSize: 12, color: "#64748B", marginTop: 1 }}>
             {contratos.filter(c => !c.deleted).length} contratos · {activos} activos
           </div>
         </div>
