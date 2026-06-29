@@ -338,10 +338,10 @@ function Paneles({ paneles, setPaneles, contratos, loading, setTab, onModalChang
               style={{
                 textAlign: "center",
                 padding: 60,
-                color: "#6B7280",
-                background: "#fff",
+                color: T.muted,
+                background: T.card,
                 borderRadius: 22,
-                border: "1px dashed #E5E7EB",
+                border: `1px dashed ${T.border}`,
               }}
             >
               Sin paneles ·{" "}

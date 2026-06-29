@@ -90,8 +90,8 @@ export function MiniMapaPanel({ lat, lng, nombre, foto, onMove }: MiniMapaPanelP
       iconSize: [44, 54],
       iconAnchor: [22, 54],
       html: `<div style="display:flex;flex-direction:column;align-items:center">
-        <div style="width:40px;height:40px;border-radius:50%;background:white;border:3px solid #2563EB;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 14px #0005;cursor:grab">${foto}</div>
-        <div style="width:2px;height:12px;background:#2563EB;margin-top:-2px"></div>
+        <div style="width:40px;height:40px;border-radius:50%;background:white;border:3px solid ${T.accent};display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 14px #0005;cursor:grab">${foto}</div>
+        <div style="width:2px;height:12px;background:${T.accent};margin-top:-2px"></div>
       </div>`,
     });
     const marker = window.L.marker([latN, lngN], { icon, draggable: true }).addTo(map);
