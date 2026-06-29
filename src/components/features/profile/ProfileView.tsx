@@ -84,7 +84,7 @@ export function ProfileView({
   const fotosCount = gastos.filter(g => (g as any).fotoUrl || (g as any).foto_url).length;
 
   const DARK = "#0E1835";
-  const CARD_BG = "#ffffff";
+  const CARD_BG = T.card;
 
   const userPhoto =
     user.photoURL ||
@@ -245,7 +245,7 @@ export function ProfileView({
             </span>
           </div>
           {fbStatus === "ok" && (
-            <div style={{ fontSize: 12, color: "#15803D", marginLeft: 18 }}>
+            <div style={{ fontSize: 12, color: T.green, marginLeft: 18 }}>
               Proyecto: {projectId} · Firestore + Storage activos
             </div>
           )}
@@ -346,7 +346,7 @@ export function ProfileView({
                   style={{
                     height: 3,
                     borderRadius: 99,
-                    background: "#E5E7EB",
+                    background: T.border,
                     marginTop: 8,
                     overflow: "hidden",
                   }}
@@ -493,7 +493,8 @@ export function ProfileView({
         >
           <div
             style={{
-              background: "#fff",
+              background: T.card,
+              border: `1px solid ${T.border}`,
               borderRadius: "20px 20px 0 0",
               padding: "28px 24px 40px",
               width: "100%",
@@ -516,7 +517,7 @@ export function ProfileView({
                   padding: 14,
                   borderRadius: 14,
                   border: `1px solid ${T.border}`,
-                  background: "#fff",
+                  background: "transparent",
                   fontSize: 15,
                   fontWeight: 600,
                   cursor: "pointer",
