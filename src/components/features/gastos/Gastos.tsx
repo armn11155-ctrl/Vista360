@@ -1088,8 +1088,8 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                       marginTop: 14,
                       padding: "11px",
                       borderRadius: 12,
-                      border: "1px solid #FECACA",
-                      background: "#FEF2F2",
+                      border: "1px solid rgba(239,68,68,0.35)",
+                      background: "rgba(239,68,68,0.14)",
                       color: T.red,
                       fontWeight: 700,
                       fontSize: 14,
@@ -1595,7 +1595,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                   width: 60,
                   height: 60,
                   borderRadius: 18,
-                  background: "#EFF4FF",
+                  background: T.accentLt,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -2050,7 +2050,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
             >
               <div
                 style={{
-                  background: T.white,
+                  background: T.card,
                   borderRadius: "22px 22px 0 0",
                   width: "100%",
                   maxHeight: "92vh",
@@ -2068,7 +2068,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                     justifyContent: "space-between",
                     alignItems: "center",
                     padding: "18px 24px",
-                    borderBottom: "1px solid #E5E7EB",
+                    borderBottom: `1px solid ${T.border}`,
                   }}
                 >
                   <div>
@@ -2076,22 +2076,22 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                       style={{
                         fontSize: 11,
                         fontWeight: 700,
-                        color: "#6B7280",
+                        color: T.muted,
                         textTransform: "uppercase",
                         letterSpacing: 1.2,
                       }}
                     >
                       Gasto
                     </div>
-                    <div style={{ fontSize: 17, fontWeight: 800, color: "#111827" }}>
+                    <div style={{ fontSize: 17, fontWeight: 800, color: T.text }}>
                       {vistaDetalle.proveedor || "Sin proveedor"}
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <span
                       style={{
-                        background: "#D1FAE5",
-                        color: "#065F46",
+                        background: "rgba(34,197,94,0.16)",
+                        color: "#4ADE80",
                         borderRadius: 20,
                         padding: "4px 14px",
                         fontSize: 11,
@@ -2106,9 +2106,9 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         width: 30,
                         height: 30,
                         borderRadius: "50%",
-                        background: "#F3F4F6",
+                        background: "rgba(255,255,255,0.08)",
                         border: "none",
-                        color: "#6B7280",
+                        color: T.muted,
                         cursor: "pointer",
                         touchAction: "manipulation",
                         fontSize: 16,
@@ -2127,8 +2127,8 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                     style={{
                       width: "38%",
                       minWidth: 180,
-                      background: "#F9FAFB",
-                      borderRight: "1px solid #E5E7EB",
+                      background: T.dark,
+                      borderRight: `1px solid ${T.border}`,
                       padding: "20px",
                       display: "flex",
                       flexDirection: "column",
@@ -2148,10 +2148,10 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         style={{
                           width: "100%",
                           borderRadius: 12,
-                          border: "1px solid #E5E7EB",
+                          border: `1px solid ${T.border}`,
                           objectFit: "contain",
                           maxHeight: 340,
-                          background: "#fff",
+                          background: T.card,
                         }}
                       />
                     ) : (
@@ -2176,7 +2176,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           height="32"
                           viewBox="0 0 24 24"
                           fill="none"
-                          stroke="#94A3B8"
+                          stroke={T.muted}
                           strokeWidth="1.5"
                           strokeLinecap="round"
                         >
@@ -2186,7 +2186,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         <div
                           style={{
                             fontSize: 11,
-                            color: "#6B7280",
+                            color: T.muted,
                             fontWeight: 600,
                             textAlign: "center",
                           }}
@@ -2202,10 +2202,10 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                       style={{
                         width: "100%",
                         padding: "9px",
-                        background: "#EFF6FF",
+                        background: "rgba(59,130,246,0.12)",
                         border: "1px solid #BFDBFE",
                         borderRadius: 10,
-                        color: "#1D4ED8",
+                        color: "#93C5FD",
                         fontWeight: 700,
                         fontSize: 12,
                         cursor: "pointer",
@@ -2218,7 +2218,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                       <div
                         style={{
                           width: "100%",
-                          background: "#F0F9FF",
+                          background: "rgba(14,165,233,0.12)",
                           border: "1px solid #BAE6FD",
                           borderRadius: 10,
                           padding: "10px 12px",
@@ -2227,7 +2227,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         <div
                           style={{
                             fontSize: 11,
-                            color: "#0369A1",
+                            color: "#7DD3FC",
                             fontWeight: 600,
                             marginBottom: 6,
                           }}
@@ -2237,7 +2237,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         <div
                           style={{
                             height: 4,
-                            background: "#BAE6FD",
+                            background: "rgba(14,165,233,0.3)",
                             borderRadius: 2,
                             overflow: "hidden",
                           }}
@@ -2264,10 +2264,10 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         style={{
                           fontSize: 13,
                           fontWeight: 800,
-                          color: "#111827",
+                          color: T.text,
                           marginBottom: 12,
                           paddingBottom: 6,
-                          borderBottom: "1px solid #E5E7EB",
+                          borderBottom: `1px solid ${T.border}`,
                         }}
                       >
                         Datos del Gasto
@@ -2280,7 +2280,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                             style={{
                               fontSize: 10,
                               fontWeight: 700,
-                              color: "#6B7280",
+                              color: T.muted,
                               textTransform: "uppercase",
                               letterSpacing: 1,
                               marginBottom: 2,
@@ -2288,7 +2288,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           >
                             Fecha de Emisión
                           </div>
-                          <div style={{ fontSize: 13, color: "#111827" }}>
+                          <div style={{ fontSize: 13, color: T.text }}>
                             {vistaDetalle.fecha
                               ? new Date(vistaDetalle.fecha + "T12:00:00").toLocaleDateString(
                                   "es-PE",
@@ -2302,7 +2302,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                             style={{
                               fontSize: 10,
                               fontWeight: 700,
-                              color: "#6B7280",
+                              color: T.muted,
                               textTransform: "uppercase",
                               letterSpacing: 1,
                               marginBottom: 2,
@@ -2331,7 +2331,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                             style={{
                               fontSize: 10,
                               fontWeight: 700,
-                              color: "#6B7280",
+                              color: T.muted,
                               textTransform: "uppercase",
                               letterSpacing: 1,
                               marginBottom: 2,
@@ -2339,7 +2339,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           >
                             Concepto
                           </div>
-                          <div style={{ fontSize: 13, color: "#111827" }}>
+                          <div style={{ fontSize: 13, color: T.text }}>
                             {vistaDetalle.concepto || "—"}
                           </div>
                         </div>
@@ -2349,7 +2349,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                               style={{
                                 fontSize: 10,
                                 fontWeight: 700,
-                                color: "#6B7280",
+                                color: T.muted,
                                 textTransform: "uppercase",
                                 letterSpacing: 1,
                                 marginBottom: 2,
@@ -2357,7 +2357,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                             >
                               Notas
                             </div>
-                            <div style={{ fontSize: 13, color: "#374151" }}>
+                            <div style={{ fontSize: 13, color: T.text }}>
                               {vistaDetalle.notas}
                             </div>
                           </div>
@@ -2371,10 +2371,10 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         style={{
                           fontSize: 13,
                           fontWeight: 800,
-                          color: "#111827",
+                          color: T.text,
                           marginBottom: 12,
                           paddingBottom: 6,
-                          borderBottom: "1px solid #E5E7EB",
+                          borderBottom: `1px solid ${T.border}`,
                         }}
                       >
                         Importes
@@ -2398,7 +2398,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                               style={{
                                 fontSize: 10,
                                 fontWeight: 700,
-                                color: "#6B7280",
+                                color: T.muted,
                                 textTransform: "uppercase",
                                 letterSpacing: 1,
                                 marginBottom: 2,
@@ -2407,7 +2407,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                               {k}
                             </div>
                             <div
-                              style={{ fontSize: 12, color: "#374151", fontFamily: "monospace" }}
+                              style={{ fontSize: 12, color: T.text, fontFamily: "monospace" }}
                             >
                               {v || "—"}
                             </div>
@@ -2416,8 +2416,8 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                       </div>
                       <div
                         style={{
-                          background: "#F9FAFB",
-                          border: "1px solid #E5E7EB",
+                          background: T.dark,
+                          border: `1px solid ${T.border}`,
                           borderRadius: 12,
                           padding: "12px 16px",
                           display: "flex",
@@ -2426,14 +2426,14 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           gap: 6,
                         }}
                       >
-                        <span style={{ fontSize: 13, color: "#6B7280", fontWeight: 600 }}>
+                        <span style={{ fontSize: 13, color: T.muted, fontWeight: 600 }}>
                           {vistaDetalle.moneda === "USD" ? "USD" : "S/"}.
                         </span>
                         <span
                           style={{
                             fontSize: 28,
                             fontWeight: 900,
-                            color: "#111827",
+                            color: T.text,
                             letterSpacing: "-1px",
                           }}
                         >
@@ -2451,10 +2451,10 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                         style={{
                           fontSize: 13,
                           fontWeight: 800,
-                          color: "#111827",
+                          color: T.text,
                           marginBottom: 12,
                           paddingBottom: 6,
-                          borderBottom: "1px solid #E5E7EB",
+                          borderBottom: `1px solid ${T.border}`,
                         }}
                       >
                         Proveedor
@@ -2467,7 +2467,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                             style={{
                               fontSize: 10,
                               fontWeight: 700,
-                              color: "#6B7280",
+                              color: T.muted,
                               textTransform: "uppercase",
                               letterSpacing: 1,
                               marginBottom: 2,
@@ -2475,7 +2475,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           >
                             Razón Social
                           </div>
-                          <div style={{ fontSize: 13, color: "#111827", fontWeight: 600 }}>
+                          <div style={{ fontSize: 13, color: T.text, fontWeight: 600 }}>
                             {vistaDetalle.proveedor || "—"}
                           </div>
                         </div>
@@ -2484,7 +2484,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                             style={{
                               fontSize: 10,
                               fontWeight: 700,
-                              color: "#6B7280",
+                              color: T.muted,
                               textTransform: "uppercase",
                               letterSpacing: 1,
                               marginBottom: 2,
@@ -2492,7 +2492,7 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           >
                             RUC
                           </div>
-                          <div style={{ fontSize: 13, color: "#111827", fontFamily: "monospace" }}>
+                          <div style={{ fontSize: 13, color: T.text, fontFamily: "monospace" }}>
                             {vistaDetalle.ruc || "—"}
                           </div>
                         </div>
@@ -2661,10 +2661,10 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           style={{
                             flex: 1,
                             padding: "12px",
-                            background: "#FEE2E2",
-                            border: "1px solid #FECACA",
+                            background: "rgba(239,68,68,0.14)",
+                            border: "1px solid rgba(239,68,68,0.35)",
                             borderRadius: 12,
-                            color: "#DC2626",
+                            color: T.red,
                             fontWeight: 700,
                             fontSize: 13,
                             cursor: "pointer",
@@ -2682,10 +2682,10 @@ function Gastos({ gastos, setGastos, autoScan, setAutoScan, onModalChange }: Gas
                           style={{
                             flex: 1,
                             padding: "12px",
-                            background: "#D1FAE5",
-                            border: "1px solid #A7F3D0",
+                            background: "rgba(34,197,94,0.14)",
+                            border: "1px solid rgba(34,197,94,0.35)",
                             borderRadius: 12,
-                            color: "#065F46",
+                            color: "#4ADE80",
                             fontWeight: 700,
                             fontSize: 13,
                             cursor: "pointer",
