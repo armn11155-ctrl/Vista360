@@ -1335,13 +1335,13 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
               pointerEvents: "none",
             }}
           >
-            <circle cx="11" cy="11" r="7" stroke="#94A3B8" strokeWidth="2" />
+            <circle cx="11" cy="11" r="7" stroke={T.muted} strokeWidth="2" />
             <line
               x1="21"
               y1="21"
               x2="16"
               y2="16"
-              stroke="#94A3B8"
+              stroke={T.muted}
               strokeWidth="2"
               strokeLinecap="round"
             />
@@ -1352,8 +1352,8 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
             placeholder="Buscar por cliente, panel, serie..."
             style={{
               width: "100%",
-              background: T.white,
-              border: "1px solid #E5E7EB",
+              background: T.card,
+              border: `1px solid ${T.border}`,
               borderRadius: 12,
               padding: "12px 14px 12px 38px",
               color: T.text,
@@ -1410,8 +1410,8 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
                 value={f.value}
                 onChange={e => f.onChange(e.target.value)}
                 style={{
-                  background: T.white,
-                  border: "1px solid #E5E7EB",
+                  background: T.card,
+                  border: `1px solid ${T.border}`,
                   borderRadius: 10,
                   padding: "10px 32px 10px 14px",
                   color: T.text,
@@ -1422,7 +1422,7 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
                   appearance: "none",
                   cursor: "pointer",
                   touchAction: "manipulation",
-                  boxShadow: "0 1px 3px rgba(15,23,41,0.04)",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
                 }}
               >
                 {f.options.map(opt => (
@@ -1446,7 +1446,7 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
               >
                 <polyline
                   points="6 9 12 15 18 9"
-                  stroke="#0F1729"
+                  stroke={T.muted}
                   strokeWidth="2.4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1462,8 +1462,8 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
               width: 42,
               height: 40,
               borderRadius: 10,
-              border: vista === "lista" ? "1px solid rgba(37,99,235,0.4)" : "1px solid #E5E7EB",
-              background: vista === "lista" ? "rgba(37,99,235,0.08)" : T.white,
+              border: vista === "lista" ? "1px solid rgba(59,130,246,0.4)" : `1px solid ${T.border}`,
+              background: vista === "lista" ? "rgba(59,130,246,0.14)" : T.card,
               cursor: "pointer",
               touchAction: "manipulation",
               display: "flex",
@@ -1477,7 +1477,7 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
                 y1="6"
                 x2="20"
                 y2="6"
-                stroke={vista === "lista" ? T.accent : "#0F1729"}
+                stroke={vista === "lista" ? T.accent : T.muted}
                 strokeWidth="2"
                 strokeLinecap="round"
               />
@@ -1486,7 +1486,7 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
                 y1="12"
                 x2="20"
                 y2="12"
-                stroke={vista === "lista" ? T.accent : "#0F1729"}
+                stroke={vista === "lista" ? T.accent : T.muted}
                 strokeWidth="2"
                 strokeLinecap="round"
               />
@@ -1495,13 +1495,13 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
                 y1="18"
                 x2="20"
                 y2="18"
-                stroke={vista === "lista" ? T.accent : "#0F1729"}
+                stroke={vista === "lista" ? T.accent : T.muted}
                 strokeWidth="2"
                 strokeLinecap="round"
               />
-              <circle cx="4" cy="6" r="1.2" fill={vista === "lista" ? T.accent : "#0F1729"} />
-              <circle cx="4" cy="12" r="1.2" fill={vista === "lista" ? T.accent : "#0F1729"} />
-              <circle cx="4" cy="18" r="1.2" fill={vista === "lista" ? T.accent : "#0F1729"} />
+              <circle cx="4" cy="6" r="1.2" fill={vista === "lista" ? T.accent : T.muted} />
+              <circle cx="4" cy="12" r="1.2" fill={vista === "lista" ? T.accent : T.muted} />
+              <circle cx="4" cy="18" r="1.2" fill={vista === "lista" ? T.accent : T.muted} />
             </svg>
           </button>
           <button
@@ -1510,8 +1510,8 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
               width: 42,
               height: 40,
               borderRadius: 10,
-              border: vista === "resumen" ? "1px solid rgba(37,99,235,0.4)" : "1px solid #E5E7EB",
-              background: vista === "resumen" ? "rgba(37,99,235,0.08)" : T.white,
+              border: vista === "resumen" ? "1px solid rgba(59,130,246,0.4)" : `1px solid ${T.border}`,
+              background: vista === "resumen" ? "rgba(59,130,246,0.14)" : T.card,
               cursor: "pointer",
               touchAction: "manipulation",
               display: "flex",
@@ -1525,21 +1525,21 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
                 y="13"
                 width="3"
                 height="8"
-                fill={vista === "resumen" ? T.accent : "#0F1729"}
+                fill={vista === "resumen" ? T.accent : T.muted}
               />
               <rect
                 x="10.5"
                 y="9"
                 width="3"
                 height="12"
-                fill={vista === "resumen" ? T.accent : "#0F1729"}
+                fill={vista === "resumen" ? T.accent : T.muted}
               />
               <rect
                 x="17"
                 y="5"
                 width="3"
                 height="16"
-                fill={vista === "resumen" ? T.accent : "#0F1729"}
+                fill={vista === "resumen" ? T.accent : T.muted}
               />
             </svg>
           </button>
@@ -2106,17 +2106,17 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
             <div
               style={{
                 marginTop: 14,
-                background: "#EEF2FF",
-                border: "1px solid rgba(37,99,235,0.18)",
+                background: "rgba(59,130,246,0.12)",
+                border: "1px solid rgba(59,130,246,0.28)",
                 borderRadius: 18,
                 padding: "16px 20px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                boxShadow: "0 2px 8px rgba(37,99,235,0.08)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
               }}
             >
-              <span style={{ fontSize: 12, color: "#1E3A8A", fontWeight: 600 }}>
+              <span style={{ fontSize: 12, color: "#93C5FD", fontWeight: 600 }}>
                 {facsFiltradas.length} comprobante{facsFiltradas.length > 1 ? "s" : ""} mostrado
                 {facsFiltradas.length > 1 ? "s" : ""}
               </span>
@@ -2124,13 +2124,13 @@ function Facturacion({ paneles, clientes, contratos }: FacturacionProps) {
                 style={{
                   fontSize: 16,
                   fontWeight: 800,
-                  color: "#1E3A8A",
+                  color: "#93C5FD",
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
                 }}
               >
-                <span style={{ color: "#3B6FCC", fontWeight: 600 }}>Total:</span>
+                <span style={{ color: "#7FAEFF", fontWeight: 600 }}>Total:</span>
                 <span style={{ fontFamily: "monospace", letterSpacing: "-0.3px" }}>
                   {fmt(facsFiltradas.reduce((a, f) => a + totalDe(f), 0))}
                 </span>
