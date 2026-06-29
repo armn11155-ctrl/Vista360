@@ -783,11 +783,11 @@ function Contratos({
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
-            style={{ fontSize: 20, fontWeight: 800, color: "#0F1729", letterSpacing: "-0.02em" }}
+            style={{ fontSize: 20, fontWeight: 800, color: T.text, letterSpacing: "-0.02em" }}
           >
             Contratos
           </div>
-          <div style={{ fontSize: 12, color: "#64748B", marginTop: 1 }}>
+          <div style={{ fontSize: 12, color: T.muted, marginTop: 1 }}>
             {contratos.filter(c => !c.deleted).length} contratos · {activos} activos
           </div>
         </div>
@@ -874,10 +874,10 @@ function Contratos({
           },
         ].map(f => {
           const isActive = filtro === f.label;
-          const activeGradient = "linear-gradient(135deg,#0F1729,#1E3A8A)";
-          const inactiveIconBg = "#EFF4FF";
-          const inactiveIconColor = "#2563EB";
-          const inactiveTextColor = "#2563EB";
+          const activeGradient = `linear-gradient(135deg, ${T.accent}, #1D4ED8)`;
+          const inactiveIconBg = T.accentLt;
+          const inactiveIconColor = T.accent;
+          const inactiveTextColor = T.accent;
           return (
             <button
               key={f.label}
@@ -890,8 +890,8 @@ function Contratos({
                 gap: 4,
                 padding: "12px 6px",
                 borderRadius: 16,
-                background: isActive ? activeGradient : "#FFFFFF",
-                border: `1px solid ${isActive ? "transparent" : "#E5E7EB"}`,
+                background: isActive ? activeGradient : T.card,
+                border: `1px solid ${isActive ? "transparent" : T.border}`,
                 color: isActive ? "#fff" : inactiveTextColor,
                 fontWeight: isActive ? 700 : 600,
                 fontSize: 12,
