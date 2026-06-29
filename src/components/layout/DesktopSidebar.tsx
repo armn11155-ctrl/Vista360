@@ -121,8 +121,8 @@ export function DesktopSidebar({
         top: 0,
         display: "flex",
         flexDirection: "column",
-        background: T.white,
-        borderRight: "1px solid rgba(15,23,41,0.07)",
+        background: T.sidebarBg,
+        borderRight: `1px solid ${T.border}`,
         overflowY: "auto",
         overflowX: "hidden",
         zIndex: 10,
@@ -132,7 +132,7 @@ export function DesktopSidebar({
       <div
         style={{
           padding: "12px",
-          borderBottom: "1px solid rgba(15,23,41,0.06)",
+          borderBottom: `1px solid ${T.border}`,
         }}
       >
         <button
@@ -145,9 +145,7 @@ export function DesktopSidebar({
             gap: 10,
             padding: "8px 10px",
             borderRadius: 14,
-            background: showProfile
-              ? "linear-gradient(90deg,#DBE7FF 0%,#ECF2FF 100%)"
-              : "transparent",
+            background: showProfile ? T.accentLt : "transparent",
             border: "none",
             cursor: "pointer",
             textAlign: "left",
@@ -160,7 +158,7 @@ export function DesktopSidebar({
               width: 36,
               height: 36,
               borderRadius: 10,
-              background: "linear-gradient(135deg,#081740,#1558D6)",
+              background: "linear-gradient(135deg,#0B2358,#1D5FE0)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -169,7 +167,7 @@ export function DesktopSidebar({
               fontSize: 12,
               letterSpacing: "0.5px",
               flexShrink: 0,
-              boxShadow: "0 2px 8px rgba(21,88,214,0.35)",
+              boxShadow: `0 2px 10px ${T.accent}40`,
               border: showProfile ? `2px solid ${T.accent}` : "2px solid transparent",
             }}
           >
@@ -180,7 +178,7 @@ export function DesktopSidebar({
               style={{
                 fontSize: 13,
                 fontWeight: 700,
-                color: showProfile ? T.accent : "#0F1729",
+                color: showProfile ? T.accent : T.text,
                 letterSpacing: "-0.2px",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -189,9 +187,9 @@ export function DesktopSidebar({
             >
               {userName || "Mi cuenta"}
             </div>
-            <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 1 }}>Ver perfil</div>
+            <div style={{ fontSize: 11, color: T.muted, marginTop: 1 }}>Ver perfil</div>
           </div>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={showProfile ? T.accent : "#94A3B8"} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={showProfile ? T.accent : T.muted} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
             <polyline points="9 6 15 12 9 18" />
           </svg>
         </button>
@@ -204,7 +202,7 @@ export function DesktopSidebar({
             return (
               <div
                 key={`sep-${idx}`}
-                style={{ height: 1, background: "#F1F3F8", margin: "6px 6px" }}
+                style={{ height: 1, background: T.border, margin: "6px 6px" }}
               />
             );
           }
@@ -221,9 +219,7 @@ export function DesktopSidebar({
                 padding: "8px 10px",
                 marginBottom: 2,
                 borderRadius: 14,
-                background: active
-                  ? "linear-gradient(90deg,#DBE7FF 0%,#ECF2FF 100%)"
-                  : "transparent",
+                background: active ? T.accentLt : "transparent",
                 border: "none",
                 cursor: "pointer",
                 transition: "background 0.15s ease",
@@ -237,15 +233,15 @@ export function DesktopSidebar({
                   width: 34,
                   height: 34,
                   borderRadius: 10,
-                  background: active ? T.white : "#F5F7FB",
+                  background: active ? T.accent : "rgba(255,255,255,0.05)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: active ? T.accent : "#1E3A8A",
+                  color: active ? "#fff" : T.muted,
                   flexShrink: 0,
                   boxShadow: active
-                    ? "0 3px 10px rgba(37,99,235,0.18)"
-                    : "inset 0 0 0 1px rgba(15,23,41,0.04)",
+                    ? `0 3px 12px -2px ${T.accent}80`
+                    : "inset 0 0 0 1px rgba(255,255,255,0.04)",
                 }}
               >
                 {ICONS[item.id]}
@@ -254,7 +250,7 @@ export function DesktopSidebar({
                 style={{
                   fontSize: 13,
                   fontWeight: active ? 700 : 500,
-                  color: active ? T.accent : "#0F1729",
+                  color: active ? T.text : T.muted,
                   letterSpacing: "-0.2px",
                 }}
               >
@@ -266,7 +262,7 @@ export function DesktopSidebar({
       </nav>
 
       {/* ── Archivados ── */}
-      <div style={{ padding: "10px 10px 20px", borderTop: "1px solid #F1F3F8" }}>
+      <div style={{ padding: "10px 10px 20px", borderTop: `1px solid ${T.border}` }}>
         <button
           onClick={onTrashOpen}
           style={{
@@ -276,8 +272,8 @@ export function DesktopSidebar({
             gap: 10,
             padding: "10px 12px",
             borderRadius: 14,
-            background: "#EFF4FF",
-            border: "1px solid #BFDBFE",
+            background: T.accentLt,
+            border: `1px solid ${T.accent}40`,
             cursor: "pointer",
             position: "relative",
             overflow: "visible",
@@ -301,9 +297,9 @@ export function DesktopSidebar({
             </svg>
           </div>
           <div style={{ flex: 1, textAlign: "left" }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1D4ED8" }}>Archivados</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>Archivados</div>
             {trashCount > 0 && (
-              <div style={{ fontSize: 11, color: "#3B82F6", marginTop: 1 }}>
+              <div style={{ fontSize: 11, color: T.accent, marginTop: 1 }}>
                 {trashCount} elemento{trashCount !== 1 ? "s" : ""}
               </div>
             )}
@@ -325,8 +321,8 @@ export function DesktopSidebar({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "0 1px 4px rgba(37,99,235,0.4)",
-                border: "2px solid #fff",
+                boxShadow: `0 1px 6px ${T.accent}66`,
+                border: `2px solid ${T.sidebarBg}`,
               }}
             >
               {trashCount}

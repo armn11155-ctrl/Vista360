@@ -45,9 +45,9 @@
   width: 100%;
   padding: 14px 18px;
   margin-bottom: 24px;
-  background: #ffffff;
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: var(--v360-card);
+  color: var(--v360-red);
+  border: 1px solid rgba(239, 68, 68, 0.22);
   border-radius: 14px;
   font-size: 14px;
   font-weight: 700;
@@ -57,7 +57,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.24);
   font-family: inherit;
 }
 
@@ -65,7 +65,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(3, 7, 15, 0.72);
   z-index: 600;
   display: flex;
   align-items: center;
@@ -74,32 +74,34 @@
 }
 
 .confirmBox {
-  background: #fff;
+  background: var(--v360-card);
+  border: 1px solid var(--v360-border);
   border-radius: 20px;
   padding: 28px;
   width: 100%;
   max-width: 320px;
   text-align: center;
+  box-shadow: 0 16px 40px -12px rgba(0,0,0,0.55);
 }
 
 .confirmCancel {
   flex: 1;
   padding: 12px;
   background: transparent;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--v360-border);
   border-radius: 12px;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
   touch-action: manipulation;
-  color: #64748b;
+  color: var(--v360-muted);
   font-family: inherit;
 }
 
 .confirmOk {
   flex: 1;
   padding: 12px;
-  background: #ef4444;
+  background: var(--v360-red);
   border: none;
   border-radius: 12px;
   font-weight: 700;
@@ -112,8 +114,8 @@
 
 /* ── Banner de error Firebase ────────────────────────────────────── */
 .firebaseError {
-  background: #fff8ec;
-  border: 1px solid rgba(245, 158, 11, 0.33);
+  background: rgba(245, 158, 11, 0.10);
+  border: 1px solid rgba(245, 158, 11, 0.30);
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 20px;
@@ -154,7 +156,7 @@
   height: 100vh;
   overflow: hidden;
   min-width: 0;
-  background: #F2F4F8;
+  background: var(--v360-bg);
 }
 
 .desktopContent {
@@ -164,7 +166,7 @@
   overscroll-behavior: none;
   max-width: 1280px;
   width: 100%;
-  background: #F2F4F8;
+  background: var(--v360-bg);
 }
 
 /* En escritorio, el contenido necesita más aire que en mobile —

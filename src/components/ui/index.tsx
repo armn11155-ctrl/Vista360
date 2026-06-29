@@ -15,7 +15,7 @@ export const SkPulse = ({ w = "100%", h = 16, r = 8, style = {} }: SkPulseProps)
       width: w,
       height: h,
       borderRadius: r,
-      background: "linear-gradient(90deg,#E2E8F0 25%,#F1F5F9 50%,#E2E8F0 75%)",
+      background: "linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.05) 75%)",
       backgroundSize: "200% 100%",
       animation: "skPulse 1.4s ease infinite",
       flexShrink: 0,
@@ -26,10 +26,10 @@ export const SkPulse = ({ w = "100%", h = 16, r = 8, style = {} }: SkPulseProps)
 export const SkCard = () => (
   <div
     style={{
-      background: "#fff",
+      background: T.card,
       borderRadius: 20,
       padding: 20,
-      border: "1px solid #E5E7EB",
+      border: `1px solid ${T.border}`,
       marginBottom: 14,
     }}
   >
@@ -100,11 +100,11 @@ interface CardProps {
   style?: React.CSSProperties;
 }
 const cardBaseStyle: React.CSSProperties = {
-  background: T.white,
+  background: T.card,
   borderRadius: 20,
   padding: 20,
   border: `1px solid ${T.border}`,
-  boxShadow: "0 1px 4px rgba(15,23,41,0.06)",
+  boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset, 0 12px 28px -18px rgba(0,0,0,0.6)",
   marginBottom: 14,
 };
 export const Card = ({ children, style = {} }: CardProps) => (
@@ -202,7 +202,8 @@ export function Modal({ title, onClose, onSave, saveLabel = "Guardar", children 
     >
       <div
         style={{
-          background: T.white,
+          background: T.card,
+          borderTop: `1px solid ${T.border}`,
           borderRadius: "20px 20px 0 0",
           padding: "24px 20px",
           width: "100%",
@@ -211,6 +212,7 @@ export function Modal({ title, onClose, onSave, saveLabel = "Guardar", children 
           overflowY: "auto",
           paddingBottom: `calc(24px + env(safe-area-inset-bottom))`,
           transition: "max-height 0.2s ease",
+          boxShadow: "0 -16px 48px -12px rgba(0,0,0,0.6)",
         }}
       >
         <div
@@ -225,12 +227,17 @@ export function Modal({ title, onClose, onSave, saveLabel = "Guardar", children 
           <button
             onClick={onClose}
             style={{
-              background: "none",
+              background: "rgba(255,255,255,0.06)",
               border: "none",
-              fontSize: 22,
+              borderRadius: 10,
+              fontSize: 20,
               cursor: "pointer",
               color: T.muted,
-              padding: 4,
+              width: 30,
+              height: 30,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               touchAction: "manipulation",
               lineHeight: 1,
             }}
@@ -255,6 +262,7 @@ export function Modal({ title, onClose, onSave, saveLabel = "Guardar", children 
               cursor: "pointer",
               touchAction: "manipulation",
               fontFamily: "inherit",
+              boxShadow: `0 8px 20px -6px ${T.accent}66`,
             }}
           >
             {saveLabel}
@@ -404,7 +412,7 @@ export function SwipeRow({
   onDelete,
   onEdit,
   deleteLabel = "Eliminar",
-  bg = "#0A1120",
+  bg = T.bg,
 }: SwipeRowProps) {
   const slideRef = React.useRef<HTMLDivElement>(null);
   // Toda la lógica de arrastre vive en refs para evitar re-renders durante el drag
@@ -588,12 +596,12 @@ export function OfflineBanner() {
   return (
     <div
       style={{
-        background: T.white,
-        color: "#fff",
+        background: T.amber,
+        color: "#1A1300",
         textAlign: "center",
         padding: "8px 16px",
         fontSize: 13,
-        fontWeight: 600,
+        fontWeight: 700,
         position: "fixed",
         top: 0,
         left: 0,

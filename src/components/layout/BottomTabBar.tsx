@@ -112,12 +112,11 @@ const BAR_BOX_SHADOW = [
 // ── Estado inicial correcto del nav por ruta ──────────────────────
 // headerDark describe el status bar / header superior, pero NO siempre
 // refleja el contenido real detrás del nav bar inferior.
-// Ejemplo: "/" tiene header oscuro (#0E1A3B) pero contenido claro (#F2F4F8).
-// Este mapa sobreescribe el valor inicial para esas rutas, evitando el
-// flash de ícono blanco → azul al navegar a Inicio.
-const NAV_INITIAL_DARK: Partial<Record<string, boolean>> = {
-  "/": false,  // Inicio: contenido detrás del nav es claro (F2F4F8)
-};
+// (Históricamente "/" necesitaba un override aquí porque el wrapper de
+// página —T.bg— era gris claro detrás de un dashboard ya oscuro. Ahora
+// que T.bg también es oscuro, headerDark ya describe correctamente
+// todas las rutas y no se necesita ningún override.)
+const NAV_INITIAL_DARK: Partial<Record<string, boolean>> = {};
 
 // ── Lee la luminancia real del contenido justo detrás de la barra ──
 // Usa elementsFromPoint en el centro superior de la zona de la barra,

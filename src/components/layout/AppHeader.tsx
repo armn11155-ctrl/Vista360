@@ -76,7 +76,7 @@ export function AppHeader({
           paddingRight: isDesktop ? 32 : 16,
           paddingBottom: isDesktop ? 18 : 6,
           background: headerColor,
-          borderBottom: headerDark ? "none" : `1px solid rgba(229,231,235,0.8)`,
+          borderBottom: headerDark ? "none" : `1px solid ${T.border}`,
           display: "flex",
           alignItems: "center",
           gap: isDesktop ? 14 : 10,
@@ -186,7 +186,7 @@ export function AppHeader({
                   height: 8,
                   borderRadius: "50%",
                   background: T.red,
-                  border: `2px solid ${headerDark ? headerColor : T.white}`,
+                  border: `2px solid ${headerColor}`,
                   zIndex: 2,
                 }}
               />
