@@ -743,12 +743,12 @@ function MetricCardNL({ icon, label, value, sub, waveColor, valueColor, isDeskto
     <div
       className={isDesktop ? "v360-metric-d" : undefined}
       style={{
-        background: T.white,
+        background: T.card,
         borderRadius: isDesktop ? 18 : 18,
         padding: isDesktop ? "20px 20px 18px" : "14px 12px 12px",
         minWidth: 0,
         border: `1px solid ${T.border}`,
-        boxShadow: "0 1px 0 rgba(16,22,40,0.02), 0 6px 24px -16px rgba(16,22,40,0.18)",
+        boxShadow: "0 1px 0 rgba(255,255,255,0.03) inset, 0 12px 28px -18px rgba(0,0,0,0.6)",
         display: "flex",
         flexDirection: "column",
       }}
