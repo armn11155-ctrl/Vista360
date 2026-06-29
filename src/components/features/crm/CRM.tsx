@@ -597,7 +597,7 @@ function CRM({
     { from: "#DC2626", to: "#F87171", glow: "rgba(248,113,113,0.50)" },
     { from: T.cyan, to: "#22D3EE", glow: "rgba(34,211,238,0.50)" },
     { from: "#3730A3", to: "#6366F1", glow: "rgba(99,102,241,0.50)" },
-    { from: "#475569", to: "#94A3B8", glow: "rgba(148,163,184,0.50)" },
+    { from: "#475569", to: T.muted, glow: "rgba(148,163,184,0.50)" },
     { from: "#1F2937", to: "#4B5563", glow: "rgba(75,85,99,0.50)" },
     { from: "#0D9488", to: "#2DD4BF", glow: "rgba(45,212,191,0.50)" },
   ];
@@ -823,11 +823,11 @@ function CRM({
             display: "flex",
             alignItems: "center",
             gap: 10,
-            background: "#fff",
-            border: "1px solid #E5E7EB",
+            background: T.card,
+            border: `1px solid ${T.border}`,
             borderRadius: 14,
             padding: "11px 14px",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
           }}
         >
           <svg
@@ -835,7 +835,7 @@ function CRM({
             height="15"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#94A3B8"
+            stroke={T.muted}
             strokeWidth="2"
             strokeLinecap="round"
           >
@@ -854,7 +854,7 @@ function CRM({
               border: "none",
               outline: "none",
               fontSize: 14,
-              color: "#1E293B",
+              color: T.text,
               background: "transparent",
               fontFamily: "inherit",
             }}
@@ -869,7 +869,7 @@ function CRM({
                 background: "none",
                 border: "none",
                 cursor: "pointer",
-                color: "#94A3B8",
+                color: T.muted,
                 display: "flex",
                 padding: 0,
               }}
@@ -918,7 +918,7 @@ function CRM({
                 borderRadius: 99,
                 flexShrink: 0,
                 border: `1.5px solid ${active ? T.accent : T.border}`,
-                background: active ? T.accent : "#fff",
+                background: active ? T.accent : T.card,
                 color: active ? "#fff" : T.muted,
                 fontWeight: active ? 700 : 500,
                 fontSize: 12,
@@ -945,7 +945,7 @@ function CRM({
           style={{
             marginLeft: "auto",
             fontSize: 11,
-            color: "#94A3B8",
+            color: T.muted,
             flexShrink: 0,
             alignSelf: "center",
             fontWeight: 600,
@@ -971,7 +971,7 @@ function CRM({
             style={{
               width: 20,
               height: 20,
-              border: "2px solid #E5E7EB",
+              border: `2px solid ${T.border}`,
               borderTopColor: T.accent,
               borderRadius: "50%",
               animation: "spin .7s linear infinite",
@@ -984,11 +984,11 @@ function CRM({
           {paginated.length === 0 ? (
             <div
               style={{
-                background: "#fff",
+                background: T.card,
                 borderRadius: 20,
                 padding: "48px 20px",
                 textAlign: "center",
-                border: "1px solid #E5E7EB",
+                border: `1px solid ${T.border}`,
               }}
             >
               <div
@@ -996,7 +996,7 @@ function CRM({
                   width: 52,
                   height: 52,
                   borderRadius: 16,
-                  background: "#EFF4FF",
+                  background: T.accentLt,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -1046,11 +1046,11 @@ function CRM({
                 <div
                   key={r.id}
                   style={{
-                    background: "#fff",
+                    background: T.card,
                     borderRadius: 18,
-                    border: "1px solid #E5E7EB",
+                    border: `1px solid ${T.border}`,
                     overflow: "hidden",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 4px 12px -6px rgba(0,0,0,0.08)",
+                    boxShadow: "0 12px 28px -18px rgba(0,0,0,0.6)",
                   }}
                 >
                   {/* Borde izquierdo de color tipo */}
@@ -1080,7 +1080,7 @@ function CRM({
                           <div
                             style={{
                               fontSize: 11,
-                              color: "#94A3B8",
+                              color: T.muted,
                               marginTop: 2,
                               overflow: "hidden",
                               textOverflow: "ellipsis",
@@ -1112,13 +1112,13 @@ function CRM({
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 4,
-                            background: "#F8FAFC",
+                            background: T.dark,
                             color: T.muted,
                             borderRadius: 6,
                             padding: "3px 8px",
                             fontSize: 10,
                             fontWeight: 600,
-                            border: "1px solid #E5E7EB",
+                            border: `1px solid ${T.border}`,
                           }}
                         >
                           <svg
@@ -1140,13 +1140,13 @@ function CRM({
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 4,
-                            background: "#F8FAFC",
+                            background: T.dark,
                             color: T.muted,
                             borderRadius: 6,
                             padding: "3px 8px",
                             fontSize: 10,
                             fontWeight: 600,
-                            border: "1px solid #E5E7EB",
+                            border: `1px solid ${T.border}`,
                           }}
                         >
                           <svg
@@ -1189,7 +1189,7 @@ function CRM({
                         <span
                           style={{
                             fontSize: 11,
-                            color: "#94A3B8",
+                            color: T.muted,
                             flex: 1,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -1225,8 +1225,8 @@ function CRM({
                               width: 34,
                               height: 34,
                               borderRadius: 10,
-                              background: "#EFF4FF",
-                              border: "1px solid #BFDBFE",
+                              background: T.accentLt,
+                              border: `1px solid ${T.accent}40`,
                               color: T.accent,
                               cursor: "pointer",
                               touchAction: "manipulation",
@@ -1254,8 +1254,8 @@ function CRM({
                               width: 34,
                               height: 34,
                               borderRadius: 10,
-                              background: "#FEF2F2",
-                              border: "1px solid #FECACA",
+                              background: `${T.red}14`,
+                              border: `1px solid ${T.red}40`,
                               color: T.red,
                               cursor: "pointer",
                               touchAction: "manipulation",
@@ -1296,7 +1296,7 @@ function CRM({
                 padding: "10px 4px",
               }}
             >
-              <span style={{ fontSize: 11, color: "#94A3B8" }}>
+              <span style={{ fontSize: 11, color: T.muted }}>
                 {Math.min((page - 1) * perPage + 1, filtrado.length)}–
                 {Math.min(page * perPage, filtrado.length)} de {filtrado.length}
               </span>
@@ -1308,9 +1308,9 @@ function CRM({
                       width: 30,
                       height: 30,
                       borderRadius: 8,
-                      border: "1px solid #E5E7EB",
+                      border: `1px solid ${T.border}`,
                       cursor: "pointer",
-                      background: "#fff",
+                      background: T.card,
                       color: T.muted,
                       display: "flex",
                       alignItems: "center",
@@ -1340,7 +1340,7 @@ function CRM({
                       borderRadius: 8,
                       border: `1px solid ${page === n ? T.accent : T.border}`,
                       cursor: "pointer",
-                      background: page === n ? T.accent : "#fff",
+                      background: page === n ? T.accent : T.card,
                       color: page === n ? "#fff" : T.muted,
                       fontSize: 12,
                       fontWeight: page === n ? 700 : 400,
@@ -1357,9 +1357,9 @@ function CRM({
                       width: 30,
                       height: 30,
                       borderRadius: 8,
-                      border: "1px solid #E5E7EB",
+                      border: `1px solid ${T.border}`,
                       cursor: "pointer",
-                      background: "#fff",
+                      background: T.card,
                       color: T.muted,
                       display: "flex",
                       alignItems: "center",
@@ -1455,13 +1455,13 @@ function CRM({
         >
           <div
             style={{
-              background: "#F0FDF4",
-              border: "1px solid rgba(22,163,74,0.25)",
+              background: "rgba(34,197,94,0.12)",
+              border: "1px solid rgba(34,197,94,0.3)",
               borderRadius: 12,
               padding: "10px 14px",
               marginBottom: 16,
               fontSize: 12.5,
-              color: "#166534",
+              color: "#4ADE80",
             }}
           >
             Al crear el contrato, <b>{contratoProspecto.empresa}</b> pasará automáticamente de
@@ -1531,13 +1531,13 @@ function CRM({
         >
           <div
             style={{
-              background: "#EFF6FF",
-              border: "1px solid rgba(29,78,216,0.2)",
+              background: "rgba(59,130,246,0.12)",
+              border: "1px solid rgba(59,130,246,0.3)",
               borderRadius: 12,
               padding: "10px 14px",
               marginBottom: 16,
               fontSize: 12.5,
-              color: "#1E40AF",
+              color: "#93C5FD",
             }}
           >
             Se enviará un PDF con el precio al correo de <b>{cotizacionProspecto.contacto || cotizacionProspecto.empresa}</b>
@@ -1668,7 +1668,7 @@ function CRM({
             bg: "#F5F3FF",
           },
           { label: "🎉 Ganado", estado: "Ganado", color: "#16A34A", bg: "#F0FDF4" },
-          { label: "Frío", estado: "Frío", color: "#94A3B8", bg: "#F8FAFC" },
+          { label: "Frío", estado: "Frío", color: T.muted, bg: "#F8FAFC" },
           { label: "Perdido", estado: "Perdido", color: T.red, bg: "#FEF2F2" },
         ].map(({ label, estado, color, bg }) => {
           const grupo = pros.filter(p => p.estado === estado);
@@ -1921,9 +1921,9 @@ function CRM({
             {solPendientes.length > 0 && (
               <span
                 style={{
-                  background: "#EFF6FF",
-                  color: "#3B82F6",
-                  border: "1px solid #BFDBFE",
+                  background: "rgba(59,130,246,0.16)",
+                  color: "#93C5FD",
+                  border: "1px solid rgba(59,130,246,0.35)",
                   fontSize: 10,
                   fontWeight: 700,
                   padding: "2px 7px",
@@ -1936,14 +1936,14 @@ function CRM({
           </div>
 
           {loadingSol ? (
-            <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 14, padding: 16, textAlign: "center", fontSize: 12, color: "#3B82F6" }}>
+            <div style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.3)", borderRadius: 14, padding: 16, textAlign: "center", fontSize: 12, color: "#93C5FD" }}>
               Cargando solicitudes…
             </div>
           ) : solPendientes.length === 0 ? (
             <div
               style={{
-                background: "#F8FAFC",
-                border: "1px solid #E2E8F0",
+                background: T.dark,
+                border: `1px solid ${T.border}`,
                 borderRadius: 14,
                 padding: "18px 16px",
                 textAlign: "center",
@@ -1959,8 +1959,8 @@ function CRM({
                 <div
                   key={sol.id}
                     style={{
-                      background: "#EFF6FF",
-                      border: "1px solid #BFDBFE",
+                      background: "rgba(59,130,246,0.10)",
+                      border: "1px solid rgba(59,130,246,0.28)",
                       borderRadius: 16,
                       padding: "14px 16px",
                     }}
