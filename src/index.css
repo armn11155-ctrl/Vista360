@@ -88,6 +88,13 @@ textarea {
   font-size: 16px !important; /* previene zoom en iOS */
   scroll-margin-bottom: 180px;
   touch-action: manipulation;
+  color: var(--v360-text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--v360-muted);
+  opacity: 0.85;
 }
 
 input,

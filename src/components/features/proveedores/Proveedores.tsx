@@ -617,7 +617,7 @@ function Proveedores({ proveedores, setProveedores, loading, onModalChange }: Pr
           height="18"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#9CA3AF"
+          stroke={T.muted}
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -633,8 +633,8 @@ function Proveedores({ proveedores, setProveedores, loading, onModalChange }: Pr
           style={{
             width: "100%",
             padding: "12px 14px 12px 42px",
-            background: "#fff",
-            border: "1px solid #E5E7EB",
+            background: T.card,
+            border: `1px solid ${T.border}`,
             borderRadius: 14,
             fontSize: 14,
             outline: "none",
@@ -665,7 +665,7 @@ function Proveedores({ proveedores, setProveedores, loading, onModalChange }: Pr
               style={{
                 padding: "8px 14px",
                 borderRadius: 999,
-                background: active ? color : "#fff",
+                background: active ? color : T.card,
                 border: `1px solid ${active ? color : T.border}`,
                 color: active ? "#fff" : T.muted,
                 fontSize: 13,
@@ -690,10 +690,10 @@ function Proveedores({ proveedores, setProveedores, loading, onModalChange }: Pr
           style={{
             textAlign: "center",
             padding: 60,
-            color: "#6B7280",
-            background: "#fff",
+            color: T.muted,
+            background: T.card,
             borderRadius: 22,
-            border: "1px dashed #E5E7EB",
+            border: `1px dashed ${T.border}`,
           }}
         >
           {proveedores.length === 0 ? (
