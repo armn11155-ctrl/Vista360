@@ -600,12 +600,12 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
       {/* Filtros de fecha */}
       <div
         style={{
-          background: "#fff",
-          border: "1px solid #E2E8F0",
+          background: T.card,
+          border: `1px solid ${T.border}`,
           borderRadius: 16,
           padding: "16px 18px",
           marginBottom: 16,
-          boxShadow: "0 1px 6px rgba(15,23,41,0.06)",
+          boxShadow: "0 12px 28px -18px rgba(0,0,0,0.6)",
         }}
       >
         <div
@@ -621,7 +621,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             style={{
               fontSize: 11,
               fontWeight: 700,
-              color: "#64748B",
+              color: T.muted,
               textTransform: "uppercase",
               letterSpacing: "0.06em",
               flex: "0 0 auto",
@@ -642,9 +642,9 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
               width: 86,
               padding: "8px 10px",
               borderRadius: 12,
-              border: "1.5px solid rgba(37,99,235,0.35)",
-              background: "rgba(37,99,235,0.08)",
-              color: "#1E40AF",
+              border: "1.5px solid rgba(59,130,246,0.4)",
+              background: "rgba(59,130,246,0.14)",
+              color: "#93C5FD",
               fontWeight: 800,
               fontSize: 14,
               textAlign: "center" as const,
@@ -658,7 +658,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             style={{
               fontSize: 11,
               fontWeight: 700,
-              color: "#64748B",
+              color: T.muted,
               textTransform: "uppercase",
               letterSpacing: "0.06em",
               flex: "0 0 auto",
@@ -678,9 +678,9 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
                 width: "100%",
                 padding: "10px 14px",
                 borderRadius: 12,
-                border: mesFilter ? "1.5px solid rgba(37,99,235,0.45)" : "1.5px solid #E2E8F0",
-                background: mesFilter ? "rgba(37,99,235,0.08)" : "#F8FAFC",
-                color: mesFilter ? "#1E40AF" : "#475569",
+                border: mesFilter ? "1.5px solid rgba(59,130,246,0.45)" : `1.5px solid ${T.border}`,
+                background: mesFilter ? "rgba(59,130,246,0.14)" : T.dark,
+                color: mesFilter ? "#93C5FD" : T.muted,
                 fontSize: 13,
                 fontWeight: 700,
                 outline: "none",
@@ -723,10 +723,10 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
                   top: "calc(100% + 6px)",
                   left: 0,
                   zIndex: 30,
-                  background: "#fff",
-                  border: "1px solid #E2E8F0",
+                  background: T.card,
+                  border: `1px solid ${T.border}`,
                   borderRadius: 14,
-                  boxShadow: "0 10px 30px rgba(15,23,41,0.18)",
+                  boxShadow: "0 16px 40px -12px rgba(0,0,0,0.6)",
                   padding: 8,
                   display: "grid",
                   gridTemplateColumns: "1fr 1fr",
@@ -752,9 +752,9 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
                         borderRadius: 10,
                         border: "none",
                         background: active
-                          ? "linear-gradient(135deg,#0F1729,#1E3A8A)"
+                          ? `linear-gradient(135deg, ${T.accent}, #1D4ED8)`
                           : "transparent",
-                        color: active ? "#fff" : "#334155",
+                        color: active ? "#fff" : T.muted,
                         fontSize: 12.5,
                         fontWeight: active ? 700 : 600,
                         cursor: "pointer",
@@ -773,7 +773,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             style={{
               fontSize: 11,
               fontWeight: 600,
-              color: "#94A3B8",
+              color: T.muted,
               flex: "0 0 auto",
               whiteSpace: "nowrap",
             }}
@@ -791,9 +791,9 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             style={{
               padding: "10px 14px",
               borderRadius: 12,
-              border: fechaDesde ? "1.5px solid rgba(37,99,235,0.45)" : "1.5px solid #E2E8F0",
-              background: fechaDesde ? "rgba(37,99,235,0.08)" : "#F8FAFC",
-              color: fechaDesde ? "#1E40AF" : "#475569",
+              border: fechaDesde ? "1.5px solid rgba(59,130,246,0.45)" : `1.5px solid ${T.border}`,
+              background: fechaDesde ? "rgba(59,130,246,0.14)" : T.dark,
+              color: fechaDesde ? "#93C5FD" : T.muted,
               fontSize: 13,
               fontWeight: 700,
               outline: "none",
@@ -815,9 +815,9 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
             style={{
               padding: "10px 14px",
               borderRadius: 12,
-              border: fechaHasta ? "1.5px solid rgba(37,99,235,0.45)" : "1.5px solid #E2E8F0",
-              background: fechaHasta ? "rgba(37,99,235,0.08)" : "#F8FAFC",
-              color: fechaHasta ? "#1E40AF" : "#475569",
+              border: fechaHasta ? "1.5px solid rgba(59,130,246,0.45)" : `1.5px solid ${T.border}`,
+              background: fechaHasta ? "rgba(59,130,246,0.14)" : T.dark,
+              color: fechaHasta ? "#93C5FD" : T.muted,
               fontSize: 13,
               fontWeight: 700,
               outline: "none",
@@ -941,12 +941,12 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
           <div
             key={label}
             style={{
-              background: "#fff",
-              border: "1px solid #E2E8F0",
+              background: T.card,
+              border: `1px solid ${T.border}`,
               borderRadius: 16,
               padding: "14px 12px",
               textAlign: "center",
-              boxShadow: "0 1px 6px rgba(15,23,41,0.05)",
+              boxShadow: "0 12px 28px -18px rgba(0,0,0,0.6)",
             }}
           >
             <div
@@ -955,7 +955,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
                 height: 56,
                 margin: "0 auto 8px",
                 borderRadius: "50%",
-                background: `conic-gradient(${color} ${val != null ? Math.min(val, 100) * 3.6 : 0}deg, #F1F5F9 0deg)`,
+                background: `conic-gradient(${color} ${val != null ? Math.min(val, 100) * 3.6 : 0}deg, rgba(255,255,255,0.08) 0deg)`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -966,7 +966,7 @@ function Resultados({ contratos, paneles, clientes, gastos, loading }: Resultado
                   width: 44,
                   height: 44,
                   borderRadius: "50%",
-                  background: "#fff",
+                  background: T.card,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -1775,16 +1775,16 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                 gap: 8,
                 padding: "14px 10px",
                 borderRadius: 16,
-                border: active ? "none" : "1.5px solid #CBD5E1",
+                border: active ? "none" : `1.5px solid ${T.border}`,
                 cursor: "pointer",
                 touchAction: "manipulation",
-                background: active ? "linear-gradient(135deg,#0F1729,#1E3A8A)" : "#fff",
-                color: active ? "#fff" : "#0F172A",
+                background: active ? `linear-gradient(135deg, ${T.accent}, #1D4ED8)` : T.card,
+                color: active ? "#fff" : T.text,
                 fontWeight: 700,
                 fontSize: 13,
                 boxShadow: active
-                  ? "0 6px 20px rgba(15,23,41,0.35)"
-                  : "0 1px 6px rgba(15,23,41,0.12)",
+                  ? "0 6px 20px rgba(0,0,0,0.4)"
+                  : "0 8px 20px -14px rgba(0,0,0,0.6)",
                 fontFamily: "inherit",
                 transition: "all .15s",
               }}
@@ -1797,8 +1797,8 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: active ? "rgba(255,255,255,0.15)" : "#DBEAFE",
-                  color: active ? "#fff" : "#1D4ED8",
+                  background: active ? "rgba(255,255,255,0.15)" : T.accentLt,
+                  color: active ? "#fff" : T.accent,
                 }}
               >
                 {iconMap[s.id]}
@@ -1959,10 +1959,10 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                     justifyContent: "center",
                     padding: "7px 4px",
                     borderRadius: 10,
-                    border: activo ? "none" : "1.5px solid #CBD5E1",
+                    border: activo ? "none" : `1.5px solid ${T.border}`,
                     cursor: "pointer",
                     touchAction: "manipulation",
-                    background: activo ? "#0F172A" : "#fff",
+                    background: activo ? T.accent : T.card,
                     transition: "background .08s",
                     fontFamily: "inherit",
                   }}
@@ -1971,7 +1971,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
                     style={{
                       fontSize: 9.5,
                       fontWeight: 800,
-                      color: activo ? "#fff" : "#0F172A",
+                      color: activo ? "#fff" : T.text,
                       letterSpacing: 0.4,
                     }}
                   >
