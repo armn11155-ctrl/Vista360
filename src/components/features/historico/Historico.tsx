@@ -866,12 +866,12 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                 <polyline points="14 2 14 8 20 8" />
               </svg>
             </div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: T.text, marginBottom: 4 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#0D1629", marginBottom: 4 }}>
               {mesSel !== null
                 ? `Sin contratos en ${MESES_FULL[mesSel]}`
                 : `Sin contratos en ${anioEfectivo}`}
             </div>
-            <div style={{ fontSize: 12, color: T.muted }}>Selecciona otro año o mes</div>
+            <div style={{ fontSize: 12, color: "#64748B" }}>Selecciona otro año o mes</div>
           </div>
         ) : (
           (() => {
@@ -910,12 +910,12 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                         boxShadow: `0 0 0 3px ${T.accent}33`,
                       }}
                     />
-                    <div style={{ height: 1, flex: 1, background: T.border }} />
+                    <div style={{ height: 1, flex: 1, background: "#E5E7EB" }} />
                     <span
                       style={{
                         fontSize: 11,
                         fontWeight: 700,
-                        color: T.muted,
+                        color: "#64748B",
                         textTransform: "uppercase",
                         letterSpacing: 1,
                         flexShrink: 0,
@@ -923,10 +923,10 @@ function Historico({ contratos, setContratos, paneles, clientes, onModalChange }
                     >
                       {labelGrupo(key)}
                     </span>
-                    <span style={{ fontSize: 10, color: T.muted, flexShrink: 0 }}>
+                    <span style={{ fontSize: 10, color: "#64748B", flexShrink: 0 }}>
                       {fmt(items.reduce((s, c) => s + Number(c.monto || 0), 0))}/mes
                     </span>
-                    <div style={{ height: 1, flex: 1, background: T.border }} />
+                    <div style={{ height: 1, flex: 1, background: "#E5E7EB" }} />
                   </div>
                   {/* Cards */}
                   <div

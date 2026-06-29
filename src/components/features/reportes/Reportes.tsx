@@ -1649,7 +1649,7 @@ tbody td{padding:8px 10px;font-size:11px;color:#1e293b;border-bottom:1px solid #
   };
 
   return (
-    <div style={{ color: T.text }}>
+    <div style={{ color: "#0D1629" }}>
       {/* Header */}
       <div
         style={{

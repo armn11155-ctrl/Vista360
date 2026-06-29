@@ -203,10 +203,10 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
       }}
     >
       <div style={{ padding: "16px 20px 12px" }}>
-        <div style={{ fontSize: 22, fontWeight: 800, color: T.text, letterSpacing: "-0.5px" }}>
+        <div style={{ fontSize: 22, fontWeight: 800, color: "#0D1629", letterSpacing: "-0.5px" }}>
           Mapa de Paneles
         </div>
-        <div style={{ fontSize: 13, color: T.muted, marginTop: 3 }}>
+        <div style={{ fontSize: 13, color: "#64748B", marginTop: 3 }}>
           Clic en un pin para ver detalles
         </div>
       </div>
@@ -214,8 +214,8 @@ function Mapa({ paneles, clientes, contratos }: MapaProps) {
       {sinCoords.length > 0 && (
         <div
           style={{
-            background: T.accent + "12",
-            border: "1px solid rgba(37,99,235,0.25)",
+            background: T.dark,
+            border: "1px solid rgba(59,130,246,0.3)",
             borderRadius: 12,
             padding: "10px 16px",
             marginBottom: 14,

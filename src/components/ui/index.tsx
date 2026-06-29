@@ -414,7 +414,7 @@ export function SwipeRow({
   onDelete,
   onEdit,
   deleteLabel = "Eliminar",
-  bg = T.bg,
+  bg = T.dark,
 }: SwipeRowProps) {
   const slideRef = React.useRef<HTMLDivElement>(null);
   // Toda la lógica de arrastre vive en refs para evitar re-renders durante el drag

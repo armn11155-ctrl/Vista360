@@ -120,7 +120,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
             display: "flex",
             minHeight: "100vh",
             background: T.bg,
-            color: T.text,
+            color: "#0D1629",
             fontFamily: "'DM Sans', sans-serif",
             position: "relative",
           }}
@@ -174,7 +174,7 @@ function AuthenticatedShell({ user, onLogout }: AuthenticatedShellProps) {
   return (
     <AppProvider data={shell.appData} setters={shell.appSetters} derived={shell.appDerived}>
       {!shell.isOnline && <OfflineBanner />}
-      <div className={styles.appRoot} style={{ background: T.bg, color: T.text }}>
+      <div className={styles.appRoot} style={{ background: T.bg, color: "#0D1629" }}>
         <AppHeader
           title={shell.showProfile ? "Perfil" : (shell.pageTitle === "Inicio" ? "Inicio" : "")}
           user={user}
