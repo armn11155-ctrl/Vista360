@@ -743,12 +743,12 @@ function MetricCardNL({ icon, label, value, sub, waveColor, valueColor, isDeskto
     <div
       className={isDesktop ? "v360-metric-d" : undefined}
       style={{
-        background: T.card,
+        background: "#EEF2FA",
         borderRadius: isDesktop ? 18 : 18,
         padding: isDesktop ? "20px 20px 18px" : "14px 12px 12px",
         minWidth: 0,
-        border: `1px solid ${T.border}`,
-        boxShadow: "0 1px 0 rgba(255,255,255,0.03) inset, 0 12px 28px -18px rgba(0,0,0,0.6)",
+        border: "1px solid rgba(30,58,138,0.10)",
+        boxShadow: "0 1px 3px rgba(30,58,138,0.07), 0 4px 16px -8px rgba(30,58,138,0.10)",
         display: "flex",
         flexDirection: "column",
       }}
@@ -767,19 +767,19 @@ function MetricCardNL({ icon, label, value, sub, waveColor, valueColor, isDeskto
       >
         {icon}
       </div>
-      <div style={{ fontSize: 12, color: isDesktop ? T.muted : T.text, fontWeight: 600, marginBottom: isDesktop ? 6 : 4, textTransform: isDesktop ? "uppercase" : "none", letterSpacing: isDesktop ? 0.4 : 0 }}>{label}</div>
+      <div style={{ fontSize: 12, color: "#5A6A8A", fontWeight: 600, marginBottom: isDesktop ? 6 : 4, textTransform: isDesktop ? "uppercase" : "none", letterSpacing: isDesktop ? 0.4 : 0 }}>{label}</div>
       <div
         style={{
           fontSize: isDesktop ? 28 : 26,
           fontWeight: 800,
-          color: valueColor || T.text,
+          color: valueColor || "#0D1629",
           lineHeight: 1,
           letterSpacing: "-0.03em",
         }}
       >
         {value}
       </div>
-      <div style={{ fontSize: 11, color: T.muted, marginTop: 6, lineHeight: 1.35, minHeight: isDesktop ? 18 : 28 }}>
+      <div style={{ fontSize: 11, color: "#7A8BA8", marginTop: 6, lineHeight: 1.35, minHeight: isDesktop ? 18 : 28 }}>
         {sub}
       </div>
       <div style={{ marginTop: isDesktop ? 10 : 4, marginLeft: -2, marginRight: -2 }}>
