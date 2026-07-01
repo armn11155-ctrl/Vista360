@@ -18,7 +18,7 @@ const wrapper = (path = "/") => {
 describe("HEADER_COLORS", () => {
   it("define colores para rutas conocidas", () => {
     expect(HEADER_COLORS["/"]).toBeDefined();
-    expect(HEADER_COLORS["/capital"]).toBeDefined();
+    expect(HEADER_COLORS["/historico"]).toBeDefined();
     expect(HEADER_COLORS["/mapa"]).toBeDefined();
   });
 });

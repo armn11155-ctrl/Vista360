@@ -84,12 +84,9 @@ export const ALLOWED_EMAILS: string[] = (import.meta.env.VITE_ALLOWED_EMAILS ?? 
   .filter(Boolean);
 
 // ── Dueño / gerente ──────────────────────────────────────────────
-// Único(s) correo(s) con acceso a Finanzas (patrimonio, liquidez,
-// activos, deudas, fondos, objetivos). Cualquier otro correo que
-// agregues a VITE_ALLOWED_EMAILS entra a la app como "trabajador":
-// puede usar todo lo demás (Paneles, Contratos, Clientes, Gastos,
-// Proveedores, Facturación, Mapa, Histórico, Reportes) pero no ve
-// Finanzas, ni en el menú ni en los datos (ver firestore.rules).
+// Emails con permisos de dueño (isOwner). La sección "Finanzas" que
+// antes gateaba se eliminó; OWNER_EMAILS sigue existiendo por si otras
+// partes de la app necesitan distinguir dueño vs. trabajador.
 export const OWNER_EMAILS: string[] = [
   "armn.101@hotmail.com",
   "armn.11155@gmail.com",

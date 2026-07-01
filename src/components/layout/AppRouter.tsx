@@ -10,13 +10,11 @@ import { useAppData, useAppSetters, useAppDerived } from "../../context/AppConte
 const ResumenNuevo = lazy(() => import("../features/dashboard/ResumenNuevo"));
 const Paneles = lazy(() => import("../features/paneles/Paneles"));
 const Contratos = lazy(() => import("../features/contratos/Contratos"));
-const Historico = lazy(() => import("../features/historico/Historico"));
 const CRM = lazy(() => import("../features/crm/CRM"));
 const Gastos = lazy(() => import("../features/gastos/Gastos"));
 const Proveedores = lazy(() => import("../features/proveedores/Proveedores"));
 const Facturacion = lazy(() => import("../features/facturacion/Facturacion"));
 const Reportes = lazy(() => import("../features/reportes/Reportes"));
-const Capital = lazy(() => import("../features/capital/Capital"));
 const Mapa = lazy(() => import("../features/mapa/Mapa"));
 
 /**
@@ -41,8 +39,6 @@ export function prefetchAllTabs() {
     import("../features/proveedores/Proveedores");
     import("../features/facturacion/Facturacion");
     import("../features/reportes/Reportes");
-    import("../features/historico/Historico");
-    import("../features/capital/Capital");
     import("../features/mapa/Mapa");
   });
 }
@@ -175,12 +171,17 @@ export function AppRouter({ userName, autoScan, setAutoScan, onModalChange, isOw
           element={
             <div className="tabPanel tabPadded">
               <ErrorBoundary label="Histórico">
-                <Historico
+                {/* Histórico ahora vive como sección dentro de Reportes —
+                    esta ruta se mantiene solo para no romper los enlaces
+                    existentes (ej. Paneles → "Ocupado" navega aquí). */}
+                <Reportes
                   contratos={contractsActive}
-                  setContratos={setContratos}
                   paneles={paneles}
                   clientes={clientesActive}
+                  gastos={gastos}
+                  setContratos={setContratos}
                   onModalChange={onModalChange}
+                  initialSeccion="historico"
                 />
               </ErrorBoundary>
             </div>
@@ -259,6 +260,8 @@ export function AppRouter({ userName, autoScan, setAutoScan, onModalChange, isOw
                   paneles={paneles}
                   clientes={clientesActive}
                   gastos={gastos}
+                  setContratos={setContratos}
+                  onModalChange={onModalChange}
                   initialSeccion="resultados"
                 />
               </ErrorBoundary>
@@ -275,40 +278,9 @@ export function AppRouter({ userName, autoScan, setAutoScan, onModalChange, isOw
                   paneles={paneles}
                   clientes={clientesActive}
                   gastos={gastos}
+                  setContratos={setContratos}
+                  onModalChange={onModalChange}
                 />
-              </ErrorBoundary>
-            </div>
-          }
-        />
-        <Route
-          path="/capital"
-          element={
-            <div className="tabPanel tabFlush">
-              <ErrorBoundary label="Finanzas">
-                {isOwner ? (
-                  <Capital
-                    paneles={paneles}
-                    contratos={contractsActive}
-                    gastos={gastos}
-                    proveedores={proveedoresActive}
-                    setGastos={setGastos}
-                    setProveedores={setProveedores}
-                    autoScan={autoScan}
-                    setAutoScan={setAutoScan}
-                    onModalChange={onModalChange}
-                    loading={loading}
-                  />
-                ) : (
-                  <div style={{ padding: "60px 24px", textAlign: "center" }}>
-                    <div style={{ fontSize: 32, marginBottom: 12 }}>🔒</div>
-                    <h2 style={{ fontSize: 17, fontWeight: 700, color: "#0F1729", margin: "0 0 6px" }}>
-                      Acceso restringido
-                    </h2>
-                    <p style={{ fontSize: 14, color: "#64748B", margin: 0 }}>
-                      Esta sección es solo para el dueño de la cuenta.
-                    </p>
-                  </div>
-                )}
               </ErrorBoundary>
             </div>
           }

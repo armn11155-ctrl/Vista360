@@ -21,9 +21,7 @@ const NAV_ITEMS: ({ id: string; path: string; label: string; ownerOnly?: boolean
   { id: "proveedores", path: "/proveedores", label: "Proveedores" },
   { id: "mapa",        path: "/mapa",        label: "Mapa"        },
   { id: "facturacion", path: "/facturacion", label: "Facturación" },
-  { id: "historico",   path: "/historico",   label: "Histórico"   },
   { id: "reportes",    path: "/reportes",    label: "Reportes"    },
-  { id: "capital",     path: "/capital",     label: "Finanzas",   ownerOnly: true },
 ];
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -77,22 +75,10 @@ const ICONS: Record<string, React.ReactNode> = {
         stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   ),
-  historico: (
-    <svg width="19" height="19" fill="none" viewBox="0 0 24 24">
-      <path d="M12 8V12L15 15M21 12C21 16.971 16.971 21 12 21C7.029 21 3 16.971 3 12C3 7.029 7.029 3 12 3C16.971 3 21 7.029 21 12Z"
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  ),
   reportes: (
     <svg width="19" height="19" fill="none" viewBox="0 0 24 24">
       <path d="M9 19V13M12 19V7M15 19V13M3 20H21"
         stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-  capital: (
-    <svg width="19" height="19" fill="none" viewBox="0 0 24 24">
-      <path d="M13 7H7M13 11H7M17 15H7M3 5C3 3.895 3.895 3 5 3H19C20.105 3 21 3.895 21 5V19C21 20.105 20.105 21 19 21H5C3.895 21 3 20.105 3 19V5Z"
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   ),
 };

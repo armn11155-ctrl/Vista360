@@ -9,16 +9,14 @@ import { Modal, FieldGroup, Badge, Card, Spinner } from "../ui";
 
 // ── Menú drawer: solo los destinos que NO están en el bottom bar ──
 // El bottom bar ya tiene: Inicio, Contratos, Clientes, Paneles
-// Finanzas (antes "Capital") es solo para el dueño — un trabajador
-// no la ve, pero sí ve Gastos y Proveedores normalmente.
+// Histórico ya no es un destino aparte: ahora es una sección dentro
+// de Reportes (pestaña "Histórico"). Finanzas se eliminó por completo.
 const MENU_DRAWER = [
   { id: "gastos", label: "Gastos" },
   { id: "proveedores", label: "Proveedores" },
   { id: "mapa", label: "Mapa" },
   { id: "facturacion", label: "Facturación" },
-  { id: "historico", label: "Histórico" },
   { id: "reportes", label: "Reportes" },
-  { id: "capital", label: "Finanzas", ownerOnly: true },
 ];
 
 // ── Iconos del drawer por id de tab ───────────────────────────────
@@ -50,16 +48,6 @@ const DRAWER_ICONS: Record<string, React.ReactNode> = {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  historico: (
-    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-      <path
-        d="M12 8V12L15 15M21 12C21 16.971 16.971 21 12 21C7.029 21 3 16.971 3 12C3 7.029 7.029 3 12 3C16.971 3 21 7.029 21 12Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
       />
     </svg>
   ),
@@ -98,16 +86,6 @@ const DRAWER_ICONS: Record<string, React.ReactNode> = {
     <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
       <path
         d="M9 5H7C5.895 5 5 5.895 5 7V19C5 20.105 5.895 21 7 21H17C18.105 21 19 20.105 19 19V7C19 5.895 18.105 5 17 5H15M9 5C9 5.552 9.448 6 10 6H14C14.552 6 15 5.552 15 5M9 5C9 4.448 9.448 4 10 4H14C14.552 4 15 4.448 15 5M12 11V17M9 14H15"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  ),
-  capital: (
-    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-      <path
-        d="M13 7H7M13 11H7M17 15H7M3 5C3 3.895 3.895 3 5 3H19C20.105 3 21 3.895 21 5V19C21 20.105 20.105 21 19 21H5C3.895 21 3 20.105 3 19V5Z"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"

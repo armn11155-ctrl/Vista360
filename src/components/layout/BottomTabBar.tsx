@@ -72,11 +72,10 @@ const GLASS_CSS = `
       left   0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
       width  0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
   }
-  /* Sobre fondo claro: píldora azul sólida con sombra azul */
-  [data-nav-light="true"] .v360-pill {
-    background: #2563EB;
-    box-shadow: 0 3px 12px rgba(37,99,235,0.35), 0 1px 4px rgba(37,99,235,0.2);
-  }
+  /* Sobre fondo claro: la píldora sigue siendo glass, igual que en fondo
+     oscuro — solo el color de ícono/texto cambia (ver iconColor más abajo).
+     Antes esto ponía background:#2563EB sólido, rompiendo el efecto glass
+     justo en el elemento activo. */
 
   .v360-pill--right {
     transform-origin: left center;

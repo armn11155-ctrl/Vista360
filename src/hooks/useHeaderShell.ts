@@ -7,12 +7,11 @@ import { OWNER_EMAILS } from "../config/constants";
 export const HEADER_COLORS: Record<string, string> = {
   "/": "#0E1A3B",
   "/paneles": "#07101F",
-  "/capital": "#0A1428",       // azul oscuro elegante
   "/contratos": "#0E1A3B",
-  "/historico": "#0A0F1A",
+  "/historico": "#0E1A3B",     // Histórico vive dentro de Reportes: mismo color
   "/crm": T.accent,
   "/mapa": "#070D1C",
-  "/reportes": "#0E1A3B",      // Reportes + sub-tabs Estado de Resultados / Por Mes
+  "/reportes": "#0E1A3B",      // Reportes + sub-tabs Estado de Resultados / Por Mes / Histórico
   "/facturacion": "#0E1A3B",   // Facturación: misma paleta oscura que el resto de la app
 };
 
@@ -27,7 +26,6 @@ export const TAB_TITLES: Record<string, string> = {
   "/gastos": "Gastos",
   "/proveedores": "Proveedores",
   "/facturacion": "Facturación",
-  "/capital": "Finanzas",
   "/mapa": "Mapa",
 };
 
