@@ -126,10 +126,23 @@ service cloud.firestore {
         && d.estado     == 'Pendiente';
     }
 
+    // El admin portal puede crear solicitudes para cualquier cliente
+    function esSolicitudCampanaAdminValida(d) {
+      return d.keys().hasOnly(
+              ['cliente_id','nombre','objetivo','presupuesto','ciudades',
+               'comentarios','estado','createdAt']
+            )
+        && d.cliente_id is string && d.cliente_id.size() > 0
+        && d.nombre     is string && d.nombre.size()  > 0 && d.nombre.size()  <= 100
+        && d.estado     == 'Pendiente';
+    }
+
     match /solicitudesCampana/{id} {
       allow read: if isHuman() ||
-        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal());
-      allow create: if esCuentaDePortal() && esSolicitudCampanaValida(request.resource.data);
+        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal()) ||
+        esAdminPortal();
+      allow create: if (esCuentaDePortal() && esSolicitudCampanaValida(request.resource.data))
+                   || (esAdminPortal() && esSolicitudCampanaAdminValida(request.resource.data));
       allow update, delete: if isHuman();
     }
 
