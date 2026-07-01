@@ -1442,9 +1442,9 @@ function Contratos({
               style={{
                 textAlign: "center",
                 padding: 48,
-                background: "rgba(255,255,255,0.05)",
+                background: "#F8F9FB",
                 borderRadius: 22,
-                border: "1px dashed rgba(255,255,255,0.12)",
+                border: "1px dashed #D1D5DB",
               }}
             >
               <div
@@ -1478,7 +1478,7 @@ function Contratos({
                 style={{
                   fontSize: 16,
                   fontWeight: 700,
-                  color: "rgba(255,255,255,0.85)",
+                  color: "#1E293B",
                   marginBottom: 6,
                 }}
               >

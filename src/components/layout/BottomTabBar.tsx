@@ -72,6 +72,11 @@ const GLASS_CSS = `
       left   0.38s cubic-bezier(0.34, 1.4, 0.64, 1),
       width  0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
   }
+  /* Sobre fondo claro: píldora azul sólida con sombra azul */
+  [data-nav-light="true"] .v360-pill {
+    background: #2563EB;
+    box-shadow: 0 3px 12px rgba(37,99,235,0.35), 0 1px 4px rgba(37,99,235,0.2);
+  }
 
   .v360-pill--right {
     transform-origin: left center;
@@ -387,6 +392,7 @@ export function BottomTabBar({
           className="v360-bar"
           role="tablist"
           aria-label="Navegación principal"
+          data-nav-light={!onDark ? "true" : undefined}
           style={{
             position: "relative",
             display: "flex",

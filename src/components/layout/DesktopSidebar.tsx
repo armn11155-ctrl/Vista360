@@ -121,8 +121,8 @@ export function DesktopSidebar({
         top: 0,
         display: "flex",
         flexDirection: "column",
-        background: T.sidebarBg,
-        borderRight: `1px solid ${T.border}`,
+        background: "#FFFFFF",
+        borderRight: `1px solid #E5E7EB`,
         overflowY: "auto",
         overflowX: "hidden",
         zIndex: 10,
@@ -178,7 +178,7 @@ export function DesktopSidebar({
               style={{
                 fontSize: 13,
                 fontWeight: 700,
-                color: showProfile ? T.accent : T.text,
+                color: showProfile ? T.accent : "#0D1629",
                 letterSpacing: "-0.2px",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -187,9 +187,9 @@ export function DesktopSidebar({
             >
               {userName || "Mi cuenta"}
             </div>
-            <div style={{ fontSize: 11, color: T.muted, marginTop: 1 }}>Ver perfil</div>
+            <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 1 }}>Ver perfil</div>
           </div>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={showProfile ? T.accent : T.muted} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={showProfile ? T.accent : "#9CA3AF"} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
             <polyline points="9 6 15 12 9 18" />
           </svg>
         </button>
@@ -202,7 +202,7 @@ export function DesktopSidebar({
             return (
               <div
                 key={`sep-${idx}`}
-                style={{ height: 1, background: T.border, margin: "6px 6px" }}
+                style={{ height: 1, background: "#E5E7EB", margin: "6px 6px" }}
               />
             );
           }
@@ -233,15 +233,15 @@ export function DesktopSidebar({
                   width: 34,
                   height: 34,
                   borderRadius: 10,
-                  background: active ? T.accent : "rgba(255,255,255,0.05)",
+                  background: active ? T.accent : "#F3F4F6",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: active ? "#fff" : T.muted,
+                  color: active ? "#fff" : "#6B7280",
                   flexShrink: 0,
                   boxShadow: active
                     ? `0 3px 12px -2px ${T.accent}80`
-                    : "inset 0 0 0 1px rgba(255,255,255,0.04)",
+                    : "inset 0 0 0 1px #E5E7EB",
                 }}
               >
                 {ICONS[item.id]}
@@ -250,7 +250,7 @@ export function DesktopSidebar({
                 style={{
                   fontSize: 13,
                   fontWeight: active ? 700 : 500,
-                  color: active ? T.text : T.muted,
+                  color: active ? T.accent : "#374151",
                   letterSpacing: "-0.2px",
                 }}
               >
@@ -262,7 +262,7 @@ export function DesktopSidebar({
       </nav>
 
       {/* ── Archivados ── */}
-      <div style={{ padding: "10px 10px 20px", borderTop: `1px solid ${T.border}` }}>
+      <div style={{ padding: "10px 10px 20px", borderTop: "1px solid #E5E7EB" }}>
         <button
           onClick={onTrashOpen}
           style={{
