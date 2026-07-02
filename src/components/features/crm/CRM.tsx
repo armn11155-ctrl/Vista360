@@ -27,6 +27,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import type { User } from "firebase/auth";
+import { PersonIcon } from "../../shared/PersonIcon";
 
 // ── Tipos e interfaces ────────────────────────────────────────────
 import type { Panel, Cliente, Contrato, Gasto, Proveedor, Factura, Sueldo } from "../../../types";
@@ -602,9 +603,9 @@ function CRM({
     { from: "#0D9488", to: "#2DD4BF", glow: "rgba(45,212,191,0.50)" },
   ];
 
-  // EMPRESA — cuadrado redondeado con inicial, como en la foto
+  // EMPRESA — cuadrado redondeado con ícono genérico de persona (el color
+  // de fondo es lo único que cambia entre clientes, no el ícono en sí)
   const AvatarEmpresa = ({ name, size = 34 }) => {
-    const initial = (name || "?")[0].toUpperCase();
     const pal = avatarPalette[(name || "?").charCodeAt(0) % avatarPalette.length];
     return (
       <div
@@ -618,12 +619,7 @@ function CRM({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: size * 0.42,
-          fontWeight: 800,
-          color: "#fff",
           boxShadow: `0 0 0 1.5px ${pal.from}55, 0 0 ${size * 0.6}px ${pal.glow}, inset 0 1px 0 rgba(255,255,255,0.25)`,
-          letterSpacing: "-0.5px",
-          textShadow: "0 1px 3px rgba(0,0,0,0.4)",
         }}
       >
         <div
@@ -635,19 +631,13 @@ function CRM({
             pointerEvents: "none",
           }}
         />
-        {initial}
+        <PersonIcon size={size * 0.56} />
       </div>
     );
   };
 
-  // CONTACTO — círculo con foto real o iniciales con glow, como en la foto
+  // CONTACTO — círculo con foto real o ícono genérico de persona con glow
   const AvatarContacto = ({ name, size = 30 }) => {
-    const initials = (name || "?")
-      .split(" ")
-      .map(w => w[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase();
     const pal = avatarPalette[(name || "?").charCodeAt(0) % avatarPalette.length];
     return (
       <div
@@ -662,12 +652,7 @@ function CRM({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: size * 0.36,
-          fontWeight: 800,
-          color: "#fff",
           boxShadow: `0 0 0 2px ${pal.from}55, 0 0 ${size * 0.55}px ${pal.glow}, inset 0 1px 0 rgba(255,255,255,0.28)`,
-          letterSpacing: "-0.5px",
-          textShadow: "0 1px 3px rgba(0,0,0,0.4)",
         }}
       >
         <div
@@ -679,7 +664,7 @@ function CRM({
             pointerEvents: "none",
           }}
         />
-        {initials}
+        <PersonIcon size={size * 0.56} />
       </div>
     );
   };
