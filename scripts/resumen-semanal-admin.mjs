@@ -45,8 +45,24 @@ const solCampPendientes = solicitudesCampana.filter(s => s.estado === 'Pendiente
 // ── Solicitudes web sin importar/rechazar ────────────────────────────
 const solWebPendientes = solicitudesWeb.filter(s => !s.importado);
 
-const total = porVencer.length + solCampPendientes.length + solWebPendientes.length;
-console.log(`📋 Resumen semanal: ${porVencer.length} contrato(s) por vencer, ${solCampPendientes.length} solicitud(es) de campaña, ${solWebPendientes.length} lead(s) web.`);
+// ── Campañas activas sin evidencia reciente (14+ días o nunca) ───────
+const estadoCampana = c => {
+  const inicio = new Date(c.inicio), fin = new Date(c.fin);
+  if (hoy < inicio) return 'Programada';
+  if (hoy > fin) return 'Finalizada';
+  return 'Activa';
+};
+const en14dias = new Date(hoy.getTime() - 14 * 24 * 60 * 60 * 1000);
+const sinEvidencia = contratos.filter(c => {
+  if (estadoCampana(c) !== 'Activa') return false;
+  const fotos = c.fotos_campania || [];
+  if (fotos.length === 0) return true;
+  const ultima = fotos.map(f => new Date(f.fecha)).sort((a, b) => b - a)[0];
+  return ultima < en14dias;
+});
+
+const total = porVencer.length + solCampPendientes.length + solWebPendientes.length + sinEvidencia.length;
+console.log(`📋 Resumen semanal: ${porVencer.length} contrato(s) por vencer, ${solCampPendientes.length} solicitud(es) de campaña, ${solWebPendientes.length} lead(s) web, ${sinEvidencia.length} panel(es) sin evidencia reciente.`);
 
 if (total === 0) {
   console.log('✅ Nada pendiente esta semana — no se envía correo.');
@@ -107,6 +123,19 @@ const html = `
       <th style="padding-bottom:6px;">Empresa/Contacto</th><th>Celular</th><th>Email</th>
     </tr></thead>
     <tbody>${solWebPendientes.map(filaSolWeb).join('')}</tbody>
+  </table>` : ''}
+
+  ${sinEvidencia.length > 0 ? `
+  <h3 style="font-size:15px;margin-bottom:6px;">📸 Campañas activas sin evidencia reciente (14+ días)</h3>
+  <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px;">
+    <thead><tr style="text-align:left;color:#6B7280;font-size:11px;text-transform:uppercase;">
+      <th style="padding-bottom:6px;">Cliente</th><th>Panel</th>
+    </tr></thead>
+    <tbody>${sinEvidencia.map(c => `
+    <tr>
+      <td style="padding:8px 0;border-bottom:1px solid #E5E7EB;">${clienteNombre(c.cliente_id)}</td>
+      <td style="padding:8px 0;border-bottom:1px solid #E5E7EB;">${panelNombre(c.panel_id)}</td>
+    </tr>`).join('')}</tbody>
   </table>` : ''}
 
   <p style="font-size:11px;color:#9CA3AF;margin-top:24px;">Vista360 · Resumen automático semanal (todos los lunes).</p>
