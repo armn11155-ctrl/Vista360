@@ -387,7 +387,10 @@ function CRM({
     setResolviendoCamp(sol.id);
     try {
       const { db } = await import("../../../config/firebase");
-      await updateDoc(doc(db, "solicitudesCampana", sol.id), { estado: nuevoEstado });
+      await updateDoc(doc(db, "solicitudesCampana", sol.id), {
+        estado: nuevoEstado,
+        estadoActualizadoEn: serverTimestamp(),
+      });
       toast.success(
         nuevoEstado === "Rechazada" ? "Solicitud rechazada" : "Solicitud marcada como revisada"
       );
