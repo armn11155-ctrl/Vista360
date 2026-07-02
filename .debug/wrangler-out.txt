@@ -1,0 +1,14 @@
+npm warn exec The following package was not found and will be installed: wrangler@4.107.0
+
+ ⛅️ wrangler 4.107.0
+────────────────────
+Creating bucket 'vista360-evidencias'...
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mA request to the Cloudflare API (/accounts/01230a54a4e3325f71c354e3c58639d0/r2/buckets) failed.[0m
+
+  Please enable R2 through the Cloudflare Dashboard. [code: 10042]
+  
+  If you think this is a bug, please open an issue at: [4mhttps://github.com/cloudflare/workers-sdk/issues/new/choose[0m
+
+
+🪵  Logs were written to "/home/runner/.config/.wrangler/logs/wrangler-2026-07-02_23-24-19_792.log"
