@@ -354,6 +354,52 @@ function CRM({
   };
 
   const solPendientes = solicitudes.filter(s => !s.importado);
+
+  // ── Solicitudes de campaña (desde Vista360 Player — clientes ya
+  //    activos pidiendo una campaña nueva, distinto de solicitudesWeb
+  //    que son leads del formulario público sin cuenta todavía) ──────
+  const [solicitudesCampana, setSolicitudesCampana] = useState<any[]>([]);
+  const [loadingSolCamp, setLoadingSolCamp] = useState(true);
+  const [resolviendoCamp, setResolviendoCamp] = useState<string | null>(null);
+
+  useEffect(() => {
+    let unsub: (() => void) | undefined;
+    import("../../../config/firebase").then(({ db }) => {
+      unsub = onSnapshot(
+        collection(db, "solicitudesCampana"),
+        snap => {
+          const items = snap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
+          items.sort((a, b) => {
+            const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return tb - ta;
+          });
+          setSolicitudesCampana(items);
+          setLoadingSolCamp(false);
+        },
+        () => setLoadingSolCamp(false)
+      );
+    });
+    return () => unsub?.();
+  }, []);
+
+  const resolverSolicitudCampana = async (sol: any, nuevoEstado: "Revisada" | "Convertida" | "Rechazada") => {
+    setResolviendoCamp(sol.id);
+    try {
+      const { db } = await import("../../../config/firebase");
+      await updateDoc(doc(db, "solicitudesCampana", sol.id), { estado: nuevoEstado });
+      toast.success(
+        nuevoEstado === "Rechazada" ? "Solicitud rechazada" : "Solicitud marcada como revisada"
+      );
+    } catch {
+      toast.warn("Error al actualizar. Inténtalo de nuevo.");
+    }
+    setResolviendoCamp(null);
+  };
+
+  const clienteDeSolicitud = (clienteId: string) => clientes.find(c => c.id === clienteId);
+  const solCampPendientes = solicitudesCampana.filter(s => s.estado === "Pendiente");
+
   const emptyC = {
     tipo: "Prospecto",
     empresa: "",
@@ -2017,6 +2063,145 @@ function CRM({
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* ── SOLICITUDES DE CAMPAÑA (Vista360 Player — clientes ya
+              activos pidiendo una campaña nueva desde su portal) ── */}
+          <div style={{ marginTop: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <div
+                style={{
+                  width: 8, height: 8, borderRadius: "50%",
+                  background: "#8B5CF6",
+                  boxShadow: "0 0 0 3px rgba(139,92,246,0.2)",
+                }}
+              />
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#0D1629" }}>
+                Solicitudes de campaña (Player)
+              </div>
+              {solCampPendientes.length > 0 && (
+                <span
+                  style={{
+                    background: "#8B5CF6",
+                    color: "#fff",
+                    border: "none",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: "2px 7px",
+                    borderRadius: 99,
+                  }}
+                >
+                  {solCampPendientes.length} nueva{solCampPendientes.length !== 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+
+            {loadingSolCamp ? (
+              <div style={{ background: "#0D1629", border: "1px solid rgba(139,92,246,0.3)", borderRadius: 14, padding: 16, textAlign: "center", fontSize: 12, color: "#C4B5FD" }}>
+                Cargando solicitudes…
+              </div>
+            ) : solCampPendientes.length === 0 ? (
+              <div
+                style={{
+                  background: "#0D1629",
+                  border: "1px solid rgba(148,163,184,0.15)",
+                  borderRadius: 14,
+                  padding: "18px 16px",
+                  textAlign: "center",
+                  fontSize: 12.5,
+                  color: "#6B7A99",
+                }}
+              >
+                Sin solicitudes nuevas de campaña
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {solCampPendientes.map(sol => {
+                  const cli = clienteDeSolicitud(sol.cliente_id);
+                  return (
+                    <div
+                      key={sol.id}
+                      style={{
+                        background: "#0D1629",
+                        border: "1px solid rgba(139,92,246,0.3)",
+                        borderRadius: 16,
+                        padding: "14px 16px",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
+                        <div
+                          style={{
+                            width: 38, height: 38, borderRadius: 11, flexShrink: 0,
+                            background: "#8B5CF6",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            color: "#fff", fontWeight: 800, fontSize: 15,
+                          }}
+                        >
+                          {(cli?.empresa || "?")[0].toUpperCase()}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {cli?.empresa || "Cliente"} — {sol.nombre}
+                          </div>
+                          {sol.objetivo && (
+                            <div style={{ fontSize: 11, color: "#C4B5FD", marginTop: 3 }}>
+                              🎯 {sol.objetivo}
+                            </div>
+                          )}
+                          {sol.presupuesto && (
+                            <div style={{ fontSize: 11, color: "#C4B5FD", marginTop: 2 }}>
+                              💰 {sol.presupuesto}
+                            </div>
+                          )}
+                          {sol.ciudades && (
+                            <div style={{ fontSize: 11, color: "#6B7A99", marginTop: 2 }}>
+                              📍 {sol.ciudades}
+                            </div>
+                          )}
+                          {sol.comentarios && (
+                            <div style={{ fontSize: 11, color: "#6B7A99", marginTop: 4, fontStyle: "italic" }}>
+                              {sol.comentarios}
+                            </div>
+                          )}
+                          <div style={{ fontSize: 10, color: "#6B7A99", marginTop: 4, fontWeight: 500 }}>
+                            📲 Desde Vista360 Player · {sol.createdAt?.toDate ? sol.createdAt.toDate().toLocaleDateString("es-PE") : "—"}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button
+                          onClick={() => resolverSolicitudCampana(sol, "Revisada")}
+                          disabled={resolviendoCamp === sol.id}
+                          style={{
+                            flex: 1,
+                            background: resolviendoCamp === sol.id ? "#1E293B" : "#0D1629",
+                            border: "1px solid rgba(139,92,246,0.4)",
+                            borderRadius: 10, padding: "9px 12px",
+                            color: "#C4B5FD", fontSize: 12, fontWeight: 700,
+                            cursor: resolviendoCamp === sol.id ? "not-allowed" : "pointer",
+                            touchAction: "manipulation", fontFamily: "inherit",
+                          }}
+                        >
+                          {resolviendoCamp === sol.id ? "Guardando…" : "✓ Marcar revisada"}
+                        </button>
+                        <button
+                          onClick={() => resolverSolicitudCampana(sol, "Rechazada")}
+                          disabled={resolviendoCamp === sol.id}
+                          style={{
+                            background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.25)",
+                            borderRadius: 10, padding: "9px 14px",
+                            color: "#DC2626", fontSize: 12, fontWeight: 700,
+                            cursor: "pointer", touchAction: "manipulation", fontFamily: "inherit",
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
