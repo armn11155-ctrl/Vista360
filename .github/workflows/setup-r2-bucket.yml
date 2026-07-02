@@ -21,7 +21,15 @@ jobs:
           node-version: 22
 
       - name: Crear bucket vista360-evidencias
-        run: npx wrangler r2 bucket create vista360-evidencias
+        run: |
+          set +e
+          OUTPUT=$(npx wrangler r2 bucket create vista360-evidencias 2>&1)
+          echo "$OUTPUT"
+          if [ $? -ne 0 ]; then
+            SAFE=$(echo "$OUTPUT" | tr '\n' ' ' | tr '%' ' ')
+            echo "::error::WRANGLER_FAIL: $SAFE"
+            exit 1
+          fi
 
       - name: Confirmar que existe
         run: npx wrangler r2 bucket list
