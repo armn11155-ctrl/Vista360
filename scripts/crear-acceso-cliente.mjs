@@ -31,7 +31,11 @@ import { getAuth as getAdminAuth } from "firebase-admin/auth";
 import { initializeApp as initClient } from "firebase/app";
 import { getAuth as getClientAuth, sendPasswordResetEmail } from "firebase/auth";
 
-const [primero, email] = process.argv.slice(2);
+const [argPrimero, argEmail] = process.argv.slice(2);
+// Acepta tanto argumentos de terminal (uso local) como variables de
+// entorno (uso desde GitHub Actions, ver workflow dar-acceso-portal.yml)
+const primero = process.env.CLIENTE_ID_INPUT || argPrimero;
+const email = process.env.EMAIL_INPUT || argEmail;
 const esAdmin = primero === "admin";
 const clienteId = esAdmin ? null : primero;
 
@@ -42,9 +46,14 @@ if (!primero || !email) {
   process.exit(1);
 }
 
+// Dos formas de dar las credenciales del Admin SDK:
+// - Local: GOOGLE_APPLICATION_CREDENTIALS apuntando a serviceAccountKey.json
+// - GitHub Actions: FIREBASE_SERVICE_ACCOUNT con el JSON completo (mismo
+//   secreto que ya usan informe-mensual-clientes.mjs y los demás scripts)
 const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-if (!credPath) {
-  console.error("❌  Falta GOOGLE_APPLICATION_CREDENTIALS (ruta al serviceAccountKey.json).");
+const credJson = process.env.FIREBASE_SERVICE_ACCOUNT;
+if (!credPath && !credJson) {
+  console.error("❌  Falta GOOGLE_APPLICATION_CREDENTIALS o FIREBASE_SERVICE_ACCOUNT.");
   process.exit(1);
 }
 
@@ -59,7 +68,7 @@ if (!clientConfig.apiKey || !clientConfig.authDomain || !clientConfig.projectId)
   process.exit(1);
 }
 
-initAdmin({ credential: cert(credPath) });
+initAdmin({ credential: credJson ? cert(JSON.parse(credJson)) : cert(credPath) });
 const db = getFirestore();
 const adminAuth = getAdminAuth();
 const clientApp = initClient(clientConfig, "client-temporal");
