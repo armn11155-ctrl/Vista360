@@ -155,7 +155,13 @@ service cloud.firestore {
         esAdminPortal();
       allow create: if (esCuentaDePortal() && esSolicitudCampanaValida(request.resource.data))
                    || (esAdminPortal() && esSolicitudCampanaAdminValida(request.resource.data));
-      allow update, delete: if isHuman();
+      allow update: if isHuman() ||
+        // El admin-portal (Vista360 Player en 'Modo Administrador') puede
+        // gestionar solicitudes desde ahí mismo, sin saltar al ERP — pero
+        // solo puede tocar 'estado', nada más (ni presupuesto, ni cliente).
+        (esAdminPortal() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado']));
+      allow delete: if isHuman();
     }
 
     // ── Vista360-Player: informes mensuales por cliente ────────────────────
