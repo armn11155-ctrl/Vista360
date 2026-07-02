@@ -3,6 +3,9 @@ name: 🪣 Configurar R2 — Crear Bucket
 on:
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   crear-bucket:
     name: Crear bucket de almacenamiento en R2
@@ -21,15 +24,23 @@ jobs:
           node-version: 22
 
       - name: Crear bucket vista360-evidencias
+        id: crear
         run: |
           set +e
-          OUTPUT=$(npx wrangler r2 bucket create vista360-evidencias 2>&1)
-          echo "$OUTPUT"
-          if [ $? -ne 0 ]; then
-            SAFE=$(echo "$OUTPUT" | tr '\n' ' ' | tr '%' ' ')
-            echo "::error::WRANGLER_FAIL: $SAFE"
-            exit 1
-          fi
+          npx wrangler r2 bucket create vista360-evidencias > /tmp/wrangler-out.txt 2>&1
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat /tmp/wrangler-out.txt
+
+      - name: Guardar resultado en el repo (para diagnóstico)
+        if: always()
+        run: |
+          mkdir -p .debug
+          cp /tmp/wrangler-out.txt .debug/wrangler-out.txt
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add .debug/wrangler-out.txt
+          git commit -m "debug: resultado de wrangler r2 bucket create" || echo "sin cambios"
+          git push origin HEAD:debug-r2-output --force
 
       - name: Confirmar que existe
         run: npx wrangler r2 bucket list
