@@ -117,7 +117,7 @@ service cloud.firestore {
     }
 
     match /portalUsers/{uid} {
-      allow read: if isHuman() || (request.auth != null && request.auth.uid == uid);
+      allow read: if isHuman() || esAdminPortal() || (request.auth != null && request.auth.uid == uid);
       allow write: if isHuman();
       allow update: if request.auth != null
         && request.auth.uid == uid
