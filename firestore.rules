@@ -107,9 +107,21 @@ service cloud.firestore {
     // Solo lo crea/edita el dueño (con el script de Admin SDK). El propio
     // cliente puede leer ÚNICAMENTE su propio documento, para saber a qué
     // cliente_id corresponde apenas inicia sesión.
+    // Puede también escribir solo los campos de analítica (lastLogin,
+    // lastLoginCount, pantallasVisitadas) — sin poder tocar role, clienteId
+    // ni ningún campo sensible.
+    function soloActualizaAnalitica() {
+      return request.resource.data.diff(resource.data)
+        .affectedKeys()
+        .hasOnly(['lastLogin', 'lastLoginCount', 'pantallasVisitadas']);
+    }
+
     match /portalUsers/{uid} {
       allow read: if isHuman() || (request.auth != null && request.auth.uid == uid);
       allow write: if isHuman();
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && soloActualizaAnalitica();
     }
 
     // ── Vista360-Player: solicitudes de nueva campaña ──────────────────────
