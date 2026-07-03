@@ -4,7 +4,7 @@
  * Correo automático PARA EL CLIENTE (no para ti) cuando pasa algo que
  * le importa a él, sin que tenga que abrir Vista360 Player a mirar:
  *
- * 1) Su contrato vence en 7 días o menos.
+ * 1) Su contrato vence en 20 días o menos.
  * 2) Confirmaste que recibiste su pago (renovación).
  * 3) Su solicitud de campaña cambió de estado (revisada/rechazada/
  *    convertida en contrato).
@@ -47,14 +47,14 @@ function envoltorio(titulo, cuerpoHtml) {
 
 let enviados = 0;
 
-// ── 1) Contratos por vencer en 7 días o menos ──────────────────────────
+// ── 1) Contratos por vencer en 20 días o menos ─────────────────────────
 const hoy = new Date();
-const en7dias = new Date(hoy.getTime() + 7 * 86400000);
+const en20dias = new Date(hoy.getTime() + 20 * 86400000);
 for (const c of contratos) {
   if (c.avisoVencimientoEnviado) continue;
   if (!c.fin) continue;
   const fin = new Date(c.fin + 'T12:00:00');
-  if (fin < hoy || fin > en7dias) continue;
+  if (fin < hoy || fin > en20dias) continue;
   const cliente = clienteById(c.cliente_id);
   if (!cliente?.email) continue;
 
