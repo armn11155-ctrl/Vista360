@@ -2,7 +2,7 @@ name: 📬 Informes Mensuales — Clientes (Vista360-Player)
 
 on:
   schedule:
-    - cron: "0 14 1 * *"   # Cada día 1 del mes a las 14:00 UTC (1h después del reporte interno)
+    - cron: "30 22 * * 6"   # Cada sábado a las 22:30 UTC (5:30pm Perú) — el script se salta solo si no es el primer sábado del mes
   workflow_dispatch:
     inputs:
       mes:
@@ -42,4 +42,5 @@ jobs:
           GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
           MES_INPUT: ${{ github.event.inputs.mes }}
           ANIO_INPUT: ${{ github.event.inputs.anio }}
+          ES_DISPARO_PROGRAMADO: ${{ github.event_name == 'schedule' }}
         run: node scripts/informe-mensual-clientes.mjs

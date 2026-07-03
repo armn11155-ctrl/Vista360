@@ -23,6 +23,19 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { createTransport } from 'nodemailer';
 import { randomUUID } from 'crypto';
+
+// El workflow ahora corre CADA SÁBADO (para que llegue siempre a la
+// misma hora que el resto de correos automáticos), pero este reporte
+// sigue siendo MENSUAL — así que si el disparo es por horario (cron)
+// y hoy no es el primer sábado del mes, no hace nada. Si lo disparas
+// manualmente (workflow_dispatch), siempre corre, sin importar la fecha.
+if (process.env.ES_DISPARO_PROGRAMADO === 'true') {
+  const diaDelMes = new Date().getDate();
+  if (diaDelMes > 7) {
+    console.log(`📅 Hoy es sábado pero no el primero del mes (día ${diaDelMes}) — se omite hasta el próximo mes.`);
+    process.exit(0);
+  }
+}
 import { launch } from 'puppeteer';
 
 const GMAIL_USER = process.env.GMAIL_USER;

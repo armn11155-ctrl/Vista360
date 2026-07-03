@@ -2,7 +2,7 @@ name: 📊 Reporte Mensual — Vista360
 
 on:
   schedule:
-    - cron: "0 13 1 * *"   # Cada día 1 del mes a las 13:00 UTC
+    - cron: "30 22 * * 6"   # Cada sábado a las 22:30 UTC (5:30pm Perú) — el script se salta solo si no es el primer sábado del mes
   workflow_dispatch:
     inputs:
       mes:
@@ -43,4 +43,5 @@ jobs:
           EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
           MES_INPUT: ${{ github.event.inputs.mes }}
           ANIO_INPUT: ${{ github.event.inputs.anio }}
+          ES_DISPARO_PROGRAMADO: ${{ github.event_name == 'schedule' }}
         run: node scripts/reporte-mensual-vista360.mjs
