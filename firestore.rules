@@ -90,7 +90,12 @@ service cloud.firestore {
         // cliente, ni fechas. Si esa cuenta se ve comprometida algún día,
         // el daño posible queda acotado a "puede subir fotos", nada más.
         (esAdminPortal() &&
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fotos_campania']));
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fotos_campania'])) ||
+        // El propio cliente puede calificar SU campaña (encuesta de
+        // satisfacción) — nada más, ni fechas ni fotos ni precio.
+        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal() &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['calificacion', 'calificacionComentario', 'calificacionFecha']));
     }
 
     match /gastos/{id} {
