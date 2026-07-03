@@ -42,6 +42,16 @@ service cloud.firestore {
       return request.auth != null && !esCuentaDePortal();
     }
 
+    // ── Lista blanca para Facturación (más estricta que isHuman()) ─────
+    // Facturas es dinero real — solo el dueño y quien él autorice
+    // explícitamente en /config/allowedEmails puede crear/editar, aunque
+    // tenga cuenta humana normal en el resto del ERP. Viene de
+    // facturacion-web (mismo proyecto de Firebase que Vista360/Player).
+    function isAllowed() {
+      let cfg = get(/databases/$(database)/documents/config/allowedEmails);
+      return isHuman() && cfg != null && request.auth.token.email in cfg.data.emails;
+    }
+
     // ── Dueño / gerente ─────────────────────────────────────────────────
     // Único(s) correo(s) con acceso a Finanzas (patrimonio, liquidez,
     // activos, deudas, fondos, objetivos). Mantener sincronizado con
@@ -93,9 +103,21 @@ service cloud.firestore {
       allow write: if isHuman();
     }
 
-    match /facturas/{id} {
+    match /config/{docId} {
       allow read: if isHuman();
-      allow write: if isHuman();
+      allow write: if isAllowed();
+    }
+
+    match /facturas/{id} {
+      allow read: if isAllowed() || esAdminPortal() ||
+        // El cliente del Player solo ve SUS facturas — se identifican por
+        // RUC (cliente_doc), no por cliente_id, porque así se generan
+        // desde facturacion-web (proyecto de facturación electrónica,
+        // mismo Firebase que Vista360 y el Player).
+        (esCuentaDePortal() &&
+          resource.data.cliente_doc ==
+            get(/databases/$(database)/documents/clientes/$(clienteIdDelPortal())).data.ruc);
+      allow write: if isAllowed();
     }
 
     match /sueldos/{id} {
