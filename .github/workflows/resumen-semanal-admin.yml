@@ -2,7 +2,7 @@ name: 📋 Resumen Semanal — Vista360 (admin)
 
 on:
   schedule:
-    - cron: "0 13 * * 1"   # Todos los lunes a las 13:00 UTC (8am Perú)
+    - cron: "30 22 * * 6"   # Todos los sábados a las 22:30 UTC (5:30pm Perú)
   workflow_dispatch: {}
 
 env:
