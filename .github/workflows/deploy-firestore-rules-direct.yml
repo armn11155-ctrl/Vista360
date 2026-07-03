@@ -1,0 +1,47 @@
+name: 🔒 Desplegar Reglas de Firestore (directo, API)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-rules:
+    name: Publicar firestore.rules vía Firebase Rules API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar dependencias
+        run: |
+          cd scripts
+          npm init -y
+          npm install google-auth-library
+
+      - name: Desplegar reglas
+        run: |
+          set +e
+          node scripts/deploy-rules-direct.mjs > /tmp/out.txt 2>&1
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat /tmp/out.txt
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Guardar resultado (diagnóstico)
+        if: always()
+        run: |
+          mkdir -p .debug
+          cp /tmp/out.txt .debug/deploy-rules-direct-out.txt
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add .debug/deploy-rules-direct-out.txt
+          git commit -m "debug: resultado de deploy-rules-direct" || echo "sin cambios"
+          git push origin HEAD:debug-deploy-rules-direct --force
