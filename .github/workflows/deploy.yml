@@ -48,7 +48,7 @@ jobs:
       # Sin él, Cloudflare Pages Git integration maneja el deploy automáticamente.
       - name: Deploy via Wrangler
         if: env.CF_API_TOKEN != ''
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
