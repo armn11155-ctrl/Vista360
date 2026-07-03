@@ -1,0 +1,3 @@
+❌ El documento config/allowedEmails NO existe. isAllowed() bloqueará a TODOS de crear facturas.
+
+✅ config/allowedEmails creado con 2 correo(s).
