@@ -1,0 +1,8 @@
+
+[1m[37m===[39m Deploying to 'base-de-datos-vista360'...[22m
+
+[36m[1mi [22m[39m deploying [1mfirestore[22m
+[36m[1mi  firestore:[22m[39m ensuring required API [1mfirestore.googleapis.com[22m is enabled...
+
+[1m[31mError:[39m[22m Request to https://serviceusage.googleapis.com/v1/projects/base-de-datos-vista360/services/firestore.googleapis.com had HTTP Error: 403, Permission denied to get service [firestore.googleapis.com]
+Help Token: AfYMUrgk5asYZbDCi_8zFJDytuIFOFYAke3Vzb4O5DNCj6UyeIZLr5D0ihnFYBGRLc4mzvrJaX3pDKBOIth_dmpPh-Q8KJj0XM5NRHJgtI2JHMor
