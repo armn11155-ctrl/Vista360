@@ -158,12 +158,15 @@ service cloud.firestore {
       allow update: if isHuman() ||
         // El admin-portal (Vista360 Player en 'Modo Administrador') puede
         // gestionar solicitudes desde ahí mismo, sin saltar al ERP — pero
-        // solo puede tocar 'estado' y su timestamp, nada más (ni
-        // presupuesto, ni cliente). estadoActualizadoEn es lo que permite
-        // avisarle al cliente cuándo cambió, no solo que cambió.
+        // solo puede tocar 'estado' y su timestamp, o confirmar el pago.
         (esAdminPortal() &&
           request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['estado', 'estadoActualizadoEn']));
+            .hasOnly(['estado', 'estadoActualizadoEn', 'pagoConfirmado'])) ||
+        // El propio cliente puede adjuntar SU comprobante de pago a SU
+        // propia solicitud — nada más (no puede tocar estado, monto, etc).
+        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal() &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['comprobantePagoUrl', 'comprobantePagoFecha']));
       allow delete: if isHuman();
     }
 
