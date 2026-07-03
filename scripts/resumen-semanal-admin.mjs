@@ -3,9 +3,10 @@
  *
  * Correo semanal PARA TI (no para clientes) con lo que necesita tu
  * atención: contratos que vencen en los próximos 7 días, solicitudes
- * de campaña pendientes (desde Vista360 Player) y solicitudes web sin
- * atender. Reutiliza los mismos secretos ya configurados (GMAIL_USER,
- * GMAIL_PASS, FIREBASE_SERVICE_ACCOUNT) — no necesita nada nuevo.
+ * de campaña pendientes (desde Vista360 Player), solicitudes web sin
+ * atender y uso de almacenamiento de Cloudinary. Reutiliza los mismos
+ * secretos ya configurados (GMAIL_USER, GMAIL_PASS,
+ * FIREBASE_SERVICE_ACCOUNT) más los nuevos de Cloudinary.
  */
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -14,6 +15,9 @@ import { createTransport } from 'nodemailer';
 const GMAIL_USER    = process.env.GMAIL_USER;
 const GMAIL_PASS    = process.env.GMAIL_PASS;
 const EMAIL_DESTINO = process.env.EMAIL_DESTINO || 'armn.101@hotmail.com';
+const CLOUDINARY_CLOUD_NAME  = process.env.CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_API_KEY     = process.env.CLOUDINARY_API_KEY;
+const CLOUDINARY_API_SECRET  = process.env.CLOUDINARY_API_SECRET;
 if (!GMAIL_USER || !GMAIL_PASS) throw new Error('Faltan GMAIL_USER o GMAIL_PASS.');
 if (!process.env.FIREBASE_SERVICE_ACCOUNT) throw new Error('Falta FIREBASE_SERVICE_ACCOUNT.');
 
@@ -64,7 +68,39 @@ const sinEvidencia = contratos.filter(c => {
 const total = porVencer.length + solCampPendientes.length + solWebPendientes.length + sinEvidencia.length;
 console.log(`📋 Resumen semanal: ${porVencer.length} contrato(s) por vencer, ${solCampPendientes.length} solicitud(es) de campaña, ${solWebPendientes.length} lead(s) web, ${sinEvidencia.length} panel(es) sin evidencia reciente.`);
 
-if (total === 0) {
+// ── Uso de Cloudinary (créditos: 25 gratis/mes = almacenamiento +
+//    transformaciones + ancho de banda combinados) ──────────────────
+let cloudinaryInfo = null;
+if (CLOUDINARY_CLOUD_NAME && CLOUDINARY_API_KEY && CLOUDINARY_API_SECRET) {
+  try {
+    const auth = Buffer.from(`${CLOUDINARY_API_KEY}:${CLOUDINARY_API_SECRET}`).toString('base64');
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/usage`, {
+      headers: { Authorization: `Basic ${auth}` },
+    });
+    if (res.ok) {
+      const u = await res.json();
+      const creditsUsed = u.credits?.usage ?? 0;
+      const creditsLimit = u.credits?.limit ?? 25;
+      const pct = Math.round((creditsUsed / creditsLimit) * 100);
+      cloudinaryInfo = {
+        pct,
+        storageGB: (u.storage?.usage ? u.storage.usage / (1024 ** 3) : 0).toFixed(2),
+        bandwidthGB: (u.bandwidth?.usage ? u.bandwidth.usage / (1024 ** 3) : 0).toFixed(2),
+      };
+      console.log(`☁️  Cloudinary: ${pct}% de tus créditos gratis usados este mes.`);
+    } else {
+      console.warn('⚠️  No se pudo consultar el uso de Cloudinary:', res.status);
+    }
+  } catch (e) {
+    console.warn('⚠️  Error consultando Cloudinary:', e.message);
+  }
+}
+
+// Solo alertar de verdad si vas pasando el 50% — por debajo de eso es
+// ruido innecesario, ya sabemos que hay margen de sobra.
+const avisoCloudinary = cloudinaryInfo && cloudinaryInfo.pct >= 50;
+
+if (total === 0 && !avisoCloudinary) {
   console.log('✅ Nada pendiente esta semana — no se envía correo.');
   process.exit(0);
 }
@@ -138,14 +174,23 @@ const html = `
     </tr>`).join('')}</tbody>
   </table>` : ''}
 
+  ${cloudinaryInfo ? `
+  <h3 style="font-size:15px;margin-bottom:6px;">☁️ Espacio de fotos/videos (Cloudinary)</h3>
+  <div style="background:${avisoCloudinary ? '#FEF3C7' : '#F0FDF4'};border:1px solid ${avisoCloudinary ? '#FDE68A' : '#BBF7D0'};border-radius:10px;padding:12px 14px;margin-bottom:20px;font-size:13px;">
+    <strong style="color:${avisoCloudinary ? '#B45309' : '#16A34A'};">${cloudinaryInfo.pct}% de tu plan gratis usado este mes</strong>
+    <br/>Almacenamiento: ${cloudinaryInfo.storageGB} GB · Descargas este mes: ${cloudinaryInfo.bandwidthGB} GB
+    ${avisoCloudinary ? '<br/><span style="color:#B45309;">Vas pasando la mitad — todavía no es urgente, pero vale la pena que lo tengas en el radar.</span>' : ''}
+  </div>` : ''}
+
   <p style="font-size:11px;color:#9CA3AF;margin-top:24px;">Vista360 · Resumen automático semanal (todos los lunes).</p>
 </div>`;
 
 const t = createTransport({ service: 'gmail', auth: { user: GMAIL_USER, pass: GMAIL_PASS } });
+const asuntoExtra = avisoCloudinary && total === 0 ? 'espacio de fotos' : `${total} pendiente(s)`;
 await t.sendMail({
   from: `"Vista360" <${GMAIL_USER}>`,
   to: EMAIL_DESTINO,
-  subject: `📋 Resumen semanal Vista360 — ${total} pendiente(s)`,
+  subject: `📋 Resumen semanal Vista360 — ${asuntoExtra}`,
   html,
 });
 console.log(`📧 Resumen enviado a ${EMAIL_DESTINO}`);
