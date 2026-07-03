@@ -18,10 +18,14 @@ jobs:
           cd scripts
           npm init -y
           npm install firebase-admin
-      - name: Chequear
+      - name: Chequear e inicializar si falta
         run: |
           set +e
           node scripts/_check-allowed-emails.mjs > /tmp/out.txt 2>&1
+          if grep -q "NO existe" /tmp/out.txt; then
+            echo "" >> /tmp/out.txt
+            node scripts/_init-allowed-emails.mjs >> /tmp/out.txt 2>&1
+          fi
           cat /tmp/out.txt
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
