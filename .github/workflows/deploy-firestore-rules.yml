@@ -1,0 +1,50 @@
+name: 🔒 Desplegar Reglas de Firestore
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-rules:
+    name: Publicar firestore.rules en Firebase
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Guardar credencial de servicio
+        run: echo "$FIREBASE_SERVICE_ACCOUNT" > /tmp/sa.json
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Desplegar reglas
+        id: deploy
+        run: |
+          set +e
+          GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json \
+            firebase deploy --only firestore:rules \
+            --project base-de-datos-vista360 --non-interactive > /tmp/out.txt 2>&1
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat /tmp/out.txt
+
+      - name: Guardar resultado (diagnóstico)
+        if: always()
+        run: |
+          mkdir -p .debug
+          cp /tmp/out.txt .debug/deploy-rules-out.txt
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add .debug/deploy-rules-out.txt
+          git commit -m "debug: resultado de deploy firestore:rules" || echo "sin cambios"
+          git push origin HEAD:debug-deploy-rules --force
