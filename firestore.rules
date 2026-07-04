@@ -74,7 +74,12 @@ service cloud.firestore {
     //    sensible y el portal los necesita para mostrar campañas) ─────────
     match /paneles/{id} {
       allow read: if isHuman() || esCuentaDePortal();
-      allow write: if isHuman();
+      allow write: if isHuman() ||
+        // Necesario para que, al crear un contrato desde el Player, el
+        // admin-portal pueda marcar el panel como Ocupado — solo ese
+        // campo, nada más (ni nombre, ni ciudad, ni tipo del panel).
+        (esAdminPortal() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado']));
     }
 
     match /clientes/{id} {
@@ -82,13 +87,34 @@ service cloud.firestore {
       allow write: if isHuman();
     }
 
+    // El admin-portal puede CREAR un contrato completo desde Vista360
+    // Player (panel, cliente, fechas, monto) — decisión explícita del
+    // dueño: "también tiene que dejar permitir crear por el Player".
+    // Sigue validado (tipos y campos correctos) para que no se puedan
+    // meter campos raros. La cuenta NO puede EDITAR un contrato ya
+    // existente más allá de fotos_campania (eso sigue igual de acotado
+    // — crear uno nuevo es distinto a poder alterar uno de otro cliente).
+    function esContratoAdminValido(d) {
+      return d.keys().hasOnly(
+              ['panel_id','cliente_id','cara','inicio','fin','monto','pagado','fotos_campania','createdAt']
+            )
+        && d.panel_id   is string && d.panel_id.size() > 0
+        && d.cliente_id is string && d.cliente_id.size() > 0
+        && d.inicio     is string && d.fin is string
+        && d.monto      is number && d.monto >= 0
+        && d.pagado     is bool;
+    }
+
     match /contratos/{id} {
       allow read: if isHuman() || esAdminPortal() ||
         (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal());
-      allow write: if isHuman() ||
-        // El admin-portal solo puede tocar fotos_campania — ni precio, ni
-        // cliente, ni fechas. Si esa cuenta se ve comprometida algún día,
-        // el daño posible queda acotado a "puede subir fotos", nada más.
+      allow create: if isHuman() ||
+        (esAdminPortal() && esContratoAdminValido(request.resource.data));
+      allow update: if isHuman() ||
+        // El admin-portal solo puede tocar fotos_campania en un contrato
+        // YA EXISTENTE — ni precio, ni cliente, ni fechas. Si esa cuenta
+        // se ve comprometida algún día, el daño posible en contratos
+        // ajenos queda acotado a "puede subir fotos", nada más.
         (esAdminPortal() &&
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fotos_campania'])) ||
         // El propio cliente puede calificar SU campaña (encuesta de
@@ -96,6 +122,7 @@ service cloud.firestore {
         (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal() &&
           request.resource.data.diff(resource.data).affectedKeys()
             .hasOnly(['calificacion', 'calificacionComentario', 'calificacionFecha']));
+      allow delete: if isHuman();
     }
 
     match /gastos/{id} {
