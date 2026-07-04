@@ -243,7 +243,8 @@ service cloud.firestore {
     function esSolicitudValida(d) {
       return d.keys().hasOnly(
               ['contacto','empresa','celular','email','panelInteres','notas',
-               'tipo','estado','origen','createdAt','hp','importado']
+               'tipo','estado','origen','createdAt','hp','importado',
+               'privacyAccepted','privacyVersion','privacyAcceptedAt']
             )
         && d.contacto is string    && d.contacto.size()  > 0 && d.contacto.size()  <= 80
         && d.empresa  is string    && d.empresa.size()   > 0 && d.empresa.size()   <= 80
@@ -254,7 +255,8 @@ service cloud.firestore {
         && d.tipo     == 'Prospecto'
         && d.estado   == 'En contacto'
         && d.origen   == 'web'
-        && (!('hp' in d) || d.hp == '');  // honeypot: si un bot llena este campo oculto, se rechaza
+        && (!('hp' in d) || d.hp == '')  // honeypot: si un bot llena este campo oculto, se rechaza
+        && (!('privacyAccepted' in d) || d.privacyAccepted == true);
     }
 
     match /solicitudesWeb/{id} {
