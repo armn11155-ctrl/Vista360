@@ -47,6 +47,50 @@ function envoltorio(titulo, cuerpoHtml) {
 
 let enviados = 0;
 
+// ── Vigilar el compromiso de "postventa en menos de 24 horas" ──────────
+// Esto es lo que convierte esa promesa en algo real: si una solicitud
+// lleva más de 24h como Pendiente, te avisa a TI (no al cliente), para
+// que puedas cumplir el compromiso en vez de solo prometerlo.
+const EMAIL_DESTINO_OWNER = process.env.EMAIL_DESTINO || 'armn.101@hotmail.com';
+const hace24h = new Date(Date.now() - 24 * 3600000);
+const solicitudesVencidasSLA = solicitudes.filter(s => {
+  if (s.estado !== 'Pendiente' || s.avisoSlaEnviado) return false;
+  const creada = s.createdAt?.toDate ? s.createdAt.toDate() : null;
+  return creada && creada < hace24h;
+});
+if (solicitudesVencidasSLA.length > 0) {
+  const filasSla = solicitudesVencidasSLA.map(s => {
+    const cli = clienteById(s.cliente_id);
+    return `<tr>
+      <td>${cli?.empresa ?? '—'}</td>
+      <td>${s.nombre}</td>
+      <td style="color:#DC2626;font-weight:600;">Sin responder</td>
+    </tr>`;
+  }).join('');
+  await t.sendMail({
+    from: `"Vista360" <${GMAIL_USER}>`,
+    to: EMAIL_DESTINO_OWNER,
+    subject: `⚠️ ${solicitudesVencidasSLA.length} solicitud(es) pasaron las 24h sin respuesta`,
+    html: envoltorio(
+      '⚠️ Compromiso de 24 horas en riesgo',
+      `<p style="font-size:14px;">Estas solicitudes llevan más de 24 horas como "Pendiente" —
+       tu portal promete respuesta en menos de 24h, y estas ya se pasaron:</p>
+       <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:12px;">
+         <thead><tr style="text-align:left;color:#6B7280;font-size:11px;text-transform:uppercase;">
+           <th style="padding-bottom:6px;">Cliente</th><th>Solicitud</th><th>Estado</th>
+         </tr></thead>
+         <tbody>${filasSla}</tbody>
+       </table>`
+    ),
+  });
+  for (const s of solicitudesVencidasSLA) {
+    await db.collection('solicitudesCampana').doc(s.id).update({ avisoSlaEnviado: true });
+  }
+  console.log(`⚠️  Aviso de SLA (24h) enviado — ${solicitudesVencidasSLA.length} solicitud(es).`);
+  enviados++;
+}
+
+
 // ── 1) Contratos por vencer en 20 días o menos ─────────────────────────
 const hoy = new Date();
 const en20dias = new Date(hoy.getTime() + 20 * 86400000);

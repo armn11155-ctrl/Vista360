@@ -95,6 +95,25 @@ for (const pu of portalUsers) {
 
   const totalEvidencias = ctrsDelMes.reduce((a,c)=>a+(c.fotos_campania?.length||0), 0);
 
+  // Días del contrato que caen dentro de este mes (dato real y concreto,
+  // sin necesitar cámaras ni sensores).
+  function diasActivosEnMes(c) {
+    const [anioMes, mesNum] = mesStr.split('-').map(Number);
+    const inicioMes = new Date(anioMes, mesNum - 1, 1);
+    const finMes = new Date(anioMes, mesNum, 0);
+    const inicioC = new Date(c.inicio + 'T00:00:00');
+    const finC = new Date(c.fin + 'T00:00:00');
+    const desde = inicioC > inicioMes ? inicioC : inicioMes;
+    const hasta = finC < finMes ? finC : finMes;
+    const dias = Math.round((hasta - desde) / 86400000) + 1;
+    return Math.max(0, dias);
+  }
+
+  // La evidencia más reciente de todas las campañas del cliente este mes
+  // — mostrar la foto real (no solo el número) es mucho más convincente.
+  const todasLasFotos = ctrsDelMes.flatMap(c => c.fotos_campania || []);
+  const evidenciaReciente = todasLasFotos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha))[0];
+
   const filas = ctrsDelMes.map(c => {
     const estado = estadoCampana(c);
     const color = estado==='Activa' ? '#059669' : estado==='Programada' ? '#2563EB' : '#6B7280';
@@ -102,6 +121,7 @@ for (const pu of portalUsers) {
       <td><strong>${c.panel?.nombre || c.panel_id}</strong>${c.panel?.ciudad?`<br/><span style="font-size:9px;color:#64748B">${c.panel.ciudad}</span>`:''}</td>
       <td style="color:${color};font-weight:600">${estado}</td>
       <td style="font-size:10px;color:#64748B">${fmtF(c.inicio)}<br/>${fmtF(c.fin)}</td>
+      <td>${diasActivosEnMes(c)} día(s)</td>
       <td>${c.fotos_campania?.length || 0}</td>
     </tr>`;
   }).join('');
@@ -123,9 +143,14 @@ for (const pu of portalUsers) {
       <p>${mesLabel} · ${ctrsDelMes.length} campaña(s) · ${totalEvidencias} evidencia(s)</p>
     </div>
     <table>
-      <thead><tr><th>Panel</th><th>Estado</th><th>Período</th><th>Evidencias</th></tr></thead>
+      <thead><tr><th>Panel</th><th>Estado</th><th>Período</th><th>Días activos</th><th>Evidencias</th></tr></thead>
       <tbody>${filas}</tbody>
     </table>
+    ${evidenciaReciente ? `
+    <div style="margin-top:24px;">
+      <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:8px;">Evidencia más reciente (${fmtF(evidenciaReciente.fecha)})</div>
+      <img src="${evidenciaReciente.url}" style="width:100%;max-height:280px;object-fit:cover;border-radius:8px;" />
+    </div>` : ''}
     <div class="footer">Vista360 · Generado automáticamente el ${new Date().toLocaleDateString('es-PE')}</div>
   </body></html>`;
 
