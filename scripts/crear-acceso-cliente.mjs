@@ -126,8 +126,31 @@ try {
     handleCodeInApp: false,
   });
 
+  // Además del correo automático, generamos OTRO link con el mismo fin
+  // (Admin SDK, sin mandar un segundo correo) y lo guardamos en
+  // Firestore — así, desde Vista360 Player en Modo Administrador, se
+  // puede COPIAR un link y mandarlo a mano (WhatsApp, etc.) sin
+  // depender de que el correo automático llegue o no le llegue a
+  // tiempo a la persona. Ambos links sirven para lo mismo (crear
+  // contraseña), aunque técnicamente sean códigos distintos.
+  const linkAcceso = await adminAuth.generatePasswordResetLink(email, {
+    url: "https://vista360-player.pages.dev",
+    handleCodeInApp: false,
+  });
+  await db.collection("invitacionesPortal").add({
+    uid: userRecord.uid,
+    email,
+    clienteId: esAdmin ? null : clienteId,
+    clienteNombre: esAdmin ? "Admin Vista360" : (clienteData.empresa ?? ""),
+    esAdmin,
+    link: linkAcceso,
+    createdAt: FieldValue.serverTimestamp(),
+  });
+
   console.log("");
   console.log(`📧  Correo enviado a ${email} con el link para crear su contraseña.`);
+  console.log(`🔗  El mismo link también quedó guardado — puedes copiarlo desde`);
+  console.log(`    Vista360 Player → Modo Administrador → Accesos.`);
   console.log(`    URL del portal: https://vista360-player.pages.dev`);
   if (!esNueva) console.log("    (cuenta ya existía — el correo sirve para que reestablezca su contraseña)");
   process.exit(0);

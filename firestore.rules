@@ -152,6 +152,15 @@ service cloud.firestore {
       allow write: if isAllowed();
     }
 
+    // ── Enlaces de invitación (crear contraseña) generados por el script
+    //    crear-acceso-cliente.mjs — solo lectura para el admin-portal,
+    //    así puede copiar y mandar el link a mano si hace falta. Nadie
+    //    escribe aquí desde la app (solo el Admin SDK, que ignora reglas).
+    match /invitacionesPortal/{id} {
+      allow read: if esAdminPortal();
+      allow write: if false;
+    }
+
     match /sueldos/{id} {
       allow read: if isHuman();
       allow write: if isHuman();
