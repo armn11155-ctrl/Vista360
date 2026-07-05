@@ -109,10 +109,14 @@ for (const pu of portalUsers) {
     return Math.max(0, dias);
   }
 
-  // La evidencia más reciente de todas las campañas del cliente este mes
-  // — mostrar la foto real (no solo el número) es mucho más convincente.
-  const todasLasFotos = ctrsDelMes.flatMap(c => c.fotos_campania || []);
-  const evidenciaReciente = todasLasFotos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha))[0];
+  // Fotos subidas ESPECÍFICAMENTE dentro de este mes (no todas las de
+  // la campaña) — esto es lo que hace que cada reporte sea distinto al
+  // anterior: julio muestra lo de julio, agosto lo de agosto, en vez de
+  // repetir siempre la misma foto reciente.
+  const todasLasFotos = ctrsDelMes
+    .flatMap(c => c.fotos_campania || [])
+    .filter(f => f.fecha && f.fecha.slice(0, 7) === mesStr)
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
   const filas = ctrsDelMes.map(c => {
     const estado = estadoCampana(c);
@@ -143,14 +147,24 @@ for (const pu of portalUsers) {
       <p>${mesLabel} · ${ctrsDelMes.length} campaña(s) · ${totalEvidencias} evidencia(s)</p>
     </div>
     <table>
-      <thead><tr><th>Panel</th><th>Estado</th><th>Período</th><th>Días activos</th><th>Evidencias</th></tr></thead>
+      <thead><tr><th>Panel</th><th>Estado</th><th>Período</th><th>Días activos</th><th>Evidencias (total)</th></tr></thead>
       <tbody>${filas}</tbody>
     </table>
-    ${evidenciaReciente ? `
+    ${todasLasFotos.length > 0 ? `
     <div style="margin-top:24px;">
-      <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:8px;">Evidencia más reciente (${fmtF(evidenciaReciente.fecha)})</div>
-      <img src="${evidenciaReciente.url}" style="width:100%;max-height:280px;object-fit:cover;border-radius:8px;" />
-    </div>` : ''}
+      <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:8px;">
+        Evidencia de ${mesLabel} (${todasLasFotos.length} foto${todasLasFotos.length === 1 ? '' : 's'})
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${todasLasFotos.slice(0, 9).map(f => `
+        <div style="width:${todasLasFotos.length === 1 ? '100%' : 'calc(33.33% - 6px)'};">
+          <img src="${f.url}" style="width:100%;height:${todasLasFotos.length === 1 ? '260px' : '120px'};object-fit:cover;border-radius:6px;display:block;" />
+          <div style="font-size:8px;color:#9CA3AF;margin-top:2px;">${fmtF(f.fecha)}</div>
+        </div>`).join('')}
+      </div>
+      ${todasLasFotos.length > 9 ? `<div style="font-size:10px;color:#9CA3AF;margin-top:8px;">+ ${todasLasFotos.length - 9} foto(s) más — disponibles en tu portal Vista360 Player.</div>` : ''}
+    </div>` : `
+    <div style="margin-top:24px;font-size:12px;color:#9CA3AF;">Sin evidencias nuevas registradas en ${mesLabel}.</div>`}
     <div class="footer">Vista360 · Generado automáticamente el ${new Date().toLocaleDateString('es-PE')}</div>
   </body></html>`;
 
