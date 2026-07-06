@@ -414,6 +414,7 @@ function CRM({
     sector: "Alimentación",
     estado: "En contacto",
     notas: "",
+    cumpleanos: "",
   };
   const [form, setForm] = useState(emptyC);
 
@@ -443,6 +444,7 @@ function CRM({
       sector: form.sector,
       estado: form.estado,
       notas: form.notas,
+      cumpleanos: form.cumpleanos,
     };
     try {
       if (modal === "nuevo") {
@@ -1464,6 +1466,7 @@ function CRM({
             {inp("Contacto", "contacto", form, setForm, { ph: "Nombre completo" })}
             {inp("Celular", "celular", form, setForm, { type: "tel", ph: "+51 999 000 000" })}
             {inp("Email", "email", form, setForm, { type: "email", ph: "correo@empresa.com" })}
+            {inp("Cumpleaños del contacto", "cumpleanos", form, setForm, { type: "date" })}
             {form.tipo === "Cliente" && inp("RUC", "ruc", form, setForm, { ph: "20000000001" })}
             {inp("Ciudad", "ciudad", form, setForm, { type: "select", options: CIUDADES })}
             {inp("Sector", "sector", form, setForm, { type: "select", options: SECTORES })}

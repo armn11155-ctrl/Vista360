@@ -71,6 +71,7 @@ export interface Cliente {
   contacto?: string;
   celular?: string;
   email?: string;
+  cumpleanos?: string; // "YYYY-MM-DD" — solo se usa el día y mes
   sector?: string;
   ciudad?: string;
   estado: ClienteEstado;
