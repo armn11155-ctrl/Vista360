@@ -1,0 +1,55 @@
+name: 💾 Respaldo Diario de la Base de Datos
+
+on:
+  schedule:
+    - cron: "0 10 * * *"   # Todos los días a las 10:00 UTC (5am Perú)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    name: Descargar y guardar respaldo de Firestore
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main (para tener el script actualizado)
+        uses: actions/checkout@v4
+        with:
+          path: main-checkout
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar dependencias
+        run: |
+          cd main-checkout/scripts
+          npm init -y > /dev/null
+          npm install firebase-admin > /dev/null 2>&1
+
+      - name: Correr el respaldo (guarda los JSON en main-checkout/backups/)
+        working-directory: main-checkout
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node scripts/backup-firestore.mjs
+
+      - name: Checkout rama "backups" aparte (historial solo de respaldos)
+        run: |
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git backups-repo
+          cd backups-repo
+          git checkout backups 2>/dev/null || git checkout --orphan backups
+
+      - name: Copiar el respaldo de hoy y subirlo
+        run: |
+          FECHA=$(date +%Y-%m-%d)
+          mkdir -p "backups-repo/$FECHA"
+          cp -r "main-checkout/backups/$FECHA"/* "backups-repo/$FECHA/"
+          cd backups-repo
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions (respaldo)"
+          git add "$FECHA"
+          git commit -m "Respaldo automático — $FECHA" || echo "sin cambios"
+          git push origin backups
