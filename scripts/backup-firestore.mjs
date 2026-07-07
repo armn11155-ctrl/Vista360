@@ -16,6 +16,7 @@
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { writeFileSync, mkdirSync } from 'fs';
+import { gzipSync } from 'zlib';
 
 const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 if (!getApps().length) initializeApp({ credential: cert(sa) });
@@ -34,16 +35,23 @@ const carpeta = `backups/${fecha}`;
 mkdirSync(carpeta, { recursive: true });
 
 let totalDocs = 0;
+let bytesAntes = 0;
+let bytesDespues = 0;
 for (const nombre of COLECCIONES) {
   try {
     const snap = await db.collection(nombre).get();
     const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    writeFileSync(`${carpeta}/${nombre}.json`, JSON.stringify(docs, null, 2));
-    console.log(`  ✓ ${nombre}: ${docs.length} documento(s)`);
+    const json = JSON.stringify(docs); // sin espacios — comprime igual de bien y ya no hace falta el formato lindo
+    const comprimido = gzipSync(json);
+    writeFileSync(`${carpeta}/${nombre}.json.gz`, comprimido);
+    bytesAntes += json.length;
+    bytesDespues += comprimido.length;
+    console.log(`  ✓ ${nombre}: ${docs.length} documento(s), ${json.length}B → ${comprimido.length}B comprimido`);
     totalDocs += docs.length;
   } catch (e) {
     console.warn(`  ⚠️  ${nombre}: error — ${e.message}`);
   }
 }
 
-console.log(`\n✅ Respaldo del ${fecha} completo — ${totalDocs} documentos en total.`);
+const ahorro = bytesAntes > 0 ? Math.round((1 - bytesDespues / bytesAntes) * 100) : 0;
+console.log(`\n✅ Respaldo del ${fecha} completo — ${totalDocs} documentos, ${bytesAntes}B → ${bytesDespues}B (${ahorro}% menos).`);
