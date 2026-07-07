@@ -1,0 +1,28 @@
+/favicon.ico
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/icon-192.png
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/icon-512.png
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/sw.js
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+
+# HTML: el browser guarda una copia en su propio cache (no depende del SW).
+# max-age=0 = "siempre obsoleto", pero stale-while-revalidate permite servir
+# la copia local INMEDIATAMENTE mientras revalida en background.
+# Resultado: carga instantánea aunque el SW de iOS esté dormido.
+/index.html
+  Cache-Control: public, max-age=0, stale-while-revalidate=86400
+
+/manifest.json
+  Cache-Control: public, max-age=0, stale-while-revalidate=86400
+
+/
+  Cache-Control: public, max-age=0, stale-while-revalidate=86400
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

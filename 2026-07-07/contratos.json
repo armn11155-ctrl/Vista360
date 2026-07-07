@@ -1,0 +1,97 @@
+[
+  {
+    "id": "CuLpRwbe6nm1Jinr6q4A",
+    "panel_id": "9g8bj8x02oGdRYRpEL49",
+    "cliente_id": "kU46kvdOMzV4hR4CNLaB",
+    "inicio": "2026-07-31",
+    "fin": "2026-08-31",
+    "monto": 650,
+    "pagado": false,
+    "fotos_campania": [],
+    "createdAt": {
+      "_seconds": 1783148307,
+      "_nanoseconds": 185000000
+    }
+  },
+  {
+    "id": "FzTJlwYzUt3WRlQYCpBU",
+    "panel_id": "9g8bj8x02oGdRYRpEL49",
+    "cliente_id": "Hf1EfYK0S9sHL4BLHnPv",
+    "fin": "2026-06-27",
+    "monto": 1200,
+    "createdAt": {
+      "_seconds": 1778911716,
+      "_nanoseconds": 466000000
+    },
+    "inicio": "2026-05-10",
+    "deletedAt": null,
+    "deleted": false,
+    "cara": null,
+    "pagado": false,
+    "pagosMeses": {
+      "2026-05": false,
+      "2026-06": false
+    }
+  },
+  {
+    "id": "LSNVc4I9A3yxK2S0Stal",
+    "panel_id": "eketXV4j5RkKq9CRmm0M",
+    "cliente_id": "Hf1EfYK0S9sHL4BLHnPv",
+    "inicio": "2026-05-16",
+    "fin": "2026-06-30",
+    "monto": 1400,
+    "createdAt": {
+      "_seconds": 1778911740,
+      "_nanoseconds": 124000000
+    },
+    "cara": null,
+    "pagado": false,
+    "pagosMeses": {
+      "2026-06": false,
+      "2026-05": false
+    }
+  },
+  {
+    "id": "lKc8DKc31sl0anxoWTJI",
+    "panel_id": "9g8bj8x02oGdRYRpEL49",
+    "cliente_id": "Hf1EfYK0S9sHL4BLHnPv",
+    "cara": null,
+    "inicio": "2026-06-03",
+    "fin": "2026-06-06",
+    "monto": 9000,
+    "createdAt": {
+      "_seconds": 1780455470,
+      "_nanoseconds": 98000000
+    },
+    "pagado": false,
+    "pagosMeses": {
+      "2026-06": false
+    },
+    "updatedAt": {
+      "_seconds": 1780946669,
+      "_nanoseconds": 384000000
+    },
+    "deletedAt": null,
+    "deleted": false
+  },
+  {
+    "id": "w44OPmNONJ3rBALPArU0",
+    "panel_id": "9g8bj8x02oGdRYRpEL49",
+    "cliente_id": "Hf1EfYK0S9sHL4BLHnPv",
+    "cara": null,
+    "inicio": "2026-05-31",
+    "fin": "2026-06-30",
+    "monto": 9000,
+    "createdAt": {
+      "_seconds": 1780254240,
+      "_nanoseconds": 983000000
+    },
+    "deletedAt": null,
+    "deleted": false,
+    "pagado": false,
+    "pagosMeses": {
+      "2026-06": false,
+      "2026-05": false
+    }
+  }
+]

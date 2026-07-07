@@ -1,0 +1,79 @@
+import { useState, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../config/firebase";
+import { useEdgeScrollLock } from "./useEdgeScrollLock";
+
+/**
+ * useUIShell — estado de UI de la shell autenticada.
+ *
+ * Gestiona modales, overlays y navegación.
+ * Completamente independiente de los datos de Firestore para
+ * evitar re-renders cruzados.
+ */
+export function useUIShell(onLogout: () => void) {
+  const navigate = useNavigate();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Evita que el contenido se desplace de más al llegar al borde
+  // (rebote/overscroll), tanto en el layout de escritorio como en el
+  // de móvil — ambos reusan este mismo scrollRef.
+  useEdgeScrollLock(scrollRef);
+
+  // ── UI toggles ─────────────────────────────────────────────────────
+  const [showProfile, setShowProfile] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [trashOpen, setTrashOpen] = useState(false);
+  const [autoScan, setAutoScan] = useState(false);
+  const [globalSearch, setGlobalSearch] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const [anyModalOpen, setAnyModalOpen] = useState(false);
+
+  // ── Navegación con scroll-to-top ───────────────────────────────────
+  const handleTabClick = useCallback(
+    (path: string) => {
+      if (scrollRef.current) scrollRef.current.scrollTop = 0;
+      if (path === "/perfil") {
+        setShowProfile(true);
+      } else {
+        setShowProfile(false);
+        navigate(path, { replace: true }); // replace: no acumula historial → el gesto nativo de "atrás" no cambia de pestaña
+      }
+    },
+    [navigate],
+  );
+
+  // ── Logout ─────────────────────────────────────────────────────────
+  const handleLogout = useCallback(async () => {
+    await signOut(auth);
+    setShowProfile(false);
+    setConfirmLogout(false);
+    onLogout();
+  }, [onLogout]);
+
+  return {
+    // refs
+    scrollRef,
+    // state + setters
+    showProfile,
+    setShowProfile,
+    drawerOpen,
+    setDrawerOpen,
+    trashOpen,
+    setTrashOpen,
+    autoScan,
+    setAutoScan,
+    globalSearch,
+    setGlobalSearch,
+    notifOpen,
+    setNotifOpen,
+    confirmLogout,
+    setConfirmLogout,
+    anyModalOpen,
+    setAnyModalOpen,
+    // actions
+    handleTabClick,
+    handleLogout,
+  };
+}

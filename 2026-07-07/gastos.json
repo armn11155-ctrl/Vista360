@@ -1,0 +1,23 @@
+[
+  {
+    "id": "rDOrD3ckBLmhZpprwlwW",
+    "descripcion": "Sin descripción",
+    "categoria": "Otro",
+    "monto": 20,
+    "mes": "2026-06",
+    "fecha": "2026-06-03",
+    "proveedor": "",
+    "ruc": "",
+    "concepto": "",
+    "igv": 0,
+    "subtotal": 0,
+    "notas": "",
+    "foto_texto": "",
+    "fotoUrl": "",
+    "moneda": "PEN",
+    "createdAt": {
+      "_seconds": 1780508806,
+      "_nanoseconds": 68000000
+    }
+  }
+]

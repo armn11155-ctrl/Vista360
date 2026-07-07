@@ -1,0 +1,40 @@
+name: 📋 Resumen Semanal — Vista360 (admin)
+
+on:
+  schedule:
+    - cron: "30 22 * * 6"   # Todos los sábados a las 22:30 UTC (5:30pm Perú)
+  workflow_dispatch: {}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  resumen:
+    name: Enviar resumen semanal por correo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar dependencias
+        run: |
+          cd scripts
+          npm init -y
+          npm install firebase-admin nodemailer
+
+      - name: Generar y enviar resumen
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
+          EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+        run: node scripts/resumen-semanal-admin.mjs

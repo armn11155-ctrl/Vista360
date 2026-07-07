@@ -1,0 +1,104 @@
+[
+  {
+    "id": "ZrLqkeBomqM4Lm1AT6oEruucEcz1",
+    "role": "admin",
+    "lastLogin": {
+      "_seconds": 1783191175,
+      "_nanoseconds": 210000000
+    },
+    "lastLoginCount": 36,
+    "pantallasVisitadas": {
+      "portafolio": {
+        "count": 5,
+        "lastVisit": {
+          "_seconds": 1783140472,
+          "_nanoseconds": 742000000
+        }
+      },
+      "cobertura": {
+        "count": 7,
+        "lastVisit": {
+          "_seconds": 1783140473,
+          "_nanoseconds": 584000000
+        }
+      },
+      "mispantallas": {
+        "count": 6,
+        "lastVisit": {
+          "_seconds": 1783140474,
+          "_nanoseconds": 185000000
+        }
+      },
+      "nueva": {
+        "count": 6,
+        "lastVisit": {
+          "_seconds": 1783148281,
+          "_nanoseconds": 19000000
+        }
+      },
+      "contactanos": {
+        "count": 8,
+        "lastVisit": {
+          "_seconds": 1783189472,
+          "_nanoseconds": 313000000
+        }
+      },
+      "detalle": {
+        "count": 4,
+        "lastVisit": {
+          "_seconds": 1783189627,
+          "_nanoseconds": 489000000
+        }
+      },
+      "analitica": {
+        "count": 7,
+        "lastVisit": {
+          "_seconds": 1783189843,
+          "_nanoseconds": 528000000
+        }
+      },
+      "perfil": {
+        "count": 31,
+        "lastVisit": {
+          "_seconds": 1783191182,
+          "_nanoseconds": 286000000
+        }
+      },
+      "impacto": {
+        "count": 6,
+        "lastVisit": {
+          "_seconds": 1783191204,
+          "_nanoseconds": 90000000
+        }
+      },
+      "reportes": {
+        "count": 43,
+        "lastVisit": {
+          "_seconds": 1783191271,
+          "_nanoseconds": 56000000
+        }
+      },
+      "evidencias": {
+        "count": 30,
+        "lastVisit": {
+          "_seconds": 1783191271,
+          "_nanoseconds": 203000000
+        }
+      },
+      "campanas": {
+        "count": 50,
+        "lastVisit": {
+          "_seconds": 1783191271,
+          "_nanoseconds": 238000000
+        }
+      },
+      "inicio": {
+        "count": 69,
+        "lastVisit": {
+          "_seconds": 1783191272,
+          "_nanoseconds": 158000000
+        }
+      }
+    }
+  }
+]

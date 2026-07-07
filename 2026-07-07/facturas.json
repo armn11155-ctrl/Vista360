@@ -1,0 +1,102 @@
+[
+  {
+    "id": "5OHNhucsEgxqSumLM9sM",
+    "serie": "F001",
+    "numero": 1,
+    "numero_fmt": "F001-00000001",
+    "tipo_doc": "01",
+    "fecha_emision": "2026-05-26",
+    "cliente_nombre": "ehfbkebkfaf",
+    "cliente_doc": "239u1u3u921",
+    "subtotal": 590,
+    "igv": 106.2,
+    "total": 696.2,
+    "moneda": "PEN",
+    "pagado": false,
+    "concepto": "Arrendamiento de Panel Publicitario",
+    "createdAt": {
+      "_seconds": 1779833810,
+      "_nanoseconds": 995000000
+    },
+    "estado": "Anulada",
+    "updatedAt": {
+      "_seconds": 1780113864,
+      "_nanoseconds": 275000000
+    }
+  },
+  {
+    "id": "9sog9JHFRVtihDNRhN0B",
+    "serie": "F001",
+    "numero": 4,
+    "numero_fmt": "F001-00000004",
+    "tipo_doc": "01",
+    "fecha_emision": "2026-05-26",
+    "cliente_nombre": "324423423432423432",
+    "cliente_doc": "11143522342",
+    "subtotal": 400,
+    "igv": 0,
+    "total": 400,
+    "moneda": "PEN",
+    "pagado": false,
+    "concepto": "Arrendamiento de Panel Publicitario – Panel mediano PB · Jirón Progreso 560, Huánuco",
+    "createdAt": {
+      "_seconds": 1779837727,
+      "_nanoseconds": 281000000
+    },
+    "estado": "Anulada",
+    "updatedAt": {
+      "_seconds": 1780073620,
+      "_nanoseconds": 940000000
+    }
+  },
+  {
+    "id": "H3qqPZiCLCxvVyEe7Ct7",
+    "serie": "F001",
+    "numero": 5,
+    "numero_fmt": "F001-00000005",
+    "tipo_doc": "01",
+    "fecha_emision": "2026-05-27",
+    "cliente_nombre": "  Dnsnssnsk",
+    "cliente_doc": "8946484843484",
+    "subtotal": 400,
+    "igv": 0,
+    "total": 400,
+    "moneda": "PEN",
+    "pagado": false,
+    "concepto": "Arrendamiento de Panel Publicitario – Panel mediano PB · Jirón Progreso 560, Huánuco",
+    "createdAt": {
+      "_seconds": 1779840438,
+      "_nanoseconds": 618000000
+    },
+    "estado": "Anulada",
+    "updatedAt": {
+      "_seconds": 1780113467,
+      "_nanoseconds": 979000000
+    }
+  },
+  {
+    "id": "nRcAh5RBWfWYOpqnXRNw",
+    "serie": "F001",
+    "numero": 2,
+    "numero_fmt": "F001-00000002",
+    "tipo_doc": "01",
+    "fecha_emision": "2026-05-26",
+    "cliente_nombre": "ttttytdtdtdgdj",
+    "cliente_doc": "08624255555",
+    "subtotal": 600,
+    "igv": 0,
+    "total": 600,
+    "moneda": "PEN",
+    "pagado": false,
+    "concepto": "Arrendamiento de Panel Publicitario",
+    "createdAt": {
+      "_seconds": 1779833940,
+      "_nanoseconds": 343000000
+    },
+    "estado": "Anulada",
+    "updatedAt": {
+      "_seconds": 1780113861,
+      "_nanoseconds": 570000000
+    }
+  }
+]

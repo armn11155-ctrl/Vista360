@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es" style="background:#07101F;color-scheme:dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <style>
+      html,body,#root{background:#07101F}
+      /* Fix: logo arranca invisible y hace fade-in cuando el browser
+         confirma que la imagen cargó — elimina el "pop" en primer arranque. */
+      #ps-logo img{opacity:0;transition:opacity 0.18s ease}
+    </style>
+
+    <meta name="theme-color" content="#07101F" />
+
+    <!-- Preload crítico: logo listo antes de que React monte -->
+    <link rel="preload" href="/logo.png" as="image" fetchpriority="high" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Vista360" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
+
+    <!-- iOS PWA Splash Screens -->
+    <!-- Universal fallback: sin media query → iOS siempre encuentra algo oscuro -->
+    <link rel="apple-touch-startup-image" href="/splash/splash-universal.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/splash-750x1334.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1125x2436.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/splash-828x1792.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1242x2688.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width:360px) and (device-height:780px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1080x2340.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1170x2532.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1284x2778.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1179x2556.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1290x2796.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width:402px) and (device-height:874px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1206x2622.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width:440px) and (device-height:956px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1320x2868.png" />
+
+    <!-- Favicon pestaña del navegador -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+
+    <title>Vista360</title>
+  </head>
+  <body style="background:#07101F;margin:0">
+    <!-- Pre-splash: logo en píxel exacto via JS síncrono.
+         window.innerHeight al momento del paint = mismo valor que usa React para top:38%.
+         El script corre ANTES del primer paint (inline, síncrono). -->
+    <div id="pre-splash" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;overflow:hidden;background:linear-gradient(170deg,#07101F 0%,#0D1629 55%,#111E35 100%);">
+      <div style="position:absolute;top:12%;right:-20%;width:65%;height:65%;background:radial-gradient(ellipse,rgba(37,99,235,.18) 0%,transparent 70%);pointer-events:none;"></div>
+      <div style="position:absolute;bottom:-20%;left:-15%;width:55%;height:50%;background:radial-gradient(ellipse,rgba(37,99,235,.13) 0%,transparent 70%);pointer-events:none;"></div>
+      <div id="ps-logo" style="position:absolute;top:38%;left:50%;transform-origin:50% 50%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 28px rgba(37,99,235,.32));">
+        <img src="/logo.png" width="310" decoding="sync" fetchpriority="high" style="display:block;object-fit:contain;"
+             onload="this.style.opacity='1'" onerror="this.style.opacity='1'" />
+      </div>
+    </div>
+    <!-- Script eliminado: top:38% en CSS es idéntico a Math.round(innerHeight*0.38)
+         y evita la dependencia de JS síncrono para posicionar el logo. -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

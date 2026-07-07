@@ -1,0 +1,281 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Permisos ────────────────────────────────────────────────────────────
+    // Mientras uses una sola cuenta humana para administrar todo, "admin"
+    // == estar logueado Y no ser una cuenta de cliente del portal (ver
+    // isHuman() más abajo). Si en el futuro agregas más usuarios humanos
+    // y quieres separar permisos entre ellos (ej: un vendedor que solo lee,
+    // sin poder borrar), ahí sí conviene Custom Claims, pero hay que
+    // activarlos primero desde un backend con el Admin SDK:
+    //   await admin.auth().setCustomUserClaims(uid, { role: 'admin' });
+
+    // ── Vista360-Player (portal de clientes) ───────────────────────────────
+    // Cada cliente tiene una cuenta de Firebase Auth (creada por el dueño
+    // con scripts/crear-acceso-cliente.mjs) vinculada a su cliente_id real
+    // mediante un documento en portalUsers. isHuman() excluye explícitamente
+    // a esas cuentas de cliente de TODAS las colecciones internas (gastos,
+    // facturas, proveedores, otros clientes, etc.) — solo ven lo que la
+    // sección de abajo les habilita explícitamente, y solo lo suyo.
+    function esCuentaDePortal() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/portalUsers/$(request.auth.uid));
+    }
+
+    function clienteIdDelPortal() {
+      return get(/databases/$(database)/documents/portalUsers/$(request.auth.uid)).data.clienteId;
+    }
+
+    // El dueño también tiene una cuenta DENTRO de Vista360-Player (creada
+    // con role:'admin' en su portalUsers), para ver y gestionar evidencias
+    // de cualquier cliente desde la misma pantalla que usan ellos — sin
+    // tener que repetir la función en Vista360. Sigue siendo una cuenta de
+    // "portal" (no isHuman()), pero con permisos ampliados a TODOS los
+    // clientes en vez de uno solo.
+    function esAdminPortal() {
+      return esCuentaDePortal() &&
+        get(/databases/$(database)/documents/portalUsers/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isHuman() {
+      return request.auth != null && !esCuentaDePortal();
+    }
+
+    // ── Lista blanca para Facturación (más estricta que isHuman()) ─────
+    // Facturas es dinero real — solo el dueño y quien él autorice
+    // explícitamente en /config/allowedEmails puede crear/editar, aunque
+    // tenga cuenta humana normal en el resto del ERP. Viene de
+    // facturacion-web (mismo proyecto de Firebase que Vista360/Player).
+    function isAllowed() {
+      let cfg = get(/databases/$(database)/documents/config/allowedEmails);
+      return isHuman() && cfg != null && request.auth.token.email in cfg.data.emails;
+    }
+
+    // ── Dueño / gerente ─────────────────────────────────────────────────
+    // Único(s) correo(s) con acceso a Finanzas (patrimonio, liquidez,
+    // activos, deudas, fondos, objetivos). Mantener sincronizado con
+    // OWNER_EMAILS en src/config/constants.ts.
+    function isOwner() {
+      return request.auth != null &&
+        request.auth.token.email in [
+          'armn.101@hotmail.com',
+          'armn.11155@gmail.com'
+        ];
+    }
+
+    // ── Finanzas (configuracion/capitalv2) — solo el dueño ─────────────────
+    match /configuracion/{id} {
+      allow read, write: if isOwner();
+    }
+
+    // ── Colecciones de negocio (admins humanos; paneles también visibles
+    //    para el portal de clientes, ya que su nombre/ubicación no es
+    //    sensible y el portal los necesita para mostrar campañas) ─────────
+    match /paneles/{id} {
+      allow read: if isHuman() || esCuentaDePortal();
+      allow write: if isHuman() ||
+        // Necesario para que, al crear un contrato desde el Player, el
+        // admin-portal pueda marcar el panel como Ocupado — solo ese
+        // campo, nada más (ni nombre, ni ciudad, ni tipo del panel).
+        (esAdminPortal() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado']));
+    }
+
+    match /clientes/{id} {
+      allow read: if isHuman() || esAdminPortal() || (esCuentaDePortal() && id == clienteIdDelPortal());
+      allow write: if isHuman();
+    }
+
+    // El admin-portal puede CREAR un contrato completo desde Vista360
+    // Player (panel, cliente, fechas, monto) — decisión explícita del
+    // dueño: "también tiene que dejar permitir crear por el Player".
+    // Sigue validado (tipos y campos correctos) para que no se puedan
+    // meter campos raros. La cuenta NO puede EDITAR un contrato ya
+    // existente más allá de fotos_campania (eso sigue igual de acotado
+    // — crear uno nuevo es distinto a poder alterar uno de otro cliente).
+    function esContratoAdminValido(d) {
+      return d.keys().hasOnly(
+              ['panel_id','cliente_id','cara','inicio','fin','monto','pagado','fotos_campania','createdAt']
+            )
+        && d.panel_id   is string && d.panel_id.size() > 0
+        && d.cliente_id is string && d.cliente_id.size() > 0
+        && d.inicio     is string && d.fin is string
+        && d.monto      is number && d.monto >= 0
+        && d.pagado     is bool;
+    }
+
+    match /contratos/{id} {
+      allow read: if isHuman() || esAdminPortal() ||
+        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal());
+      allow create: if isHuman() ||
+        (esAdminPortal() && esContratoAdminValido(request.resource.data));
+      allow update: if isHuman() ||
+        // El admin-portal solo puede tocar fotos_campania en un contrato
+        // YA EXISTENTE — ni precio, ni cliente, ni fechas. Si esa cuenta
+        // se ve comprometida algún día, el daño posible en contratos
+        // ajenos queda acotado a "puede subir fotos", nada más.
+        (esAdminPortal() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fotos_campania'])) ||
+        // El propio cliente puede calificar SU campaña (encuesta de
+        // satisfacción) — nada más, ni fechas ni fotos ni precio.
+        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal() &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['calificacion', 'calificacionComentario', 'calificacionFecha']));
+      allow delete: if isHuman();
+    }
+
+    match /gastos/{id} {
+      allow read: if isHuman();
+      allow write: if isHuman();
+    }
+
+    match /proveedores/{id} {
+      allow read: if isHuman();
+      allow write: if isHuman();
+    }
+
+    match /config/{docId} {
+      allow read: if isHuman();
+      allow write: if isAllowed();
+    }
+
+    match /facturas/{id} {
+      allow read: if isAllowed() || esAdminPortal() ||
+        // El cliente del Player solo ve SUS facturas — se identifican por
+        // RUC (cliente_doc), no por cliente_id, porque así se generan
+        // desde facturacion-web (proyecto de facturación electrónica,
+        // mismo Firebase que Vista360 y el Player).
+        (esCuentaDePortal() &&
+          resource.data.cliente_doc ==
+            get(/databases/$(database)/documents/clientes/$(clienteIdDelPortal())).data.ruc);
+      allow write: if isAllowed();
+    }
+
+    // ── Enlaces de invitación (crear contraseña) generados por el script
+    //    crear-acceso-cliente.mjs — solo lectura para el admin-portal,
+    //    así puede copiar y mandar el link a mano si hace falta. Nadie
+    //    escribe aquí desde la app (solo el Admin SDK, que ignora reglas).
+    match /invitacionesPortal/{id} {
+      allow read: if esAdminPortal();
+      allow write: if false;
+    }
+
+    match /sueldos/{id} {
+      allow read: if isHuman();
+      allow write: if isHuman();
+    }
+
+    // ── Vista360-Player: vínculo cuenta ↔ cliente ───────────────────────────
+    // Solo lo crea/edita el dueño (con el script de Admin SDK). El propio
+    // cliente puede leer ÚNICAMENTE su propio documento, para saber a qué
+    // cliente_id corresponde apenas inicia sesión.
+    // Puede también escribir solo los campos de analítica (lastLogin,
+    // lastLoginCount, pantallasVisitadas) — sin poder tocar role, clienteId
+    // ni ningún campo sensible.
+    function soloActualizaAnalitica() {
+      return request.resource.data.diff(resource.data)
+        .affectedKeys()
+        .hasOnly(['lastLogin', 'lastLoginCount', 'pantallasVisitadas']);
+    }
+
+    match /portalUsers/{uid} {
+      allow read: if isHuman() || esAdminPortal() || (request.auth != null && request.auth.uid == uid);
+      allow write: if isHuman();
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && soloActualizaAnalitica();
+    }
+
+    // ── Vista360-Player: solicitudes de nueva campaña ──────────────────────
+    // El cliente solo puede crear una solicitud para SU PROPIO cliente_id,
+    // con datos validados, y leer las suyas. Aprobar/rechazar/convertir en
+    // contrato real lo hace el dueño desde Vista360 (igual que solicitudesWeb).
+    function esSolicitudCampanaValida(d) {
+      return d.keys().hasOnly(
+              ['cliente_id','nombre','objetivo','presupuesto','ciudades',
+               'comentarios','estado','createdAt']
+            )
+        && d.cliente_id is string && d.cliente_id == clienteIdDelPortal()
+        && d.nombre     is string && d.nombre.size()  > 0 && d.nombre.size()  <= 100
+        && d.estado     == 'Pendiente';
+    }
+
+    // El admin portal puede crear solicitudes para cualquier cliente
+    function esSolicitudCampanaAdminValida(d) {
+      return d.keys().hasOnly(
+              ['cliente_id','nombre','objetivo','presupuesto','ciudades',
+               'comentarios','estado','createdAt']
+            )
+        && d.cliente_id is string && d.cliente_id.size() > 0
+        && d.nombre     is string && d.nombre.size()  > 0 && d.nombre.size()  <= 100
+        && d.estado     == 'Pendiente';
+    }
+
+    match /solicitudesCampana/{id} {
+      allow read: if isHuman() ||
+        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal()) ||
+        esAdminPortal();
+      allow create: if (esCuentaDePortal() && esSolicitudCampanaValida(request.resource.data))
+                   || (esAdminPortal() && esSolicitudCampanaAdminValida(request.resource.data));
+      allow update: if isHuman() ||
+        // El admin-portal (Vista360 Player en 'Modo Administrador') puede
+        // gestionar solicitudes desde ahí mismo, sin saltar al ERP — pero
+        // solo puede tocar 'estado' y su timestamp, o confirmar el pago.
+        (esAdminPortal() &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['estado', 'estadoActualizadoEn', 'pagoConfirmado'])) ||
+        // El propio cliente puede adjuntar SU comprobante de pago a SU
+        // propia solicitud — nada más (no puede tocar estado, monto, etc).
+        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal() &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['comprobantePagoUrl', 'comprobantePagoFecha']));
+      allow delete: if isHuman();
+    }
+
+    // ── Vista360-Player: informes mensuales por cliente ────────────────────
+    // Los genera el job mensual (scripts/informe-mensual-clientes.mjs) con
+    // el Admin SDK, que no pasa por estas reglas — esta regla solo controla
+    // la LECTURA desde la app: cada cliente ve únicamente sus propios informes.
+    match /informesCliente/{id} {
+      allow read: if isHuman() || esAdminPortal() ||
+        (esCuentaDePortal() && resource.data.cliente_id == clienteIdDelPortal());
+      allow write: if isHuman();
+    }
+
+    // ── Solicitudes desde la web pública (sin login) ───────────────────────
+    // El formulario de contacto del sitio web escribe aquí directamente.
+    // Solo permite CREAR, con datos validados estrictamente. Nadie puede
+    // leer, editar ni borrar sin ser admin — así un atacante no puede ver
+    // ni alterar solicitudes ajenas, solo "tirar" documentos nuevos (y la
+    // validación de campos + tamaños limita el daño de eso).
+    function esSolicitudValida(d) {
+      return d.keys().hasOnly(
+              ['contacto','empresa','celular','email','panelInteres','notas',
+               'tipo','estado','origen','createdAt','hp','importado',
+               'privacyAccepted','privacyVersion','privacyAcceptedAt']
+            )
+        && d.contacto is string    && d.contacto.size()  > 0 && d.contacto.size()  <= 80
+        && d.empresa  is string    && d.empresa.size()   > 0 && d.empresa.size()   <= 80
+        && d.celular  is string    && d.celular.size()   > 0 && d.celular.size()   <= 25
+        && d.email    is string    && d.email.size()     > 0 && d.email.size()     <= 100
+        && d.panelInteres is string && d.panelInteres.size() <= 40
+        && d.notas    is string    && d.notas.size()     <= 500
+        && d.tipo     == 'Prospecto'
+        && d.estado   == 'En contacto'
+        && d.origen   == 'web'
+        && (!('hp' in d) || d.hp == '')  // honeypot: si un bot llena este campo oculto, se rechaza
+        && (!('privacyAccepted' in d) || d.privacyAccepted == true);
+    }
+
+    match /solicitudesWeb/{id} {
+      allow read, update, delete: if isHuman();
+      allow create: if esSolicitudValida(request.resource.data);
+    }
+
+    // ── Bloqueo por defecto (deny-all) ─────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
