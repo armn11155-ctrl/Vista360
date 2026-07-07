@@ -40,7 +40,13 @@ jobs:
         run: |
           git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git backups-repo
           cd backups-repo
-          git checkout backups 2>/dev/null || git checkout --orphan backups
+          if git checkout backups 2>/dev/null; then
+            echo "rama backups ya existía"
+          else
+            git checkout --orphan backups
+            git rm -rf . > /dev/null 2>&1 || true
+            git clean -fdx > /dev/null 2>&1 || true
+          fi
 
       - name: Copiar el respaldo de hoy y subirlo
         run: |
