@@ -194,7 +194,8 @@ service cloud.firestore {
     function esSolicitudCampanaValida(d) {
       return d.keys().hasOnly(
               ['cliente_id','nombre','objetivo','presupuesto','ciudades',
-               'comentarios','estado','createdAt']
+               'comentarios','estado','createdAt',
+               'imagenReferencialUrl','imagenReferencialFecha']
             )
         && d.cliente_id is string && d.cliente_id == clienteIdDelPortal()
         && d.nombre     is string && d.nombre.size()  > 0 && d.nombre.size()  <= 100
@@ -205,7 +206,8 @@ service cloud.firestore {
     function esSolicitudCampanaAdminValida(d) {
       return d.keys().hasOnly(
               ['cliente_id','nombre','objetivo','presupuesto','ciudades',
-               'comentarios','estado','createdAt']
+               'comentarios','estado','createdAt',
+               'imagenReferencialUrl','imagenReferencialFecha']
             )
         && d.cliente_id is string && d.cliente_id.size() > 0
         && d.nombre     is string && d.nombre.size()  > 0 && d.nombre.size()  <= 100
